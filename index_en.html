@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agentic Design Patterns — English Edition</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0f;
+      --surface: #16161a;
+      --border: #2a2a32;
+      --accent: #7c6af7;
+      --accent-dim: #3d3580;
+      --text: #e8e8f0;
+      --text-muted: #7a7a8c;
+      --radius: 12px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 40px 40px 0;
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 24px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--text); }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: clamp(24px, 4vw, 40px);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, #7c6af7, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    main {
+      padding: 48px 40px;
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      flex: 1;
+    }
+
+    .section-group { margin-bottom: 48px; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at top left, rgba(124, 106, 247, 0.06), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(124, 106, 247, 0.14);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .card-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(124, 106, 247, 0.12);
+      border: 1px solid rgba(124, 106, 247, 0.2);
+      border-radius: 4px;
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
+
+    .card h2 {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+
+    .card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .card-arrow {
+      align-self: flex-end;
+      color: var(--accent);
+      font-size: 16px;
+      transition: transform 0.2s;
+    }
+
+    .card:hover .card-arrow { transform: translateX(3px); }
+
+    .back-to-top {
+      display: block;
+      text-align: center;
+      padding: 12px;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .back-to-top:hover { color: var(--text); border-color: var(--accent); }
+
+    footer {
+      padding: 24px 40px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+      header, main { padding-left: 20px; padding-right: 20px; }
+      footer { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="back-link" href="./index.html">← Back to Home</a>
+    <p class="eyebrow">English Edition</p>
+    <h1>Agentic Design <span>Patterns</span></h1>
+    <p class="subtitle">32 interactive chapters — each with diagrams, code, use cases, and quizzes.</p>
+  </header>
+
+  <main>
+
+    <!-- Chapters Section -->
+    <div class="section-group" id="chapters">
+      <p class="section-label">Chapters 01 – 21</p>
+      <div class="grid">
+        <a class="card" href="./ch01_prompt_chaining_en.html">
+          <div class="card-header"><span class="card-badge">Ch 01</span></div>
+          <h2>Prompt Chaining</h2>
+          <p>Break complex tasks into sequential, composable prompt pipelines.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch02_routing_en.html">
+          <div class="card-header"><span class="card-badge">Ch 02</span></div>
+          <h2>Routing</h2>
+          <p>Direct inputs to specialized handlers based on intent classification.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch03_parallelization_en.html">
+          <div class="card-header"><span class="card-badge">Ch 03</span></div>
+          <h2>Parallelization</h2>
+          <p>Run independent subtasks concurrently to maximize throughput.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch04_reflection_en.html">
+          <div class="card-header"><span class="card-badge">Ch 04</span></div>
+          <h2>Reflection</h2>
+          <p>Enable agents to critique and improve their own outputs iteratively.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch05_tool_use_en.html">
+          <div class="card-header"><span class="card-badge">Ch 05</span></div>
+          <h2>Tool Use</h2>
+          <p>Extend LLM capabilities by invoking external APIs, databases, and functions.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch06_planning_en.html">
+          <div class="card-header"><span class="card-badge">Ch 06</span></div>
+          <h2>Planning</h2>
+          <p>Structure goal decomposition and task scheduling for agentic workflows.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch07_multi_agent_en.html">
+          <div class="card-header"><span class="card-badge">Ch 07</span></div>
+          <h2>Multi-Agent Collaboration</h2>
+          <p>Coordinate specialized agents to tackle problems beyond single-agent scope.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch08_memory_management_en.html">
+          <div class="card-header"><span class="card-badge">Ch 08</span></div>
+          <h2>Memory Management</h2>
+          <p>Persist, retrieve, and manage context across long-running agent sessions.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch09_learning_adaptation_en.html">
+          <div class="card-header"><span class="card-badge">Ch 09</span></div>
+          <h2>Learning & Adaptation</h2>
+          <p>Allow agents to improve performance from experience and feedback.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch10_mcp_en.html">
+          <div class="card-header"><span class="card-badge">Ch 10</span></div>
+          <h2>Model Context Protocol</h2>
+          <p>Standardize how models exchange context and capabilities across systems.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch11_goal_setting_en.html">
+          <div class="card-header"><span class="card-badge">Ch 11</span></div>
+          <h2>Goal Setting & Monitoring</h2>
+          <p>Define, track, and adjust agent objectives in real time.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch12_exception_handling_en.html">
+          <div class="card-header"><span class="card-badge">Ch 12</span></div>
+          <h2>Exception Handling</h2>
+          <p>Gracefully manage failures, retries, and unexpected states in agents.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch13_hitl_en.html">
+          <div class="card-header"><span class="card-badge">Ch 13</span></div>
+          <h2>Human-in-the-Loop</h2>
+          <p>Integrate human oversight at key decision points for safety and accuracy.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch14_rag_en.html">
+          <div class="card-header"><span class="card-badge">Ch 14</span></div>
+          <h2>Knowledge Retrieval (RAG)</h2>
+          <p>Ground agents in external knowledge through retrieval-augmented generation.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch15_inter_agent_comm_en.html">
+          <div class="card-header"><span class="card-badge">Ch 15</span></div>
+          <h2>Inter-Agent Communication</h2>
+          <p>Design message-passing protocols between agents for coordination.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch16_resource_optimization_en.html">
+          <div class="card-header"><span class="card-badge">Ch 16</span></div>
+          <h2>Resource-Aware Optimization</h2>
+          <p>Balance cost, latency, and quality under computational constraints.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch17_reasoning_en.html">
+          <div class="card-header"><span class="card-badge">Ch 17</span></div>
+          <h2>Reasoning Techniques</h2>
+          <p>Apply chain-of-thought, tree-of-thought, and advanced inference strategies.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch18_guardrails_en.html">
+          <div class="card-header"><span class="card-badge">Ch 18</span></div>
+          <h2>Guardrails & Safety Patterns</h2>
+          <p>Enforce constraints, content policies, and alignment in agent behavior.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch19_evaluation_en.html">
+          <div class="card-header"><span class="card-badge">Ch 19</span></div>
+          <h2>Evaluation & Monitoring</h2>
+          <p>Measure agent performance and detect drift with systematic evaluation.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch20_prioritization_en.html">
+          <div class="card-header"><span class="card-badge">Ch 20</span></div>
+          <h2>Prioritization</h2>
+          <p>Rank tasks and allocate agent resources based on urgency and impact.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch21_exploration_en.html">
+          <div class="card-header"><span class="card-badge">Ch 21</span></div>
+          <h2>Exploration & Discovery</h2>
+          <p>Balance exploitation of known strategies with exploration of new approaches.</p>
+          <span class="card-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Appendices Section -->
+    <div class="section-group" id="appendices">
+      <p class="section-label">Appendices</p>
+      <div class="grid">
+        <a class="card" href="./appa_advanced_prompting_en.html">
+          <div class="card-header"><span class="card-badge">App A</span></div>
+          <h2>Advanced Prompting</h2>
+          <p>Systematic techniques for crafting high-performance prompts at scale.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./appb_agentic_interactions_en.html">
+          <div class="card-header"><span class="card-badge">App B</span></div>
+          <h2>AI Agentic Interactions</h2>
+          <p>Patterns for structuring conversational and task-based agent interactions.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./appc_frameworks_en.html">
+          <div class="card-header"><span class="card-badge">App C</span></div>
+          <h2>Agentic Frameworks Overview</h2>
+          <p>Survey of LangChain, LangGraph, AutoGen, CrewAI, and other frameworks.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./appd_agentspace_en.html">
+          <div class="card-header"><span class="card-badge">App D</span></div>
+          <h2>Building Agent AgentSpace</h2>
+          <p>Deploy agents in Google's AgentSpace platform for enterprise use cases.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./appe_cli_agents_en.html">
+          <div class="card-header"><span class="card-badge">App E</span></div>
+          <h2>AI Agents on CLI</h2>
+          <p>Build command-line driven agents for developer tooling and automation.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./appg_coding_agents_en.html">
+          <div class="card-header"><span class="card-badge">App G</span></div>
+          <h2>Coding Agents</h2>
+          <p>Design specialized agents for code generation, review, and debugging.</p>
+          <span class="card-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Reference Section -->
+    <div class="section-group" id="reference">
+      <p class="section-label">Reference</p>
+      <div class="grid">
+        <a class="card" href="./front_matter_en.html">
+          <div class="card-header"><span class="card-badge">Intro</span></div>
+          <h2>Front Matter</h2>
+          <p>Introduction, preface, and book overview.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./conclusion_en.html">
+          <div class="card-header"><span class="card-badge">Outro</span></div>
+          <h2>Conclusion</h2>
+          <p>Key synthesis and the future of agentic AI systems.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./faq_en.html">
+          <div class="card-header"><span class="card-badge">FAQ</span></div>
+          <h2>FAQ</h2>
+          <p>Frequently asked questions about agentic design patterns.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./glossary_en.html">
+          <div class="card-header"><span class="card-badge">Ref</span></div>
+          <h2>Glossary</h2>
+          <p>Definitions of key terms and concepts in agentic AI.</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./index_of_terms_en.html">
+          <div class="card-header"><span class="card-badge">Index</span></div>
+          <h2>Index of Terms</h2>
+          <p>Alphabetical index with page references for all major concepts.</p>
+          <span class="card-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <a class="back-to-top" href="#top">↑ Back to top</a>
+  </main>
+
+  <footer>
+    Agentic Design Patterns — English Edition &mdash; 2026
+  </footer>
+</body>
+</html>

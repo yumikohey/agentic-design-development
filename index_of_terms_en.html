@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Index of Terms — Agentic Design Patterns</title>
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: system-ui, -apple-system, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+/* Index styles */
+.alpha-header { font-size: 1.8rem; font-weight: 700; color: var(--teal); margin: 28px 0 12px; padding-bottom: 4px; border-bottom: 2px solid var(--teal-l); font-family: var(--serif); }
+.idx-list { list-style: none; padding: 0; }
+.idx-list li { display: flex; gap: 8px; align-items: baseline; padding: 5px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; color: var(--text2); line-height: 1.5; }
+.idx-list li:last-child { border-bottom: none; }
+.idx-term { font-weight: 500; color: var(--text); min-width: 220px; flex-shrink: 0; }
+.idx-loc { color: var(--text3); font-size: 12px; }
+.idx-loc .ch { display: inline-block; background: var(--teal-l); color: var(--teal-d); font-size: 10px; padding: 1px 6px; border-radius: 99px; margin-right: 3px; font-weight: 500; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Index</div>
+<h1>Index of Terms</h1>
+<p class="subtitle">A comprehensive alphabetical index mapping every key term to its chapter location. Generated by Gemini Pro 2.5 from the full book content—the prompt and reasoning steps are included in the original PDF to demonstrate agentic capabilities.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">About This Index</button>
+  <button class="nav-btn" onclick="go('solution')">How to Use</button>
+  <button class="nav-btn" onclick="go('concepts')">Index: A–F</button>
+  <button class="nav-btn" onclick="go('usecases')">Index: G–L</button>
+  <button class="nav-btn" onclick="go('code')">Index: M–R</button>
+  <button class="nav-btn" onclick="go('deepdive')">Index: S–Z</button>
+  <button class="nav-btn" onclick="go('glance')">Most Referenced</button>
+  <button class="nav-btn" onclick="go('quiz')">Index Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Key Locations</button>
+  <button class="nav-btn" onclick="go('refs')">Learn More</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Index Overview</div>
+  <div class="sec-desc">This index was generated using Gemini Pro 2.5 from the full 424-page book content—demonstrating the Agentic RAG and Deep Research patterns in action.</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total Index Entries</div><div class="metric-value">100+</div></div>
+    <div class="metric"><div class="metric-label">Chapters Referenced</div><div class="metric-value">21+</div></div>
+    <div class="metric"><div class="metric-label">Appendices</div><div class="metric-value">7</div></div>
+    <div class="metric"><div class="metric-label">Alphabet Letters</div><div class="metric-value">A–Z</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>A Demonstration of Agentic Capabilities</h3>
+    <p>The creation of this index is itself a demonstration of the book's content. The prompt used was: "Read the Google Doc and all related documents. Extract all chapter titles. Then create a detailed index with terms and their chapter locators." Gemini Pro 2.5 used multiple tool calls (Workspaces), batched document retrieval, and multi-step synthesis to produce the 100+ entry index—exactly as described in the Planning + Tool Use + RAG pattern composition.</p>
+  </div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="border-top:3px solid var(--teal);">
+      <h4>MOST INDEXED CHAPTER</h4>
+      <p>Chapter 7: Multi-Agent Collaboration — appears in the most index entries, reflecting its broad applicability across the book's patterns</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--purple);">
+      <h4>MOST CROSS-REFERENCED TOPIC</h4>
+      <p>Google Agent Developer Kit (ADK) — referenced in 9 chapters + Appendix C, demonstrating the book's practical focus</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--coral);">
+      <h4>GLOSSARY TERMS</h4>
+      <p>Terms marked "Glossary" include full definitions in the Glossary section: Alignment, CoT, Critique Model, Fine-tuning, Grounding, Planning, Prompt, RAG, ReAct, RLHF, ToT, Transformers, and more</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--blue);">
+      <h4>APPENDIX-ONLY TERMS</h4>
+      <p>Some important topics appear only in appendices: Automatic Prompt Engineering (APE), Browser Use, Vibe Coding, Google Project Mariner, Gemini Live, Visual Perception</p>
+    </div>
+  </div>
+</div>
+
+<!-- 2. About This Index -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">About This Index</div>
+  <div class="sec-desc">The story behind how this index was created—and what it demonstrates about agentic AI capabilities.</div>
+
+  <div class="card card-bordered">
+    <h3>Generated by Gemini Pro 2.5</h3>
+    <p>This index was generated by providing Gemini Pro 2.5 with access to all 31 chapter documents via the Workspaces tool. The model used its planning capabilities to batch the document retrievals efficiently, then synthesized the full 100+ entry alphabetical index with chapter locators—a task that would take a human indexer hours to complete manually.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>The Prompt Used</h3>
+    <p style="font-family:monospace;font-size:12px;background:var(--bg3);padding:12px;border-radius:6px;margin-top:8px;">do you read [Google Doc URL] and all the related documents in the first page? Please extract all the titles for each chapter and print them. Then process the content of all the individual chapters, and create a detailed index used for publishing, a list of words or phrases ('headings') and associated pointers ('locators') to where useful material relating to that heading can be found. I don't want a sample index. I want the full index, with 100 index terms.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Gemini's Reasoning Process (Excerpt)</h3>
+    <p>Gemini's reasoning steps included: "Beginning Index Creation → Defining Index Extraction Process → Refining the Extraction Strategy → Considering Tool Use → Accessing chapter content (extracting URLs) → Fetching Chapter Content (batching calls) → Initiating URL Retrieval → Developing an Extraction Plan → Crafting the Extraction Strategy." This multi-step reasoning exactly mirrors the Planning + Tool Use + Memory Management pattern composition described in the book's Conclusion chapter.</p>
+  </div>
+</div>
+
+<!-- 3. How to Use -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">How to Use This Index</div>
+  <div class="sec-desc">Guidelines for navigating the index effectively.</div>
+
+  <div class="card card-bordered">
+    <h3>Chapter References</h3>
+    <p>Each entry is followed by its chapter location. For example: "Prompt Chaining - Chapter 1: Prompt Chaining" means the term appears in Chapter 1. Multiple chapter references mean the term spans several chapters. "Appendix A/B/C" refers to the corresponding appendix sections.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Glossary vs. Index</h3>
+    <p>Terms marked "Glossary" have full definitions available in the book's Glossary section. The Index tells you WHERE a term appears; the Glossary tells you WHAT it means. Terms that appear in both the Index and Glossary are foundational concepts that deserve both location tracking and definitional clarity.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Introduction &amp; Appendix Coverage</h3>
+    <p>The Introduction covers: Agent complexity levels (0–3), the 5 Future Hypotheses, frameworks overview, and what makes an AI system an agent. Appendix A covers advanced prompting; Appendix B covers AI applications (browser use, GUI, visual perception); Appendix C covers frameworks (LangChain, CrewAI, LlamaIndex, MetaGPT, Microsoft AutoGen); Appendices D–G cover AgentSpace, CLI agents, reasoning engines, and coding agents.</p>
+  </div>
+</div>
+
+<!-- 4. Index A-F -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Index: A–F</div>
+  <div class="sec-desc">Alphabetical index entries for terms beginning with A through F.</div>
+
+  <div class="alpha-header">A</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">A/B Testing</span><span class="idx-loc"><span class="ch">Ch.3</span> Parallelization</span></li>
+    <li><span class="idx-term">Action Selection</span><span class="idx-loc"><span class="ch">Ch.20</span> Prioritization</span></li>
+    <li><span class="idx-term">Adaptation</span><span class="idx-loc"><span class="ch">Ch.9</span> Learning and Adaptation</span></li>
+    <li><span class="idx-term">Agent</span><span class="idx-loc">Introduction: What makes an AI system an Agent?</span></li>
+    <li><span class="idx-term">Agent Cards</span><span class="idx-loc"><span class="ch">Ch.15</span> Inter-Agent Communication (A2A)</span></li>
+    <li><span class="idx-term">Agent Development Kit (ADK)</span><span class="idx-loc"><span class="ch">Ch.2</span><span class="ch">Ch.3</span><span class="ch">Ch.4</span><span class="ch">Ch.5</span><span class="ch">Ch.7</span><span class="ch">Ch.8</span><span class="ch">Ch.12</span><span class="ch">Ch.13</span><span class="ch">Ch.15</span><span class="ch">Ch.16</span><span class="ch">Ch.19</span> App.C</span></li>
+    <li><span class="idx-term">Agent Discovery</span><span class="idx-loc"><span class="ch">Ch.15</span> Inter-Agent Communication (A2A)</span></li>
+    <li><span class="idx-term">Agent Trajectories</span><span class="idx-loc"><span class="ch">Ch.19</span> Evaluation and Monitoring</span></li>
+    <li><span class="idx-term">Agentic Design Patterns</span><span class="idx-loc">Introduction</span></li>
+    <li><span class="idx-term">Agentic RAG</span><span class="idx-loc"><span class="ch">Ch.14</span> Knowledge Retrieval (RAG)</span></li>
+    <li><span class="idx-term">AI Co-scientist</span><span class="idx-loc"><span class="ch">Ch.21</span> Exploration and Discovery</span></li>
+    <li><span class="idx-term">Alignment</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">AlphaEvolve</span><span class="idx-loc"><span class="ch">Ch.9</span> Learning and Adaptation</span></li>
+    <li><span class="idx-term">Anomaly Detection</span><span class="idx-loc"><span class="ch">Ch.19</span> Evaluation and Monitoring</span></li>
+    <li><span class="idx-term">API Interaction</span><span class="idx-loc"><span class="ch">Ch.10</span> Model Context Protocol (MCP)</span></li>
+    <li><span class="idx-term">Artifacts</span><span class="idx-loc"><span class="ch">Ch.15</span> Inter-Agent Communication (A2A)</span></li>
+    <li><span class="idx-term">Asynchronous Polling</span><span class="idx-loc"><span class="ch">Ch.15</span> Inter-Agent Communication (A2A)</span></li>
+    <li><span class="idx-term">Audit Logs</span><span class="idx-loc"><span class="ch">Ch.15</span> Inter-Agent Communication (A2A)</span></li>
+    <li><span class="idx-term">Automated Metrics</span><span class="idx-loc"><span class="ch">Ch.19</span> Evaluation and Monitoring</span></li>
+    <li><span class="idx-term">Automatic Prompt Engineering (APE)</span><span class="idx-loc">Appendix A</span></li>
+    <li><span class="idx-term">Autonomy</span><span class="idx-loc">Introduction</span></li>
+    <li><span class="idx-term">A2A (Agent-to-Agent)</span><span class="idx-loc"><span class="ch">Ch.15</span> Inter-Agent Communication (A2A)</span></li>
+  </ul>
+
+  <div class="alpha-header">B</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">Behavioral Constraints</span><span class="idx-loc"><span class="ch">Ch.18</span> Guardrails/Safety Patterns</span></li>
+    <li><span class="idx-term">Browser Use</span><span class="idx-loc">Appendix B</span></li>
+  </ul>
+
+  <div class="alpha-header">C</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">Callbacks</span><span class="idx-loc"><span class="ch">Ch.18</span> Guardrails/Safety Patterns</span></li>
+    <li><span class="idx-term">Causal Language Modeling (CLM)</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">Chain of Debates (CoD)</span><span class="idx-loc"><span class="ch">Ch.17</span> Reasoning Techniques</span></li>
+    <li><span class="idx-term">Chain-of-Thought (CoT)</span><span class="idx-loc"><span class="ch">Ch.17</span> Reasoning Techniques · Appendix A · Glossary</span></li>
+    <li><span class="idx-term">Chatbots</span><span class="idx-loc"><span class="ch">Ch.8</span> Memory Management</span></li>
+    <li><span class="idx-term">Checkpoint and Rollback</span><span class="idx-loc"><span class="ch">Ch.18</span> Guardrails/Safety Patterns</span></li>
+    <li><span class="idx-term">Chunking</span><span class="idx-loc"><span class="ch">Ch.14</span> Knowledge Retrieval (RAG)</span></li>
+    <li><span class="idx-term">Code Generation</span><span class="idx-loc"><span class="ch">Ch.1</span><span class="ch">Ch.4</span></span></li>
+    <li><span class="idx-term">Collaboration</span><span class="idx-loc"><span class="ch">Ch.7</span> Multi-Agent Collaboration</span></li>
+    <li><span class="idx-term">Content Generation</span><span class="idx-loc"><span class="ch">Ch.1</span><span class="ch">Ch.4</span></span></li>
+    <li><span class="idx-term">Context Engineering</span><span class="idx-loc"><span class="ch">Ch.1</span> Prompt Chaining</span></li>
+    <li><span class="idx-term">Context Window</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">Contextual Pruning &amp; Summarization</span><span class="idx-loc"><span class="ch">Ch.16</span> Resource-Aware Optimization</span></li>
+    <li><span class="idx-term">Contractor Model</span><span class="idx-loc"><span class="ch">Ch.19</span> Evaluation and Monitoring</span></li>
+    <li><span class="idx-term">Conversational Agents</span><span class="idx-loc"><span class="ch">Ch.1</span><span class="ch">Ch.4</span></span></li>
+    <li><span class="idx-term">Cost-Sensitive Exploration</span><span class="idx-loc"><span class="ch">Ch.16</span> Resource-Aware Optimization</span></li>
+    <li><span class="idx-term">CrewAI</span><span class="idx-loc"><span class="ch">Ch.3</span><span class="ch">Ch.5</span><span class="ch">Ch.6</span><span class="ch">Ch.7</span><span class="ch">Ch.18</span> Appendix C</span></li>
+    <li><span class="idx-term">Critique Agent</span><span class="idx-loc"><span class="ch">Ch.16</span> Resource-Aware Optimization</span></li>
+    <li><span class="idx-term">Critique Model</span><span class="idx-loc">Glossary</span></li>
+  </ul>
+
+  <div class="alpha-header">D–F</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">Data Extraction</span><span class="idx-loc"><span class="ch">Ch.1</span> Prompt Chaining</span></li>
+    <li><span class="idx-term">Data Labeling</span><span class="idx-loc"><span class="ch">Ch.13</span> Human-in-the-Loop</span></li>
+    <li><span class="idx-term">Deep Research</span><span class="idx-loc"><span class="ch">Ch.6</span><span class="ch">Ch.17</span> Glossary</span></li>
+    <li><span class="idx-term">Dependencies</span><span class="idx-loc"><span class="ch">Ch.20</span> Prioritization</span></li>
+    <li><span class="idx-term">Diffusion Models</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">Direct Preference Optimization (DPO)</span><span class="idx-loc"><span class="ch">Ch.9</span> Learning and Adaptation</span></li>
+    <li><span class="idx-term">Drift Detection</span><span class="idx-loc"><span class="ch">Ch.19</span> Evaluation and Monitoring</span></li>
+    <li><span class="idx-term">Dynamic Model Switching</span><span class="idx-loc"><span class="ch">Ch.16</span> Resource-Aware Optimization</span></li>
+    <li><span class="idx-term">Embeddings</span><span class="idx-loc"><span class="ch">Ch.14</span> Knowledge Retrieval (RAG)</span></li>
+    <li><span class="idx-term">Embodiment</span><span class="idx-loc">Introduction: What makes an AI system an Agent?</span></li>
+    <li><span class="idx-term">Error Handling</span><span class="idx-loc"><span class="ch">Ch.12</span> Exception Handling and Recovery</span></li>
+    <li><span class="idx-term">Episodic Memory</span><span class="idx-loc"><span class="ch">Ch.8</span> Memory Management</span></li>
+    <li><span class="idx-term">Exception Handling</span><span class="idx-loc"><span class="ch">Ch.12</span> Exception Handling and Recovery</span></li>
+    <li><span class="idx-term">Exploration and Discovery</span><span class="idx-loc"><span class="ch">Ch.21</span></span></li>
+    <li><span class="idx-term">External Moderation APIs</span><span class="idx-loc"><span class="ch">Ch.18</span> Guardrails/Safety Patterns</span></li>
+    <li><span class="idx-term">FastMCP</span><span class="idx-loc"><span class="ch">Ch.10</span> Model Context Protocol (MCP)</span></li>
+    <li><span class="idx-term">Fault Tolerance</span><span class="idx-loc"><span class="ch">Ch.18</span> Guardrails/Safety Patterns</span></li>
+    <li><span class="idx-term">Few-Shot Learning</span><span class="idx-loc"><span class="ch">Ch.9</span> Learning and Adaptation</span></li>
+    <li><span class="idx-term">Fine-tuning</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">Function Calling</span><span class="idx-loc"><span class="ch">Ch.5</span> Tool Use · Appendix A</span></li>
+  </ul>
+</div>
+
+<!-- 5. Index G-L -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Index: G–L</div>
+  <div class="sec-desc">Alphabetical index entries for terms beginning with G through L.</div>
+
+  <div class="alpha-header">G–H</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">Goal Setting</span><span class="idx-loc"><span class="ch">Ch.11</span> Goal Setting and Monitoring</span></li>
+    <li><span class="idx-term">Google Co-Scientist</span><span class="idx-loc"><span class="ch">Ch.21</span> Exploration and Discovery</span></li>
+    <li><span class="idx-term">Google DeepResearch</span><span class="idx-loc"><span class="ch">Ch.6</span> Planning</span></li>
+    <li><span class="idx-term">Google Project Mariner</span><span class="idx-loc">Appendix B</span></li>
+    <li><span class="idx-term">Graceful Degradation</span><span class="idx-loc"><span class="ch">Ch.12</span><span class="ch">Ch.16</span></span></li>
+    <li><span class="idx-term">Graph of Debates (GoD)</span><span class="idx-loc"><span class="ch">Ch.17</span> Reasoning Techniques</span></li>
+    <li><span class="idx-term">Grounding</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">Guardrails</span><span class="idx-loc"><span class="ch">Ch.18</span> Guardrails/Safety Patterns</span></li>
+    <li><span class="idx-term">Hierarchical Decomposition</span><span class="idx-loc"><span class="ch">Ch.19</span> Evaluation and Monitoring</span></li>
+    <li><span class="idx-term">HITL (Human-in-the-Loop)</span><span class="idx-loc"><span class="ch">Ch.13</span> Human-in-the-Loop</span></li>
+    <li><span class="idx-term">Human-on-the-Loop</span><span class="idx-loc"><span class="ch">Ch.13</span> Human-in-the-Loop</span></li>
+    <li><span class="idx-term">Human Oversight</span><span class="idx-loc"><span class="ch">Ch.13</span><span class="ch">Ch.18</span></span></li>
+  </ul>
+
+  <div class="alpha-header">I–L</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">In-Context Learning</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">Input Validation/Sanitization</span><span class="idx-loc"><span class="ch">Ch.18</span> Guardrails/Safety Patterns</span></li>
+    <li><span class="idx-term">Inter-Agent Communication (A2A)</span><span class="idx-loc"><span class="ch">Ch.15</span></span></li>
+    <li><span class="idx-term">Intervention and Correction</span><span class="idx-loc"><span class="ch">Ch.13</span> Human-in-the-Loop</span></li>
+    <li><span class="idx-term">IoT Device Control</span><span class="idx-loc"><span class="ch">Ch.10</span> Model Context Protocol (MCP)</span></li>
+    <li><span class="idx-term">Jailbreaking</span><span class="idx-loc"><span class="ch">Ch.18</span> Guardrails/Safety Patterns</span></li>
+    <li><span class="idx-term">Kahneman-Tversky Optimization (KTO)</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">Knowledge Retrieval (RAG)</span><span class="idx-loc"><span class="ch">Ch.14</span></span></li>
+    <li><span class="idx-term">LangChain</span><span class="idx-loc"><span class="ch">Ch.1</span><span class="ch">Ch.2</span><span class="ch">Ch.3</span><span class="ch">Ch.4</span><span class="ch">Ch.5</span><span class="ch">Ch.8</span><span class="ch">Ch.20</span> Appendix C</span></li>
+    <li><span class="idx-term">LangGraph</span><span class="idx-loc"><span class="ch">Ch.1</span><span class="ch">Ch.2</span><span class="ch">Ch.3</span><span class="ch">Ch.4</span><span class="ch">Ch.5</span><span class="ch">Ch.8</span> Appendix C</span></li>
+    <li><span class="idx-term">Latency Monitoring</span><span class="idx-loc"><span class="ch">Ch.19</span> Evaluation and Monitoring</span></li>
+    <li><span class="idx-term">Learning and Adaptation</span><span class="idx-loc"><span class="ch">Ch.9</span></span></li>
+    <li><span class="idx-term">LLM-as-a-Judge</span><span class="idx-loc"><span class="ch">Ch.19</span> Evaluation and Monitoring</span></li>
+    <li><span class="idx-term">LlamaIndex</span><span class="idx-loc">Appendix C</span></li>
+    <li><span class="idx-term">LoRA (Low-Rank Adaptation)</span><span class="idx-loc">Glossary</span></li>
+  </ul>
+</div>
+
+<!-- 6. Index M-R -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Index: M–R</div>
+  <div class="sec-desc">Alphabetical index entries for terms beginning with M through R.</div>
+
+  <div class="alpha-header">M–N</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">Mamba</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">Masked Language Modeling (MLM)</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">MASS (Multi-Agent System Search)</span><span class="idx-loc"><span class="ch">Ch.17</span> Reasoning Techniques</span></li>
+    <li><span class="idx-term">MCP (Model Context Protocol)</span><span class="idx-loc"><span class="ch">Ch.10</span></span></li>
+    <li><span class="idx-term">Memory Management</span><span class="idx-loc"><span class="ch">Ch.8</span></span></li>
+    <li><span class="idx-term">Memory-Based Learning</span><span class="idx-loc"><span class="ch">Ch.9</span> Learning and Adaptation</span></li>
+    <li><span class="idx-term">MetaGPT</span><span class="idx-loc">Appendix C</span></li>
+    <li><span class="idx-term">Microsoft AutoGen</span><span class="idx-loc">Appendix C</span></li>
+    <li><span class="idx-term">Mixture of Experts (MoE)</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">Monitoring</span><span class="idx-loc"><span class="ch">Ch.11</span><span class="ch">Ch.19</span></span></li>
+    <li><span class="idx-term">Multi-Agent Collaboration</span><span class="idx-loc"><span class="ch">Ch.7</span></span></li>
+    <li><span class="idx-term">Multi-Agent System Search (MASS)</span><span class="idx-loc"><span class="ch">Ch.17</span> Reasoning Techniques</span></li>
+    <li><span class="idx-term">Multimodality</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">Negative Examples</span><span class="idx-loc">Appendix A</span></li>
+    <li><span class="idx-term">Next Sentence Prediction (NSP)</span><span class="idx-loc">Glossary</span></li>
+  </ul>
+
+  <div class="alpha-header">O–R</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">Observability</span><span class="idx-loc"><span class="ch">Ch.18</span> Guardrails/Safety Patterns</span></li>
+    <li><span class="idx-term">Online Learning</span><span class="idx-loc"><span class="ch">Ch.9</span> Learning and Adaptation</span></li>
+    <li><span class="idx-term">OpenAI Deep Research API</span><span class="idx-loc"><span class="ch">Ch.6</span> Planning</span></li>
+    <li><span class="idx-term">Output Filtering/Post-processing</span><span class="idx-loc"><span class="ch">Ch.18</span> Guardrails/Safety Patterns</span></li>
+    <li><span class="idx-term">PAL (Program-Aided Language Models)</span><span class="idx-loc"><span class="ch">Ch.17</span> Reasoning Techniques</span></li>
+    <li><span class="idx-term">Parallelization</span><span class="idx-loc"><span class="ch">Ch.3</span></span></li>
+    <li><span class="idx-term">PEFT (Parameter-Efficient Fine-Tuning)</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">Performance Tracking</span><span class="idx-loc"><span class="ch">Ch.19</span> Evaluation and Monitoring</span></li>
+    <li><span class="idx-term">Planning</span><span class="idx-loc"><span class="ch">Ch.6</span> · Glossary</span></li>
+    <li><span class="idx-term">Prioritization</span><span class="idx-loc"><span class="ch">Ch.20</span></span></li>
+    <li><span class="idx-term">Procedural Memory</span><span class="idx-loc"><span class="ch">Ch.8</span> Memory Management</span></li>
+    <li><span class="idx-term">Prompt</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">Prompt Chaining</span><span class="idx-loc"><span class="ch">Ch.1</span></span></li>
+    <li><span class="idx-term">Prompt Engineering</span><span class="idx-loc">Appendix A</span></li>
+    <li><span class="idx-term">Proximal Policy Optimization (PPO)</span><span class="idx-loc"><span class="ch">Ch.9</span> Learning and Adaptation</span></li>
+    <li><span class="idx-term">Push Notifications</span><span class="idx-loc"><span class="ch">Ch.15</span> Inter-Agent Communication (A2A)</span></li>
+    <li><span class="idx-term">QLoRA</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">RAG (Retrieval-Augmented Generation)</span><span class="idx-loc"><span class="ch">Ch.8</span><span class="ch">Ch.14</span> Appendix A</span></li>
+    <li><span class="idx-term">ReAct (Reason and Act)</span><span class="idx-loc"><span class="ch">Ch.17</span> Appendix A · Glossary</span></li>
+    <li><span class="idx-term">Reflection</span><span class="idx-loc"><span class="ch">Ch.4</span></span></li>
+    <li><span class="idx-term">Reinforcement Learning</span><span class="idx-loc"><span class="ch">Ch.9</span> Learning and Adaptation</span></li>
+    <li><span class="idx-term">RLHF</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">RLVR (Reinforcement Learning with Verifiable Rewards)</span><span class="idx-loc"><span class="ch">Ch.17</span> Reasoning Techniques</span></li>
+    <li><span class="idx-term">Routing</span><span class="idx-loc"><span class="ch">Ch.2</span></span></li>
+  </ul>
+</div>
+
+<!-- 7. Index S-Z -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Index: S–Z</div>
+  <div class="sec-desc">Alphabetical index entries for terms beginning with S through Z.</div>
+
+  <div class="alpha-header">S–T</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">Safety</span><span class="idx-loc"><span class="ch">Ch.18</span> Guardrails/Safety Patterns</span></li>
+    <li><span class="idx-term">Scaling Inference Law</span><span class="idx-loc"><span class="ch">Ch.17</span> Reasoning Techniques</span></li>
+    <li><span class="idx-term">Self-Consistency</span><span class="idx-loc">Appendix A</span></li>
+    <li><span class="idx-term">Self-Correction</span><span class="idx-loc"><span class="ch">Ch.4</span><span class="ch">Ch.17</span></span></li>
+    <li><span class="idx-term">Self-Improving Coding Agent (SICA)</span><span class="idx-loc"><span class="ch">Ch.9</span> Learning and Adaptation</span></li>
+    <li><span class="idx-term">Self-Refinement</span><span class="idx-loc"><span class="ch">Ch.17</span> Reasoning Techniques</span></li>
+    <li><span class="idx-term">Semantic Memory</span><span class="idx-loc"><span class="ch">Ch.8</span> Memory Management</span></li>
+    <li><span class="idx-term">Semantic Similarity</span><span class="idx-loc"><span class="ch">Ch.14</span> Knowledge Retrieval (RAG)</span></li>
+    <li><span class="idx-term">Separation of Concerns</span><span class="idx-loc"><span class="ch">Ch.18</span> Guardrails/Safety Patterns</span></li>
+    <li><span class="idx-term">Sequential Handoffs</span><span class="idx-loc"><span class="ch">Ch.7</span> Multi-Agent Collaboration</span></li>
+    <li><span class="idx-term">SMART Goals</span><span class="idx-loc"><span class="ch">Ch.11</span> Goal Setting and Monitoring</span></li>
+    <li><span class="idx-term">State Rollback</span><span class="idx-loc"><span class="ch">Ch.12</span> Exception Handling and Recovery</span></li>
+    <li><span class="idx-term">Streaming Updates</span><span class="idx-loc"><span class="ch">Ch.15</span> Inter-Agent Communication (A2A)</span></li>
+    <li><span class="idx-term">Structured Logging</span><span class="idx-loc"><span class="ch">Ch.18</span> Guardrails/Safety Patterns</span></li>
+    <li><span class="idx-term">Structured Output</span><span class="idx-loc"><span class="ch">Ch.1</span> Prompt Chaining · Appendix A</span></li>
+    <li><span class="idx-term">SuperAGI</span><span class="idx-loc">Appendix C</span></li>
+    <li><span class="idx-term">Supervised Fine-Tuning (SFT)</span><span class="idx-loc">Glossary</span></li>
+    <li><span class="idx-term">Task Evaluation</span><span class="idx-loc"><span class="ch">Ch.20</span> Prioritization</span></li>
+    <li><span class="idx-term">Token Usage</span><span class="idx-loc"><span class="ch">Ch.19</span> Evaluation and Monitoring</span></li>
+    <li><span class="idx-term">Tool Use</span><span class="idx-loc"><span class="ch">Ch.5</span> · Appendix A</span></li>
+    <li><span class="idx-term">Tool Use Restrictions</span><span class="idx-loc"><span class="ch">Ch.18</span> Guardrails/Safety Patterns</span></li>
+    <li><span class="idx-term">Tree of Thoughts (ToT)</span><span class="idx-loc"><span class="ch">Ch.17</span> Appendix A · Glossary</span></li>
+    <li><span class="idx-term">Transformers</span><span class="idx-loc">Glossary</span></li>
+  </ul>
+
+  <div class="alpha-header">U–Z</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">Unsupervised Learning</span><span class="idx-loc"><span class="ch">Ch.9</span> Learning and Adaptation</span></li>
+    <li><span class="idx-term">Validation</span><span class="idx-loc"><span class="ch">Ch.3</span> Parallelization</span></li>
+    <li><span class="idx-term">Vector Search</span><span class="idx-loc"><span class="ch">Ch.14</span> Knowledge Retrieval (RAG)</span></li>
+    <li><span class="idx-term">Vibe Coding</span><span class="idx-loc">Appendix B</span></li>
+    <li><span class="idx-term">Visual Perception</span><span class="idx-loc">Appendix B</span></li>
+    <li><span class="idx-term">Webhooks</span><span class="idx-loc"><span class="ch">Ch.15</span> Inter-Agent Communication (A2A)</span></li>
+    <li><span class="idx-term">Zero-Shot Learning</span><span class="idx-loc"><span class="ch">Ch.9</span> Learning and Adaptation</span></li>
+    <li><span class="idx-term">Zero-Shot Prompting</span><span class="idx-loc">Appendix A</span></li>
+  </ul>
+</div>
+
+<!-- 8. Most Referenced -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">Most Referenced Terms</div>
+  <div class="sec-desc">Terms that appear across the most chapters—indicating the book's core cross-cutting concerns.</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="border-top:3px solid var(--teal);">
+      <h4>GOOGLE ADK</h4>
+      <p>Referenced in 9+ chapters — Ch.2, Ch.3, Ch.4, Ch.5, Ch.7, Ch.8, Ch.12, Ch.13, Ch.15, Ch.16, Ch.19, App.C</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--blue);">
+      <h4>LANGCHAIN</h4>
+      <p>Referenced in 8+ chapters — Ch.1, Ch.2, Ch.3, Ch.4, Ch.5, Ch.8, Ch.20 + App.C</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--coral);">
+      <h4>RAG</h4>
+      <p>Referenced in 3 locations — Ch.8 (Memory), Ch.14 (Knowledge Retrieval), App.A (Prompting)</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--purple);">
+      <h4>CREWAI</h4>
+      <p>Referenced in 6 chapters — Ch.3, Ch.5, Ch.6, Ch.7, Ch.18 + App.C</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--amber);">
+      <h4>GUARDRAILS/SAFETY</h4>
+      <p>Dedicated chapter (Ch.18) + referenced from Ch.13, Ch.16 — safety is a cross-cutting concern</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--green);">
+      <h4>CHAIN-OF-THOUGHT (CoT)</h4>
+      <p>Referenced in Ch.17 (Reasoning), App.A (Prompting), Glossary — bridges prompting and agentic reasoning</p>
+    </div>
+  </div>
+</div>
+
+<!-- 9. Index Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Index Quiz</div>
+  <div class="sec-desc">Test your ability to locate topics correctly in the book structure.</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Key Locations -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Chapter Locations</div>
+  <div class="sec-desc">The most important location mappings to keep in mind for quick reference.</div>
+  <ul class="tk-list">
+    <li>Prompt Chaining (Ch.1) + Routing (Ch.2) + Parallelization (Ch.3) form the foundational "Core Execution" tier—start here for basic agent construction.</li>
+    <li>Reflection (Ch.4) + Tool Use (Ch.5) are the most practically impactful patterns for improving agent quality and grounding early in development.</li>
+    <li>Planning (Ch.6) + Multi-Agent Collaboration (Ch.7) unlock the next tier of capability—multi-step strategic execution and team-based problem solving.</li>
+    <li>Memory Management (Ch.8) is the connective tissue of all multi-turn and long-running workflows—referenced by almost every other pattern.</li>
+    <li>Knowledge Retrieval/RAG (Ch.14) is the primary solution to hallucination in knowledge-intensive applications—required reading for any production agent.</li>
+    <li>Human-in-the-Loop (Ch.13) + Guardrails/Safety (Ch.18) must be read together for any agent that takes real-world actions or faces adversarial inputs.</li>
+    <li>Evaluation and Monitoring (Ch.19) provides the testing and observability framework needed to validate that all other patterns are working correctly in production.</li>
+  </ul>
+</div>
+
+<!-- 11. Learn More -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">About Index Generation</div>
+  <div class="sec-desc">Resources related to automated index generation and agentic document processing.</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[Note]</span> This index was generated by Gemini Pro 2.5 using the complete book content (31 documents). The AI model's prompt, reasoning steps, and the process it used are documented in the original PDF to serve as an educational example of agentic document processing.</li>
+    <li><span class="ref-num">[Ch.14]</span> Chapter 14 (Knowledge Retrieval) explains the underlying RAG architecture that enables this kind of document-based information extraction at scale.</li>
+    <li><span class="ref-num">[Ch.6]</span> Chapter 6 (Planning) explains how the model broke down the 31-document indexing task into a structured, executable multi-step plan.</li>
+    <li><span class="ref-num">[Ch.5]</span> Chapter 5 (Tool Use) explains the Workspaces tool calls the model used to retrieve each chapter's content efficiently.</li>
+    <li><span class="ref-num">[Book]</span> Gulli, Antonio. <em>Agentic Design Patterns: A Hands-On Guide to Building Intelligent Systems.</em> Springer, 2025.</li>
+  </ul>
+</div>
+
+<div class="footer"><p>Agentic Design Patterns — Index of Terms</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [];
+function simClick(i) {}
+const quizData = [
+  { q: 'In which chapter would you find a detailed treatment of the ReAct (Reason and Act) framework?', opts: ['Chapter 5: Tool Use', 'Chapter 7: Multi-Agent Collaboration', 'Chapter 17: Reasoning Techniques', 'Chapter 4: Reflection'], ans: 2, ok: 'Correct! ReAct is covered primarily in Chapter 17 (Reasoning Techniques), and also referenced in Appendix A (Advanced Prompting Techniques) and the Glossary.', no: 'Not quite. While ReAct relates to Tool Use, its primary treatment is in Chapter 17: Reasoning Techniques, plus Appendix A and the Glossary.' },
+  { q: 'Where in the book would you find coverage of the "Checkpoint and Rollback" technique?', opts: ['Chapter 8: Memory Management', 'Chapter 12: Exception Handling and Recovery', 'Chapter 18: Guardrails/Safety Patterns', 'Chapter 19: Evaluation and Monitoring'], ans: 2, ok: 'Correct! Checkpoint and Rollback is covered in Chapter 18: Guardrails/Safety Patterns, as part of the safety and fault tolerance infrastructure for production agents.', no: 'Not quite. Checkpoint and Rollback is covered in Chapter 18: Guardrails/Safety Patterns—it\'s a safety mechanism, not a memory or exception handling pattern.' },
+  { q: 'Which chapter covers "LLM-as-a-Judge" as an evaluation technique?', opts: ['Chapter 4: Reflection', 'Chapter 13: Human-in-the-Loop', 'Chapter 17: Reasoning Techniques', 'Chapter 19: Evaluation and Monitoring'], ans: 3, ok: 'Correct! LLM-as-a-Judge is covered in Chapter 19: Evaluation and Monitoring—it is an automated scoring approach where an LLM evaluates the quality of another LLM\'s outputs.', no: 'Not quite. LLM-as-a-Judge is an evaluation technique covered in Chapter 19: Evaluation and Monitoring.' },
+  { q: 'The Google Agent Developer Kit (ADK) appears in how many chapters according to the index?', opts: ['3–4 chapters', '5–6 chapters', '7–8 chapters', '9 or more chapters'], ans: 3, ok: 'Correct! The Google ADK appears in 9+ chapters (Ch.2, Ch.3, Ch.4, Ch.5, Ch.7, Ch.8, Ch.12, Ch.13, Ch.15, Ch.16, Ch.19) plus Appendix C—making it the most widely referenced framework in the book.', no: 'Not quite. The Google ADK appears in 9+ chapters plus Appendix C, making it the most broadly referenced framework in the book.' },
+  { q: 'Where is the topic of "Vibe Coding" covered in the book?', opts: ['Chapter 9: Learning and Adaptation', 'Chapter 17: Reasoning Techniques', 'Appendix B', 'Chapter 21: Exploration and Discovery'], ans: 2, ok: 'Correct! Vibe Coding is covered in Appendix B, which focuses on AI applications in real-world environments including browser use, GUI interaction, and visual perception.', no: 'Not quite. Vibe Coding appears in Appendix B (AI Agentic: From GUI to Real World Environment)—not in a main chapter.' }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appendix E: AI Agents on the CLI — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2; --text: #1A1A18;
+  --text2: #5C5B57; --text3: #8A8983; --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15); --teal: #1D9E75; --teal-l: #E1F5EE;
+  --teal-d: #085041; --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489; --blue: #378ADD;
+  --blue-l: #E6F1FB; --blue-d: #0C447C; --amber: #BA7517; --amber-l: #FAEEDA;
+  --amber-d: #633806; --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F; --green: #639922;
+  --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: system-ui, -apple-system, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431; --text: #E8E7E2;
+    --text2: #ADACA6; --text3: #7A7974; --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15); --teal-l: #0A3D30; --teal-d: #9FE1CB;
+    --coral-l: #3D1E12; --coral-d: #F5C4B3; --purple-l: #2A2555; --purple-d: #CECBF6;
+    --blue-l: #0A2E4D; --blue-d: #B5D4F4; --amber-l: #3A2805; --amber-d: #FAC775;
+    --pink-l: #3D1528; --pink-d: #F4C0D1; --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.3rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--teal); }
+.fail-card:nth-child(2)::before { background: var(--purple); }
+.fail-card:nth-child(3)::before { background: var(--coral); }
+.fail-card:nth-child(4)::before { background: var(--amber); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 560px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 500px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .tool-grid { grid-template-columns: 1fr; } }
+.tool-card { padding: 18px 20px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.tool-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.tool-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.tool-badge { display: inline-block; font-size: 10px; font-weight: 500; letter-spacing: 1px; padding: 2px 10px; border-radius: 99px; margin-bottom: 8px; text-transform: uppercase; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Appendix E</div>
+<h1>AI Agents on the CLI</h1>
+<p class="subtitle">The developer's terminal is transforming from a simple shell into an intelligent, collaborative workspace. Four leading AI CLI agents — Claude Code, Gemini CLI, Aider, and GitHub Copilot CLI — are redefining how developers build, debug, and manage software.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">The AI CLI Revolution</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Tools Covered</div><div class="metric-value">4 Agents</div></div>
+    <div class="metric"><div class="metric-label">Claude Code</div><div class="metric-value">Architectural</div></div>
+    <div class="metric"><div class="metric-label">Gemini CLI</div><div class="metric-value">Multimodal</div></div>
+    <div class="metric"><div class="metric-label">Aider</div><div class="metric-value">Git-Centric</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>From Shell to Intelligent Workspace</h3>
+    <p>The developer's command line, long a bastion of precise, imperative commands, is undergoing a profound transformation. It is evolving from a simple shell into an intelligent, collaborative workspace powered by AI Agent Command-Line Interfaces (CLIs). These agents move beyond merely executing commands — they understand natural language, maintain context about your entire codebase, and can perform complex, multi-step tasks that automate significant parts of the development lifecycle.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Four Leading Players</h3>
+    <p>This appendix covers four leading tools: <strong>Claude CLI (Claude Code)</strong> by Anthropic — deep architectural understanding; <strong>Gemini CLI</strong> by Google — versatile multimodal open-source; <strong>Aider</strong> — open-source, git-centric pair programmer; and <strong>GitHub Copilot CLI</strong> — deep GitHub ecosystem integration. Each has a specialized strength, and the best choice depends on your workflow.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Quality as the Key Differentiator</h3>
+    <p>It is important to note that many example use cases for a specific tool can often be accomplished by the other agents as well. The key differentiator between these tools frequently lies in the quality, efficiency, and nuance of the results they achieve for a given task. There are specific benchmarks — like Terminal-Bench — designed to measure these capabilities.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Limitations of Traditional Development</div>
+  <div class="sec-desc">Before AI CLI agents, developers faced repeated friction in common tasks. Click each card to explore the challenges that these tools address:</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Context Switching Overhead</h4>
+      <p>Constantly leaving the terminal for documentation</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Developers had to constantly switch between the terminal, browser, IDE, and documentation to understand APIs, debug errors, and look up command syntax — breaking flow and dramatically reducing productivity.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Large-Scale Refactoring Pain</h4>
+      <p>Manual coordination across many files</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Refactoring operations touching dozens of files — like replacing an authentication pattern or updating a deprecated library — required manual search-and-replace, deep knowledge of every usage, and error-prone multi-file coordination.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Documentation Debt</h4>
+      <p>Code outpaces documentation efforts</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Writing comprehensive documentation is time-consuming and often skipped under deadline pressure. Complex modules accumulate without proper TSDoc comments, API documentation, or usage examples, creating long-term maintenance debt.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Shell Command Complexity</h4>
+      <p>Obscure flags and pipeline syntax</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Complex shell operations — finding files by criteria, processing data streams, managing cloud resources — require memorizing obscure command flags and pipeline syntax, slowing down even experienced developers on unfamiliar tasks.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">Four AI CLI Agents</div>
+  <div class="sec-desc">Each agent takes a distinct approach to the same problem. Click each to understand their philosophy and strengths:</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Claude CLI (Claude Code)</div>
+          <div class="chain-role">By Anthropic — Holistic Architectural Agent</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        Anthropic's Claude CLI is engineered as a high-level coding agent with a deep, holistic understanding of a project's architecture. Its core strength is its "agentic" nature, creating a mental model of your repository for complex, multi-step tasks. The interaction is highly conversational — like a pair programming session where it explains its plans before executing.<br><br>
+        <strong>Best for:</strong> Professional developers working on large-scale projects with significant refactoring or broad architectural impacts.<br><br>
+        <strong>Key feature:</strong> Extensible via MCP (Multi-tool Control Protocol), allowing custom tools, private API integrations, database queries, and project-specific scripts. Deep Git integration for branch and commit management.
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Gemini CLI</div>
+          <div class="chain-role">By Google — Versatile Multimodal Open-Source</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        Google's Gemini CLI is a versatile, open-source AI agent designed for power and accessibility. It stands out with the Gemini 2.5 Pro model, a massive context window, and multimodal capabilities (processing images and text). Its open-source nature, generous free tier, and "Reason and Act" loop make it transparent and controllable.<br><br>
+        <strong>Best for:</strong> A broad audience, from hobbyists to enterprise developers — especially those within the Google Cloud ecosystem who need multimodal capabilities.<br><br>
+        <strong>Key feature:</strong> Built-in tools for file system operations, shell commands, web fetching/searching, and multi-file reading. Sandboxing isolates model actions. MCP servers bridge to local environments and external APIs.
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div>
+          <div class="chain-title">Aider</div>
+          <div class="chain-role">Open-Source — Git-Centric Pair Programmer</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        Aider is an open-source AI coding assistant that acts as a true pair programmer by working directly on your files and committing changes to Git. Its defining feature is its directness: it applies edits, runs tests to validate them, and automatically commits every successful change. Being model-agnostic, it gives complete control over cost and capabilities.<br><br>
+        <strong>Best for:</strong> Developers who value efficiency, control, and a transparent, auditable trail of all code modifications via Git.<br><br>
+        <strong>Key feature:</strong> Automatic Git commits for every validated change. Model-agnostic — use GPT-4, Claude, Gemini, or any compatible model. Native TDD workflow support.
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--blue);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">4</div>
+        <div>
+          <div class="chain-title">GitHub Copilot CLI</div>
+          <div class="chain-role">By GitHub — GitHub Ecosystem Integration</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        GitHub Copilot CLI extends the popular AI pair programmer into the terminal, with its primary advantage being native, deep integration with the GitHub ecosystem. It understands the context of a project within GitHub. Its agent capabilities allow it to be assigned a GitHub issue, work on a fix, and submit a pull request for human review.<br><br>
+        <strong>Best for:</strong> Teams already using GitHub for project management, issue tracking, and CI/CD who want AI to participate in the full GitHub workflow.<br><br>
+        <strong>Key feature:</strong> Can be assigned GitHub issues, creates branches, writes fixes, and opens pull requests autonomously. Repository-aware Q&amp;A with knowledge of the full codebase.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+  <div class="sec-desc">Several foundational concepts are shared across all AI CLI agents. Understanding these helps you use any of them more effectively:</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);color:var(--teal-d);border-color:var(--teal);">
+      <div class="ctx-layer-title">Agentic Loop (Reason and Act)</div>
+      <div class="ctx-layer-sub">The core execution cycle of all CLI agents</div>
+      <div class="ctx-layer-detail">All AI CLI agents operate on a "Reason and Act" loop: they receive a task, reason about what steps are needed, select and execute a tool (read file, run command, edit code), observe the result, and repeat until the task is complete. This iterative loop is what enables multi-step task execution beyond simple question-answering.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);color:var(--purple-d);border-color:var(--purple);">
+      <div class="ctx-layer-title">MCP (Multi-tool Control Protocol)</div>
+      <div class="ctx-layer-sub">Standard for extending agent capabilities with custom tools</div>
+      <div class="ctx-layer-detail">MCP is a protocol that allows both Claude CLI and Gemini CLI to be extended with custom tools. Developers define tools (functions with typed parameters) that the agent can call — connecting to private APIs, running project-specific scripts, querying databases, or interacting with any system. This makes the agent's functional scope entirely user-defined.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);color:var(--blue-d);border-color:var(--blue);">
+      <div class="ctx-layer-title">Repository Context Window</div>
+      <div class="ctx-layer-sub">How agents understand your entire codebase</div>
+      <div class="ctx-layer-detail">AI CLI agents read and index your codebase to build a contextual model before acting. Claude Code creates a mental model of the repository architecture. Gemini CLI uses its massive context window to hold many files simultaneously. Aider selectively adds files to its "context" for each task. The quality of this context directly determines the quality of outputs.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);color:var(--amber-d);border-color:var(--amber);">
+      <div class="ctx-layer-title">Git-Integrated Workflows</div>
+      <div class="ctx-layer-sub">Version control as the safety net for AI changes</div>
+      <div class="ctx-layer-detail">All agents integrate deeply with Git. Claude Code manages branches and commits. Aider commits every validated change automatically. Copilot CLI creates branches and PRs for issues. This means every AI-generated change is tracked, reversible, and reviewable — Git becomes the audit trail and quality gate for all agent actions.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);color:var(--coral-d);border-color:var(--coral);">
+      <div class="ctx-layer-title">Terminal-Bench Evaluation</div>
+      <div class="ctx-layer-sub">Standardized benchmark for measuring CLI agent proficiency</div>
+      <div class="ctx-layer-detail">Terminal-Bench is a novel evaluation framework for assessing AI agent proficiency in CLI tasks. The initial release (Terminal-Bench-Core-v0) comprises 80 manually curated tasks spanning scientific workflows and data analysis. It uses Terminus — a minimalistic agent — as a standardized testbed to ensure equitable comparisons across different language models and agent implementations.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Real-World Use Cases</div>
+  <div class="sec-desc">Each agent excels at distinct categories of tasks. Click a tab to explore concrete examples:</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Large Refactoring</button>
+    <button class="uc-tab" onclick="showUC(1)">TDD Workflow</button>
+    <button class="uc-tab" onclick="showUC(2)">Multimodal Dev</button>
+    <button class="uc-tab" onclick="showUC(3)">Issue Resolution</button>
+    <button class="uc-tab" onclick="showUC(4)">Documentation</button>
+  </div>
+
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Large-Scale Refactoring (Claude Code)</h3>
+      <p>Claude's holistic repository understanding makes it ideal for coordinated refactoring across many files simultaneously.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Instruct Claude: "Refactor the entire codebase to use stateless JWTs, updating the login/logout endpoints, middleware, and frontend token handling."</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Claude reads all relevant files and builds a mental model of the auth architecture</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Explains its plan before executing — you can review and adjust</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Performs coordinated changes across all affected files in sequence</div></div>
+      </div>
+      <p style="margin-top:8px;font-size:13px;color:var(--text3);">Gemini CLI can also do large-scale refactoring — e.g., replacing log4j with SLF4J across all Java files — using its massive context window.</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Test-Driven Development (Aider)</h3>
+      <p>Aider's automatic test execution and Git commit workflow makes it a natural TDD partner — enforcing the red/green/refactor cycle.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Tell Aider: "Create a failing test for a function that calculates the factorial of a number"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Aider writes the test — it fails (RED). You confirm.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Next prompt: "Now write the code to make the test pass"</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Aider implements the function, runs the test (GREEN), and commits the change automatically</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Multimodal Development (Gemini CLI)</h3>
+      <p>Gemini CLI's image processing capability lets you generate code directly from visual designs — a unique differentiator among CLI agents.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Run: <code>gemini describe component.png</code> with a screenshot of a UI component</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Instruct: "Write the HTML and CSS to build a React component that looks exactly like this. Make it responsive."</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Gemini analyzes the image and generates pixel-accurate implementation code</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Review, adjust, and integrate the generated component</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Automated Issue Resolution (GitHub Copilot CLI)</h3>
+      <p>Copilot CLI's deep GitHub integration allows it to work end-to-end on issues autonomously — from ticket to pull request.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Manager assigns Issue #123: "Fix off-by-one error in pagination" to the Copilot agent</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Copilot checks out a new branch named after the issue</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Locates the pagination logic using repository-wide context awareness</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Writes the fix, and submits a pull request referencing Issue #123</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Documentation Generation (Claude Code)</h3>
+      <p>Claude's deep code comprehension makes it excellent at generating accurate, comprehensive documentation for complex codebases.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Point Claude to a module: "Analyze ./src/utils/data_processing.js"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Instruct: "Generate comprehensive TSDoc comments for every function, explaining its purpose, parameters, and return value"</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Claude reads and understands the full module, including edge cases</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Generates accurate, contextually appropriate documentation inline</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">CLI Usage Examples</div>
+  <div class="sec-desc">Concrete command-line examples for each agent, showing installation and common workflows:</div>
+
+  <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Claude Code — Installation & Usage</h3>
+  </div>
+  <div class="json-block">npm install -g @anthropic-ai/claude-code</div>
+  <div class="code-block"><span class="code-comment"># Start an interactive session in your project directory</span>
+claude
+
+<span class="code-comment"># One-shot task execution</span>
+claude -p "Add error handling to all API calls in src/api/"
+
+<span class="code-comment"># Continue the most recent conversation</span>
+claude --continue
+
+<span class="code-comment"># Large-scale refactoring example</span>
+claude -p "Refactor session-cookie auth to JWT across the entire codebase. \
+  Update middleware, login/logout endpoints, and frontend token storage."
+
+<span class="code-comment"># Documentation generation</span>
+claude -p "Generate TSDoc for every exported function in src/utils/data_processing.ts"</div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;margin-top:16px;">
+    <h3>Gemini CLI — Installation & Usage</h3>
+  </div>
+  <div class="json-block">npm install -g @google/gemini-cli</div>
+  <div class="code-block"><span class="code-comment"># Start an interactive session</span>
+gemini
+
+<span class="code-comment"># Multimodal: describe an image and generate code</span>
+gemini -p "$(cat component.png | base64)" "Build a React component matching this design"
+
+<span class="code-comment"># Large-scale Java refactoring</span>
+gemini -p "Read all *.java files in src/main/java. Replace all instances of \
+  'org.apache.log4j' imports with 'org.slf4j.Logger' and 'LoggerFactory'. \
+  Rewrite logger instantiation and all .info(), .debug(), .error() calls."
+
+<span class="code-comment"># Cloud resource management</span>
+gemini -p "Find all GKE clusters in production running versions older than 1.28 \
+  and generate gcloud commands to upgrade them one by one."</div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;margin-top:16px;">
+    <h3>Aider — Installation & TDD Workflow</h3>
+  </div>
+  <div class="json-block">pip install aider-chat</div>
+  <div class="code-block"><span class="code-comment"># Start aider with specific files in context</span>
+aider billing.py tests/test_billing.py
+
+<span class="code-comment"># TDD: write failing test first</span>
+<span class="code-comment"># In aider prompt:</span>
+<span class="code-string">&gt; Create a failing test for a factorial function</span>
+
+<span class="code-comment"># Aider writes test, runs it (RED), commits: "Add failing factorial test"</span>
+
+<span class="code-comment"># Implement to make test pass</span>
+<span class="code-string">&gt; Now write the code to make the test pass</span>
+
+<span class="code-comment"># Aider implements, runs test (GREEN), commits: "Add factorial implementation"</span>
+
+<span class="code-comment"># Bug fix with test validation</span>
+<span class="code-string">&gt; The calculate_total function fails on leap years. Fix the bug and verify against the test suite.</span></div>
+
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;margin-top:16px;">
+    <h3>GitHub Copilot CLI — Shell Command Helper</h3>
+  </div>
+  <div class="code-block"><span class="code-comment"># Install via GitHub CLI extension</span>
+gh extension install github/gh-copilot
+
+<span class="code-comment"># Ask for shell command help (gh? prefix)</span>
+gh copilot suggest "find all files larger than 50MB, compress them, and place in archive/"
+
+<span class="code-comment"># Output:</span>
+<span class="code-comment"># find . -size +50M -exec tar -czf archive/{}.tar.gz {} \; -exec rm {} \;</span>
+
+<span class="code-comment"># Assign an issue to Copilot agent</span>
+gh copilot assign-issue 123
+
+<span class="code-comment"># Repository-aware question</span>
+gh copilot ask "Where is the database connection logic defined and what env vars does it need?"</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: Terminal-Bench & Comparison</div>
+  <div class="sec-desc">Understanding how these tools differ in practice helps you choose the right one for your workflow.</div>
+
+  <div class="card card-bordered">
+    <h3>Terminal-Bench: Measuring CLI Agent Proficiency</h3>
+    <p>Terminal-Bench is a novel evaluation framework designed to assess AI agent proficiency in executing complex CLI tasks. The terminal is identified as an optimal environment for AI agent evaluation due to its text-based, sandboxed nature. The initial release (Terminal-Bench-Core-v0) comprises 80 manually curated tasks spanning scientific workflows and data analysis. Terminus — a minimalistic agent — serves as a standardized testbed for equitable model comparisons.</p>
+  </div>
+
+  <div class="tool-grid">
+    <div class="tool-card" style="background:var(--teal-l);">
+      <div class="tool-badge" style="background:var(--teal);color:white;">Claude Code</div>
+      <h4 style="color:var(--teal-d);">Best For</h4>
+      <p style="color:var(--teal-d);">Complex architectural tasks, large-scale refactoring, understanding codebases holistically. Excels when tasks require reasoning about system-wide impacts.</p>
+    </div>
+    <div class="tool-card" style="background:var(--purple-l);">
+      <div class="tool-badge" style="background:var(--purple);color:white;">Gemini CLI</div>
+      <h4 style="color:var(--purple-d);">Best For</h4>
+      <p style="color:var(--purple-d);">Versatile and multimodal problem-solving. Ideal when you need to process images, work with Google Cloud resources, or need a generous free tier.</p>
+    </div>
+    <div class="tool-card" style="background:var(--coral-l);">
+      <div class="tool-badge" style="background:var(--coral);color:white;">Aider</div>
+      <h4 style="color:var(--coral-d);">Best For</h4>
+      <p style="color:var(--coral-d);">Git-centric, direct code editing. Perfect for TDD workflows, precise bug fixes, and when you want full model choice and an auditable commit trail.</p>
+    </div>
+    <div class="tool-card" style="background:var(--blue-l);">
+      <div class="tool-badge" style="background:var(--blue);color:white;">Copilot CLI</div>
+      <h4 style="color:var(--blue-d);">Best For</h4>
+      <p style="color:var(--blue-d);">Seamless GitHub workflow integration. Ideal when you use GitHub Issues and PRs heavily and want AI to participate in the full issue lifecycle.</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Agent Selection Guide — click each scenario to see the best tool choice</p>
+    <div class="diagram-nodes">
+      <div class="dia-node" onclick="simClick(0)" style="background:var(--teal-l);color:var(--teal-d);">Architectural</div>
+      <div class="dia-arrow">|</div>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--purple-l);color:var(--purple-d);">Multimodal</div>
+      <div class="dia-arrow">|</div>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--coral-l);color:var(--coral-d);">TDD / Git</div>
+      <div class="dia-arrow">|</div>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--blue-l);color:var(--blue-d);">GitHub Flow</div>
+      <div class="dia-arrow">|</div>
+      <div class="dia-node" onclick="simClick(4)" style="background:var(--amber-l);color:var(--amber-d);">Benchmark</div>
+    </div>
+    <div class="dia-output" id="sim-output">Click a scenario above to see which AI CLI agent best fits that use case and why.</div>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--amber); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>The Emerging Ecosystem</h3>
+    <p>The emergence of these powerful AI CLI agents marks a fundamental shift in software development, transforming the terminal into a dynamic and collaborative environment. There is no single "best" tool — a vibrant ecosystem is forming where each agent offers a specialized strength. As these tools continue to evolve, proficiency in leveraging them will become an essential skill, fundamentally changing how developers build, debug, and manage software.</p>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--red-l);color:var(--red-d);">
+      <h4>PROBLEM</h4>
+      <p>Developers face repeated friction in refactoring, documentation, debugging, and command-line tasks. Traditional tools require manual coordination across files, constant context switching, and deep knowledge of obscure syntax.</p>
+    </div>
+    <div class="glance-card" style="background:var(--teal-l);color:var(--teal-d);">
+      <h4>SOLUTION</h4>
+      <p>AI CLI agents understand natural language, maintain codebase context, and execute multi-step tasks autonomously. Each of the four leading tools has a specialized strength for different developer workflows.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);color:var(--purple-d);">
+      <h4>KEY DIFFERENTIATOR</h4>
+      <p>The key difference is not what tasks each tool can do, but the quality, efficiency, and nuance of results. Terminal-Bench provides standardized benchmarks to objectively measure these capabilities across 80 curated CLI tasks.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);color:var(--amber-d);">
+      <h4>CHOOSING A TOOL</h4>
+      <p>Claude Code for architectural complexity. Gemini CLI for multimodal and Google Cloud. Aider for TDD and auditable Git history. GitHub Copilot CLI for end-to-end GitHub issue-to-PR workflows.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Quiz</div>
+  <div class="sec-desc">Test your understanding of AI CLI agents and their distinct characteristics.</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+
+  <ul class="tk-list">
+    <li>AI CLI agents transform the developer terminal into a collaborative workspace — they understand natural language, maintain codebase context, and execute complex multi-step tasks autonomously.</li>
+    <li>Claude Code (by Anthropic) excels at holistic architectural understanding, large-scale refactoring, and conversational pair programming, extensible via MCP for custom tooling.</li>
+    <li>Gemini CLI (by Google) is an open-source, versatile agent with multimodal capabilities (image + text), a massive context window, and a generous free tier — ideal for Google Cloud users.</li>
+    <li>Aider is an open-source, model-agnostic pair programmer that directly edits files and commits every validated change to Git — perfect for TDD workflows and auditable code modifications.</li>
+    <li>GitHub Copilot CLI has native GitHub ecosystem integration, enabling it to be assigned issues, create branches, implement fixes, and submit pull requests autonomously.</li>
+    <li>The key differentiator between tools is not which tasks they can do but the quality, efficiency, and nuance of results — Terminal-Bench provides standardized evaluation across 80 CLI tasks.</li>
+    <li>MCP (Multi-tool Control Protocol) enables both Claude Code and Gemini CLI to be extended with custom tools connecting to private APIs, databases, and project-specific systems.</li>
+  </ul>
+
+  <div class="card card-bordered">
+    <h3>Summary</h3>
+    <p>There is no single "best" AI CLI tool. The ideal choice depends entirely on the developer's needs and workflow: Claude for complex architectural tasks and holistic refactoring, Gemini for versatile multimodal problem-solving and Google Cloud integration, Aider for git-centric direct code editing with automatic commits, and GitHub Copilot for seamless end-to-end integration into the GitHub workflow. Proficiency in leveraging these tools is becoming an essential developer skill.</p>
+  </div>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> Anthropic. Claude Code CLI Reference: <a href="https://docs.anthropic.com/en/docs/claude-code/cli-reference" target="_blank">docs.anthropic.com</a></li>
+    <li><span class="ref-num">[2]</span> Google Gemini CLI: <a href="https://github.com/google-gemini/gemini-cli" target="_blank">github.com/google-gemini/gemini-cli</a></li>
+    <li><span class="ref-num">[3]</span> Aider AI Coding Assistant: <a href="https://aider.chat/" target="_blank">aider.chat</a></li>
+    <li><span class="ref-num">[4]</span> GitHub Copilot CLI: <a href="https://docs.github.com/en/copilot/github-copilot-enterprise/copilot-cli" target="_blank">docs.github.com</a></li>
+    <li><span class="ref-num">[5]</span> Terminal Bench: <a href="https://www.tbench.ai/" target="_blank">tbench.ai</a></li>
+  </ul>
+</div>
+
+<div class="footer">
+  <p>Appendix E · AI Agents on the CLI · Interactive Learning</p>
+</div>
+
+</div>
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  "Architectural Tasks → Claude Code: When your task requires understanding how a change will ripple across an entire codebase — refactoring auth patterns, migrating databases, coordinating multi-file API changes — Claude Code's holistic repository model and conversational planning make it the strongest choice.",
+  "Multimodal Tasks → Gemini CLI: When you need to process images alongside text (e.g., generating code from a design screenshot), work with Google Cloud resources, or need a powerful open-source option with a generous free tier, Gemini CLI is uniquely positioned with its 2.5 Pro model and built-in multimodal support.",
+  "TDD / Git-Centric → Aider: When you want an agent that enforces discipline through automatic test execution and commits every validated change to Git, Aider is the clear choice. It's also the best option when you want full control over which underlying model is used (GPT-4, Claude, Gemini, etc.).",
+  "GitHub Workflow → Copilot CLI: When your team works entirely within GitHub — managing issues, reviewing PRs, running Actions — Copilot CLI integrates at every level. It can be assigned issues directly, create fix branches, and open PRs without any developer intervention beyond the final review.",
+  "Benchmarking → Terminal-Bench: Terminal-Bench (tbench.ai) is the standardized evaluation framework for measuring CLI agent proficiency. Its 80 curated tasks spanning scientific workflows and data analysis let you objectively compare which model/agent delivers the best results for your specific domain."
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: "What is Claude Code's primary architectural advantage over other AI CLI agents?",
+    opts: ["It has the largest free tier", "It creates a holistic mental model of your repository for complex multi-step tasks", "It automatically commits every change to Git", "It can process images alongside text"],
+    ans: 1,
+    ok: "Correct! Claude Code's core strength is its 'agentic' nature — building a deep, holistic mental model of your repository that enables coordinated multi-file changes with full architectural awareness.",
+    no: "Claude Code's key differentiator is its holistic repository understanding, not free tier size, auto-commits (that's Aider), or image processing (that's Gemini CLI)."
+  },
+  {
+    q: "What makes Aider unique among the four CLI agents?",
+    opts: ["It's the only closed-source agent", "It automatically commits every validated change to Git and is model-agnostic", "It has the most powerful underlying AI model", "It integrates exclusively with GitHub"],
+    ans: 1,
+    ok: "Correct! Aider's defining features are its automatic Git commits for every validated change and its model-agnostic design — you choose the underlying LLM (GPT-4, Claude, Gemini, etc.).",
+    no: "Aider is open-source (not closed), model-agnostic (not tied to one model), and works with any Git repository (not just GitHub)."
+  },
+  {
+    q: "What unique capability does Gemini CLI have that the other agents lack?",
+    opts: ["Automatic Git commits", "Native GitHub issue assignment", "Multimodal capabilities — processing both images and text", "Custom tool integration via MCP"],
+    ans: 2,
+    ok: "Correct! Gemini CLI's standout feature is its multimodal capabilities — you can provide a screenshot of a UI component and ask it to generate the corresponding code.",
+    no: "Auto-commits is Aider. GitHub issue assignment is Copilot CLI. MCP is available in both Claude Code and Gemini CLI. Only Gemini CLI has native multimodal (image+text) capability."
+  },
+  {
+    q: "What is Terminal-Bench?",
+    opts: ["A terminal emulator for running AI agents", "A standardized evaluation framework for measuring AI agent proficiency in CLI tasks", "GitHub's benchmarking tool for Copilot CLI", "A plugin system for extending CLI agents with custom tools"],
+    ans: 1,
+    ok: "Correct! Terminal-Bench is an evaluation framework with 80 curated CLI tasks (Terminal-Bench-Core-v0). It uses the minimalistic Terminus agent as a standardized testbed for comparing different language models.",
+    no: "Terminal-Bench is specifically an evaluation/benchmarking framework for AI agents, not a terminal emulator, GitHub tool, or plugin system."
+  },
+  {
+    q: "What is MCP (Multi-tool Control Protocol) and which agents support it?",
+    opts: ["A Git merge protocol — all agents support it", "A protocol for extending agent capabilities with custom tools — supported by Claude Code and Gemini CLI", "A benchmark for measuring agent performance — supported by all agents", "A protocol for agent-to-agent communication — GitHub-specific"],
+    ans: 1,
+    ok: "Correct! MCP allows developers to define custom tools that agents can call — connecting to private APIs, databases, and internal systems. Both Claude Code and Gemini CLI use MCP for extensibility.",
+    no: "MCP is specifically about tool extensibility (custom functions the agent can call), not about Git merging, benchmarking, or agent-to-agent communication."
+  },
+  {
+    q: "For a developer whose team uses GitHub Issues and wants AI to handle the full issue-to-PR lifecycle, which tool is best suited?",
+    opts: ["Claude Code", "Gemini CLI", "Aider", "GitHub Copilot CLI"],
+    ans: 3,
+    ok: "Correct! GitHub Copilot CLI has native deep integration with the GitHub ecosystem — it can be assigned issues, create fix branches, implement solutions, and submit pull requests autonomously.",
+    no: "GitHub Copilot CLI is specifically designed for deep GitHub workflow integration. The other tools are more focused on code generation, refactoring, or TDD rather than the full GitHub issue lifecycle."
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

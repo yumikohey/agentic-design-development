@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第十二章：异常处理与恢复 — 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1; --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+
+<div class="chapter-tag">第十二章</div>
+<h1>异常处理与恢复</h1>
+<p class="subtitle">构建能够检测故障、优雅处理错误并恢复稳定运行的韧性 AI 代理——将脆弱系统转变为在真实世界复杂性下能保持完整性的可信赖组件。</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">概览</button>
+  <button class="nav-btn" onclick="go('problem')">问题所在</button>
+  <button class="nav-btn" onclick="go('solution')">解决方案</button>
+  <button class="nav-btn" onclick="go('concepts')">核心概念</button>
+  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
+  <button class="nav-btn" onclick="go('code')">代码实战</button>
+  <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
+  <button class="nav-btn" onclick="go('glance')">一览概要</button>
+  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
+  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
+  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+</nav>
+
+<!-- 1. 概览 -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">模式概览</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">模式类型</div><div class="metric-value">韧性设计</div></div>
+    <div class="metric"><div class="metric-label">三大阶段</div><div class="metric-value">检测→处理→恢复</div></div>
+    <div class="metric"><div class="metric-label">核心目标</div><div class="metric-value">容错能力</div></div>
+    <div class="metric"><div class="metric-label">适用场景</div><div class="metric-value">生产级代理</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>什么是异常处理与恢复？</h3>
+    <p>AI 代理要在多样化的真实世界环境中可靠运行，必须能够应对不可预见的情况、错误和故障。就像人类会适应意外障碍一样，智能代理需要完善的系统来检测问题、启动恢复程序，或者至少确保受控的优雅失败。这一核心需求构成了异常处理与恢复模式的基础。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>主动与被动策略并重</h3>
+    <p>该模式同时强调主动预防和被动响应策略，确保即使面临挑战时也能持续运行。主动措施包括监控工具输出、检查 API 响应错误码、设置超时限制。被动策略包括日志记录、重试、降级回退、优雅退化，以及必要时升级至人工处理。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>与反思机制的结合</h3>
+    <p>该模式有时可与反思机制结合使用。例如，若初次尝试失败并抛出异常，反思过程可以分析失败原因，然后以优化的方式（如改进提示词）重新尝试任务。异常处理与反思的结合创造了高度自适应的代理。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>从脆弱到可信赖</h3>
+    <p>实施该模式可以将 AI 代理从脆弱、不可靠的系统转变为稳健、可依赖的组件，能够在充满挑战、高度不可预测的环境中有效、韧性地运行。这确保代理能够保持功能完整性、最小化停机时间，即使面对意外问题也能提供无缝可靠的体验。</p>
+  </div>
+</div>
+
+<!-- 2. 问题所在 -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">缺乏异常处理的代理为何失败</div>
+  <div class="sec-desc">没有结构化异常处理，AI 代理极为脆弱——单个意外事件就可能导致完全失败。点击卡片了解具体失败模式：</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>工具调用失败</h4>
+      <p>外部工具崩溃或返回错误</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">当工具因 bug、意外输入或依赖问题失败时，没有异常处理的代理会崩溃或产生错误输出。即使工具故障是轻微且可恢复的，整个工作流也会停止。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>服务不可用</h4>
+      <p>API 返回 404、500 或超时错误</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">外部服务本来就不可靠。调用 API 的代理必然会遇到 HTTP 错误、超时和限流。若没有处理这类瞬时失败的机制，代理会因短暂中断而永久失败。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>数据无效或格式错误</h4>
+      <p>外部系统返回不连贯的输出</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">工具和 API 可能返回意外格式、不完整数据或无意义响应。假设输入总是干净且格式良好的代理，在真实数据比预期更混乱时会发生不可预期的失败。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>级联失败</h4>
+      <p>一个错误引发下游连锁失败</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">在多步骤代理工作流中，流程早期的单个未处理错误会向后续步骤蔓延，导致整个系统以难以诊断和恢复的方式崩溃。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>缺乏优雅退化</h4>
+      <p>只有完全成功或彻底失败两种结果</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">没有异常处理，代理提供"全有或全无"的体验。任何组件失败，用户什么也得不到。精心设计的代理即使某些组件不可用，也应该能提供部分价值。</p></div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--red); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>真实世界的挑战</h3>
+    <p>在生产环境中，失败不是例外——它是常态。网络会中断，API 会变更，服务会限流，数据库会出现延迟峰值，输入从来都不是完全干净的。无法应对这些现实的代理不能部署在任何有意义的生产场景中。可靠性不是锦上添花的特性，而是必要前提。</p>
+  </div>
+</div>
+
+<!-- 3. 解决方案 -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">三阶段异常处理框架</div>
+  <div class="sec-desc">该模式通过三个协调配合的阶段处理故障。点击每个阶段深入了解其机制：</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">错误检测</div>
+          <div class="chain-role">主动识别运营中出现的问题</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        细致识别运营过程中出现的问题，包括：<br><br>
+        • <strong>无效/格式错误的工具输出</strong>：验证结构和内容<br>
+        • <strong>API 错误码</strong>：检测 404（未找到）、500（内部服务器错误）、503（服务不可用）<br>
+        • <strong>异常长的响应时间</strong>：实施超时机制<br>
+        • <strong>不连贯响应</strong>：检测偏离预期格式的无意义输出<br>
+        • <strong>主动监控</strong>：其他代理或专用监控系统可在问题升级前主动检测异常。
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">错误处理</div>
+          <div class="chain-role">对检测到的错误执行精心规划的响应方案</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        检测到错误后，执行结构化响应计划：<br><br>
+        • <strong>日志记录</strong>：详细记录错误信息供后续调试和分析<br>
+        • <strong>重试</strong>：重新执行操作，有时略微调整参数——对瞬时错误尤为有效<br>
+        • <strong>降级回退</strong>：使用替代策略或方法维持部分功能<br>
+        • <strong>优雅退化</strong>：保持部分功能以至少提供一些价值<br>
+        • <strong>通知</strong>：向人工操作员或其他代理发出需要干预的警报
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div>
+          <div class="chain-title">恢复</div>
+          <div class="chain-role">将代理或系统恢复到稳定运行状态</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        在错误后恢复稳定运行：<br><br>
+        • <strong>状态回滚</strong>：撤销最近的更改或事务，消除错误影响<br>
+        • <strong>诊断分析</strong>：深入调查错误根因，防止复发<br>
+        • <strong>自我纠正</strong>：通过重新规划调整代理的计划、逻辑或参数<br>
+        • <strong>升级处理</strong>：在复杂或严重的情况下，将问题委托给人工操作员或更高级系统<br><br>
+        目标不仅是恢复，更是学习——每一次处理的异常都让系统随时间变得更加韧性。
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>为什么这能从根本上提升可靠性</h3>
+    <p>实施完善的异常处理与恢复模式可以将 AI 代理从脆弱、不可靠的系统转变为稳健、可依赖的组件，能够在充满挑战、高度不可预测的环境中有效、韧性地运行。这确保代理保持功能完整性、最小化停机时间，即使面对意外问题也能提供无缝可靠的体验。</p>
+  </div>
+</div>
+
+<!-- 4. 核心概念 -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">核心概念：处理策略详解</div>
+  <div class="sec-desc">每种错误处理策略针对不同性质和严重程度的故障发挥不同作用。</div>
+
+  <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>指数退避重试</h3>
+    <p>对于瞬时错误（临时网络问题、限流），短暂暂停后重试操作通常就足够了。指数退避在每次重试之间增加等待时间（如 1 秒、2 秒、4 秒、8 秒），避免向已受压的服务施加更多负担。始终限制最大重试次数以避免无限循环。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>降级回退机制</h3>
+    <p>当主方案失败且重试次数已耗尽时，切换到备选方案。精确地理定位工具失败可以降级为城市级查询。实时股价 API 失败可以降级为缓存值。降级回退确保即使最优路径不可用，代理也能仍然提供部分价值。</p>
+  </div>
+
+  <p style="font-size:14px;color:var(--text2);margin-bottom:12px;">ADK SequentialAgent 的主处理器与降级回退方案结构：</p>
+  <div class="json-block">{
+  "模式": "带异常处理的 SequentialAgent",
+  "代理列表": [
+    {
+      "名称": "primary_handler（主处理器）",
+      "角色": "尝试主要工具（get_precise_location_info）",
+      "失败处理": "设置 state['primary_location_failed'] = True"
+    },
+    {
+      "名称": "fallback_handler（降级处理器）",
+      "角色": "检查 state['primary_location_failed']；若为 True，使用降级工具（get_general_area_info）",
+      "触发条件": "state['primary_location_failed'] == True"
+    },
+    {
+      "名称": "response_agent（响应代理）",
+      "角色": "读取 state['location_result'] 并呈现给用户；若为空则道歉",
+      "工具": []
+    }
+  ],
+  "保证": "SequentialAgent 确保处理器按预定顺序运行"
+}</div>
+
+  <div class="card card-bordered">
+    <h3>优雅退化 vs. 硬性失败</h3>
+    <p>目标是在最优运行不可能时仍提供<em>某种</em>价值。主要工具失败的代理应尝试降级方案，然后优雅地沟通限制，而非崩溃。这种"部分成功"模式远比全有或全无的行为更用户友好，也更具运营韧性。</p>
+  </div>
+</div>
+
+<!-- 5. 应用场景 -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">实际应用与用例</div>
+  <div class="sec-desc">异常处理与恢复对任何在无法保证完美条件的真实场景中部署的代理都至关重要。点击标签浏览六大应用领域：</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">客户服务</button>
+    <button class="uc-tab" onclick="showUC(1)">金融交易</button>
+    <button class="uc-tab" onclick="showUC(2)">智能家居</button>
+    <button class="uc-tab" onclick="showUC(3)">数据处理</button>
+    <button class="uc-tab" onclick="showUC(4)">网络爬虫</button>
+    <button class="uc-tab" onclick="showUC(5)">机器人制造</button>
+  </div>
+
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>客户服务聊天机器人</h3>
+      <p>若聊天机器人尝试访问客户数据库但数据库暂时宕机，它不应该崩溃。正确做法是检测 API 错误，告知用户临时故障，建议稍后重试，或将查询升级至人工客服并附带完整上下文信息。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>尝试通过 API 查询客户数据库</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>检测 API 错误（如 503 服务不可用）</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>记录含时间戳和错误码的日志</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>告知用户临时故障，建议重试或升级至人工</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>自动化金融交易</h3>
+      <p>交易机器人执行交易时可能遇到"资金不足"或"市场已收盘"错误。它需要通过记录错误、停止重复提交同一无效交易、并可能通知用户或调整策略来处理这些异常。盲目重试失败的交易可能造成复合损失。</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>智能家居自动化</h3>
+      <p>控制智能灯具的代理可能因网络问题或设备故障而无法开灯。它应检测此失败，或许重试一次，若仍不成功，通知用户灯具无法打开并建议手动干预——而不是静默失败或无限循环。</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>数据处理代理</h3>
+      <p>批量处理文档的代理可能遇到损坏的文件。它不应停止整个处理过程，而应跳过损坏文件、记录错误、继续处理其他文件，最终汇报被跳过的文件。这种"跳过并汇报"模式保留了成功处理其余文档的价值。</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>网络爬虫代理</h3>
+      <p>当网络爬虫代理遇到验证码、网站结构变更或服务器错误（404、503）时，需要优雅处理这些情况：可能的策略包括暂停、使用代理 IP、轮换用户代理，或汇报失败的具体 URL，而非让整个爬取任务崩溃。</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-5">
+    <div class="card" style="border-left:3px solid var(--green);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>机器人与制造业</h3>
+      <p>执行装配任务的机械臂可能因对准偏差而无法抓取零件。它需要检测此失败（通过传感器反馈）、尝试重新调整、重试抓取，若持续失败则警告人工操作员或切换备用零件。在未检测到失败时继续操作可能造成安全隐患或设备损坏。</p>
+    </div>
+  </div>
+</div>
+
+<!-- 6. 代码实战 -->
+<div id="sec-code" class="section">
+  <div class="sec-title">代码实战：ADK SequentialAgent 降级回退</div>
+  <div class="sec-desc">本示例展示如何使用 ADK 的 SequentialAgent 构建带主处理器、降级处理器和响应代理的稳健位置查询系统。</div>
+
+  <p style="font-size:14px;color:var(--text2);margin-bottom:8px;font-weight:500;">主处理器与降级处理器代理（Google ADK）：</p>
+  <div class="code-block"><span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> Agent, SequentialAgent
+
+<span class="code-comment"># 代理一：尝试主要工具，职责单一明确</span>
+primary_handler = Agent(
+    name=<span class="code-string">"primary_handler"</span>,
+    model=<span class="code-string">"gemini-2.0-flash-exp"</span>,
+    instruction=<span class="code-string">"""
+你的任务是获取精确的位置信息。
+使用 get_precise_location_info 工具处理用户提供的地址。
+"""</span>,
+    tools=[get_precise_location_info]
+)
+
+<span class="code-comment"># 代理二：作为降级处理器，检查状态来决定行动</span>
+fallback_handler = Agent(
+    name=<span class="code-string">"fallback_handler"</span>,
+    model=<span class="code-string">"gemini-2.0-flash-exp"</span>,
+    instruction=<span class="code-string">"""
+通过查看 state["primary_location_failed"] 来检查主要位置查询是否失败。
+- 若为 True，从用户原始查询中提取城市名，使用 get_general_area_info 工具。
+- 若为 False，不执行任何操作。
+"""</span>,
+    tools=[get_general_area_info]
+)</div>
+
+  <p style="font-size:14px;color:var(--text2);margin-bottom:8px;font-weight:500;">响应代理与 SequentialAgent 编排：</p>
+  <div class="code-block"><span class="code-comment"># 代理三：从状态中读取最终结果并呈现</span>
+response_agent = Agent(
+    name=<span class="code-string">"response_agent"</span>,
+    model=<span class="code-string">"gemini-2.0-flash-exp"</span>,
+    instruction=<span class="code-string">"""
+查看存储在 state["location_result"] 中的位置信息。
+清晰简洁地向用户呈现此信息。
+若 state["location_result"] 不存在或为空，向用户道歉，说明无法检索到位置。
+"""</span>,
+    tools=[]  <span class="code-comment"># 此代理只对最终状态进行推理</span>
+)
+
+<span class="code-comment"># SequentialAgent 确保处理器按预定顺序运行</span>
+robust_location_agent = SequentialAgent(
+    name=<span class="code-string">"robust_location_agent"</span>,
+    sub_agents=[primary_handler, fallback_handler, response_agent]
+)</div>
+
+  <p style="font-size:14px;color:var(--text2);margin-top:16px;margin-bottom:8px;font-weight:500;">工作原理：分层异常处理</p>
+  <div class="code-block"><span class="code-comment"># 此结构提供了分层的异常处理方法：
+# 1. primary_handler 尝试精确工具——最优路径
+# 2. fallback_handler 检查 state['primary_location_failed']：
+#    - True → 使用通用区域工具（优雅退化）
+#    - False → 跳过（无操作，主处理成功）
+# 3. response_agent 综合状态中的任何结果：
+#    - 找到精确结果 → 呈现给用户
+#    - 找到通用结果 → 附带上下文呈现
+#    - 什么都没找到 → 优雅道歉（受控失败）
+#
+# SequentialAgent 保证执行顺序，确保
+# 降级处理器始终在主处理器尝试之后运行。</span></div>
+</div>
+
+<!-- 7. 深入解析 -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">深入解析：进阶异常处理策略</div>
+  <div class="sec-desc">超越基础知识，生产级异常处理需要更精细的策略。点击各层级深入了解：</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);color:var(--teal-d);">
+      <div class="ctx-layer-title">指数退避重试策略</div>
+      <div class="ctx-layer-sub">智能重试逻辑防止"雷群"问题</div>
+      <div class="ctx-layer-detail">
+        简单的立即重试可能会压垮已处于困境的服务。指数退避在重试之间增加递增延迟（如 1 秒、2 秒、4 秒、8 秒）。结合抖动（随机偏移量），可以分散负载，给服务恢复的时间。始终设置最大重试次数上限和最大等待时间上限。
+      </div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);color:var(--purple-d);">
+      <div class="ctx-layer-title">熔断器模式</div>
+      <div class="ctx-layer-sub">停止调用明显宕机的服务</div>
+      <div class="ctx-layer-detail">
+        若一个服务持续失败，继续调用它浪费资源并增加延迟。熔断器模式追踪失败率：当失败超过阈值时，电路"断开"，直接返回降级响应而不尝试调用。经过冷却期后，电路"半断开"测试服务是否已恢复，若成功则重新"闭合"。
+      </div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);color:var(--coral-d);">
+      <div class="ctx-layer-title">结构化错误日志记录</div>
+      <div class="ctx-layer-sub">只有可操作的错误信息才有价值</div>
+      <div class="ctx-layer-detail">
+        好的错误日志应捕获：时间戳、错误类型和消息、堆栈跟踪、代理上下文（正在尝试做什么）、导致失败的输入，以及已采取的恢复措施。结构化日志（JSON 格式）支持在生产部署中进行自动分析、告警和趋势检测。
+      </div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);color:var(--amber-d);">
+      <div class="ctx-layer-title">异常处理与反思结合</div>
+      <div class="ctx-layer-sub">从失败中学习，而不仅仅是处理失败</div>
+      <div class="ctx-layer-detail">
+        最精密的异常处理将错误恢复与反思结合：发生错误时，代理不是盲目重试，而是分析出了什么问题并调整方法。对于基于 LLM 的代理，这可能意味着在下次尝试前修改提示词、更改工具参数或以不同方式分解请求。
+      </div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);color:var(--blue-d);">
+      <div class="ctx-layer-title">人工升级协议</div>
+      <div class="ctx-layer-sub">明确何时需要人工介入，以及如何介入</div>
+      <div class="ctx-layer-detail">
+        并非每个错误都能或应该自主处理。清晰的升级标准定义了何时需要人工干预：超出重试限制的重复失败、具有财务或安全影响的高严重性错误、代理缺乏信心的模糊情况。升级消息应包含完整上下文：发生了什么、尝试了什么、以及代理需要人工做什么。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. 一览概要 -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">一览概要</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4>是什么（WHAT）</h4>
+      <p>在真实世界环境中运行的 AI 代理不可避免地会遇到不可预见的情况、错误和系统故障——从工具故障和网络问题到无效数据。没有结构化的方式来管理这些问题，代理在面对意外情况时极为脆弱、不可靠，容易完全崩溃。</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4>为什么（WHY）</h4>
+      <p>异常处理与恢复模式为构建稳健、韧性代理提供标准化解决方案。它通过主动错误检测、被动处理策略（日志、重试、降级回退），以及恢复协议（回滚、自我纠正、升级）来预测、管理和从运营故障中恢复。</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);">
+      <h4>经验法则（RULE）</h4>
+      <p>对于任何部署在动态真实世界环境中的 AI 代理——在那里系统故障、工具错误、网络问题或不可预测的输入是可能发生的，且运营可靠性是关键需求——都应使用此模式。若代理接触外部系统，就需要异常处理。</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);">
+      <h4>核心洞察</h4>
+      <p>三个阶段——错误检测、错误处理、恢复——构成完整的韧性框架。没有处理的检测只是监控。没有恢复的处理让系统停留在降级状态。三个阶段共同创造了能够真正自我修复、在压力下保持运营完整性的代理。</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;font-weight:500;margin-bottom:8px;">异常处理流程模拟</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">点击各节点了解其角色</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" onclick="simClick(0)" style="background:var(--teal-l);color:var(--teal-d);">正常运行</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--red-l);color:var(--red-d);">检测到错误</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--amber-l);color:var(--amber-d);">处理错误</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--purple-l);color:var(--purple-d);">恢复/降级</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(4)" style="background:var(--green-l);color:var(--green-d);">稳定运行</div>
+    </div>
+    <div class="dia-output" id="sim-output">点击上方任意节点，了解异常处理流程在该阶段的运作方式。</div>
+  </div>
+</div>
+
+<!-- 9. 知识测验 -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">知识测验</div>
+  <div class="sec-desc">检验你对异常处理与恢复模式的理解。</div>
+  <div id="quizProgress" class="quiz-progress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. 核心要点 -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">核心要点</div>
+  <div class="sec-desc">第十二章"异常处理与恢复"的关键收获：</div>
+  <ul class="tk-list">
+    <li>异常处理与恢复对于构建能在不可预测的真实世界环境中运行的稳健可靠代理至关重要。</li>
+    <li>该模式涉及三个协调阶段：检测错误、优雅处理错误、实施恢复策略。</li>
+    <li>错误检测包括验证工具输出、检查 API 错误码（404、500、503）、实施超时，以及监控异常响应。</li>
+    <li>处理策略包括用于诊断的日志记录、带退避的瞬时失败重试、使用降级回退机制，以及优雅退化。</li>
+    <li>恢复重点在于通过状态回滚、诊断分析、调整计划的自我纠正，或升级至人工操作员来恢复稳定运行。</li>
+    <li>ADK 的 SequentialAgent 结合主处理器和降级处理器的模式是在生产代理中实现分层异常处理的有效方法。</li>
+    <li>该模式确保代理即使在不可预测的真实世界环境中也能有效运行，保持功能完整性并最小化停机时间。</li>
+    <li>异常处理可与反思机制结合：发生失败时，代理可以分析原因并以优化的方式重试，而非重复同一失败操作。</li>
+  </ul>
+</div>
+
+<!-- 11. 参考资料 -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">参考资料</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>McConnell, S. (2004). <em>代码大全（第2版）</em>. Microsoft Press.</li>
+    <li><span class="ref-num">2</span>Shi, Y., Pei, H., Feng, L., Zhang, Y., &amp; Yao, D. (2024). <em>Towards Fault Tolerance in Multi-Agent Reinforcement Learning</em>. arXiv preprint arXiv:2412.00534.</li>
+    <li><span class="ref-num">3</span>O'Neill, V. (2022). <em>Improving Fault Tolerance and Reliability of Heterogeneous Multi-Agent IoT Systems Using Intelligence Transfer</em>. Electronics, 11(17), 2724.</li>
+    <li><span class="ref-num">4</span>Google ADK 文档. <em>顺序代理与错误处理</em>. <a href="https://google.github.io/adk-docs/" target="_blank">https://google.github.io/adk-docs/</a></li>
+    <li><span class="ref-num">5</span>Fowler, M. (2014). <em>CircuitBreaker 模式</em>. <a href="https://martinfowler.com/bliki/CircuitBreaker.html" target="_blank">https://martinfowler.com/bliki/CircuitBreaker.html</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>第十二章 · 异常处理与恢复 · 智能代理开发交互式学习</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  '正常运行：代理正在成功执行其任务——调用工具、处理数据、生成输出。尚未发生任何错误。这是异常处理旨在保护的"幸福路径"。',
+  '检测到错误：出了问题。可能是 API 返回 500 错误、工具生成格式错误的输出、网络超时，或收到不连贯的响应。检测机制识别到失败并触发处理逻辑。',
+  '处理错误：执行规划好的响应：记录含完整上下文的错误日志，若适当则尝试重试（特别是对于瞬时失败），或准备使用降级方案。目标是智能响应而不是崩溃。',
+  '恢复/降级：若直接重试成功，恢复正常运行。若不成功，激活降级方案：使用替代工具、返回部分结果、优雅退化，或为人工操作员准备升级消息。',
+  '稳定运行：代理已成功恢复——通过重试成功、降级机制或优雅退化。用户获得了某种价值，即使不是完整的最优结果。错误已被记录以供未来改进。'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: '异常处理与恢复模式的三个阶段是什么？',
+    opts: [
+      'A. 规划、执行、审查',
+      'B. 错误检测、错误处理、恢复',
+      'C. 记录日志、重试、升级',
+      'D. 验证、转换、输出'
+    ],
+    ans: 1,
+    ok: '正确！三个协调阶段是：错误检测（识别问题）、错误处理（执行响应计划），以及恢复（恢复稳定运行）。三者共同构成完整的韧性框架。',
+    no: '不正确。三个阶段是错误检测、错误处理和恢复。每个阶段在整体韧性框架中扮演独特角色。'
+  },
+  {
+    q: '在 ADK SequentialAgent 降级示例中，是什么触发 fallback_handler 使用替代工具？',
+    opts: [
+      'A. SequentialAgent 在任何失败时自动路由到降级方案',
+      'B. fallback_handler 检查 state["primary_location_failed"]——若为 True 则使用降级工具',
+      'C. response_agent 检测到空结果并调用降级方案',
+      'D. 降级处理器与主处理器同时运行'
+    ],
+    ans: 1,
+    ok: '正确！fallback_handler 明确检查状态变量 "primary_location_failed"。若为 True，则激活降级工具。这种基于状态的协调是实现条件降级逻辑的简洁模式。',
+    no: '降级由状态变量触发：primary_handler 在失败时设置 state["primary_location_failed"] = True，fallback_handler 读取此状态来决定是否激活降级。'
+  },
+  {
+    q: '在异常处理的语境中，"优雅退化"指的是什么？',
+    opts: [
+      'A. 静默忽略错误使用户永远看不到失败',
+      'B. 在完全运行不可能时维持部分功能，仍能提供某种价值',
+      'C. 逐渐降低运行速度以防止系统过载',
+      'D. 在遇到任何错误时自动重启代理'
+    ],
+    ans: 1,
+    ok: '正确！优雅退化意味着在完全运行不可能时维持部分功能——提供某种价值而不是彻底失败。例如，精确定位失败时降级为城市级定位。',
+    no: '优雅退化是关于在最优路径失败时维持部分价值：而非完全失败，提供可用的最佳替代方案。它与全有或全无的失败模式正好相反。'
+  },
+  {
+    q: '为什么推荐使用指数退避重试策略，而不是立即重复重试？',
+    opts: [
+      'A. 指数退避比立即重试更简单实现',
+      'B. 立即重试可能压垮已受困的服务；退避给它恢复时间',
+      'C. 指数退避总是能实现更快的恢复时间',
+      'D. 大多数 API 提供商会阻止立即重试'
+    ],
+    ans: 1,
+    ok: '正确！立即重复重试可能压垮已受困的服务，使恢复更加困难。指数退避添加递增延迟，分散负载，给服务在下次尝试前喘息恢复的时间。',
+    no: '关键原因是立即重试可能压垮已处于困境的服务（雷群问题）。指数退避给服务恢复的空间。'
+  },
+  {
+    q: '根据本章，代理何时应该升级至人工操作员而非尝试自主恢复？',
+    opts: [
+      'A. 遇到每个错误时，确保人工监督',
+      'B. 只有当代理耗尽内存时',
+      'C. 在复杂或严重的情况下，或当恢复机制已耗尽时',
+      'D. 只有当代理收到明确的用户升级指令时'
+    ],
+    ans: 2,
+    ok: '正确！在复杂或严重的情况下——如超出重试限制的重复失败、高严重性的财务/安全错误，或代理缺乏信心的持续模糊情况——将问题委托给人工操作员是适当的行动方案。',
+    no: '本章指定在复杂或严重的情况下升级：自动化恢复机制已耗尽时，或严重性需要人类判断时（财务、安全关键，或持续模糊的情况）。'
+  },
+  {
+    q: '将异常处理与反思机制结合如何创造更自适应的代理？',
+    opts: [
+      'A. 反思允许代理完全跳过错误检测',
+      'B. 代理分析失败并调整方法（如优化提示词）后再重试，而非重复同一失败操作',
+      'C. 该组合将所有错误转为可安全忽略的警告',
+      'D. 该组合允许代理响应错误时重写自身代码'
+    ],
+    ans: 1,
+    ok: '正确！当异常处理与反思结合时，代理不是盲目重试——它分析出了什么问题并进行适应。对于基于 LLM 的代理，这可能意味着修改提示词、更改参数，或在重试前以不同方式分解请求，创造真正自适应的系统。',
+    no: '该组合的威力在于反思将错误恢复转化为学习：代理不是重复同一失败方法，而是分析失败并尝试经过优化、适应性调整的方法——创造真正自适应的系统。'
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">第 ' + (curQ+1) + ' 题 / 共 ' + quizData.length + ' 题</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">下一题</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">查看核心要点</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

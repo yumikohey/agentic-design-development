@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>附录 D：使用 AgentSpace 构建智能体 — 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431; --text: #E8E7E2;
+    --text2: #ADACA6; --text3: #7A7974; --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15); --teal-l: #0A3D30; --teal-d: #9FE1CB;
+    --coral-l: #3D1E12; --coral-d: #F5C4B3; --purple-l: #2A2555; --purple-d: #CECBF6;
+    --blue-l: #0A2E4D; --blue-d: #B5D4F4; --amber-l: #3A2805; --amber-d: #FAC775;
+    --pink-l: #3D1528; --pink-d: #F4C0D1; --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--teal); }
+.fail-card:nth-child(2)::before { background: var(--purple); }
+.fail-card:nth-child(3)::before { background: var(--coral); }
+.fail-card:nth-child(4)::before { background: var(--amber); }
+.fail-card:nth-child(5)::before { background: var(--blue); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 80px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+
+<div class="chapter-tag">附录 D</div>
+<h1>使用 AgentSpace 构建智能体</h1>
+<p class="subtitle">AgentSpace 是 Google 的企业级 AI 平台，整合了统一搜索、知识图谱与无代码智能体创建功能——让组织无需深厚的编程专业知识，即可部署自主 AI 智能体。</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">概览</button>
+  <button class="nav-btn" onclick="go('problem')">问题所在</button>
+  <button class="nav-btn" onclick="go('solution')">解决方案</button>
+  <button class="nav-btn" onclick="go('concepts')">核心概念</button>
+  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
+  <button class="nav-btn" onclick="go('code')">代码实战</button>
+  <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
+  <button class="nav-btn" onclick="go('glance')">一览概要</button>
+  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
+  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
+  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+</nav>
+
+<!-- 1. 概览 -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">平台概览</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">平台名称</div><div class="metric-value">AgentSpace</div></div>
+    <div class="metric"><div class="metric-label">底层模型</div><div class="metric-value">Gemini</div></div>
+    <div class="metric"><div class="metric-label">开发界面</div><div class="metric-value">无代码</div></div>
+    <div class="metric"><div class="metric-label">协作协议</div><div class="metric-value">A2A</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>什么是 AgentSpace？</h3>
+    <p>AgentSpace 是一个旨在推动"智能体驱动企业"的平台，通过将人工智能融入日常工作流程来实现这一目标。其核心是提供跨越企业整个数字资产的统一搜索能力——包括文档、电子邮件和数据库——利用 Google 的 Gemini 模型来理解和综合来自不同来源的信息。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>超越简单聊天机器人</h3>
+    <p>该平台支持创建和部署专业化 AI 智能体，能够执行复杂任务并自动化流程。这些智能体不仅仅是聊天机器人——它们可以推理、规划并自主执行多步骤操作。例如，一个智能体可以研究某个主题、编写带有引用的报告，甚至生成音频摘要。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>企业知识图谱</h3>
+    <p>AgentSpace 构建企业知识图谱，绘制人员、文档和数据之间的关系。这使 AI 能够理解上下文并提供更相关、更个性化的结果。该平台还包含一个名为 Agent Designer 的无代码界面，无需深厚的技术专业知识即可创建自定义智能体。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>通过 A2A 协议实现多智能体协作</h3>
+    <p>AgentSpace 支持多智能体系统，不同的 AI 智能体可以通过名为 Agent2Agent（A2A）协议的开放协议进行通信和协作。这种互操作性支持更复杂的编排工作流。安全性是基础组件，具有基于角色的访问控制和数据加密功能，以保护敏感的企业信息。</p>
+  </div>
+</div>
+
+<!-- 2. 问题所在 -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">企业 AI 面临的困境</div>
+  <div class="sec-desc">在 AgentSpace 这类平台出现之前，企业在大规模部署 AI 智能体时面临重大障碍。点击各卡片了解具体挑战：</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>信息碎片化</h4>
+      <p>数据分散在各系统孤岛中</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">企业数据分布在电子邮件、文档、数据库和 SaaS 工具中，没有统一的访问层。AI 模型无法跨这些来源进行连贯搜索，严重限制了自动化工作流的质量。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>技术门槛高</h4>
+      <p>需要深厚的工程专业知识</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">构建 AI 智能体历来需要大量编程知识。大多数业务用户和领域专家被排除在外，无法创建他们所需的智能体，减缓了 AI 在企业中的普及速度。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>缺乏上下文感知</h4>
+      <p>智能体不了解组织知识</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">通用 AI 模型对组织内具体的人员、项目、关系或历史一无所知。没有知识图谱，输出内容只能是通用回答，而非具有组织针对性的精确答案。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>智能体孤立运行</h4>
+      <p>智能体之间无法协作</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">各 AI 工具孤立运行。没有智能体间通信的标准协议，需要多个专业智能体协作的复杂多步骤任务就无法编排实现。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>安全合规顾虑</h4>
+      <p>企业敏感数据面临暴露风险</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">将 AI 系统连接到敏感企业数据引发了访问控制、数据泄露和合规方面的担忧。没有内置的基于角色的权限管理，广泛部署存在较大风险。</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. 解决方案 -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">AgentSpace 的解决之道</div>
+  <div class="sec-desc">AgentSpace 通过分层架构来应对企业 AI 挑战。点击每个步骤了解其工作原理：</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">通过 Google Cloud 控制台访问</div>
+          <div class="chain-role">入口：AI 应用程序</div>
+        </div>
+      </div>
+      <div class="chain-detail">导航至 Google Cloud 控制台并选择"AI 应用程序"以访问 AgentSpace。您可以选择创建 Agentspace 应用（企业搜索+助手）或自定义搜索应用。Agentspace 选项由 Gemini 驱动，员工可以在海量公司数据中轻松找到答案、自动化内容创作并执行与连接应用相关的任务。</div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">连接各类服务</div>
+          <div class="chain-role">集成：Google + 第三方平台</div>
+        </div>
+      </div>
+      <div class="chain-detail">将您的智能体连接到各种服务。Google 原生来源包括 Calendar 和 Gmail；第三方来源包括 Workday、Jira、Outlook 和 ServiceNow。这些连接使您的智能体能够实时访问组织已在使用的工具，从而执行创建工单、起草电子邮件或预订假期等操作。</div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div>
+          <div class="chain-title">配置提示词</div>
+          <div class="chain-role">提示词库或自定义提示词</div>
+        </div>
+      </div>
+      <div class="chain-detail">从 Google 预组装提示词库中选择（例如 goog_deep_research、goog_create_jira_ticket、goog_generate_code），或创建自己的自定义提示词。自定义提示词包含名称、显示名、标题、描述、提示类型、用户查询文本和激活行为。这定义了您的智能体如何解释和响应用户请求。</div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--blue);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">4</div>
+        <div>
+          <div class="chain-title">启用高级功能</div>
+          <div class="chain-role">知识图谱、分析统计、Web 界面</div>
+        </div>
+      </div>
+      <div class="chain-detail">配置高级功能：启用 Google Cloud 知识图谱以用外部数据源扩展搜索结果；启用私有知识图谱，利用内部组织数据提供上下文准确的查询注释（更新后最长需要 24 小时重新生成）。添加连接的数据存储、启用面向 Web 的界面，并设置分析功能以监控使用情况。</div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--green);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--green-l);color:var(--green-d);">5</div>
+        <div>
+          <div class="chain-title">部署并开始对话</div>
+          <div class="chain-role">实时智能体聊天界面</div>
+        </div>
+      </div>
+      <div class="chain-detail">完成配置后，AgentSpace 聊天界面即可访问。用户可以搜索数据、提问并通过以"Google Agentspace"为品牌的简洁对话式界面与智能体互动。智能体可以在回答中引用多个来源，用户也可以直接在聊天输入框中附加来源。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. 核心概念 -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">核心概念</div>
+  <div class="sec-desc">AgentSpace 建立在几个基础概念之上，使其与更简单的 AI 工具区别开来。点击各层探索：</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);color:var(--teal-d);border-color:var(--teal);">
+      <div class="ctx-layer-title">企业知识图谱</div>
+      <div class="ctx-layer-sub">绘制人员、文档和数据之间的关系</div>
+      <div class="ctx-layer-detail">知识图谱是赋予 AgentSpace 上下文感知能力的智能层。它绘制组织数字资产之间的关系——谁认识谁、哪些文档与哪些项目相关、哪些数据属于哪个业务单元。这使 AI 能够提供精确的、个性化的结果，而非通用的回答。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);color:var(--purple-d);border-color:var(--purple);">
+      <div class="ctx-layer-title">Agent Designer（无代码界面）</div>
+      <div class="ctx-layer-sub">无需编程专业知识即可构建智能体</div>
+      <div class="ctx-layer-detail">Agent Designer 是 AgentSpace 用于创建自定义智能体的无代码界面。它抽象掉了底层的技术复杂性，让领域专家和业务用户通过选择服务、编写提示词和设置行为来配置智能体——无需任何代码。这使整个组织的 AI 智能体创建实现了民主化。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);color:var(--blue-d);border-color:var(--blue);">
+      <div class="ctx-layer-title">Agent2Agent（A2A）协议</div>
+      <div class="ctx-layer-sub">多智能体通信的开放协议</div>
+      <div class="ctx-layer-detail">A2A 协议是一个开放标准，使不同的 AI 智能体能够进行通信、协调和协作。这种互操作性对于编排复杂的企业工作流至关重要——需要多个专业智能体（例如研究智能体、写作智能体、调度智能体）相互传递任务并共享结果。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);color:var(--amber-d);border-color:var(--amber);">
+      <div class="ctx-layer-title">连接的数据存储</div>
+      <div class="ctx-layer-sub">存储和检索组织的专有数据</div>
+      <div class="ctx-layer-detail">AgentSpace 允许连接包含专有公司数据的自定义数据存储。这意味着智能体可以在内部文档、数据库和知识库上搜索和推理——这些内容在任何公共训练数据集中都不存在，使智能体真正具备组织专属知识。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);color:var(--coral-d);border-color:var(--coral);">
+      <div class="ctx-layer-title">基于角色的安全控制</div>
+      <div class="ctx-layer-sub">默认启用访问控制和数据加密</div>
+      <div class="ctx-layer-detail">安全性是 AgentSpace 的基础。基于角色的访问控制确保智能体只呈现用户有权查看的信息。数据加密保护静态和传输中的敏感企业信息。这使得将 AI 智能体连接到敏感的人力资源、财务或客户数据成为可行之举。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. 应用场景 -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">企业应用场景</div>
+  <div class="sec-desc">AgentSpace 支持广泛的企业工作流场景。点击标签探索各个场景：</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">深度调研</button>
+    <button class="uc-tab" onclick="showUC(1)">人力资源</button>
+    <button class="uc-tab" onclick="showUC(2)">IT 支持</button>
+    <button class="uc-tab" onclick="showUC(3)">内容创作</button>
+    <button class="uc-tab" onclick="showUC(4)">数据分析</button>
+  </div>
+
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>深度调研智能体</h3>
+      <p>配置了 <code>goog_deep_research</code> 提示词的智能体可以通过搜索内部文档、连接的数据存储，以及可选的网络，自主研究任何主题。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>用户提问："我们的竞争对手在亚太市场有哪些动向？"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>智能体搜索内部销售报告、电子邮件和研究文档</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>智能体与知识图谱关系进行交叉引用</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>生成带有内部来源引用的综合报告</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>人力资源工作流智能体</h3>
+      <p>连接到 Workday 和 Google 日历后，人力资源智能体可以自主处理员工请求——从请假申请到入职引导。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>员工请求："帮我申请下个月 3 天假"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>智能体检查日历可用性和 Workday 假期余额</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>智能体在 Workday 中创建请假申请</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>自动确认并在日历中标记休假时间</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>IT 支持智能体</h3>
+      <p>连接到 Jira 和 ServiceNow 后，IT 智能体可以解读技术文档、诊断问题并创建支持工单——所有操作均通过自然语言对话完成。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>用户反映："我的 VPN 每 10 分钟就断线一次"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>智能体搜索技术文档和类似历史工单</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>根据内部知识库提供解决步骤建议</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>如需升级处理，自动创建 ServiceNow 工单</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>内容创作智能体</h3>
+      <p>使用 <code>goog_generate_marketing_copy</code> 等提示词或自定义写作助手提示词，智能体可以起草以公司知识为基础的电子邮件、营销材料和文档。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>用户请求："帮我起草第三季度产品发布邮件"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>智能体从内部文档中检索产品规格</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>按照品牌语气指南起草邮件</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>用户审核后通过连接的 Gmail 发送</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>数据分析智能体</h3>
+      <p>使用 <code>goog_analyze_data</code> 提示词和连接的数据存储，智能体可以查询、可视化和解读业务数据，无需 SQL 专业知识。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>经理提问："展示按地区划分的第二季度销售趋势"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>智能体查询连接的销售数据库</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>利用 Gemini 的分析能力识别趋势</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>返回包含关键洞察和数据点的摘要</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. 代码实战 -->
+<div id="sec-code" class="section">
+  <div class="sec-title">编程方式构建</div>
+  <div class="sec-desc">虽然 AgentSpace 提供了无代码 UI，开发者也可以使用 Google Cloud API 以编程方式进行交互。以下是使用 Discovery Engine API 创建和配置 AgentSpace 智能体的方法：</div>
+
+  <div class="card" style="border-left:3px solid var(--text3);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>前置条件</h3>
+    <ul>
+      <li>已启用 AgentSpace 的 Google Cloud 项目</li>
+      <li>项目已开启结算</li>
+      <li>已启用 Discovery Engine API</li>
+      <li>已配置应用默认凭证</li>
+    </ul>
+  </div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0;">安装所需 SDK：</p>
+  <div class="json-block">pip install google-cloud-discoveryengine</div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0;">创建 AgentSpace 数据存储：</p>
+  <div class="code-block"><span class="code-keyword">from</span> google.cloud <span class="code-keyword">import</span> discoveryengine_v1 <span class="code-keyword">as</span> discoveryengine
+
+<span class="code-comment"># 初始化 DataStoreService 客户端</span>
+client = discoveryengine.DataStoreServiceClient()
+
+<span class="code-comment"># 配置数据存储</span>
+data_store = discoveryengine.DataStore(
+    display_name=<span class="code-string">"企业知识库"</span>,
+    industry_vertical=discoveryengine.IndustryVertical.GENERIC,
+    content_config=discoveryengine.DataStore.ContentConfig.CONTENT_REQUIRED,
+)
+
+<span class="code-comment"># 在项目中创建数据存储</span>
+parent = <span class="code-string">f"projects/{PROJECT_ID}/locations/global/collections/default_collection"</span>
+
+operation = client.create_data_store(
+    parent=parent,
+    data_store=data_store,
+    data_store_id=<span class="code-string">"my-enterprise-kb"</span>,
+)
+
+result = operation.result()
+<span class="code-keyword">print</span>(<span class="code-string">f"已创建数据存储：{result.name}"</span>)</div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0;">创建 AgentSpace 智能体应用：</p>
+  <div class="code-block"><span class="code-comment"># 创建 AgentSpace 应用</span>
+engine_client = discoveryengine.EngineServiceClient()
+
+engine = discoveryengine.Engine(
+    display_name=<span class="code-string">"我的企业智能体"</span>,
+    solution_type=discoveryengine.SolutionType.SOLUTION_TYPE_CHAT,
+    chat_engine_config=discoveryengine.Engine.ChatEngineConfig(
+        agent_creation_config=discoveryengine.Engine.ChatEngineConfig.AgentCreationConfig(
+            business=<span class="code-string">"我的组织"</span>,
+            default_language_code=<span class="code-string">"zh"</span>,
+            time_zone=<span class="code-string">"Asia/Shanghai"</span>,
+        )
+    ),
+    data_store_ids=[<span class="code-string">"my-enterprise-kb"</span>],
+)
+
+operation = engine_client.create_engine(
+    parent=parent,
+    engine=engine,
+    engine_id=<span class="code-string">"my-enterprise-agent"</span>,
+)
+result = operation.result()
+<span class="code-keyword">print</span>(<span class="code-string">f"已创建智能体引擎：{result.name}"</span>)</div>
+
+  <div class="card card-bordered" style="margin-top:16px;">
+    <h3>UI 与 API 的权衡</h3>
+    <p>无代码 Agent Designer UI 适合快速原型开发和赋能业务用户。API 方式更适合 CI/CD 流水线、基础设施即代码设置，以及对多个智能体进行程序化管理。两种方式最终都能产生相同的 AgentSpace 部署结果。</p>
+  </div>
+</div>
+
+<!-- 7. 深入解析 -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">深入解析：架构与 A2A 协议</div>
+  <div class="sec-desc">深入了解 AgentSpace 如何在底层编排复杂工作流，揭示它为何不仅仅是一个聊天机器人平台。</div>
+
+  <div class="card card-bordered">
+    <h3>AgentSpace 架构层次</h3>
+    <p>AgentSpace 在三个层次上运行：(1) <strong>展示层</strong> — 聊天 UI 和 API 端点；(2) <strong>编排层</strong> — Agent Designer 逻辑、提示词管理和 A2A 路由；(3) <strong>知识层</strong> — 企业知识图谱、连接的数据存储和 Gemini 推理。每一层都可以独立配置。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>A2A 协议的实际运作</h3>
+    <p>A2A 协议允许"管理者"智能体将子任务委托给专业化的"工作者"智能体。例如，研究智能体可以将文档检索委托给搜索智能体，将摘要编写委托给写作智能体。该协议定义了智能体如何公告其能力、接收和确认任务，以及如何返回结构化结果——实现了真正的智能体协作，而非简单的链式调用。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>提示词库深度解析</h3>
+    <p>Google 的预构建提示词库包含经过企业级验证的提示词，如 <strong>goog_deep_research</strong>（搜索增强型研究）、<strong>goog_explain_technical_documentation</strong>（技术文档解释）、<strong>goog_generate_code</strong>（代码生成）和 <strong>goog_help_me_analyze</strong>（数据分析与可视化）。这些提示词经过生产环境测试，遵循 Google 的安全和质量指南——在自定义之前是很好的起点。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--amber); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>私有知识图谱 vs. Google Cloud 知识图谱</h3>
+    <p>AgentSpace 提供两种知识图谱模式。<strong>Google Cloud 知识图谱</strong>通过整合来自内部和外部数据源的丰富面板来增强搜索结果；<strong>私有知识图谱</strong>利用内部组织数据提供上下文精准的查询注释（更新后最长需 24 小时重新生成数据）。大多数企业会结合使用两者。</p>
+  </div>
+
+  <div class="diagram-sim">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">交互式智能体流程 — 点击各节点了解请求生命周期</p>
+    <div class="diagram-nodes">
+      <div class="dia-node" onclick="simClick(0)" style="background:var(--blue-l);color:var(--blue-d);">用户查询</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--teal-l);color:var(--teal-d);">编排层</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--purple-l);color:var(--purple-d);">知识图谱</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--coral-l);color:var(--coral-d);">Gemini</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(4)" style="background:var(--green-l);color:var(--green-d);">最终响应</div>
+    </div>
+    <div class="dia-output" id="sim-output">点击上方任意节点，追踪请求在 AgentSpace 中的完整生命周期。</div>
+  </div>
+</div>
+
+<!-- 8. 一览概要 -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">一览概要</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--red-l);color:var(--red-d);">
+      <h4>问题（WHAT）</h4>
+      <p>企业难以部署 AI 智能体，原因在于数据碎片化、技术门槛高、缺乏组织上下文感知，以及智能体孤立运行——无法将 AI 嵌入真实的业务工作流中。</p>
+    </div>
+    <div class="glance-card" style="background:var(--teal-l);color:var(--teal-d);">
+      <h4>方案（WHY）</h4>
+      <p>AgentSpace 通过知识图谱统一企业数据，提供无代码 Agent Designer，集成 Google 和第三方服务，并使用 A2A 协议实现多智能体协作——一切均具备企业级安全保障。</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);color:var(--purple-d);">
+      <h4>关键机制</h4>
+      <p>私有知识图谱绘制组织关系；提示词库提供预验证的智能体行为；A2A 协议支持编排多智能体工作流；基于角色的访问控制强制执行数据治理。</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);color:var(--amber-d);">
+      <h4>适用时机</h4>
+      <p>当您需要企业级 AI 搜索、希望无需深度工程即可部署智能体、需要与 Google Workspace 或企业 SaaS 工具集成，或需要在 Google Cloud 上进行合规、安全的 AI 部署时，使用 AgentSpace。</p>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>核心洞察</h3>
+    <p>AgentSpace 抽象了 AI 智能体部署的底层技术复杂性，使得无需深厚编程专业知识即可构建专业化的多智能体系统。其主要目标是将自动化的分析和操作能力直接嵌入工作流程，从而提高流程效率，并在企业规模上增强数据驱动的决策能力。</p>
+  </div>
+</div>
+
+<!-- 9. 知识测验 -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">知识测验</div>
+  <div class="sec-desc">测试您对 AgentSpace 核心概念的理解。</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. 核心要点 -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">核心要点</div>
+
+  <ul class="tk-list">
+    <li>AgentSpace 是 Google 的企业级 AI 平台，由 Gemini 模型驱动，提供统一搜索、知识图谱构建和无代码智能体创建功能。</li>
+    <li>企业知识图谱绘制人员、文档和数据之间的关系，赋予智能体所需的组织上下文，实现精准、个性化的响应。</li>
+    <li>Agent Designer 是一个无代码界面，让业务用户无需编程即可通过选择服务、选择或创建提示词、配置行为来创建自定义智能体。</li>
+    <li>Agent2Agent（A2A）协议是一个开放标准，使不同 AI 智能体能够通信和协作，使复杂的编排多智能体工作流成为可能。</li>
+    <li>AgentSpace 与广泛的生态系统集成，包括 Google Calendar、Gmail、Workday、Jira、Outlook 和 ServiceNow——使智能体能够在企业系统中采取真实行动。</li>
+    <li>安全性是基础：基于角色的访问控制确保智能体只呈现用户有权查看的信息，使连接敏感企业数据变得安全可行。</li>
+    <li>如需实践学习，Google Cloud Skills Boost 上的"使用 Agentspace 构建生成式 AI 智能体"实验室提供了结构化的技能培训环境。</li>
+  </ul>
+
+  <div class="card card-bordered">
+    <h3>总结</h3>
+    <p>AgentSpace 为在组织现有数字基础设施中开发和部署 AI 智能体提供了功能完备的框架。通过将复杂的后端流程——自主推理和企业知识图谱映射——与用于智能体构建的图形用户界面相连接，它使无需深厚编程专业知识即可构建专业化的多智能体系统成为可能。最终目标是将自动化的智能能力直接嵌入工作流程，大幅提升效率并实现规模化数据驱动决策。</p>
+  </div>
+</div>
+
+<!-- 11. 参考资料 -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">参考资料</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> 使用 Agent Designer 创建无代码智能体：<a href="https://cloud.google.com/agentspace/agentspace-enterprise/docs/agent-designer" target="_blank">cloud.google.com/agentspace</a></li>
+    <li><span class="ref-num">[2]</span> Google Cloud Skills Boost：<a href="https://www.cloudskillsboost.google/" target="_blank">cloudskillsboost.google</a></li>
+    <li><span class="ref-num">[3]</span> AgentSpace 企业文档：<a href="https://cloud.google.com/agentspace/agentspace-enterprise/docs" target="_blank">cloud.google.com</a></li>
+    <li><span class="ref-num">[4]</span> Agent2Agent 协议规范：<a href="https://google.github.io/A2A/" target="_blank">google.github.io/A2A</a></li>
+    <li><span class="ref-num">[5]</span> Discovery Engine API 参考文档：<a href="https://cloud.google.com/discovery-engine/docs/reference/rest" target="_blank">cloud.google.com/discovery-engine</a></li>
+  </ul>
+</div>
+
+<div class="footer">
+  <p>附录 D · 使用 AgentSpace 构建智能体 · 交互式学习体验</p>
+</div>
+
+</div>
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  "用户查询：用户输入自然语言请求，例如"展示我们在亚太地区的第三季度销售趋势"。查询被 AgentSpace 界面接收，并传递给编排层进行路由和上下文丰富化处理。",
+  "编排层（Agent Designer 逻辑）：编排层决定调用哪些智能体、提示词和数据源。它可以将查询分解为子任务，通过 A2A 协议将其路由给专业智能体，并负责管理最终响应的组装。提示词配置和服务连接在此处激活。",
+  "知识图谱：查询私有知识图谱和/或 Google Cloud 知识图谱，以查找与查询相关的组织实体——文档、人员、项目。遍历关系图以浮现上下文相关的数据，并用基础信息丰富发送给 Gemini 的提示词。",
+  "Gemini 推理：包含用户查询、检索到的知识图谱上下文和任何工具输出的丰富化提示词被发送给 Gemini 模型进行推理。Gemini 综合所有可用信息，生成连贯、有据可查的准确响应。",
+  "最终响应：包含引用、来源链接和任何操作确认（例如"已创建 Jira 工单 #1234"）的最终综合响应返回给用户。响应以组织数据为基础，并针对 AgentSpace 聊天界面进行了格式化。"
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: "AgentSpace 中企业知识图谱的主要作用是什么？",
+    opts: ["将原始文档存储在数据库中", "绘制人员、文档和数据之间的关系以实现上下文感知", "提供无代码智能体构建界面", "加密敏感企业数据"],
+    ans: 1,
+    ok: "正确！知识图谱绘制组织关系，使智能体能够提供精准、个性化的响应，而非通用回答。",
+    no: "知识图谱关注的是上下文关系，而非仅仅是存储或界面。它绘制组织实体之间的连接，使 AI 响应真正具备信息依据。"
+  },
+  {
+    q: "Agent2Agent（A2A）协议是什么？",
+    opts: ["企业数据的安全加密标准", "使不同 AI 智能体能够通信和协作的开放协议", "将 AgentSpace 连接到 Jira 等第三方服务的方式", "衡量智能体性能的基准测试"],
+    ans: 1,
+    ok: "正确！A2A 是一个开放标准，让智能体能够公告能力、委托任务并共享结果——使编排多智能体工作流成为可能。",
+    no: "A2A 是关于智能体间通信和协作的协议，不是专门用于安全或第三方集成的。"
+  },
+  {
+    q: "AgentSpace 中的 Agent Designer 是什么？",
+    opts: ["用于程序化智能体创建的 Python SDK", "用于跟踪智能体性能的监控仪表板", "无需编程专业知识即可创建自定义智能体的无代码界面", "用于比较不同 AI 模型的基准测试"],
+    ans: 2,
+    ok: "正确！Agent Designer 是 AgentSpace 的无代码 UI，让业务用户和领域专家通过选择服务和配置提示词来创建智能体——无需编写代码。",
+    no: "Agent Designer 专门指无代码 UI，而非代码 SDK 或监控工具。"
+  },
+  {
+    q: "以下哪项不是 AgentSpace 可以连接的服务？",
+    opts: ["Google 日历", "Workday", "Jira", "AWS Lambda"],
+    ans: 3,
+    ok: "正确！AgentSpace 的列出集成包括日历、Gmail（Google 来源）以及 Workday、Jira、Outlook、ServiceNow（第三方来源）——AWS Lambda 不在原生服务连接器目录中。",
+    no: "AgentSpace 可连接日历、Gmail（Google）以及 Workday、Jira、Outlook、ServiceNow（第三方）。AWS Lambda 不是列出的原生集成。"
+  },
+  {
+    q: "私有知识图谱与 Google Cloud 知识图谱的关键区别是什么？",
+    opts: ["Google Cloud 知识图谱免费；私有知识图谱需额外付费", "Google Cloud 知识图谱用外部来源扩展结果；私有知识图谱使用内部组织数据", "私有知识图谱比 Google Cloud 知识图谱响应更快", "两者没有区别——它们是相同的功能"],
+    ans: 1,
+    ok: "正确！Google Cloud 知识图谱通过外部数据源扩展结果，而私有知识图谱利用内部组织数据提供精准的上下文注释——更新后最长需 24 小时重新生成。",
+    no: "区别在于数据来源范围：外部（Google Cloud 知识图谱）vs. 内部（私有知识图谱），与成本或速度无关。"
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">第 ' + (curQ+1) + ' 题 / 共 ' + quizData.length + ' 题</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">下一题</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">查看核心要点</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

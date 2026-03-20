@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ — Agentic Design Patterns</title>
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: system-ui, -apple-system, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+/* FAQ accordion */
+.faq-item { border: 0.5px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 8px; overflow: hidden; transition: all .2s; }
+.faq-q { padding: 14px 18px; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--bg2); }
+.faq-q:hover { background: var(--bg3); }
+.faq-icon { font-size: 18px; color: var(--text3); flex-shrink: 0; transition: transform .25s; }
+.faq-item.open .faq-icon { transform: rotate(45deg); }
+.faq-a { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; background: var(--bg); }
+.faq-item.open .faq-a { max-height: 400px; padding: 14px 18px; }
+.faq-tag { display: inline-block; font-size: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 99px; margin-right: 6px; flex-shrink: 0; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">FAQ</div>
+<h1>Frequently Asked Questions</h1>
+<p class="subtitle">Answers to the most common questions about agentic design patterns—from foundational concepts to implementation details, advanced patterns, and evaluation strategies.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Misconceptions</button>
+  <button class="nav-btn" onclick="go('solution')">Pattern FAQs</button>
+  <button class="nav-btn" onclick="go('concepts')">Conceptual FAQs</button>
+  <button class="nav-btn" onclick="go('usecases')">Practical FAQs</button>
+  <button class="nav-btn" onclick="go('code')">Implementation FAQs</button>
+  <button class="nav-btn" onclick="go('deepdive')">Advanced FAQs</button>
+  <button class="nav-btn" onclick="go('glance')">Quick Reference</button>
+  <button class="nav-btn" onclick="go('quiz')">True or False</button>
+  <button class="nav-btn" onclick="go('takeaways')">Key Clarifications</button>
+  <button class="nav-btn" onclick="go('refs')">Learn More</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Most Common Questions at a Glance</div>
+  <div class="sec-desc">This FAQ was compiled from community questions about the book "Agentic Design Patterns." Below are the top questions organized by theme.</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Questions Answered</div><div class="metric-value">25+</div></div>
+    <div class="metric"><div class="metric-label">Pattern Areas</div><div class="metric-value">5</div></div>
+    <div class="metric"><div class="metric-label">Code Examples</div><div class="metric-value">4</div></div>
+    <div class="metric"><div class="metric-label">Topic Categories</div><div class="metric-value">6</div></div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What is an "agentic design pattern"?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">An agentic design pattern is a reusable, high-level solution to a common problem encountered when building intelligent, autonomous systems (agents). These patterns provide a structured framework for designing agent behaviors, much like software design patterns do for traditional programming. They help developers build more robust, predictable, and effective AI agents.</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What is the main goal of this guide?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">The guide aims to provide a practical, hands-on introduction to designing and building agentic systems. It moves beyond theoretical discussions to offer concrete architectural blueprints that developers can use to create agents capable of complex, goal-oriented behavior in a reliable way.</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>Who is the intended audience?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">The guide is written for AI developers, software engineers, and system architects who are building applications with large language models (LLMs) and other AI components. It is for those who want to move from simple prompt-response interactions to creating sophisticated, autonomous agents.</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What are the key agentic patterns covered?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">The guide covers 21 patterns including: Reflection (self-critique), Planning (goal decomposition), Tool Use (external APIs), Multi-Agent Collaboration (specialist teams), Human-in-the-Loop (oversight), Memory Management, Knowledge Retrieval (RAG), Routing, Parallelization, Exception Handling, Guardrails/Safety, and more.</div>
+  </div>
+</div>
+
+<!-- 2. Misconceptions -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Common Misconceptions</div>
+  <div class="sec-desc">These are the most frequent misunderstandings developers have when first approaching agentic systems. Click each to reveal the clarification.</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>"Agents are just chatbots"</h4>
+      <p>Wrong—agents actively plan and act</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">A chatbot responds to prompts. An agent perceives its environment, makes decisions, uses tools, maintains state, and takes multi-step actions to achieve goals—far beyond single-turn question-answering.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>"More autonomy is always better"</h4>
+      <p>Wrong—autonomy requires proportional safety</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Greater autonomy demands greater safety infrastructure. Without Guardrails and Human-in-the-Loop patterns, a highly autonomous agent can take harmful or irreversible real-world actions. The HITL pattern is especially critical for high-stakes tasks.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>"Prompt chaining = full agent"</h4>
+      <p>Wrong—it's one foundational pattern of many</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Prompt chaining is the simplest agentic pattern—a linear pipeline. A production-grade agent requires tool use, memory, reflection, and error handling layered on top. Chaining alone cannot handle dynamic, stateful, or multi-turn scenarios well.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>"Reflection is just re-prompting"</h4>
+      <p>Wrong—it requires structured critique</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Simply asking the model to "check your work" often produces rephrasing without improvement. True Reflection requires a structured critique against specific criteria—ideally by a separate Critic agent—leading to genuine quality improvements, not just stylistic edits.</p></div>
+    </div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>Is constant human intervention inefficient?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">It can be, which is why the key is finding the right balance. HITL should be implemented at critical checkpoints—plan approval, tool use confirmation, ambiguity resolution, final output review—not for every single action. The goal is a collaborative partnership where the agent handles the bulk of work and the human provides strategic guidance.</div>
+  </div>
+</div>
+
+<!-- 3. Pattern FAQs -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">Pattern-Specific FAQs</div>
+  <div class="sec-desc">Detailed questions and answers about the key patterns in the book. Click any question to expand.</div>
+
+  <div style="font-size:12px;font-weight:500;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;">Reflection Pattern</div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>How does Reflection reduce hallucinations?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">By prompting an agent to review its work—especially comparing statements against a known source or checking reasoning steps—the Reflection pattern forces the agent to be more grounded in provided context and less likely to generate unsupported information. The agent is explicitly prompted to verify its claims rather than accepting its first output as final.</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What are the two main types of Reflection?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a"><strong>"Check your work" Reflection</strong> — a basic form where the agent is asked to review and fix its previous output. Good for catching simple errors. <strong>"Internal Critic" Reflection</strong> — a more advanced form using a separate "critic" agent or dedicated prompt to evaluate the "worker" agent's output against specific criteria, leading to more rigorous and targeted improvements.</div>
+  </div>
+
+  <div style="font-size:12px;font-weight:500;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;margin-top:20px;">Planning Pattern</div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>Why is planning necessary for complex tasks?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">LLMs can struggle with tasks requiring multiple steps or dependencies. Without a plan, an agent might lose track of the overall objective, miss crucial steps, or fail to handle the output of one step as the input for the next. A plan provides a clear roadmap, ensuring all requirements of the original request are met in a logical order.</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>How does an agent handle errors during plan execution?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">A robust planning pattern allows for dynamic adjustments. If a step fails or the situation changes, the agent can be prompted to "re-plan" from the current state. It analyzes the error, modifies the remaining steps, or adds new ones to overcome the obstacle. This is complemented by the Exception Handling and Recovery pattern (Chapter 12).</div>
+  </div>
+
+  <div style="font-size:12px;font-weight:500;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;margin-top:20px;">Multi-Agent Collaboration</div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What is the Orchestrator Agent?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">A common multi-agent architecture involves an Orchestrator Agent (sometimes called "manager" or "conductor"). The orchestrator understands the overall goal, breaks it down, and delegates sub-tasks to appropriate specialist agents. It then collects results from specialists and synthesizes them into a final output. This is the primary architectural pattern explored in Chapter 7.</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>How do agents communicate with each other?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">Communication is often managed by the orchestrator—passing the output of one agent as context to the next. A shared "scratchpad" or message bus where agents post their findings is another common method. The Inter-Agent Communication (A2A) and Model Context Protocol (MCP) patterns provide standardized approaches for this communication.</div>
+  </div>
+</div>
+
+<!-- 4. Conceptual FAQs -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Conceptual FAQs</div>
+  <div class="sec-desc">Questions about the underlying concepts, terminology, and mental models for agentic systems.</div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What is the difference between a "tool" and a "skill"?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">A <strong>tool</strong> generally refers to an external resource the agent can call upon (e.g., a weather API, a calculator). A <strong>skill</strong> is a more integrated capability combining tool use with internal reasoning to perform a specific function (e.g., "booking a flight" combines calendar and airline APIs with planning logic). Skills are higher-order capabilities built from tools.</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What is "ReAct" (Reason and Act)?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">ReAct is a popular framework that integrates reasoning and acting. The agent follows a loop of <strong>Thought</strong> (reasoning about what to do), <strong>Action</strong> (deciding which tool to use and with what inputs), and <strong>Observation</strong> (seeing the tool result). This loop continues until enough information is gathered. It is foundational to the Tool Use and Planning patterns.</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What is an "agent trajectory"?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">An agent trajectory is the complete log of an agent's steps while performing a task—all its thoughts, actions (tool calls), and observations. Analyzing trajectories is a key part of debugging and understanding agent behavior. It is the primary artifact used in the Evaluation and Monitoring pattern (Chapter 19).</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What is "prompt leakage"?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">Prompt leakage occurs when parts of the system prompt (tool definitions, internal instructions) are inadvertently revealed in the agent's final response to the user. This can expose implementation details and confuse users. Prevention techniques include using separate prompts for reasoning vs. final answer generation, and explicit instructions to not repeat system prompt content.</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What are the four levels of agent complexity?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a"><strong>Level 0 (Core Reasoning Engine):</strong> LLM with no tools, memory, or environment interaction. <strong>Level 1 (Connected Problem-Solver):</strong> LLM with tool use and RAG for live information. <strong>Level 2 (Strategic Problem-Solver):</strong> Tool use + planning + context engineering + self-improvement. <strong>Level 3 (Collaborative Multi-Agent):</strong> Multiple specialized agents orchestrated to tackle complex workflows.</div>
+  </div>
+</div>
+
+<!-- 5. Practical FAQs -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Practical FAQs</div>
+  <div class="sec-desc">Questions about applying these patterns in real-world systems. Select a use-case area.</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Getting Started</button>
+    <button class="uc-tab" onclick="showUC(1)">Tool Use</button>
+    <button class="uc-tab" onclick="showUC(2)">Multi-Agent</button>
+    <button class="uc-tab" onclick="showUC(3)">Evaluation</button>
+  </div>
+
+  <div class="uc-panel active" id="uc-0">
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q"><span>Which pattern should I start with?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a">Start with Prompt Chaining (Chapter 1) for any multi-step task—it is the simplest foundational pattern. Add Tool Use (Chapter 5) when your agent needs live information or external actions. Add Memory Management (Chapter 8) when context must persist across turns. Add Reflection (Chapter 4) when output quality is insufficient. Layer in multi-agent only when single-agent approaches hit a ceiling.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q"><span>What frameworks does the book use?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a">The book uses three primary frameworks: <strong>LangChain</strong> (with LangGraph) for flexible chaining and graph-based agent workflows; <strong>CrewAI</strong> for multi-agent orchestration with roles and tasks; and <strong>Google Agent Developer Kit (ADK)</strong> for production-grade agents integrated with Google's AI infrastructure. Each represents a different "canvas" on which patterns are applied.</div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-1">
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q"><span>How does an agent decide which tool to use?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a">The agent is given a list of available tools with descriptions of what each does and what parameters it requires. When faced with a request it cannot handle with internal knowledge alone, the agent's reasoning ability allows it to select the most appropriate tool. The Routing pattern (Chapter 2) can add explicit conditional logic on top of this selection process.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q"><span>What are the key challenges in implementing Tool Use?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a"><strong>Error Handling:</strong> Tools can fail, return unexpected data, or time out—the agent must recognize these and decide to retry, use a different tool, or ask for help. <strong>Security:</strong> Giving tool access has serious implications; safeguards, permissions, and human approval for sensitive operations are essential. <strong>Prompting:</strong> The agent must be prompted to generate correctly formatted tool calls with the right function name and parameters.</div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-2">
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q"><span>When should I use a multi-agent system vs. a single agent?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a">Use multi-agent when: (1) the task requires genuinely different expertise that cannot be captured in a single system prompt; (2) the workflow is too complex for one agent to track without losing context; (3) parallel execution of independent subtasks would significantly speed things up; (4) quality control benefits from a separate critic perspective. Start single-agent and add complexity only when needed.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q"><span>What are the benefits of multi-agent systems?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a"><strong>Modularity and Specialization:</strong> Each agent can be fine-tuned for its specific task (researcher, writer, critic), leading to higher quality. <strong>Reduced Complexity:</strong> Breaking complex workflows into specialized roles makes the system easier to design, debug, and maintain. <strong>Simulated Brainstorming:</strong> Different agents offering different perspectives can produce more creative and robust solutions, similar to how human teams work.</div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-3">
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q"><span>Why is evaluating an agent harder than evaluating traditional software?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a">Traditional software has deterministic outputs (same input → same output). Agents using LLMs are non-deterministic and their performance is often subjective. Evaluating them requires assessing the quality and relevance of output, not just whether it's technically "correct." This requires new evaluation methodologies: outcome-based, process-based, and human evaluation working together.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q"><span>How do you create reliable tests for a non-deterministic system?</span><span class="faq-icon">+</span></div>
+      <div class="faq-a">While you cannot guarantee exact output wording, you can write tests that check for key elements: does the final response contain specific required information? Did the agent successfully call a certain tool with correct parameters? Did it complete the required steps? This is often done using mock tools in a dedicated testing environment. LLM-as-a-Judge (Chapter 19) provides an automated scoring approach.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Implementation FAQs -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Implementation FAQs</div>
+  <div class="sec-desc">Technical questions about building agents, including key code patterns.</div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>How is prompting an agent different from a simple ChatGPT prompt?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">Prompting an agent involves creating a detailed "system prompt" or constitution that acts as its operating instructions. This goes beyond a single user query—it defines the agent's role, its available tools, the patterns it should follow (like ReAct or Planning), its constraints, and its personality. The system prompt is effectively the agent's "programming."</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What does a good system prompt include?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">A strong system prompt typically includes: <strong>Role and Goal</strong> (who the agent is and its primary purpose); <strong>Tool Definitions</strong> (available tools with descriptions and usage format); <strong>Constraints and Rules</strong> (what the agent should NOT do); <strong>Process Instructions</strong> (which patterns to follow—"First create a plan, then execute step-by-step"); <strong>Example Trajectories</strong> (a few successful thought-action-observation loops significantly improve reliability).</div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>Minimal System Prompt Structure</h3>
+    <p>The structure below illustrates the key components of a production agent system prompt.</p>
+  </div>
+
+  <div class="code-block"><span class="code-comment"># Minimal agent system prompt structure</span>
+SYSTEM_PROMPT = <span class="code-string">"""
+You are a research assistant agent. Your goal is to answer
+user questions by gathering information from multiple sources.
+
+## Available Tools
+- search(query: str) -> str: Search the web for information
+- fetch_doc(url: str) -> str: Retrieve content from a URL
+- summarize(text: str) -> str: Summarize a long document
+
+## Process
+1. Analyze the user's request
+2. Create a brief plan (numbered steps)
+3. Execute each step using the appropriate tool
+4. Synthesize your findings into a final answer
+
+## Constraints
+- Always cite your sources
+- Do not fabricate statistics or quotes
+- If a tool fails, try an alternative approach
+- Request clarification if the goal is ambiguous
+
+## Format
+Think through your reasoning step-by-step before answering.
+"""</span></div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>How do I structure tool responses back to the agent?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">Tool responses should be formatted consistently—structured JSON when possible. Include the tool name, the input parameters used, the output, and any error status. Clear structure helps the agent correctly interpret the observation before deciding its next thought/action. Schemas should be defined in the system prompt or provided via function-calling APIs like OpenAI function calling or Google function declarations.</div>
+  </div>
+</div>
+
+<!-- 7. Advanced FAQs -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Advanced FAQs</div>
+  <div class="sec-desc">Questions for developers building production-grade agentic systems at scale.</div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What are future trends in agentic systems?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">The guide points toward: <strong>More Autonomous Agents</strong> requiring less human intervention and learning to adapt on their own; <strong>Highly Specialized Agents</strong> available as a service in open ecosystems (the "agent economy"); <strong>Better Tools and Platforms</strong> with more sophisticated frameworks for building, testing, and deploying robust multi-agent systems; and <strong>New Safety Patterns</strong> addressing alignment, robustness, and adversarial scenarios.</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What is the Model Context Protocol (MCP)?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">MCP is an emerging standard (developed by Anthropic) for how agents and tools exchange information. Rather than each integration requiring custom code, MCP defines a standardized protocol for tool discovery, invocation, and response. This is foundational to the "agentic ecosystems" vision—enabling agents to discover and use tools they were not explicitly programmed to work with.</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>How does the Guardrails/Safety Patterns chapter address safety?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">Chapter 18 covers: <strong>Input Validation/Sanitization</strong> to prevent injection attacks; <strong>Output Filtering/Post-processing</strong> to block harmful content; <strong>Behavioral Constraints</strong> via explicit system prompt rules; <strong>Callbacks</strong> for monitoring each agent action; <strong>Separation of Concerns</strong> to limit agent permissions to what is needed; <strong>Checkpoint and Rollback</strong> for recoverable failures; and <strong>External Moderation APIs</strong> as a final safety layer.</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What is "Context Engineering" and why does it matter?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">Context engineering is the strategic process of selecting, packaging, and managing the most relevant information for each step in an agent's workflow. Because LLMs have limited context windows, feeding irrelevant information wastes capacity and degrades performance. Context engineering ensures each agent step gets a short, focused, and powerful context—maximizing accuracy and efficiency. It is covered in Chapter 1 and Appendix A.</div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>What is Resource-Aware Optimization (Chapter 16)?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">This pattern covers techniques for managing computational costs in complex agent systems: Dynamic Model Switching (using smaller/cheaper models for simpler subtasks), Cost-Sensitive Exploration (planning with cost as a factor), Parallelization &amp; Distributed Computing Awareness, Adaptive Tool Use &amp; Selection, and Contextual Pruning &amp; Summarization to reduce unnecessary token consumption across long-running workflows.</div>
+  </div>
+</div>
+
+<!-- 8. Quick Reference -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">Quick Reference</div>
+  <div class="sec-desc">A concise reference table mapping common development questions to the relevant chapters.</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="border-top:3px solid var(--teal);">
+      <h4>HOW DO I DECOMPOSE TASKS?</h4>
+      <p>Ch.1: Prompt Chaining — Ch.6: Planning — Ch.3: Parallelization for concurrent subtasks</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--blue);">
+      <h4>HOW DO I ACCESS LIVE DATA?</h4>
+      <p>Ch.5: Tool Use — Ch.14: Knowledge Retrieval (RAG) — Ch.10: Model Context Protocol (MCP)</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--coral);">
+      <h4>HOW DO I IMPROVE QUALITY?</h4>
+      <p>Ch.4: Reflection — Ch.17: Reasoning Techniques — Ch.19: Evaluation and Monitoring</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--purple);">
+      <h4>HOW DO I BUILD MULTI-AGENT?</h4>
+      <p>Ch.7: Multi-Agent Collaboration — Ch.15: A2A — Ch.13: Human-in-the-Loop</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--amber);">
+      <h4>HOW DO I MANAGE STATE?</h4>
+      <p>Ch.8: Memory Management — Ch.11: Goal Setting and Monitoring — Ch.12: Exception Handling</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--pink);">
+      <h4>HOW DO I ENSURE SAFETY?</h4>
+      <p>Ch.18: Guardrails/Safety — Ch.13: Human-in-the-Loop — Ch.16: Resource-Aware Optimization</p>
+    </div>
+  </div>
+</div>
+
+<!-- 9. True or False Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">True or False Quiz</div>
+  <div class="sec-desc">Test your understanding of agentic design patterns with these True/False questions.</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Key Clarifications -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Clarifications</div>
+  <div class="sec-desc">The most important clarifications to keep in mind when building agentic systems.</div>
+  <ul class="tk-list">
+    <li>An agent is NOT just a chatbot. Agents perceive, plan, use tools, maintain state, and take multi-step actions toward goals. The difference is architectural, not just a matter of model capability.</li>
+    <li>Reflection requires structured critique, NOT just re-prompting. Simply asking "check your work" rarely produces meaningful improvement. A Critic agent or structured evaluation rubric is necessary for genuine quality gains.</li>
+    <li>Planning and planning execution are separate concerns. An agent creates a plan first (Planning pattern), then executes it step-by-step (Prompt Chaining / Tool Use). The ability to re-plan on failure is what makes it robust.</li>
+    <li>Human-in-the-Loop is not an admission of failure. It is a deliberate design choice for safety and quality at critical decision points. The goal is collaborative intelligence, not just autonomous intelligence.</li>
+    <li>Start simple. Add one pattern at a time. Prompt Chaining → add Tool Use → add Memory → add Reflection → add Multi-Agent. Each addition should solve a specific, observed limitation in the simpler system.</li>
+    <li>Non-determinism requires new testing strategies. Test for key outcomes and successful tool calls, not exact output strings. LLM-as-a-Judge and outcome-based evaluation are your primary tools.</li>
+  </ul>
+</div>
+
+<!-- 11. Learn More -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">Where to Learn More</div>
+  <div class="sec-desc">Recommended resources for going deeper on agentic systems.</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[Book]</span> Gulli, Antonio. <em>Agentic Design Patterns: A Hands-On Guide to Building Intelligent Systems.</em> Springer, 2025. — The primary reference for all topics in this FAQ.</li>
+    <li><span class="ref-num">[Ch.5]</span> <strong>Tool Use (Function Calling)</strong> — Deep dive into tool definitions, ReAct loops, and safe tool execution.</li>
+    <li><span class="ref-num">[Ch.7]</span> <strong>Multi-Agent Collaboration</strong> — Orchestrator patterns, CrewAI examples, sequential vs. parallel handoffs.</li>
+    <li><span class="ref-num">[Ch.13]</span> <strong>Human-in-the-Loop</strong> — When and how to integrate human oversight effectively.</li>
+    <li><span class="ref-num">[Ch.14]</span> <strong>Knowledge Retrieval (RAG)</strong> — Vector search, chunking, embeddings, and semantic similarity.</li>
+    <li><span class="ref-num">[App.A]</span> <strong>Appendix A: Advanced Prompting Techniques</strong> — Zero-shot, few-shot, chain-of-thought, and more.</li>
+    <li><span class="ref-num">[App.C]</span> <strong>Appendix C: Agentic Frameworks Overview</strong> — LangChain, CrewAI, LlamaIndex, MetaGPT, Microsoft AutoGen, SuperAGI compared.</li>
+    <li><span class="ref-num">[Online]</span> Frequently Asked Questions — <a href="#">Online contribution companion to this book</a> with community Q&amp;A and updates.</li>
+  </ul>
+</div>
+
+<div class="footer"><p>Agentic Design Patterns — FAQ</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  { q: 'True or False: An agent is just an LLM with a better prompt.', opts: ['True — a more detailed prompt is all that separates an agent from a chatbot', 'False — an agent requires planning, tool use, memory, and the ability to take multi-step actions toward a goal'], ans: 1, ok: 'Correct! An agent is architecturally different from a chatbot. It uses patterns like Planning, Tool Use, Memory, and Reflection to act autonomously over multiple steps—far beyond what prompt engineering alone provides.', no: 'Not quite. An agent is architecturally different from a better-prompted chatbot. It requires Planning, Tool Use, Memory, and multi-step action capabilities.' },
+  { q: 'True or False: The Reflection pattern is effective even without structured criteria—just asking the model to "try again" is sufficient.', opts: ['True — any re-prompting activates the model\'s self-correction abilities', 'False — effective Reflection requires structured critique against specific standards, ideally by a separate Critic agent'], ans: 1, ok: 'Correct! Simply asking "try again" often produces rephrasing without genuine improvement. True Reflection requires structured criteria—checking against specific standards or using a dedicated Critic agent.', no: 'Not correct. Effective Reflection requires structured critique against specific criteria. Simple re-prompting usually only produces surface-level stylistic changes.' },
+  { q: 'True or False: The Human-in-the-Loop pattern should be used for every action the agent takes to maximize safety.', opts: ['True — human oversight at every step is the safest approach', 'False — HITL at every step is inefficient; it should be applied at critical checkpoints only'], ans: 1, ok: 'Correct! Constant human intervention defeats the purpose of an agent. HITL should be strategically placed at critical checkpoints—plan approval, risky tool use, ambiguity resolution—not at every single step.', no: 'Not quite. HITL at every step would be extremely inefficient and negate the value of having an agent. The goal is strategic placement at high-stakes decision points.' },
+  { q: 'True or False: Multi-agent systems are always better than single-agent systems for complex tasks.', opts: ['True — more agents always leads to better results', 'False — single-agent systems should be tried first; multi-agent adds complexity and should only be used when needed'], ans: 1, ok: 'Correct! Multi-agent systems add significant coordination complexity. Always start with the simplest architecture that meets your needs. Add multi-agent only when single-agent approaches demonstrably hit a ceiling.', no: 'Not correct. Multi-agent systems add complexity and coordination overhead. Start single-agent; move to multi-agent only when genuinely needed.' },
+  { q: 'True or False: The Planning pattern and the Prompt Chaining pattern serve the same purpose.', opts: ['True — both break tasks into sequential steps', 'False — Planning creates a dynamic strategy for achieving a goal; Prompt Chaining executes a predefined linear sequence'], ans: 1, ok: 'Correct! Prompt Chaining is a fixed, pre-defined pipeline. Planning involves the agent dynamically creating its own step-by-step strategy based on the goal, which can be modified if steps fail. Planning uses Prompt Chaining as its execution mechanism.', no: 'Not quite. Prompt Chaining is a fixed linear pipeline. Planning is dynamic—the agent generates its own plan and can re-plan on failure. Planning typically uses Prompt Chaining as its execution mechanism.' },
+  { q: 'True or False: Context engineering is just another word for "putting more information in the prompt."', opts: ['True — context engineering simply means providing a richer context', 'False — context engineering is the strategic process of selecting, packaging, and curating only the most relevant information to avoid context window overload'], ans: 1, ok: 'Correct! Context engineering is actually about curation and precision. Giving an LLM more information often hurts performance by causing context overload. The discipline is about selecting the right information, not just more information.', no: 'Not correct. Context engineering is specifically about strategic curation—selecting the minimum necessary relevant information to maximize model accuracy and efficiency within limited context windows.' }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

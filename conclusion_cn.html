@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>结论 — 智能体设计模式</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1; --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; min-width: 80px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+
+<div class="chapter-tag">结论</div>
+<h1>结论：智能体的画布</h1>
+<p class="subtitle">对全书 21 种模式的综合总结——各个蓝图如何组合成强大的自主系统，以及该领域未来的发展方向。</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">概览</button>
+  <button class="nav-btn" onclick="go('problem')">挑战</button>
+  <button class="nav-btn" onclick="go('solution')">模式框架</button>
+  <button class="nav-btn" onclick="go('concepts')">核心论点</button>
+  <button class="nav-btn" onclick="go('usecases')">组合系统</button>
+  <button class="nav-btn" onclick="go('code')">代码模式</button>
+  <button class="nav-btn" onclick="go('deepdive')">未来方向</button>
+  <button class="nav-btn" onclick="go('glance')">一览概要</button>
+  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
+  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
+  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+</nav>
+
+<!-- 1. 概览 -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">核心洞见概览</div>
+  <div class="sec-desc">在本书中，我们从基础概念一路深入到复杂自主系统的实际实现。这 21 种模式构成了智能体开发的综合工具箱。</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">涵盖模式数</div><div class="metric-value">21</div></div>
+    <div class="metric"><div class="metric-label">模式类别</div><div class="metric-value">4</div></div>
+    <div class="metric"><div class="metric-label">总页数</div><div class="metric-value">424</div></div>
+    <div class="metric"><div class="metric-label">核心框架</div><div class="metric-value">3</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>"智能体画布"的比喻</h3>
+    <p>构建智能代理就像在技术画布上创作复杂的艺术品。画布代表你的基础设施——LangChain、CrewAI 或 Google ADK。模式就是你的调色板和笔触。两者共同将简单的被动模型转变为主动的、目标导向的实体，能够进行复杂的推理和行动。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>类别一：核心执行与任务分解</h3>
+    <p>提示链（Prompt Chaining）、路由（Routing）、并行化（Parallelization）和规划（Planning）构成了智能体行动能力的基石。提示链将问题分解为线性步骤；路由添加条件逻辑；并行化实现子任务并发执行；规划将智能体从执行者提升为战略家。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>类别二：与外部环境的交互</h3>
+    <p>工具使用（Tool Use/函数调用）和知识检索（RAG）将智能体扎根于真实世界的数据中。没有这些模式，智能体只是一个孤立的信息孤岛；有了它们，智能体就能查询数据库、调用 API、搜索网络并使用实时信息。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>类别三：状态、学习与自我改进</h3>
+    <p>记忆管理（Memory Management）、反思（Reflection）、自我修正（Self-Correction）和学习适应（Learning &amp; Adaptation）赋予智能体连续性和成长能力。一个无法记忆或改进的智能体永远被困在其初始能力的天花板之下。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>类别四：协作与通信</h3>
+    <p>多智能体协作（Multi-Agent Collaboration）、智能体间通信 A2A 和模型上下文协议（MCP）使专业智能体能够协同工作。当复杂问题分配给专家团队而不是单一通才时，原本棘手的挑战便迎刃而解。</p>
+  </div>
+</div>
+
+<!-- 2. 挑战 -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">智能体 AI 的挑战</div>
+  <div class="sec-desc">为什么我们需要结构化的模式？以下是当智能体缺乏架构规范时会出现的核心失败模式。点击每张卡片展开详情。</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>不确定性</h4>
+      <p>LLM 输出在每次运行时各不相同</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">与传统软件不同，使用 LLM 的智能体对相同输入会产生不同输出。这使得测试、调试和行为保证从根本上变得更加困难，需要全新的评估策略。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>上下文丢失</h4>
+      <p>智能体在长时间运行的任务中迷失目标</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">没有记忆管理，一个运行多步骤的智能体会逐渐失去上下文，导致行动相互矛盾，甚至完全忘记用户最初的意图。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>幻觉现象</h4>
+      <p>模型自信地生成不实信息</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">没有接地（RAG）和反思，智能体会自信地生成虚假信息。在金融或医疗等高风险领域，这是完全不可接受的。反思和知识检索模式直接解决了这一问题。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>自主失控</h4>
+      <p>智能体在缺乏适当监督的情况下行动</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">随着智能体获得工具访问权和执行真实世界行动的能力，不受约束的自主性变得危险。人机协同（Human-in-the-Loop）和防护栏（Guardrails）模式的存在就是为了提供关键检查点和安全边界。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>协调复杂性</h4>
+      <p>缺乏结构的多智能体系统会退化</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">当多个智能体在没有明确通信协议的情况下协作时，输出会变得混乱。A2A 和 MCP 模式标准化了智能体之间交换上下文、目标和结果的方式。</p></div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--red);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>为什么模式是答案</h3>
+    <p>智能体设计模式是经过实战检验的蓝图，能系统性地解决这些失败模式。它们不能消除构建智能体的复杂性——它们提供了经过验证的结构来管理这种复杂性，正如软件设计模式管理传统系统的复杂性一样。</p>
+  </div>
+</div>
+
+<!-- 3. 模式框架 -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">模式作为解决方案框架</div>
+  <div class="sec-desc">21 种模式不是独立选项的菜单——它们构成一个相互关联的框架。点击每个节点了解它们之间的关系。</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div><div class="chain-title">基础层：执行模式</div><div class="chain-role">提示链 · 路由 · 并行化 · 规划</div></div>
+      </div>
+      <div class="chain-detail">每个智能体系统都从这里开始。这些模式决定了工作如何被分解、排序和分派。在智能体能有效反思、协作或使用工具之前，它必须能够可靠地执行结构化工作流。规划模式尤其强大——它将智能体从被动的执行者提升为主动的战略家，能够为高层次目标制定多步骤方案。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--blue);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">2</div>
+        <div><div class="chain-title">接地层：世界交互</div><div class="chain-role">工具使用 · 知识检索（RAG）· MCP</div></div>
+      </div>
+      <div class="chain-detail">孤立运行的 LLM 受限于其训练数据。接地模式将智能体连接到真实世界——API、数据库、搜索引擎和外部知识库。RAG 尤其能将智能体从静态知识的神谕转变为动态的研究者，可随需访问当前的权威信息。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div><div class="chain-title">智能层：状态与学习</div><div class="chain-role">记忆管理 · 反思 · 自我修正 · 学习与适应</div></div>
+      </div>
+      <div class="chain-detail">这些模式赋予智能体连续性和改进能力。记忆使多轮对话连贯一致，支持长时间任务跟踪。反思和自我修正构建了质量反馈环，智能体可以迭代地批判自己的输出。学习与适应使行为能够从经验中进化——将静态智能体变为随时间不断提升能力的智能体。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">4</div>
+        <div><div class="chain-title">协作层：多智能体系统</div><div class="chain-role">多智能体协作 · A2A · 人机协同 · 防护栏</div></div>
+      </div>
+      <div class="chain-detail">最高阶的模式使智能体系统能够安全地协同工作。多智能体协作将复杂问题分配给由协调者统筹的专家智能体。人机协同在关键决策点插入人类判断。防护栏/安全模式确保系统在自主性增强时仍保持在可接受的边界内。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. 核心论点 -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">核心论点与综合</div>
+  <div class="sec-desc">本书的中心论点：LLM 的原始力量需要架构规范才能成为可靠的、有目的的智能。</div>
+
+  <div class="card card-bordered">
+    <h3>一种新语言的语法</h3>
+    <p>智能体设计的原则是一种新创造语言的语法——它允许我们不仅指令机器<em>做什么</em>，而且指令它<em>如何存在</em>。真正的技艺不在于掌握单一模式，而在于理解它们的相互作用——构建一个规划、工具使用、反思和协作和谐运作的系统。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>从提示到系统的旅程</h3>
+    <p>本书记录的旅程逐步推进：单个提示 → 提示链 → 使用工具的智能体 → 自我修正的智能体 → 具有记忆的智能体 → 多智能体系统 → 安全、受监控、可投入生产的智能体平台。每一步都增加了一层由特定模式锚定的能力。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>组合是核心洞见</h3>
+    <p>单一模式不足以应对复杂的现实任务。AI 研究助理需要：规划（结构）+ 工具使用（接地）+ 多智能体协作（专业化）+ 反思（质量）+ 记忆管理（连贯性）。这种组合将各个能力转变为一个系统，其力量在质量上远超各部分之和。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>模式是起点，不是教条</h3>
+    <p>这 21 种模式代表了当前的最佳实践——一个坚实的基础，可在此基础上构建、实验和创新。该领域发展迅速。随着我们发现新的失败模式并开发新的解决方案，新模式将不断涌现。本书是对核心原则的邀请式反思，而不是最终规范。</p>
+  </div>
+</div>
+
+<!-- 5. 组合系统 -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">实际应用：模式组合</div>
+  <div class="sec-desc">本书通过一个具体示例——自主 AI 研究助理——来说明模式组合。探索以下每个组成部分。</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">研究助理</button>
+    <button class="uc-tab" onclick="showUC(1)">软件开发智能体</button>
+    <button class="uc-tab" onclick="showUC(2)">客服智能体</button>
+    <button class="uc-tab" onclick="showUC(3)">金融分析智能体</button>
+  </div>
+
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>自主 AI 研究助理</h3>
+      <p>查询："分析量子计算对网络安全格局的影响。"这需要五种模式协同工作：</p>
+      <ul>
+        <li><strong>规划：</strong>将查询分解为有序步骤的结构化研究计划</li>
+        <li><strong>工具使用：</strong>为每个步骤调用 Google 搜索、ArXiv API 和专业数据库</li>
+        <li><strong>多智能体协作：</strong>"研究员"智能体收集原始数据；"写作者"智能体综合起草报告</li>
+        <li><strong>反思：</strong>"评论家"智能体审查草稿，检查逻辑不一致和事实缺口</li>
+        <li><strong>记忆管理：</strong>在整个工作流中维护计划状态、收集的数据、草稿和反馈的状态</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>软件开发智能体</h3>
+      <p>分配了一份 bug 报告，智能体必须修复、测试并提交代码补丁：</p>
+      <ul>
+        <li><strong>规划：</strong>创建调试计划——重现、隔离、修复、测试</li>
+        <li><strong>工具使用：</strong>读取代码库、运行测试、访问文档 API</li>
+        <li><strong>反思：</strong>对照原始 bug 规格审查提议的修复方案</li>
+        <li><strong>人机协同：</strong>在提交前将补丁呈交人工审批</li>
+        <li><strong>异常处理：</strong>优雅地处理测试失败和回滚场景</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>客服智能体</h3>
+      <p>处理具有完整上下文的复杂多轮客户咨询：</p>
+      <ul>
+        <li><strong>记忆管理：</strong>记住完整的对话历史和客户档案</li>
+        <li><strong>路由：</strong>将账单问题、技术问题和投诉转给专业子智能体</li>
+        <li><strong>知识检索（RAG）：</strong>查询产品知识库以获取准确答案</li>
+        <li><strong>人机协同：</strong>对敏感或复杂情况升级到人工客服</li>
+        <li><strong>目标设定与监控：</strong>根据客户满意度指标跟踪解决情况</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>金融分析智能体</h3>
+      <p>对公司或行业生成高精度研究报告：</p>
+      <ul>
+        <li><strong>工具使用：</strong>调用金融数据 API 获取实时市场数据和 SEC 文件</li>
+        <li><strong>并行化：</strong>同时分析多家公司或数据流</li>
+        <li><strong>自我修正：</strong>验证数值计算并交叉核对数据来源</li>
+        <li><strong>防护栏/安全模式：</strong>防止生成未经授权的金融建议</li>
+        <li><strong>人机协同：</strong>在任何面向客户的输出前需要分析师签字确认</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 6. 代码模式 -->
+<div id="sec-code" class="section">
+  <div class="sec-title">关键代码模式回顾</div>
+  <div class="sec-desc">所有组合智能体系统共有的架构骨架——将多种模式联系在一起的编排器模式。</div>
+
+  <div class="card card-bordered">
+    <h3>编排器架构</h3>
+    <p>在任何复杂的智能体系统中，编排器智能体协调专业智能体的工作。这是使组合成为可能的结构性模式。</p>
+  </div>
+
+  <div class="code-block"><span class="code-comment"># 概念性编排器模式（源自第 7 章和结论）</span>
+<span class="code-keyword">class</span> <span class="code-string">OrchestratorAgent</span>:
+    <span class="code-keyword">def</span> run(self, user_query: str) -> str:
+        <span class="code-comment"># 1. 规划：将目标分解为步骤</span>
+        plan = self.planner_agent.create_plan(user_query)
+
+        <span class="code-comment"># 2. 执行：分派给专业智能体</span>
+        results = []
+        <span class="code-keyword">for</span> step <span class="code-keyword">in</span> plan.steps:
+            <span class="code-comment"># 路由：选择合适的专家</span>
+            agent = self.router.select_agent(step)
+            <span class="code-comment"># 工具使用：每个智能体使用其工具</span>
+            result = agent.execute(step, context=results)
+            results.append(result)
+
+        <span class="code-comment"># 3. 综合：合并输出</span>
+        draft = self.writer_agent.synthesize(results, plan)
+
+        <span class="code-comment"># 4. 反思：批评并完善</span>
+        critique = self.critic_agent.review(draft)
+        <span class="code-keyword">if</span> critique.has_issues:
+            draft = self.writer_agent.revise(draft, critique)
+
+        <span class="code-comment"># 5. 人机协同：最终审批</span>
+        <span class="code-keyword">return</span> self.hitl.request_approval(draft)</div>
+</div>
+
+<!-- 7. 未来方向 -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">未来发展方向</div>
+  <div class="sec-desc">将模式组合为复杂系统只是软件开发新篇章的开始。以下几个新兴趋势将定义下一代智能系统。点击每层展开。</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);color:var(--teal-d);">
+      <div class="ctx-layer-title">更强的自主性与推理能力</div>
+      <div class="ctx-layer-sub">从"人在环路中"到"人监控环路"</div>
+      <div class="ctx-layer-detail" style="color:var(--teal-d);">未来的智能体将能够驾驭模糊性、进行抽象和因果推理，甚至展现常识。这需要与神经符号方法更紧密地结合，将 LLM 的模式匹配能力与经典 AI 的逻辑严谨性融合。我们将看到从人在环路（智能体作为副驾驶）向人监控环路的转变——智能体被信任执行复杂的长时间任务，只在目标完成或发生关键异常时才向人类汇报。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);color:var(--purple-d);">
+      <div class="ctx-layer-title">智能体生态系统与标准化</div>
+      <div class="ctx-layer-sub">智能体即服务的开放市场</div>
+      <div class="ctx-layer-detail" style="color:var(--purple-d);">未来将出现开放市场，开发者可以在其中部署、发现和编排专业智能体群。为此，MCP 和 A2A 背后的原则将变得至关重要——推动行业范围内的标准，规范智能体、工具和模型之间不仅交换数据，还交换上下文、目标和能力。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);color:var(--blue-d);">
+      <div class="ctx-layer-title">安全性、对齐与鲁棒性</div>
+      <div class="ctx-layer-sub">针对更自主智能体的新安全模式</div>
+      <div class="ctx-layer-detail" style="color:var(--blue-d);">随着智能体变得更加自主和互联，安全和对齐的核心问题变得更加关键。如何确保智能体的学习不会导致其偏离原始目的？如何构建能抵御对抗性攻击的系统？这需要一套新的"安全模式"和严格的工程规范，专注于测试、验证和伦理对齐。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);color:var(--amber-d);">
+      <div class="ctx-layer-title">智能体驱动的经济</div>
+      <div class="ctx-layer-sub">高度自主的智能体作为经济参与者</div>
+      <div class="ctx-layer-detail" style="color:var(--amber-d);">未来的假设预测，智能体将作为独立经济实体——管理整个电商业务、自主开展科学研究，或作为专业服务团队的成员。2024 年智能体 AI 市场估值为 52 亿美元，预计到 2034 年将达到 2000 亿美元，这表明这不是遥远的前景，而是即将到来的现实。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. 一览概要 -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">一览概要</div>
+  <div class="sec-desc">书中关键结构要素和四类模式框架的快速参考摘要。</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="border-top:3px solid var(--teal);">
+      <h4>执行模式</h4>
+      <p>提示链、路由、并行化、规划——智能体分解和执行工作方式的基础</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--blue);">
+      <h4>接地模式</h4>
+      <p>工具使用、RAG、MCP——将智能体连接到超出训练知识的真实数据、API 和外部系统</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--coral);">
+      <h4>智能模式</h4>
+      <p>记忆管理、反思、自我修正、学习——赋予智能体连续性、质量和成长能力</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--purple);">
+      <h4>协作模式</h4>
+      <p>多智能体、A2A、人机协同、防护栏——使专家团队能够安全有效地协同工作</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;font-weight:500;margin-bottom:8px;">研究助理模式组合 — 点击节点查看说明</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" onclick="simClick(0)" style="background:var(--teal-l);color:var(--teal-d);">规划</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--blue-l);color:var(--blue-d);">工具使用</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--purple-l);color:var(--purple-d);">多智能体</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--coral-l);color:var(--coral-d);">反思</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(4)" style="background:var(--amber-l);color:var(--amber-d);">记忆</div>
+    </div>
+    <div class="dia-output" id="sim-output">点击节点查看其在组合系统中的作用。</div>
+  </div>
+</div>
+
+<!-- 9. 知识测验 -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">综合测验</div>
+  <div class="sec-desc">测试你对本书核心综合要点的理解。</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. 核心要点 -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">最终核心要点</div>
+  <div class="sec-desc">从本书中带走的最重要原则。</div>
+  <ul class="tk-list">
+    <li>智能体设计模式是可重用的架构蓝图——不是僵化的规则——能系统性地解决自主系统中已知的失败模式。掌握它们将使你从提示工程师跃升为系统架构师。</li>
+    <li>21 种模式分为四个层次：执行、接地、智能和协作。每一层都建立在前一层之上。如果执行模式出现问题，协作模式就无法有效运作。</li>
+    <li>组合是核心洞见。真实的智能体系统需要多种模式协同工作。AI 研究助理需要规划 + 工具使用 + 多智能体 + 反思 + 记忆才能在生产质量上可靠运行。</li>
+    <li>画布比喻是实践性的，而非装饰性的。你选择的框架（LangChain、CrewAI、Google ADK）是你的画布。模式是你的笔触。不同的画布适合不同的用例；模式适用于所有画布。</li>
+    <li>安全和人类监督不是可选的附加功能。人机协同和防护栏模式必须从一开始就设计进去，尤其是当智能体获得具有真实世界后果的工具访问权时。</li>
+    <li>该领域正从"人在环路中"转向"人监控环路"。构建今天的系统，使其能够在信任建立和安全验证后优雅地提升自主性级别。</li>
+    <li>这些模式是起点，不是最终答案。最重要的技能是能够识别何时适用现有模式，将其适应你的上下文，并与其他模式深思熟虑地组合。画布在你面前——现在是时候开始构建了。</li>
+  </ul>
+</div>
+
+<!-- 11. 参考资料 -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">参考资料</div>
+  <div class="sec-desc">本书引用的关键资源及推荐的深入探索材料。</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> Gulli, Antonio. 《智能体设计模式：构建智能系统的实战指南》. Springer, 2025.</li>
+    <li><span class="ref-num">[2]</span> LangChain 文档 — langchain.com. 第一至三部分代码示例使用的主要框架。</li>
+    <li><span class="ref-num">[3]</span> CrewAI 文档 — crewai.com. 第 7 章及后续章节多智能体协作示例使用的框架。</li>
+    <li><span class="ref-num">[4]</span> Google 智能体开发工具包（ADK）— Google Cloud. 用于生产级智能体示例。</li>
+    <li><span class="ref-num">[5]</span> 模型上下文协议（MCP）规范 — Anthropic, 2024. 智能体工具通信的新兴标准。</li>
+    <li><span class="ref-num">[6]</span> Cloudera（2025 年 4 月）. "96% 的企业正在增加对 AI 智能体的使用。"</li>
+    <li><span class="ref-num">[7]</span> Market.us. 《2025–2034 年全球智能体 AI 市场规模、趋势与预测》.</li>
+  </ul>
+</div>
+
+<div class="footer"><p>智能体设计模式 — 结论与综合</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  '规划：规划智能体接收"分析量子计算对网络安全的影响"，并将其分解为结构化的多步骤研究计划：识别基础概念 → 研究密码学 → 查找专家分析 → 综合研究发现。',
+  '工具使用：计划中的每个步骤都触发工具调用——Google 搜索、ArXiv API、金融数据 API。智能体根据每个步骤的需求选择合适的工具，将每项声明都扎根于实时的权威来源。',
+  '多智能体协作："研究员"智能体执行搜索计划并收集原始数据。它的摘要和来源链接被传递给"写作者"智能体，后者以初始计划为提纲将收集到的信息综合成连贯的草稿。',
+  '反思："评论家"智能体审查写作者的草稿，检查逻辑不一致、事实不准确和表述不清晰的地方。其评论反馈给写作者，写作者使用自我修正模式改进输出，产出质量更高的最终报告。',
+  '记忆管理：在整个工作流中，记忆系统维护研究计划的状态，存储收集的数据，保存草稿版本，并跟踪反馈——确保上下文在所有智能体和步骤之间得到保存。'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  { q: '根据结论，智能体模式的四个基础类别是什么？', opts: ['输入、处理、输出、反馈', '执行、接地、智能、协作', '规划、反思、记忆、工具', '提示、链式、路由、评估'], ans: 1, ok: '正确！四个类别映射到智能体的核心能力：执行任务、与世界交互、维护状态并改进，以及与其他智能体协作。', no: '不对。四个类别是：执行（提示链、路由、规划）、接地（工具使用、RAG）、智能（记忆、反思、自我修正）和协作（多智能体、A2A、人机协同、防护栏）。' },
+  { q: '在 AI 研究助理示例中，哪种模式确保了整个工作流中所有智能体和步骤之间的上下文保存？', opts: ['提示链', '工具使用', '记忆管理', '反思'], ans: 2, ok: '正确！记忆管理负责在整个多步骤、多智能体工作流中维护研究计划、收集的数据、草稿版本和评论反馈的状态。', no: '不对。记忆管理是负责在长期多智能体工作流中维护状态和上下文的模式。' },
+  { q: '书中描述了从"人在环路中"到"人监控环路"的转变。这意味着什么？', opts: ['人类被完全从智能体系统中移除', '智能体被信任执行复杂任务，只在完成或出现关键异常时才向人类汇报', '人类承担更多来自智能体的任务', '环路指代码架构中的反馈机制'], ans: 1, ok: '正确！"人监控环路"意味着智能体自主执行长时间任务，人类在更高层次监控——不是逐步审批，但也不是完全移除。', no: '不对。"人监控环路"意味着智能体自主运行，人类监控整体情况，而不是步步审批，但也不是完全脱离。' },
+  { q: '书中用于描述 LLM 基础设施与智能体模式关系的核心比喻是什么？', opts: ['食谱与食材', '画布与笔触', '蓝图与建筑', '语法与语言'], ans: 1, ok: '正确！本书将技术基础设施（LangChain、CrewAI、ADK）比作画布，将智能体设计模式比作在其上创造有目的智能的调色板和笔触。', no: '不对。主要比喻是画布（基础设施）和笔触（模式）。语法/语言的比喻也出现了，但是次要的。' },
+  { q: '以下哪个说法最准确地概括了本书关于模式组合的核心洞见？', opts: ['一个强大的模式通常足以应对复杂任务', '模式应严格按顺序应用，不能混用', '真实的智能体系统需要多种模式协同工作，以应对任何单一模式都无法解决的复杂任务', '模式组合会增加脆弱性，应尽量减少'], ans: 2, ok: '正确！结论明确指出，智能体设计的真正力量来自多种模式的艺术组合——而非孤立地应用单一模式。', no: '不对。核心洞见是：组合——结合多种模式——才是使智能体能够应对真正复杂的现实任务的关键。' },
+  { q: '根据结论，以下哪项不是书中列出的未来趋势？', opts: ['更强的自主性和推理能力', '具有标准化协议（MCP、A2A）的智能体生态系统', '智能体取代专业服务中的所有人类员工', '解决对齐和鲁棒性的新安全模式'], ans: 2, ok: '正确！书中没有声称智能体将取代所有人类员工。它讨论的是更强的自主性、生态系统标准化和新安全模式——同时强调人机协同工作。', no: '不对。结论讨论了更强的自主性、生态系统标准化（MCP/A2A）和安全/对齐挑战——但没有声称智能体将取代所有人类员工。' }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">第 ' + (curQ+1) + ' 题 / 共 ' + quizData.length + ' 题</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">下一题</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">查看核心要点</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

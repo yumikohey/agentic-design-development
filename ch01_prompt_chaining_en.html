@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Chaining — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --serif: Georgia, "Times New Roman", serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  background: var(--teal-l);
+  padding: 4px 14px;
+  border-radius: 99px;
+  margin-bottom: 16px;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  max-width: 640px;
+}
+.nav-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 0.5px solid var(--border2);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+  padding-top: 8px;
+}
+.nav-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 7px 16px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active {
+  background: var(--teal-l);
+  color: var(--teal-d);
+  border-color: var(--teal);
+  font-weight: 500;
+}
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 16px;
+  border: 0.5px solid var(--border);
+}
+.card-bordered {
+  border-left: 3px solid var(--teal);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+.metric {
+  background: var(--bg2);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  border: 0.5px solid var(--border);
+}
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card {
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+  overflow: hidden;
+}
+.fail-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all .25s;
+}
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 500;
+  flex-shrink: 0;
+}
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail {
+  max-height: 0; overflow: hidden;
+  transition: max-height .35s ease;
+  font-size: 13px; color: var(--text2); line-height: 1.8;
+}
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow {
+  width: 2px; height: 32px;
+  background: var(--border2);
+  position: relative;
+}
+.chain-arrow::after {
+  content: '';
+  position: absolute;
+  bottom: -5px; left: -5px;
+  width: 0; height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--border2);
+}
+.json-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+}
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab {
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+}
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active {
+  background: var(--purple-l);
+  color: var(--purple-d);
+  border-color: var(--purple);
+  font-weight: 500;
+}
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 11px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.code-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+  tab-size: 2;
+}
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer {
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .25s;
+  border: 0.5px solid transparent;
+}
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail {
+  max-height: 0; overflow: hidden;
+  transition: max-height .35s;
+  font-size: 13px; line-height: 1.8;
+}
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--bg3);
+  transition: all .3s;
+}
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt {
+  display: block; width: 100%; text-align: left;
+  padding: 12px 18px; margin-bottom: 8px;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--bg2);
+  color: var(--text);
+  font-size: 14px; cursor: pointer;
+  font-family: var(--sans);
+  transition: all .2s;
+  line-height: 1.6;
+}
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb {
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px; line-height: 1.7;
+  margin: 12px 0;
+  display: none;
+}
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn {
+  font-family: var(--sans);
+  padding: 8px 22px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text);
+  font-size: 13px; cursor: pointer;
+  transition: all .15s;
+  margin-top: 12px;
+}
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li {
+  counter-increment: tk;
+  display: flex; gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  font-size: 14px; color: var(--text2); line-height: 1.8;
+}
+.tk-list li::before {
+  content: counter(tk);
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--teal-l);
+  color: var(--teal-d);
+  font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.glance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card {
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+}
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 24px; margin: 1.5rem 0;
+  border: 0.5px solid var(--border);
+  text-align: center;
+}
+.diagram-nodes {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; flex-wrap: wrap;
+  margin: 1rem 0;
+}
+.dia-node {
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all .3s;
+  position: relative;
+  min-width: 100px; text-align: center;
+}
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output {
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--text2); line-height: 1.7;
+  text-align: left; min-height: 60px; transition: all .3s;
+}
+.ref-list { list-style: none; padding: 0; }
+.ref-list li {
+  font-size: 13px; color: var(--text2);
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--border);
+  line-height: 1.6;
+}
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Chapter 1</div>
+<h1>Prompt Chaining</h1>
+<p class="subtitle">Break complex tasks into focused, sequential steps — each prompt's output feeds the next. This pipeline pattern is the foundational building block for reliable AI agents.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Pattern Name</div><div class="metric-value">Pipeline</div></div>
+    <div class="metric"><div class="metric-label">Key Strategy</div><div class="metric-value">Divide &amp; Conquer</div></div>
+    <div class="metric"><div class="metric-label">Key Benefit</div><div class="metric-value">Modularity</div></div>
+    <div class="metric"><div class="metric-label">Primary Goal</div><div class="metric-value">AI Agents</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>What is Prompt Chaining?</h3>
+    <p>Prompt Chaining — also known as the Pipeline Pattern — is a powerful paradigm for handling complex tasks with large language models (LLMs). Rather than expecting an LLM to solve a complex problem in a single monolithic step, prompt chaining advocates for a divide-and-conquer strategy. The core idea is to break down the original problem into a sequence of smaller, more manageable sub-problems, each addressed by a specifically designed prompt.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Advantages of Sequential Processing</h3>
+    <p>This sequential processing technique inherently introduces modularity and clarity. By decomposing a complex task, it becomes easier to understand and debug each individual step, making the overall process more robust and interpretable. Each step in the chain can be meticulously crafted and optimized to focus on a specific aspect of the larger problem, leading to more accurate and focused outputs.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Integrating External Tools</h3>
+    <p>Prompt chaining is not just about breaking down problems — it also enables the integration of external knowledge and tools. At each step, the LLM can be instructed to interact with external systems, APIs, or databases, enriching its knowledge and abilities beyond its internal training data. This dramatically expands the potential of LLMs, allowing them to function not just as isolated models but as integral components of broader, more intelligent systems.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Foundation for Building AI Agents</h3>
+    <p>The significance of prompt chaining extends beyond simple problem-solving. It serves as a foundational technique for building sophisticated AI agents. These agents can utilize prompt chains to autonomously plan, reason, and act in dynamic environments. By strategically structuring the sequence of prompts, an agent can engage in tasks requiring multi-step reasoning, planning, and decision-making, more closely mirroring human thought processes.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Limitations of Single Prompts</div>
+  <div class="sec-desc">For multifaceted tasks, using a single complex prompt causes the model to struggle with constraints and instructions. Click each card to reveal the failure mode in detail:</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Instruction Neglect</h4>
+      <p>Parts of the prompt are silently ignored</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">When a prompt contains too many competing instructions, the model selectively ignores portions. The more complex the prompt, the more content gets skipped, resulting in incomplete or misaligned outputs.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Contextual Drift</h4>
+      <p>Model loses track of the initial context</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">As prompts grow longer and more complex, the model progressively drifts away from the original goals. Later outputs may contradict or ignore earlier requirements in the same prompt.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Error Propagation</h4>
+      <p>Early mistakes compound and amplify</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">In a single prompt, once the model makes an early error, that error gets amplified by subsequent reasoning steps. A small misinterpretation early on can snowball into a significantly incorrect final answer.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Context Window Limits</h4>
+      <p>Insufficient information degrades response quality</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">When a prompt requires extensive input data, context window limits prevent the model from accessing all necessary information simultaneously, forcing it to work with an incomplete picture.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Hallucination</h4>
+      <p>Cognitive overload generates incorrect facts</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">When the model simultaneously handles too many tasks, the increased cognitive load significantly raises the probability of generating factually incorrect information — a phenomenon known as hallucination.</p></div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--red); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Real-World Failure Example</h3>
+    <p>A single query asks the model to: analyze a market research report → summarize findings → identify trends with data points → draft an email. The model might summarize well but fail to extract data or compose the email correctly. When multiple objectives compete for attention, overall quality degrades sharply.</p>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">Sequential Decomposition: The Chain Solution</div>
+  <div class="sec-desc">Prompt chaining addresses these challenges by breaking the complex task into a focused, sequential workflow. Click each step to see the details:</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Summarize the Report</div>
+          <div class="chain-role">Role: Market Analyst</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        <strong>Prompt:</strong> "Summarize the key findings of the following market research report: [text]."<br><br>
+        The model's sole focus is summarization, greatly increasing the accuracy of this initial step. By constraining the task to a single operation, the model can devote its full capacity to content understanding and summary generation.<br><br>
+        <strong>Input:</strong> Raw market research report<br>
+        <strong>Output:</strong> Concise summary of key findings
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Identify Trends &amp; Data</div>
+          <div class="chain-role">Role: Trade Analyst</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        <strong>Prompt:</strong> "Using the summary, identify the top three emerging trends and extract the specific data points that support each trend: [output from step 1]."<br><br>
+        This prompt is more constrained and builds directly on a validated output. The model no longer needs to understand the full raw report — it works from the already-distilled summary to perform targeted extraction.<br><br>
+        <strong>Input:</strong> Summary from Step 1<br>
+        <strong>Output:</strong> Trend list with supporting data (ideally structured JSON)
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div>
+          <div class="chain-title">Compose the Email</div>
+          <div class="chain-role">Role: Expert Documentation Writer</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        <strong>Prompt:</strong> "Draft a concise email to the marketing team outlining the following trends and their supporting data: [output from step 2]."<br><br>
+        The final step composes a professional email from clean, structured data. Each step reduces ambiguity and cognitive load. Assigning distinct roles ensures accurate, domain-appropriate output at every stage.<br><br>
+        <strong>Input:</strong> JSON trend data from Step 2<br>
+        <strong>Output:</strong> Professional email to the marketing team
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>Why This Works</h3>
+    <p>This decomposition allows for more granular control over the process. Each step is simpler and less ambiguous, reducing the model's cognitive load and leading to more accurate and reliable final output. This modularity is analogous to a computational pipeline — each function performs a specific operation before passing its result to the next.</p>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">The Role of Structured Output</div>
+  <div class="sec-desc">The reliability of a prompt chain is highly dependent on the integrity of the data passed between steps. If the output of one prompt is ambiguous or poorly formatted, the subsequent prompt may fail due to faulty input.</div>
+
+  <div class="card" style="border-left: 3px solid var(--amber); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Why Structured Formats Are Critical</h3>
+    <p>Specifying structured output formats — such as JSON or XML — is crucial. This practice minimizes errors that can arise from interpreting natural language, and is a key component in building robust, multi-step LLM systems. Structured formats ensure data is machine-readable, precisely parseable, and can be inserted unambiguously into the next prompt.</p>
+  </div>
+
+  <p style="font-size:14px;color:var(--text2);margin-bottom:12px;">For example, the output from the trend identification step can be formatted as a JSON object:</p>
+  <div class="json-block">{
+  "trends": [
+    {
+      "trend_name": "AI-Powered Personalization",
+      "supporting_data": "73% of consumers prefer to do business with
+        brands that use personal information to make their
+        shopping experiences more relevant."
+    },
+    {
+      "trend_name": "Sustainable and Ethical Brands",
+      "supporting_data": "Sales of products with ESG-related claims
+        grew 28% over the last five years, compared to 20%
+        for products without."
+    }
+  ]
+}</div>
+
+  <div class="card" style="border-left: 3px solid var(--green); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Benefits of Structured Output</h3>
+    <ul>
+      <li>Data is precisely parsed — no ambiguity in handoff between steps</li>
+      <li>Reduces errors arising from natural language interpretation</li>
+      <li>Clear input/output contracts for each step in the chain</li>
+      <li>Enables validation and transformation logic between steps</li>
+      <li>Supports deterministic downstream processing and branching</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Role Assignment in Chains</h3>
+    <p>Assigning distinct roles to each step (e.g., "Market Analyst," "Trade Analyst," "Expert Documentation Writer") narrows the model's focus at each stage. This is a design pattern — not a technical requirement — that produces more accurate, domain-appropriate output by constraining the model's task scope per step.</p>
+  </div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Practical Applications &amp; Use Cases</div>
+  <div class="sec-desc">Prompt chaining is a versatile pattern applicable across a wide range of scenarios when building agentic systems. Click the tabs to explore seven key applications:</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Information Processing</button>
+    <button class="uc-tab" onclick="showUC(1)">Complex Queries</button>
+    <button class="uc-tab" onclick="showUC(2)">Data Extraction</button>
+    <button class="uc-tab" onclick="showUC(3)">Content Generation</button>
+    <button class="uc-tab" onclick="showUC(4)">Conversational Agents</button>
+    <button class="uc-tab" onclick="showUC(5)">Code Generation</button>
+    <button class="uc-tab" onclick="showUC(6)">Multimodal Reasoning</button>
+  </div>
+
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Information Processing Workflows</h3>
+      <p>Many tasks involve processing raw information through multiple transformations — summarizing a document, extracting key entities, then using those entities to query a database or generate a report.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Extract text content from a given URL or document</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Summarize the cleaned text</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Extract specific entities (names, dates, locations) from the summary</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Use the entities to search an internal knowledge base</div></div>
+        <div class="uc-step"><div class="uc-step-num">5</div><div>Generate a final report incorporating the summary, entities, and search results</div></div>
+      </div>
+      <p style="margin-top:8px;font-size:13px;color:var(--text3);">Applied in automated content analysis, AI-driven research assistants, and complex report generation systems.</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Complex Query Answering</h3>
+      <p>Complex questions requiring multiple steps of reasoning or information retrieval. For example: "What were the main causes of the stock market crash in 1929, and how did government policy respond?"</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Identify the core sub-questions in the user's query (causes of crash, government response)</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Research or retrieve information specifically about the 1929 crash causes</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Research or retrieve information about the government's policy response</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Synthesize information from steps 2 and 3 into a coherent answer</div></div>
+      </div>
+      <p style="margin-top:12px;font-size:13px;color:var(--text2);">Complex operations often combine <strong>parallel processing</strong> (independent data gathering) with <strong>prompt chaining</strong> (dependent synthesis and refinement steps).</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Data Extraction &amp; Transformation</h3>
+      <p>Iteratively converting unstructured text into structured formats, supporting conditional branching and external tool calls.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Attempt to extract specific fields (name, address, amount) from an invoice document</div></div>
+        <div class="uc-step"><div class="uc-step-num">⚙</div><div>Validate: check if all required fields were extracted and meet format requirements</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Conditional prompt: if fields are missing or malformed, craft a new prompt to find the missing info</div></div>
+        <div class="uc-step"><div class="uc-step-num">⚙</div><div>Validate again and repeat if necessary</div></div>
+        <div class="uc-step"><div class="uc-step-num">✓</div><div>Output validated, structured data</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Content Generation Workflows</h3>
+      <p>Complex content creation decomposed into ideation, outlining, drafting, and revision phases.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Generate 5 topic ideas based on a user's general interest</div></div>
+        <div class="uc-step"><div class="uc-step-num">⚙</div><div>User selects or system auto-selects the best topic</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Based on the selected topic, generate a detailed outline</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Write a draft section for each outline point (providing prior section as context)</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Review and refine the complete draft for coherence, tone, and grammar</div></div>
+      </div>
+      <p style="margin-top:8px;font-size:13px;color:var(--text3);">Applied for creative narratives, technical documentation, and other structured text content.</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--pink);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Conversational Agents with State</h3>
+      <p>Prompt chaining provides the foundational mechanism for preserving conversational continuity by constructing each dialogue turn as a new prompt that systematically incorporates information from preceding interactions.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Process user utterance, identify intent and key entities</div></div>
+        <div class="uc-step"><div class="uc-step-num">⚙</div><div>Update conversation state with intent and entities</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Generate a response based on current state, or identify the next needed piece of information</div></div>
+        <div class="uc-step"><div class="uc-step-num">↻</div><div>Repeat for subsequent turns — each new input leverages the accumulating conversation history</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-5">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Code Generation &amp; Refinement</h3>
+      <p>Decomposing coding tasks into progressive stages, allowing insertion of deterministic logic between model calls.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Understand the user's request, generate pseudocode or an outline</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Write an initial code draft based on the outline</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Identify potential errors or areas for improvement (static analysis or another LLM call)</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Rewrite or refine the code based on the identified issues</div></div>
+        <div class="uc-step"><div class="uc-step-num">5</div><div>Add documentation and test cases</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-6">
+    <div class="card" style="border-left:3px solid var(--green);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Multimodal &amp; Multi-Step Reasoning</h3>
+      <p>Analyzing datasets with diverse modalities (text, image, audio) requires breaking the problem into prompt-based sub-tasks. For example, interpreting an image with embedded text, annotation labels, and tabular data:</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Extract and comprehend the text from the user's image request</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Link the extracted image text with its corresponding labels</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Use the tabular information to interpret the gathered information and determine the required output</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Hands-On Code</div>
+  <div class="sec-desc">The following code uses LangChain to implement a two-step prompt chain as a data processing pipeline. The first step extracts information from unstructured text; the second transforms the extracted result into structured JSON.</div>
+
+  <div class="card" style="border-left:3px solid var(--text3);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Available Frameworks</h3>
+    <p>Frameworks for implementing prompt chains include LangChain, LangGraph, Crew AI, and Google's Agent Development Kit (ADK). LangChain provides foundational abstractions for linear sequences. LangGraph extends these capabilities to support stateful and cyclical computations needed for more sophisticated agentic behaviors.</p>
+  </div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0;">Install dependencies:</p>
+  <div class="json-block">pip install langchain langchain-community langchain-openai langgraph</div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0;">Full implementation:</p>
+  <div class="code-block"><span class="code-keyword">import</span> os
+<span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> ChatOpenAI
+<span class="code-keyword">from</span> langchain_core.prompts <span class="code-keyword">import</span> ChatPromptTemplate
+<span class="code-keyword">from</span> langchain_core.output_parsers <span class="code-keyword">import</span> StrOutputParser
+
+<span class="code-comment"># Initialize the language model</span>
+llm = ChatOpenAI(temperature=<span class="code-string">0</span>)
+
+<span class="code-comment"># --- Prompt 1: Extract information ---</span>
+prompt_extract = ChatPromptTemplate.from_template(
+  <span class="code-string">"Extract the technical specifications from "</span>
+  <span class="code-string">"the following text:\n\n{text_input}"</span>
+)
+
+<span class="code-comment"># --- Prompt 2: Transform to JSON ---</span>
+prompt_transform = ChatPromptTemplate.from_template(
+  <span class="code-string">"Transform the following specifications into "</span>
+  <span class="code-string">"a JSON object with 'cpu', 'memory', and "</span>
+  <span class="code-string">"'storage' as keys:\n\n{specifications}"</span>
+)
+
+<span class="code-comment"># --- Build the chain using LCEL ---</span>
+extraction_chain = prompt_extract | llm | StrOutputParser()
+
+full_chain = (
+  {<span class="code-string">"specifications"</span>: extraction_chain}
+  | prompt_transform
+  | llm
+  | StrOutputParser()
+)
+
+<span class="code-comment"># --- Run the chain ---</span>
+input_text = <span class="code-string">"The new laptop model features a 3.5 GHz "</span>
+             <span class="code-string">"octa-core processor, 16GB of RAM, "</span>
+             <span class="code-string">"and a 1TB NVMe SSD."</span>
+
+final_result = full_chain.invoke({<span class="code-string">"text_input"</span>: input_text})
+<span class="code-keyword">print</span>(final_result)</div>
+
+  <div class="card card-bordered" style="margin-top:16px;">
+    <h3>Code Walkthrough</h3>
+    <p><code>extraction_chain</code> runs the first prompt and parses the output to a string. <code>full_chain</code> takes that string, injects it into the second prompt's <code>{specifications}</code> variable, runs the LLM, and returns final JSON. LangChain Expression Language (LCEL) uses the pipe operator <code>|</code> to elegantly connect these components. Each step is independent, testable, and replaceable. <code>langchain-openai</code> can be substituted with other provider packages (e.g., Google Gemini or Anthropic).</p>
+  </div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0 4px;">Alternative: LangGraph for stateful chains</p>
+  <div class="code-block"><span class="code-keyword">from</span> langgraph.graph <span class="code-keyword">import</span> StateGraph, END
+<span class="code-keyword">from</span> typing <span class="code-keyword">import</span> TypedDict
+
+<span class="code-keyword">class</span> ChainState(TypedDict):
+    text_input: str
+    specifications: str
+    json_output: str
+
+<span class="code-keyword">def</span> extract_step(state: ChainState) -> ChainState:
+    <span class="code-comment"># Run extraction prompt against LLM</span>
+    result = extraction_chain.invoke({<span class="code-string">"text_input"</span>: state[<span class="code-string">"text_input"</span>]})
+    <span class="code-keyword">return</span> {**state, <span class="code-string">"specifications"</span>: result}
+
+<span class="code-keyword">def</span> transform_step(state: ChainState) -> ChainState:
+    <span class="code-comment"># Run transformation prompt against LLM</span>
+    result = (prompt_transform | llm | StrOutputParser()).invoke(
+        {<span class="code-string">"specifications"</span>: state[<span class="code-string">"specifications"</span>]}
+    )
+    <span class="code-keyword">return</span> {**state, <span class="code-string">"json_output"</span>: result}
+
+graph = StateGraph(ChainState)
+graph.add_node(<span class="code-string">"extract"</span>, extract_step)
+graph.add_node(<span class="code-string">"transform"</span>, transform_step)
+graph.set_entry_point(<span class="code-string">"extract"</span>)
+graph.add_edge(<span class="code-string">"extract"</span>, <span class="code-string">"transform"</span>)
+graph.add_edge(<span class="code-string">"transform"</span>, END)
+app = graph.compile()</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Context Engineering</div>
+  <div class="sec-desc">Context Engineering is the systematic discipline of designing, constructing, and delivering a complete informational environment to an AI model prior to token generation. It represents a significant evolution from traditional prompt engineering. Click each layer to explore:</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);color:var(--teal-d);border-color:var(--teal);">
+      <div class="ctx-layer-title">System Prompt</div>
+      <div class="ctx-layer-sub">The foundational instruction set defining the AI's operational parameters</div>
+      <div class="ctx-layer-detail">Defines the AI's role, tone, and constraints. For example: "You are a technical documentation writer; your tone must be formal and precise." This foundational layer shapes all subsequent behavior and establishes the framework and boundaries for the entire interaction.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);color:var(--purple-d);border-color:var(--purple);">
+      <div class="ctx-layer-title">Retrieved Documents</div>
+      <div class="ctx-layer-sub">External information actively fetched from a knowledge base</div>
+      <div class="ctx-layer-detail">The AI actively fetches information from a knowledge base to enrich its response — for example, pulling the technical specifications for a project. This extends the context far beyond the user's immediate query, ensuring responses are grounded in the most current and relevant information available.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);color:var(--blue-d);border-color:var(--blue);">
+      <div class="ctx-layer-title">Tool Outputs</div>
+      <div class="ctx-layer-sub">Real-time data provided by external APIs and tools</div>
+      <div class="ctx-layer-detail">Results from external APIs — querying a calendar for availability, checking a database, calling a search engine. These provide real-time, up-to-date information that the model cannot know from training data alone. Tool outputs enable the AI to interact with real-world systems and produce grounded responses.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);color:var(--amber-d);border-color:var(--amber);">
+      <div class="ctx-layer-title">Implicit Data</div>
+      <div class="ctx-layer-sub">User identity, interaction history, environmental state</div>
+      <div class="ctx-layer-detail">A context-engineered agent doesn't just answer a query — it first integrates the user's calendar availability (tool output), professional relationship with an email recipient (implicit data), and notes from previous meetings (retrieved documents), producing output that is highly relevant, personalized, and pragmatically useful.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);color:var(--coral-d);border-color:var(--coral);">
+      <div class="ctx-layer-title">Feedback Loops</div>
+      <div class="ctx-layer-sub">Runtime continuous improvement of context quality</div>
+      <div class="ctx-layer-detail">Creating robust pipelines to fetch and transform data at runtime, and establishing feedback loops to continually improve context quality. For example, Google's Vertex AI Prompt Optimizer can enhance model performance by systematically evaluating responses against predefined metrics, adapting prompts and system instructions across models without extensive manual rewriting.</div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;margin-top:16px;">
+    <h3>Core Principle</h3>
+    <p>Even advanced models underperform when provided with a limited or poorly constructed view of the operational environment. Context Engineering reframes the task from "answer a question" to "build a comprehensive operational picture for the agent." It treats context itself as the primary component, focusing on what the agent knows, when it knows it, and how it uses that information. Ultimately, it is the key methodology for advancing stateless chatbots into highly capable, situationally-aware systems.</p>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--red-l);color:var(--red-d);">
+      <h4>THE PROBLEM</h4>
+      <p>Complex tasks overwhelm LLMs when handled within a single prompt, causing instruction neglect, contextual drift, error propagation, and hallucination. Monolithic prompts struggle to manage multiple constraints and multi-step reasoning.</p>
+    </div>
+    <div class="glance-card" style="background:var(--teal-l);color:var(--teal-d);">
+      <h4>THE SOLUTION</h4>
+      <p>Prompt chaining breaks complex problems into a series of smaller, interconnected sub-tasks. Each step uses a focused prompt to perform a specific operation, significantly improving reliability and control through a modular divide-and-conquer strategy.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);color:var(--purple-d);">
+      <h4>THE MECHANISM</h4>
+      <p>The output of one LLM call becomes the input for the next, creating a dependency chain. Structured output formats (JSON, XML) between steps ensure clean, unambiguous data handoffs. External tools and APIs can be integrated at any step.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);color:var(--amber-d);">
+      <h4>WHEN TO USE</h4>
+      <p>Use when: the task is too complex for a single prompt; it involves multiple distinct processing phases; it requires interaction with external tools between steps; or you are building agents that need multi-step reasoning and state management.</p>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Rule of Thumb</h3>
+    <p>If you find yourself writing a single prompt that asks the model to do more than 2-3 distinct things, it is almost always better to decompose it into a chain. The slight overhead in code complexity is paid back many times over in reliability, debuggability, and output quality.</p>
+  </div>
+
+  <div class="diagram-sim">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Interactive chain simulation — click a node to see its role</p>
+    <div class="diagram-nodes">
+      <div class="dia-node" onclick="simClick(0)" style="background:var(--blue-l);color:var(--blue-d);">User Prompt</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--teal-l);color:var(--teal-d);">Agent A</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--purple-l);color:var(--purple-d);">Agent B</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--coral-l);color:var(--coral-d);">Agent C</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(4)" style="background:var(--green-l);color:var(--green-d);">Final Output</div>
+    </div>
+    <div class="dia-output" id="sim-output">Click any node above to learn the role and function of each stage in the prompt chain.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Quiz</div>
+  <div class="sec-desc">Test your understanding of prompt chaining concepts. Click an option to answer.</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>Prompt chaining (the Pipeline Pattern) decomposes complex tasks into a series of smaller, focused steps — each step has a single responsibility and clear scope.</li>
+    <li>Each step involves one LLM call or processing operation, using the previous step's output as input, creating a dependency chain that progressively builds toward a solution.</li>
+    <li>This pattern significantly improves the reliability, debuggability, and manageability of complex LLM interactions by making each step simpler and less ambiguous.</li>
+    <li>Using structured output formats (JSON, XML) between steps is critical — it ensures clean, unambiguous data handoffs and is the cornerstone of chain reliability.</li>
+    <li>Assigning distinct roles to each step (e.g., "Market Analyst," "Trade Analyst") is a design pattern that focuses the model's output and improves domain-appropriate accuracy.</li>
+    <li>Frameworks including LangChain, LangGraph, Crew AI, and Google ADK provide robust tooling for defining, managing, and executing these multi-step sequences.</li>
+    <li>Context Engineering — building a rich informational environment beyond just the prompt — is the next evolution, treating context itself as the primary design component.</li>
+    <li>Prompt chaining is the foundational pattern that enables the development of advanced AI agents capable of multi-step reasoning, tool integration, and state management.</li>
+  </ul>
+
+  <div class="card card-bordered">
+    <h3>Summary</h3>
+    <p>By deconstructing complex problems into a series of simpler, more manageable sub-tasks, prompt chaining provides a robust framework for directing large language models. This divide-and-conquer strategy significantly enhances output reliability and control by focusing the model on one specific operation at a time. As a foundational pattern, it enables the development of advanced AI agents capable of multi-step reasoning, tool integration, and state management — well beyond the capability of any single prompt.</p>
+  </div>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> LangChain LCEL Documentation: <a href="https://python.langchain.com/docs/expression_language/" target="_blank">python.langchain.com</a></li>
+    <li><span class="ref-num">[2]</span> LangGraph Documentation: <a href="https://langchain-ai.github.io/langgraph/" target="_blank">langchain-ai.github.io/langgraph</a></li>
+    <li><span class="ref-num">[3]</span> Prompt Engineering Guide — Chaining: <a href="https://www.promptingguide.ai/techniques/chaining" target="_blank">promptingguide.ai</a></li>
+    <li><span class="ref-num">[4]</span> OpenAI API Documentation (Prompt Concepts): <a href="https://platform.openai.com/docs/guides/prompt-engineering" target="_blank">platform.openai.com</a></li>
+    <li><span class="ref-num">[5]</span> Crew AI Documentation (Tasks &amp; Processes): <a href="https://docs.crewai.com/" target="_blank">docs.crewai.com</a></li>
+    <li><span class="ref-num">[6]</span> Google AI Developer (Prompt Guide): <a href="https://cloud.google.com/discover/what-is-prompt-engineering" target="_blank">cloud.google.com</a></li>
+    <li><span class="ref-num">[7]</span> Vertex AI Prompt Optimizer: <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/prompt-optimizer" target="_blank">cloud.google.com/vertex-ai</a></li>
+  </ul>
+</div>
+
+<div class="footer">
+  <p>Chapter 1 · Prompt Chaining · Interactive Learning Experience</p>
+</div>
+
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+
+const simTexts = [
+  "User Prompt: The user sends a complex request to the system. This request may contain multiple sub-tasks such as analysis, extraction, summarization, and composition. In the prompt chaining pattern, this raw request is NOT sent directly to a single LLM. Instead it is routed to the first focused agent in the chain.",
+  "Agent A (First Step): Receives the raw request and executes the first focused task — for example, summarizing a market report. This agent is assigned a specific role (e.g., 'Market Analyst') and focuses on exactly one operation, ensuring high accuracy. Its output is passed to the next agent.",
+  "Agent B (Intermediate Step): Receives Agent A's output as its input and performs deeper analysis — for example, identifying trends and extracting data points from the summary. External tools (APIs, databases) can be integrated at this step to enrich the information.",
+  "Agent C (Final Processing): Receives Agent B's structured output and performs the final transformation — for example, converting trend data into a professional email. Each step builds on the validated output of the previous one, ensuring quality compounds.",
+  "Final Output: After multiple focused processing steps, the system produces a high-quality, accurate, and well-formatted final result. Compared to single-prompt processing, the chaining approach offers significantly improved reliability, accuracy, and debuggability."
+];
+
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+
+const quizData = [
+  {
+    q: "What is the primary advantage of prompt chaining over a single complex prompt?",
+    opts: ["It uses fewer tokens overall", "It breaks tasks into focused steps, reducing cognitive load and improving reliability", "It always produces faster responses", "It eliminates the need for prompt engineering"],
+    ans: 1,
+    ok: "Correct! Each step in the chain is simpler and less ambiguous, reducing the model's cognitive load and producing more accurate, reliable output. This modularity makes each step independently optimizable and debuggable.",
+    no: "Prompt chaining may actually use more tokens. The key advantage is modularity — each focused step reduces failures like instruction neglect and contextual drift."
+  },
+  {
+    q: "Why is using structured output (like JSON) between chain steps important?",
+    opts: ["It makes the output look more professional", "LLMs can only process JSON inputs", "It ensures machine-readable, unambiguous data handoffs between steps", "It reduces API call costs"],
+    ans: 2,
+    ok: "Correct! Structured formats like JSON ensure data passed between steps is precisely parseable, minimizing errors from natural language interpretation. This is a key component of robust multi-step LLM systems.",
+    no: "The purpose is not aesthetics or cost — it's reliability. Ambiguous or poorly formatted output between steps can cause the entire chain to break down."
+  },
+  {
+    q: "What is Context Engineering, as described in this chapter?",
+    opts: ["Writing longer prompts with more examples", "The systematic discipline of designing and delivering a complete informational environment to an AI", "Better prompt syntax and grammar", "Faster model inference speed"],
+    ans: 1,
+    ok: "Correct! Context Engineering is about constructing the entire rich informational environment — system prompts, retrieved documents, tool outputs, and implicit data — not just optimizing the wording of a query.",
+    no: "Context Engineering goes far beyond prompt wording. It's about building the complete operational picture the model needs to produce high-quality outputs."
+  },
+  {
+    q: "Which failure mode describes an LLM losing track of the initial context in a long prompt?",
+    opts: ["Instruction Neglect", "Error Propagation", "Contextual Drift", "Hallucination"],
+    ans: 2,
+    ok: "Correct! Contextual drift is when the model progressively loses track of the original goals as the prompt becomes more complex — one of the key problems prompt chaining solves.",
+    no: "Contextual drift specifically refers to losing the initial context. Instruction neglect is skipping parts of the prompt, error propagation is error amplification, and hallucination is generating false information."
+  },
+  {
+    q: "In the market analysis chain example, why is each step assigned a different role?",
+    opts: ["To make the code more readable", "To constrain the model's focus and ensure accurate, domain-appropriate output at each stage", "Because LLMs require role assignments to function", "To reduce the number of API calls needed"],
+    ans: 1,
+    ok: "Correct! Assigning roles like 'Market Analyst' or 'Trade Analyst' constrains the model's focus at each step, producing more accurate and domain-relevant outputs. It's a design pattern that improves output quality.",
+    no: "Roles are not technically required — they are a design pattern that improves output quality by narrowing the model's task scope at each step."
+  },
+  {
+    q: "How are parallel processing and prompt chaining typically combined in complex operations?",
+    opts: ["They cannot be combined", "Parallel processing is used for independent data gathering; prompt chaining is used for dependent synthesis and refinement steps", "Prompt chaining completely replaces parallel processing", "Parallel processing is only used for the final step"],
+    ans: 1,
+    ok: "Correct! Complex operations often combine parallel processing (simultaneously collecting data from multiple sources) with prompt chaining (sequentially executing synthesis, drafting, and review steps).",
+    no: "They are complementary: independent sub-tasks (e.g., extracting from multiple articles) can run in parallel, while dependent steps (collate → synthesize → review) use sequential chaining."
+  }
+];
+
+let curQ = 0, answered = new Set(), scores = [];
+
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => {
+    html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>';
+  });
+  html += '<div class="quiz-fb" id="qfb"></div>';
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next Question</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => {
+      btn.classList.add('disabled');
+      if (i === q2.ans) btn.classList.add('correct');
+    });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+
+renderQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>术语索引 — 智能体设计模式</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.alpha-header { font-size: 1.5rem; font-weight: 700; color: var(--teal); margin: 28px 0 12px; padding-bottom: 4px; border-bottom: 2px solid var(--teal-l); font-family: var(--serif); }
+.idx-list { list-style: none; padding: 0; }
+.idx-list li { display: flex; gap: 8px; align-items: baseline; padding: 5px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; color: var(--text2); line-height: 1.5; flex-wrap: wrap; }
+.idx-list li:last-child { border-bottom: none; }
+.idx-term { font-weight: 500; color: var(--text); min-width: 200px; flex-shrink: 0; }
+.idx-loc { color: var(--text3); font-size: 12px; }
+.idx-loc .ch { display: inline-block; background: var(--teal-l); color: var(--teal-d); font-size: 10px; padding: 1px 6px; border-radius: 99px; margin-right: 3px; font-weight: 500; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+
+<div class="chapter-tag">索引</div>
+<h1>术语索引</h1>
+<p class="subtitle">将每个关键术语映射到其章节位置的综合字母索引。由 Gemini Pro 2.5 从完整书籍内容生成——原始 PDF 中包含提示词和推理步骤，以演示智能体能力。</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">概览</button>
+  <button class="nav-btn" onclick="go('problem')">关于本索引</button>
+  <button class="nav-btn" onclick="go('solution')">使用说明</button>
+  <button class="nav-btn" onclick="go('concepts')">索引：A–F</button>
+  <button class="nav-btn" onclick="go('usecases')">索引：G–L</button>
+  <button class="nav-btn" onclick="go('code')">索引：M–R</button>
+  <button class="nav-btn" onclick="go('deepdive')">索引：S–Z</button>
+  <button class="nav-btn" onclick="go('glance')">高频引用</button>
+  <button class="nav-btn" onclick="go('quiz')">索引测验</button>
+  <button class="nav-btn" onclick="go('takeaways')">关键位置</button>
+  <button class="nav-btn" onclick="go('refs')">延伸阅读</button>
+</nav>
+
+<!-- 1. 概览 -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">索引概览</div>
+  <div class="sec-desc">本索引由 Gemini Pro 2.5 从完整的 424 页书籍内容生成——展示了智能体 RAG 和深度研究模式的实际应用。</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">索引条目总数</div><div class="metric-value">100+</div></div>
+    <div class="metric"><div class="metric-label">引用章节数</div><div class="metric-value">21+</div></div>
+    <div class="metric"><div class="metric-label">附录数量</div><div class="metric-value">7</div></div>
+    <div class="metric"><div class="metric-label">字母覆盖</div><div class="metric-value">A–Z</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>智能体能力的演示</h3>
+    <p>本索引的创建本身就是对书籍内容的演示。使用的提示词是："请阅读 Google 文档和所有相关文档。提取所有章节标题并打印出来。然后处理所有单个章节的内容，创建一个详细的出版索引，包含词条和对应章节定位器。我不要样本索引，我要包含 100 个索引术语的完整索引。"Gemini Pro 2.5 使用了多次工具调用（Workspaces）、批量文档检索和多步骤综合来生成超过 100 个条目的索引——正是书中规划 + 工具使用 + RAG 模式组合所描述的过程。</p>
+  </div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="border-top:3px solid var(--teal);">
+      <h4>引用最多的章节</h4>
+      <p>第 7 章：多智能体协作——在最多索引条目中出现，反映了其在书中模式的广泛适用性</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--purple);">
+      <h4>交叉引用最多的主题</h4>
+      <p>Google 智能体开发工具包（ADK）——被引用于 9 个章节 + 附录 C，体现了本书的实践重点</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--coral);">
+      <h4>术语表中的术语</h4>
+      <p>标注"术语表"的术语在术语表章节中有完整定义：对齐、CoT、评论模型、微调、接地、规划、提示、RAG、ReAct、RLHF、ToT、Transformer 等</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--blue);">
+      <h4>仅在附录中的术语</h4>
+      <p>一些重要主题仅出现在附录中：自动提示工程（APE）、浏览器使用、Vibe 编程、Google Project Mariner、Gemini Live、视觉感知</p>
+    </div>
+  </div>
+</div>
+
+<!-- 2. 关于本索引 -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">关于本索引</div>
+  <div class="sec-desc">本索引创建背后的故事——以及它展示了什么智能体 AI 能力。</div>
+
+  <div class="card card-bordered">
+    <h3>由 Gemini Pro 2.5 生成</h3>
+    <p>本索引是通过 Workspaces 工具向 Gemini Pro 2.5 提供所有 31 个章节文档的访问权限而生成的。模型使用其规划能力高效批量处理文档检索，然后综合生成了超过 100 个条目的完整字母索引——这项任务需要人类索引员花费数小时手工完成。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Gemini 的推理过程（摘录）</h3>
+    <p>Gemini 的推理步骤包括："开始索引创建 → 定义索引提取流程 → 细化提取策略 → 考虑工具使用 → 访问章节内容（提取 URL）→ 获取章节内容（批量调用）→ 启动 URL 检索 → 制定提取计划 → 制定提取策略。"这种多步骤推理正好与书中结论章节描述的规划 + 工具使用 + 记忆管理模式组合相吻合。</p>
+  </div>
+</div>
+
+<!-- 3. 使用说明 -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">如何使用本索引</div>
+  <div class="sec-desc">有效导航索引的指南。</div>
+
+  <div class="card card-bordered">
+    <h3>章节引用</h3>
+    <p>每个条目后跟其章节位置。例如："提示链 - 第 1 章：提示链"意味着该术语出现在第 1 章。多个章节引用意味着该术语跨越多个章节。"附录 A/B/C"指对应的附录章节。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>术语表与索引</h3>
+    <p>标注"术语表"的术语在书中的术语表章节有完整定义。索引告诉你术语在哪里出现；术语表告诉你它是什么意思。同时出现在索引和术语表中的术语是基础核心概念，值得同时进行位置追踪和定义说明。</p>
+  </div>
+</div>
+
+<!-- 4. 索引 A-F -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">索引：A–F</div>
+  <div class="sec-desc">A 到 F 开头的术语字母索引条目。</div>
+
+  <div class="alpha-header">A</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">A/B 测试</span><span class="idx-loc"><span class="ch">第3章</span> 并行化</span></li>
+    <li><span class="idx-term">行动选择（Action Selection）</span><span class="idx-loc"><span class="ch">第20章</span> 优先级排序</span></li>
+    <li><span class="idx-term">适应（Adaptation）</span><span class="idx-loc"><span class="ch">第9章</span> 学习与适应</span></li>
+    <li><span class="idx-term">智能体（Agent）</span><span class="idx-loc">前言：什么使 AI 系统成为智能体？</span></li>
+    <li><span class="idx-term">智能体卡片（Agent Cards）</span><span class="idx-loc"><span class="ch">第15章</span> 智能体间通信（A2A）</span></li>
+    <li><span class="idx-term">智能体开发工具包（ADK）</span><span class="idx-loc"><span class="ch">第2</span><span class="ch">第3</span><span class="ch">第4</span><span class="ch">第5</span><span class="ch">第7</span><span class="ch">第8</span><span class="ch">第12</span><span class="ch">第13</span><span class="ch">第15</span><span class="ch">第16</span><span class="ch">第19章</span> 附录C</span></li>
+    <li><span class="idx-term">智能体轨迹（Agent Trajectories）</span><span class="idx-loc"><span class="ch">第19章</span> 评估与监控</span></li>
+    <li><span class="idx-term">智能体 RAG</span><span class="idx-loc"><span class="ch">第14章</span> 知识检索（RAG）</span></li>
+    <li><span class="idx-term">AI 协作科学家</span><span class="idx-loc"><span class="ch">第21章</span> 探索与发现</span></li>
+    <li><span class="idx-term">对齐（Alignment）</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">AlphaEvolve</span><span class="idx-loc"><span class="ch">第9章</span> 学习与适应</span></li>
+    <li><span class="idx-term">API 交互</span><span class="idx-loc"><span class="ch">第10章</span> 模型上下文协议（MCP）</span></li>
+    <li><span class="idx-term">异步轮询</span><span class="idx-loc"><span class="ch">第15章</span> 智能体间通信（A2A）</span></li>
+    <li><span class="idx-term">审计日志</span><span class="idx-loc"><span class="ch">第15章</span> 智能体间通信（A2A）</span></li>
+    <li><span class="idx-term">自动提示工程（APE）</span><span class="idx-loc">附录 A</span></li>
+    <li><span class="idx-term">自主性（Autonomy）</span><span class="idx-loc">前言</span></li>
+    <li><span class="idx-term">A2A（智能体到智能体）</span><span class="idx-loc"><span class="ch">第15章</span> 智能体间通信（A2A）</span></li>
+  </ul>
+
+  <div class="alpha-header">B–C</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">行为约束（Behavioral Constraints）</span><span class="idx-loc"><span class="ch">第18章</span> 防护栏/安全模式</span></li>
+    <li><span class="idx-term">浏览器使用（Browser Use）</span><span class="idx-loc">附录 B</span></li>
+    <li><span class="idx-term">回调（Callbacks）</span><span class="idx-loc"><span class="ch">第18章</span> 防护栏/安全模式</span></li>
+    <li><span class="idx-term">因果语言建模（CLM）</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">辩论链（CoD）</span><span class="idx-loc"><span class="ch">第17章</span> 推理技术</span></li>
+    <li><span class="idx-term">思维链（CoT）</span><span class="idx-loc"><span class="ch">第17章</span> 推理技术 · 附录A · 术语表</span></li>
+    <li><span class="idx-term">检查点与回滚</span><span class="idx-loc"><span class="ch">第18章</span> 防护栏/安全模式</span></li>
+    <li><span class="idx-term">分块（Chunking）</span><span class="idx-loc"><span class="ch">第14章</span> 知识检索（RAG）</span></li>
+    <li><span class="idx-term">代码生成</span><span class="idx-loc"><span class="ch">第1章</span><span class="ch">第4章</span></span></li>
+    <li><span class="idx-term">协作（Collaboration）</span><span class="idx-loc"><span class="ch">第7章</span> 多智能体协作</span></li>
+    <li><span class="idx-term">上下文工程</span><span class="idx-loc"><span class="ch">第1章</span> 提示链</span></li>
+    <li><span class="idx-term">上下文窗口</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">上下文剪枝与摘要</span><span class="idx-loc"><span class="ch">第16章</span> 资源感知优化</span></li>
+    <li><span class="idx-term">CrewAI</span><span class="idx-loc"><span class="ch">第3</span><span class="ch">第5</span><span class="ch">第6</span><span class="ch">第7</span><span class="ch">第18章</span> 附录C</span></li>
+    <li><span class="idx-term">评论模型（Critique Model）</span><span class="idx-loc">术语表</span></li>
+  </ul>
+
+  <div class="alpha-header">D–F</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">数据提取</span><span class="idx-loc"><span class="ch">第1章</span> 提示链</span></li>
+    <li><span class="idx-term">深度研究（Deep Research）</span><span class="idx-loc"><span class="ch">第6章</span><span class="ch">第17章</span> 术语表</span></li>
+    <li><span class="idx-term">扩散模型（Diffusion Models）</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">直接偏好优化（DPO）</span><span class="idx-loc"><span class="ch">第9章</span> 学习与适应</span></li>
+    <li><span class="idx-term">漂移检测（Drift Detection）</span><span class="idx-loc"><span class="ch">第19章</span> 评估与监控</span></li>
+    <li><span class="idx-term">动态模型切换</span><span class="idx-loc"><span class="ch">第16章</span> 资源感知优化</span></li>
+    <li><span class="idx-term">嵌入（Embeddings）</span><span class="idx-loc"><span class="ch">第14章</span> 知识检索（RAG）</span></li>
+    <li><span class="idx-term">化身（Embodiment）</span><span class="idx-loc">前言：什么使 AI 系统成为智能体？</span></li>
+    <li><span class="idx-term">错误处理</span><span class="idx-loc"><span class="ch">第12章</span> 异常处理与恢复</span></li>
+    <li><span class="idx-term">情节记忆（Episodic Memory）</span><span class="idx-loc"><span class="ch">第8章</span> 记忆管理</span></li>
+    <li><span class="idx-term">异常处理</span><span class="idx-loc"><span class="ch">第12章</span> 异常处理与恢复</span></li>
+    <li><span class="idx-term">外部审核 API</span><span class="idx-loc"><span class="ch">第18章</span> 防护栏/安全模式</span></li>
+    <li><span class="idx-term">微调（Fine-tuning）</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">函数调用（Function Calling）</span><span class="idx-loc"><span class="ch">第5章</span> 工具使用 · 附录A</span></li>
+  </ul>
+</div>
+
+<!-- 5. 索引 G-L -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">索引：G–L</div>
+  <div class="sec-desc">G 到 L 开头的术语字母索引条目。</div>
+
+  <div class="alpha-header">G–H</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">目标设定（Goal Setting）</span><span class="idx-loc"><span class="ch">第11章</span> 目标设定与监控</span></li>
+    <li><span class="idx-term">Google Co-Scientist</span><span class="idx-loc"><span class="ch">第21章</span> 探索与发现</span></li>
+    <li><span class="idx-term">Google DeepResearch</span><span class="idx-loc"><span class="ch">第6章</span> 规划</span></li>
+    <li><span class="idx-term">Google Project Mariner</span><span class="idx-loc">附录 B</span></li>
+    <li><span class="idx-term">优雅降级（Graceful Degradation）</span><span class="idx-loc"><span class="ch">第12章</span><span class="ch">第16章</span></span></li>
+    <li><span class="idx-term">辩论图（Graph of Debates, GoD）</span><span class="idx-loc"><span class="ch">第17章</span> 推理技术</span></li>
+    <li><span class="idx-term">接地（Grounding）</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">防护栏（Guardrails）</span><span class="idx-loc"><span class="ch">第18章</span> 防护栏/安全模式</span></li>
+    <li><span class="idx-term">人机协同（HITL）</span><span class="idx-loc"><span class="ch">第13章</span> 人机协同</span></li>
+    <li><span class="idx-term">人监控环路（Human-on-the-Loop）</span><span class="idx-loc"><span class="ch">第13章</span> 人机协同</span></li>
+    <li><span class="idx-term">人工监督（Human Oversight）</span><span class="idx-loc"><span class="ch">第13章</span><span class="ch">第18章</span></span></li>
+  </ul>
+
+  <div class="alpha-header">I–L</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">情境学习（In-Context Learning）</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">输入验证/净化</span><span class="idx-loc"><span class="ch">第18章</span> 防护栏/安全模式</span></li>
+    <li><span class="idx-term">智能体间通信（A2A）</span><span class="idx-loc"><span class="ch">第15章</span></span></li>
+    <li><span class="idx-term">越狱（Jailbreaking）</span><span class="idx-loc"><span class="ch">第18章</span> 防护栏/安全模式</span></li>
+    <li><span class="idx-term">卡尼曼-特沃斯基优化（KTO）</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">知识检索（RAG）</span><span class="idx-loc"><span class="ch">第14章</span></span></li>
+    <li><span class="idx-term">LangChain</span><span class="idx-loc"><span class="ch">第1</span><span class="ch">第2</span><span class="ch">第3</span><span class="ch">第4</span><span class="ch">第5</span><span class="ch">第8</span><span class="ch">第20章</span> 附录C</span></li>
+    <li><span class="idx-term">LangGraph</span><span class="idx-loc"><span class="ch">第1</span><span class="ch">第2</span><span class="ch">第3</span><span class="ch">第4</span><span class="ch">第5</span><span class="ch">第8章</span> 附录C</span></li>
+    <li><span class="idx-term">延迟监控（Latency Monitoring）</span><span class="idx-loc"><span class="ch">第19章</span> 评估与监控</span></li>
+    <li><span class="idx-term">学习与适应</span><span class="idx-loc"><span class="ch">第9章</span></span></li>
+    <li><span class="idx-term">LLM 作为评判者（LLM-as-a-Judge）</span><span class="idx-loc"><span class="ch">第19章</span> 评估与监控</span></li>
+    <li><span class="idx-term">LlamaIndex</span><span class="idx-loc">附录 C</span></li>
+    <li><span class="idx-term">LoRA（低秩自适应）</span><span class="idx-loc">术语表</span></li>
+  </ul>
+</div>
+
+<!-- 6. 索引 M-R -->
+<div id="sec-code" class="section">
+  <div class="sec-title">索引：M–R</div>
+  <div class="sec-desc">M 到 R 开头的术语字母索引条目。</div>
+
+  <div class="alpha-header">M–N</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">Mamba</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">掩码语言建模（MLM）</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">多智能体系统搜索（MASS）</span><span class="idx-loc"><span class="ch">第17章</span> 推理技术</span></li>
+    <li><span class="idx-term">模型上下文协议（MCP）</span><span class="idx-loc"><span class="ch">第10章</span></span></li>
+    <li><span class="idx-term">记忆管理</span><span class="idx-loc"><span class="ch">第8章</span></span></li>
+    <li><span class="idx-term">MetaGPT</span><span class="idx-loc">附录 C</span></li>
+    <li><span class="idx-term">Microsoft AutoGen</span><span class="idx-loc">附录 C</span></li>
+    <li><span class="idx-term">专家混合模型（MoE）</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">监控（Monitoring）</span><span class="idx-loc"><span class="ch">第11章</span><span class="ch">第19章</span></span></li>
+    <li><span class="idx-term">多智能体协作</span><span class="idx-loc"><span class="ch">第7章</span></span></li>
+    <li><span class="idx-term">多模态（Multimodality）</span><span class="idx-loc">术语表</span></li>
+  </ul>
+
+  <div class="alpha-header">O–R</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">可观测性（Observability）</span><span class="idx-loc"><span class="ch">第18章</span> 防护栏/安全模式</span></li>
+    <li><span class="idx-term">在线学习（Online Learning）</span><span class="idx-loc"><span class="ch">第9章</span> 学习与适应</span></li>
+    <li><span class="idx-term">输出过滤/后处理</span><span class="idx-loc"><span class="ch">第18章</span> 防护栏/安全模式</span></li>
+    <li><span class="idx-term">程序辅助语言模型（PAL）</span><span class="idx-loc"><span class="ch">第17章</span> 推理技术</span></li>
+    <li><span class="idx-term">并行化（Parallelization）</span><span class="idx-loc"><span class="ch">第3章</span></span></li>
+    <li><span class="idx-term">参数高效微调（PEFT）</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">规划（Planning）</span><span class="idx-loc"><span class="ch">第6章</span> · 术语表</span></li>
+    <li><span class="idx-term">优先级排序（Prioritization）</span><span class="idx-loc"><span class="ch">第20章</span></span></li>
+    <li><span class="idx-term">程序记忆（Procedural Memory）</span><span class="idx-loc"><span class="ch">第8章</span> 记忆管理</span></li>
+    <li><span class="idx-term">提示（Prompt）</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">提示链（Prompt Chaining）</span><span class="idx-loc"><span class="ch">第1章</span></span></li>
+    <li><span class="idx-term">提示工程（Prompt Engineering）</span><span class="idx-loc">附录 A</span></li>
+    <li><span class="idx-term">近端策略优化（PPO）</span><span class="idx-loc"><span class="ch">第9章</span> 学习与适应</span></li>
+    <li><span class="idx-term">检索增强生成（RAG）</span><span class="idx-loc"><span class="ch">第8章</span><span class="ch">第14章</span> 附录A</span></li>
+    <li><span class="idx-term">ReAct（推理与行动）</span><span class="idx-loc"><span class="ch">第17章</span> 附录A · 术语表</span></li>
+    <li><span class="idx-term">反思（Reflection）</span><span class="idx-loc"><span class="ch">第4章</span></span></li>
+    <li><span class="idx-term">强化学习（Reinforcement Learning）</span><span class="idx-loc"><span class="ch">第9章</span> 学习与适应</span></li>
+    <li><span class="idx-term">RLHF</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">RLVR（具有可验证奖励的强化学习）</span><span class="idx-loc"><span class="ch">第17章</span> 推理技术</span></li>
+    <li><span class="idx-term">路由（Routing）</span><span class="idx-loc"><span class="ch">第2章</span></span></li>
+  </ul>
+</div>
+
+<!-- 7. 索引 S-Z -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">索引：S–Z</div>
+  <div class="sec-desc">S 到 Z 开头的术语字母索引条目。</div>
+
+  <div class="alpha-header">S–T</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">安全性（Safety）</span><span class="idx-loc"><span class="ch">第18章</span> 防护栏/安全模式</span></li>
+    <li><span class="idx-term">推理规模律（Scaling Inference Law）</span><span class="idx-loc"><span class="ch">第17章</span> 推理技术</span></li>
+    <li><span class="idx-term">自我一致性（Self-Consistency）</span><span class="idx-loc">附录 A</span></li>
+    <li><span class="idx-term">自我修正（Self-Correction）</span><span class="idx-loc"><span class="ch">第4章</span><span class="ch">第17章</span></span></li>
+    <li><span class="idx-term">自改进编码智能体（SICA）</span><span class="idx-loc"><span class="ch">第9章</span> 学习与适应</span></li>
+    <li><span class="idx-term">自我精炼（Self-Refinement）</span><span class="idx-loc"><span class="ch">第17章</span> 推理技术</span></li>
+    <li><span class="idx-term">语义记忆（Semantic Memory）</span><span class="idx-loc"><span class="ch">第8章</span> 记忆管理</span></li>
+    <li><span class="idx-term">语义相似性（Semantic Similarity）</span><span class="idx-loc"><span class="ch">第14章</span> 知识检索（RAG）</span></li>
+    <li><span class="idx-term">关注点分离（Separation of Concerns）</span><span class="idx-loc"><span class="ch">第18章</span> 防护栏/安全模式</span></li>
+    <li><span class="idx-term">顺序交接（Sequential Handoffs）</span><span class="idx-loc"><span class="ch">第7章</span> 多智能体协作</span></li>
+    <li><span class="idx-term">SMART 目标</span><span class="idx-loc"><span class="ch">第11章</span> 目标设定与监控</span></li>
+    <li><span class="idx-term">状态回滚（State Rollback）</span><span class="idx-loc"><span class="ch">第12章</span> 异常处理与恢复</span></li>
+    <li><span class="idx-term">结构化日志（Structured Logging）</span><span class="idx-loc"><span class="ch">第18章</span> 防护栏/安全模式</span></li>
+    <li><span class="idx-term">结构化输出（Structured Output）</span><span class="idx-loc"><span class="ch">第1章</span> 提示链 · 附录A</span></li>
+    <li><span class="idx-term">SuperAGI</span><span class="idx-loc">附录 C</span></li>
+    <li><span class="idx-term">监督式微调（SFT）</span><span class="idx-loc">术语表</span></li>
+    <li><span class="idx-term">令牌使用（Token Usage）</span><span class="idx-loc"><span class="ch">第19章</span> 评估与监控</span></li>
+    <li><span class="idx-term">工具使用（Tool Use）</span><span class="idx-loc"><span class="ch">第5章</span> · 附录A</span></li>
+    <li><span class="idx-term">工具使用限制</span><span class="idx-loc"><span class="ch">第18章</span> 防护栏/安全模式</span></li>
+    <li><span class="idx-term">思维树（Tree of Thoughts, ToT）</span><span class="idx-loc"><span class="ch">第17章</span> 附录A · 术语表</span></li>
+    <li><span class="idx-term">Transformer（变换器）</span><span class="idx-loc">术语表</span></li>
+  </ul>
+
+  <div class="alpha-header">U–Z</div>
+  <ul class="idx-list">
+    <li><span class="idx-term">无监督学习（Unsupervised Learning）</span><span class="idx-loc"><span class="ch">第9章</span> 学习与适应</span></li>
+    <li><span class="idx-term">验证（Validation）</span><span class="idx-loc"><span class="ch">第3章</span> 并行化</span></li>
+    <li><span class="idx-term">向量搜索（Vector Search）</span><span class="idx-loc"><span class="ch">第14章</span> 知识检索（RAG）</span></li>
+    <li><span class="idx-term">Vibe 编程（Vibe Coding）</span><span class="idx-loc">附录 B</span></li>
+    <li><span class="idx-term">视觉感知（Visual Perception）</span><span class="idx-loc">附录 B</span></li>
+    <li><span class="idx-term">Webhooks</span><span class="idx-loc"><span class="ch">第15章</span> 智能体间通信（A2A）</span></li>
+    <li><span class="idx-term">零样本学习（Zero-Shot Learning）</span><span class="idx-loc"><span class="ch">第9章</span> 学习与适应</span></li>
+    <li><span class="idx-term">零样本提示（Zero-Shot Prompting）</span><span class="idx-loc">附录 A</span></li>
+  </ul>
+</div>
+
+<!-- 8. 高频引用 -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">高频引用术语</div>
+  <div class="sec-desc">在最多章节中出现的术语——表明本书的核心跨领域关注点。</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="border-top:3px solid var(--teal);">
+      <h4>GOOGLE ADK</h4>
+      <p>被引用于 9+ 章节 — 第2、3、4、5、7、8、12、13、15、16、19章 + 附录C</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--blue);">
+      <h4>LANGCHAIN</h4>
+      <p>被引用于 8+ 章节 — 第1、2、3、4、5、8、20章 + 附录C</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--coral);">
+      <h4>RAG（检索增强生成）</h4>
+      <p>被引用于 3 个位置 — 第8章（记忆）、第14章（知识检索）、附录A（提示）</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--purple);">
+      <h4>CREWAI</h4>
+      <p>被引用于 6 个章节 — 第3、5、6、7、18章 + 附录C</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--amber);">
+      <h4>防护栏/安全模式</h4>
+      <p>专用章节（第18章）+ 从第13、16章引用 — 安全是贯穿始终的关注点</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--green);">
+      <h4>思维链（CoT）</h4>
+      <p>被引用于第17章（推理）、附录A（提示）、术语表 — 架起提示与智能体推理之间的桥梁</p>
+    </div>
+  </div>
+</div>
+
+<!-- 9. 索引测验 -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">索引测验</div>
+  <div class="sec-desc">测试你正确定位书中主题的能力。</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. 关键位置 -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">关键章节位置</div>
+  <div class="sec-desc">快速参考最重要的位置映射。</div>
+  <ul class="tk-list">
+    <li>提示链（第1章）+ 路由（第2章）+ 并行化（第3章）构成基础"核心执行"层——从这里开始基本智能体构建。</li>
+    <li>反思（第4章）+ 工具使用（第5章）是早期开发中提高智能体质量和接地最具实践影响力的模式。</li>
+    <li>规划（第6章）+ 多智能体协作（第7章）解锁下一层能力——多步骤战略执行和基于团队的问题解决。</li>
+    <li>记忆管理（第8章）是所有多轮和长期运行工作流的连接组织——几乎被所有其他模式引用。</li>
+    <li>知识检索/RAG（第14章）是知识密集型应用中幻觉问题的主要解决方案——任何生产智能体都必须阅读。</li>
+    <li>人机协同（第13章）+ 防护栏/安全模式（第18章）对于任何采取真实世界行动或面临对抗性输入的智能体必须一起阅读。</li>
+    <li>评估与监控（第19章）提供了验证所有其他模式在生产中正确工作所需的测试和可观测性框架。</li>
+  </ul>
+</div>
+
+<!-- 11. 延伸阅读 -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">关于索引生成</div>
+  <div class="sec-desc">与自动索引生成和智能体文档处理相关的资源。</div>
+  <ul class="ref-list">
+    <li><span style="font-weight:500;color:var(--text3);margin-right:8px;">[注]</span> 本索引由 Gemini Pro 2.5 使用完整书籍内容（31 个文档）生成。AI 模型使用的提示词、推理步骤和过程记录在原始 PDF 中，作为智能体文档处理的教育示例。</li>
+    <li><span style="font-weight:500;color:var(--text3);margin-right:8px;">[第14章]</span> 第 14 章（知识检索）解释了支撑这种大规模文档信息提取的底层 RAG 架构。</li>
+    <li><span style="font-weight:500;color:var(--text3);margin-right:8px;">[第6章]</span> 第 6 章（规划）解释了模型如何将 31 个文档的索引任务分解为结构化的可执行多步骤计划。</li>
+    <li><span style="font-weight:500;color:var(--text3);margin-right:8px;">[第5章]</span> 第 5 章（工具使用）解释了模型用于高效检索每个章节内容的 Workspaces 工具调用。</li>
+    <li><span style="font-weight:500;color:var(--text3);margin-right:8px;">[书籍]</span> Gulli, Antonio. 《智能体设计模式：构建智能系统的实战指南》. Springer, 2025.</li>
+  </ul>
+</div>
+
+<div class="footer"><p>智能体设计模式 — 术语索引</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [];
+function simClick(i) {}
+const quizData = [
+  { q: '在书中哪个章节能找到 ReAct（推理与行动）框架的详细讲解？', opts: ['第5章：工具使用', '第7章：多智能体协作', '第17章：推理技术', '第4章：反思'], ans: 2, ok: '正确！ReAct 主要在第17章（推理技术）中讲解，同时在附录A（高级提示技术）和术语表中也有引用。', no: '不对。虽然 ReAct 与工具使用有关，但其主要讲解在第17章：推理技术，以及附录A和术语表。' },
+  { q: '"检查点与回滚"技术在书的哪个部分？', opts: ['第8章：记忆管理', '第12章：异常处理与恢复', '第18章：防护栏/安全模式', '第19章：评估与监控'], ans: 2, ok: '正确！检查点与回滚在第18章：防护栏/安全模式中讲解，作为生产智能体的安全和容错基础设施的一部分。', no: '不对。检查点与回滚在第18章：防护栏/安全模式中讲解——它是安全机制，而非记忆或异常处理模式。' },
+  { q: '哪个章节将"LLM 作为评判者"作为评估技术讲解？', opts: ['第4章：反思', '第13章：人机协同', '第17章：推理技术', '第19章：评估与监控'], ans: 3, ok: '正确！LLM 作为评判者在第19章：评估与监控中讲解——它是一种自动化评分方法，使用 LLM 评估另一个 LLM 的输出质量。', no: '不对。LLM 作为评判者是第19章：评估与监控中的评估技术。' },
+  { q: '根据索引，Google 智能体开发工具包（ADK）在多少个章节中出现？', opts: ['3–4 个章节', '5–6 个章节', '7–8 个章节', '9 个或更多章节'], ans: 3, ok: '正确！Google ADK 出现在 9+ 个章节（第2、3、4、5、7、8、12、13、15、16、19章）加上附录C——使其成为书中引用最广泛的框架。', no: '不对。Google ADK 出现在 9+ 个章节加上附录C，是书中引用最广泛的框架。' },
+  { q: '"Vibe 编程"（Vibe Coding）在书的哪个部分讲解？', opts: ['第9章：学习与适应', '第17章：推理技术', '附录 B', '第21章：探索与发现'], ans: 2, ok: '正确！Vibe 编程在附录B中讲解，该附录专注于 AI 在真实环境中的应用，包括浏览器使用、GUI 交互和视觉感知。', no: '不对。Vibe 编程出现在附录B（AI 智能体：从 GUI 到真实世界环境）——不在主章节中。' }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">第 ' + (curQ+1) + ' 题 / 共 ' + quizData.length + ' 题</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">下一题</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">查看核心要点</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

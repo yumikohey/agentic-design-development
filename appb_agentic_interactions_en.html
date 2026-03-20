@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appendix B: AI Agentic Interactions — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: system-ui, -apple-system, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB;
+    --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6;
+    --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775;
+    --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 220px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Appendix B</div>
+<h1>AI Agentic Interactions: From GUI to Real World</h1>
+<p class="subtitle">How AI agents perceive, interact with, and act within digital interfaces and physical environments — from clicking buttons to understanding their surroundings through cameras and microphones.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">From Conversation to Action</div>
+  <p class="sec-desc">AI agents are evolving from conversational partners into active task-oriented systems that interact with digital interfaces and the physical world. This appendix explores how agents perceive, process, and act within varied environments.</p>
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Interaction Modes</div>
+      <div class="metric-value">2</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Key Projects</div>
+      <div class="metric-value">8+</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">New Paradigm</div>
+      <div class="metric-value" style="font-size:1rem;">Vibe Coding</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Core Interface</div>
+      <div class="metric-value" style="font-size:1rem;">ACI / GUI</div>
+    </div>
+  </div>
+  <div class="card card-bordered">
+    <h3>Agent-Computer Interfaces (ACIs)</h3>
+    <p>ACIs enable AI to interact directly with a computer's Graphical User Interface — perceiving and manipulating visual elements like icons and buttons, just as a human would. This moves beyond rigid API-dependent scripts to flexible automation through the visual "front door" of software.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Real-World Environment Interaction</h3>
+    <p>Beyond screens, agents are being designed to interact with complex dynamic real-world environments using multimodal inputs: sight (cameras), sound (microphones), and touch. Projects like Google's Astra push toward truly embodied AI understanding.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Vibe Coding</h3>
+    <p>A new AI-assisted development paradigm emerges: instead of precise instructions, developers express high-level goals and "vibes," and AI generates corresponding code. This conversational, iterative partnership is reshaping software engineering.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>The Convergence Vision</h3>
+    <p>Leading technology companies are converging digital and physical capabilities to create universal AI assistants that operate seamlessly across all of a user's environments — proactive, context-aware companions for daily life.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Limitations of Traditional Automation</div>
+  <p class="sec-desc">Before agentic interaction, automation was rigid and brittle. Click each card to explore the specific challenge that motivated a new approach.</p>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>API Dependency Lock-in</h4>
+      <p>Traditional automation required specialized API access for every service — an approach that doesn't scale across the web.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">ChatGPT Operator's key insight: by operating through the visual interface, it can work with any application on the desktop — CRM platforms, airline websites, forms — without requiring custom API integrations for each.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Script Brittleness</h4>
+      <p>DOM-based automation scripts break whenever a website updates its layout, class names, or element structure.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">Visual GUI agents understand the semantic meaning of elements (a magnifying glass icon = search; a blue button = call to action) rather than hardcoded selectors, making them far more resilient to interface changes.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Single-Application Scope</h4>
+      <p>Conventional automation tools were scoped to one application. Cross-application workflows required manual handoffs.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">Anthropic's Computer Use allows Claude to orchestrate workflows spanning multiple unconnected applications — analyzing a PDF, opening a spreadsheet, generating a chart, and pasting it into an email, all autonomously.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Text-Only Interaction</h4>
+      <p>LLMs initially operated only on text, unable to perceive or act on visual information in interfaces or environments.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">Multimodal models like GPT-4o process vision, voice, and text simultaneously. Google's Gemini Live can see through a phone camera and provide contextual assistance about what it observes in real time.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Passive Information Access</h4>
+      <p>Users had to actively query AI systems. There was no proactive contextual awareness of the user's immediate environment.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">Google's Project Astra aims to create an AI that can "see" and "hear" surroundings and engage in natural conversation while providing real-time assistance — finding lost items, debugging visible code, or explaining what a camera sees.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">The ACI Agent Loop</div>
+  <p class="sec-desc">Agent-Computer Interfaces enable a four-stage perception-action loop that allows AI to operate any software visually. Click each stage to understand the mechanism.</p>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">1</div>
+        <div>
+          <div class="chain-title">Visual Perception</div>
+          <div class="chain-role">Screenshot capture → screen representation</div>
+        </div>
+      </div>
+      <div class="chain-detail">The agent captures a visual representation of the current screen state — essentially taking a screenshot. This image becomes the agent's "view" of the environment, encoding all visible UI elements, text, buttons, and layout.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">GUI Element Recognition</div>
+          <div class="chain-role">Image analysis → structured layout understanding</div>
+        </div>
+      </div>
+      <div class="chain-detail">The agent analyzes the screenshot to distinguish between interactive elements. It learns to "see" the screen as a structured layout: discerning a clickable "Submit" button from a static banner image, or an editable text field from a simple label. This requires multimodal vision capabilities.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">3</div>
+        <div>
+          <div class="chain-title">Contextual Interpretation</div>
+          <div class="chain-role">ACI module → task-aware understanding</div>
+        </div>
+      </div>
+      <div class="chain-detail">The ACI module bridges visual data and the agent's core LLM intelligence. It interprets elements within the context of the task — understanding that a magnifying glass icon means "search," or that a series of radio buttons represents a choice. This enhances reasoning and allows the agent to form action plans from visual evidence.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">4</div>
+        <div>
+          <div class="chain-title">Dynamic Action &amp; Response</div>
+          <div class="chain-role">Programmatic control → click, type, scroll, drag</div>
+        </div>
+      </div>
+      <div class="chain-detail">The agent programmatically controls the mouse and keyboard to execute its plan — clicking, typing, scrolling, and dragging. Critically, it must constantly monitor the screen for visual feedback, dynamically responding to changes like loading screens, pop-up notifications, or error messages to successfully navigate multi-step workflows.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+  <p class="sec-desc">The key technologies and projects shaping how AI agents interact with computers and their environments.</p>
+
+  <div class="card" style="border-left:3px solid var(--blue);">
+    <h3>Agent-Computer Interface (ACI)</h3>
+    <p>An ACI is the layer that allows AI to interact directly with a computer's GUI. It processes screenshots, identifies interactive elements, and generates actions (mouse clicks, keyboard input). The ACI is the bridge between an LLM's reasoning and a physical interface.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);">
+    <h3>Browser Use Library</h3>
+    <p>An open-source library providing a high-level API for programmatic browser automation. It grants AI agents access and control over the DOM, abstracting low-level browser control protocols into an intuitive set of functions. Enables data extraction from nested elements, form submissions, and multi-page navigation.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--teal);">
+    <h3>Multimodal Interaction</h3>
+    <p>Modern agents process multiple input types simultaneously — vision (screenshots, camera), audio (voice, ambient sound), and text. GPT-4o's "omni" design mirrors human response times across modalities. Gemini Live integrates phone camera and screen sharing for contextual real-time assistance.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);">
+    <h3>Vibe Coding</h3>
+    <p>An intuitive, conversational AI-assisted development approach where developers express high-level goals and creative intent rather than precise specifications. The AI interprets the "vibe" and generates code. Characterized by conversational prompts, iterative refinement, creative partnership, and optional memory banks for consistent style.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--amber);">
+    <h3>Embodied AI Understanding</h3>
+    <p>Projects like Google's Astra and Gemini Live push toward AI that can contextually understand physical environments through cameras and microphones — seeing lost items, describing surroundings to visually impaired users (Microsoft's Seeing AI), and providing real-time live instructions.</p>
+  </div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Real-World Applications</div>
+  <p class="sec-desc">Concrete examples of how agentic interactions are being deployed today, organized by domain.</p>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Desktop Automation</button>
+    <button class="uc-tab" onclick="showUC(1)">Web Agent</button>
+    <button class="uc-tab" onclick="showUC(2)">Real-World Vision</button>
+    <button class="uc-tab" onclick="showUC(3)">Accessibility</button>
+    <button class="uc-tab" onclick="showUC(4)">Vibe Coding</button>
+    <button class="uc-tab" onclick="showUC(5)">Multimodal Chat</button>
+  </div>
+
+  <div id="uc-0" class="uc-panel active">
+    <div class="card">
+      <h3>Desktop Automation — Anthropic's Computer Use</h3>
+      <p><strong>Tool: Claude with Computer Use API</strong></p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>User asks Claude to analyze a PDF report and create a chart from the data</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>Claude takes a screenshot, identifies the PDF viewer and content</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>Opens a spreadsheet application, enters the extracted data, generates chart</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>Copies the chart and pastes it into an email draft — all autonomously, across multiple apps</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px;">This type of cross-application workflow previously required constant human input. Computer Use orchestrates unconnected applications through their visual interfaces.</p>
+    </div>
+  </div>
+
+  <div id="uc-1" class="uc-panel">
+    <div class="card">
+      <h3>Web Research Agent — Google Project Mariner</h3>
+      <p><strong>Tool: Chrome-embedded agent</strong></p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>User asks: "Find three apartments for rent under $2000 in Brooklyn near a subway"</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>Mariner navigates to real estate websites, applies the specified filters</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>Browses through listings, extracts relevant details from each page</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>Compiles results into a structured document and presents them to the user</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px;">Project Mariner operates within the Chrome browser to understand user intent and autonomously carry out web-based tasks — a truly "agentive" web experience.</p>
+    </div>
+  </div>
+
+  <div id="uc-2" class="uc-panel">
+    <div class="card">
+      <h3>Real-World Vision — Google Project Astra</h3>
+      <p><strong>Tool: Universal AI agent with multimodal sensors</strong></p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>User points camera at a room: "Where did I leave my glasses?"</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>Astra processes camera feed and audio context simultaneously</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>Identifies objects in the scene and cross-references with conversation context</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>Responds conversationally: "I saw them on the desk by the window a moment ago"</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px;">Astra uses cameras and microphones to see and hear surroundings, engaging in natural conversation while providing real-time contextual assistance.</p>
+    </div>
+  </div>
+
+  <div id="uc-3" class="uc-panel">
+    <div class="card">
+      <h3>Accessibility — Microsoft Seeing AI</h3>
+      <p><strong>Tool: Mobile AI app for visually impaired users</strong></p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>User points phone camera at a document, product barcode, or scene</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>Seeing AI identifies and reads text, currency, products, and people</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>Describes colors, scenes, and objects in natural language audio narration</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>Provides real-time narration of surroundings to foster independence</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px;">Seeing AI demonstrates how real-world AI interaction can directly enhance human capability, providing greater independence for individuals with visual impairments.</p>
+    </div>
+  </div>
+
+  <div id="uc-4" class="uc-panel">
+    <div class="card">
+      <h3>Vibe Coding — Conversational Software Creation</h3>
+      <p><strong>Tool: GPT-4, Claude, or Gemini integrated into IDE</strong></p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>Developer says: "Create a simple, modern-looking landing page for a new app"</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>AI interprets "modern" vibe and generates HTML/CSS/JS starter code</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>Developer refines: "Make the buttons blue and add some error handling"</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>Iterative back-and-forth continues until code matches the developer's vision</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px;">Vibe coding prioritizes high-level creative intent over boilerplate specification, accelerating development and making it more accessible to non-specialists.</p>
+    </div>
+  </div>
+
+  <div id="uc-5" class="uc-panel">
+    <div class="card">
+      <h3>Multimodal Chat — GPT-4o &amp; Gemini Live</h3>
+      <p><strong>Tool: Omni models with real-time voice + vision</strong></p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>User shows a live video feed of a math problem on a whiteboard</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>GPT-4o processes vision and audio with low latency mirroring human response times</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>User asks in natural speech; AI responds in natural-sounding voice</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>User can interrupt mid-sentence; AI adapts immediately to topic changes</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px;">GPT-4o's "omni" design enables reasoning across voice, vision, and text simultaneously at latencies that enable natural human-AI conversation.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Code Examples</div>
+  <p class="sec-desc">Illustrative examples of how browser-use and Computer Use APIs enable programmatic agent interaction with digital environments.</p>
+
+  <div class="card"><h3>Browser Use — Automated Web Research</h3></div>
+  <div class="code-block"><span class="code-keyword">from</span> browser_use <span class="code-keyword">import</span> Agent, Browser
+<span class="code-keyword">import</span> asyncio
+
+<span class="code-keyword">async def</span> research_apartments():
+    browser = Browser()
+    agent = Agent(
+        task=<span class="code-string">"""Find 3 apartments for rent under $2000/month in Brooklyn.
+For each listing, extract: address, price, bedrooms, and URL."""</span>,
+        llm=<span class="code-string">"gpt-4o"</span>,
+        browser=browser,
+    )
+
+    <span class="code-comment"># Agent autonomously navigates, clicks, scrolls, extracts</span>
+    result = <span class="code-keyword">await</span> agent.run()
+    <span class="code-keyword">return</span> result.extracted_content
+
+asyncio.run(research_apartments())</div>
+
+  <div class="card" style="margin-top:1.5rem;"><h3>Anthropic Computer Use — Cross-App Workflow</h3></div>
+  <div class="code-block"><span class="code-keyword">import</span> anthropic
+
+client = anthropic.Anthropic()
+
+<span class="code-comment"># Computer Use enables Claude to take screenshots and control keyboard/mouse</span>
+response = client.beta.messages.create(
+    model=<span class="code-string">"claude-opus-4-5"</span>,
+    max_tokens=4096,
+    tools=[
+        {<span class="code-string">"type"</span>: <span class="code-string">"computer_20241022"</span>, <span class="code-string">"name"</span>: <span class="code-string">"computer"</span>, <span class="code-string">"display_width_px"</span>: 1920, <span class="code-string">"display_height_px"</span>: 1080},
+        {<span class="code-string">"type"</span>: <span class="code-string">"text_editor_20241022"</span>, <span class="code-string">"name"</span>: <span class="code-string">"str_replace_editor"</span>},
+        {<span class="code-string">"type"</span>: <span class="code-string">"bash_20241022"</span>, <span class="code-string">"name"</span>: <span class="code-string">"bash"</span>},
+    ],
+    messages=[{
+        <span class="code-string">"role"</span>: <span class="code-string">"user"</span>,
+        <span class="code-string">"content"</span>: <span class="code-string">"""Open the report.pdf file, extract the sales figures table,
+create a bar chart in a new spreadsheet, and save it as chart.png."""</span>
+    }],
+    betas=[<span class="code-string">"computer-use-2024-10-22"</span>],
+)
+
+<span class="code-comment"># Claude will iteratively take screenshots, interpret the screen,</span>
+<span class="code-comment"># and issue actions (click, type, scroll) until the task is complete</span>
+<span class="code-keyword">print</span>(response.content)</div>
+
+  <div class="card" style="margin-top:1.5rem;"><h3>GPT-4o Vision — Real-Time Image Understanding</h3></div>
+  <div class="code-block"><span class="code-keyword">import</span> base64
+<span class="code-keyword">from</span> openai <span class="code-keyword">import</span> OpenAI
+
+client = OpenAI()
+
+<span class="code-keyword">def</span> analyze_screen(screenshot_path: str, task: str) -> str:
+    <span class="code-keyword">with</span> open(screenshot_path, <span class="code-string">"rb"</span>) <span class="code-keyword">as</span> f:
+        img_data = base64.b64encode(f.read()).decode()
+
+    response = client.chat.completions.create(
+        model=<span class="code-string">"gpt-4o"</span>,
+        messages=[{
+            <span class="code-string">"role"</span>: <span class="code-string">"user"</span>,
+            <span class="code-string">"content"</span>: [
+                {<span class="code-string">"type"</span>: <span class="code-string">"image_url"</span>, <span class="code-string">"image_url"</span>: {<span class="code-string">"url"</span>: f<span class="code-string">"data:image/png;base64,{img_data}"</span>}},
+                {<span class="code-string">"type"</span>: <span class="code-string">"text"</span>, <span class="code-string">"text"</span>: f<span class="code-string">"Looking at this screen: {task}"</span>}
+            ]
+        }]
+    )
+    <span class="code-keyword">return</span> response.choices[0].message.content</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">The Convergence of Digital and Physical</div>
+  <p class="sec-desc">Explore the key projects and their distinct approaches to expanding AI interaction beyond traditional text chat. Click each layer for analysis.</p>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--blue-l);border-color:var(--blue);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--blue-d);">ChatGPT Operator (OpenAI)</div>
+      <div class="ctx-layer-sub" style="color:var(--blue-d);">Desktop automation · Universal app control · No API required</div>
+      <div class="ctx-layer-detail" style="color:var(--blue-d);">
+        Designed as a "digital partner" for automating tasks across desktop applications. Understands on-screen elements, enabling tasks like transferring data from a spreadsheet into a CRM, booking travel itineraries across airline and hotel websites, or filling detailed forms — all without needing specialized API access per service. Targets both personal and enterprise productivity by taking over repetitive digital chores.
+      </div>
+    </div>
+    <div class="ctx-layer" style="background:var(--purple-l);border-color:var(--purple);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--purple-d);">Google Project Mariner</div>
+      <div class="ctx-layer-sub" style="color:var(--purple-d);">Chrome browser agent · Intent understanding · Autonomous web tasks</div>
+      <div class="ctx-layer-detail" style="color:var(--purple-d);">
+        Operates as a research prototype within Chrome. Its purpose is to understand user intent and autonomously carry out web-based tasks. Example: user asks for apartments in a budget range → Mariner navigates real estate sites, applies filters, browses listings, and extracts relevant info into a document. Represents Google's exploration of a truly "agentive" web experience where the browser actively works for the user.
+      </div>
+    </div>
+    <div class="ctx-layer" style="background:var(--teal-l);border-color:var(--teal);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--teal-d);">Anthropic's Computer Use</div>
+      <div class="ctx-layer-sub" style="color:var(--teal-d);">Claude as desktop user · Multi-app orchestration · Screenshot-based control</div>
+      <div class="ctx-layer-detail" style="color:var(--teal-d);">
+        Empowers Claude to become a direct user of a computer's desktop environment. By capturing screenshots and programmatically controlling mouse and keyboard, Claude can orchestrate cross-application workflows: analyzing data in a PDF, opening a spreadsheet, performing calculations, generating a chart, and pasting it into an email — a sequence that previously required constant human input between steps.
+      </div>
+    </div>
+    <div class="ctx-layer" style="background:var(--amber-l);border-color:var(--amber);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--amber-d);">Google Project Astra &amp; Gemini Live</div>
+      <div class="ctx-layer-sub" style="color:var(--amber-d);">Universal AI agent · Multimodal real-world sensors · Embodied understanding</div>
+      <div class="ctx-layer-detail" style="color:var(--amber-d);">
+        Astra aims to create a universal AI agent helpful in everyday life — leveraging multimodal inputs (sight, sound, voice) to understand and interact with the world contextually. Gemini Live extends this to fluid dynamic conversation: users speak to the AI, receive natural-sounding voice responses, interrupt mid-sentence, and incorporate visual context from phone cameras or screen sharing. Advanced versions perceive tone of voice and filter background noise.
+      </div>
+    </div>
+    <div class="ctx-layer" style="background:var(--coral-l);border-color:var(--coral);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--coral-d);">ChatGPT Agent (OpenAI) — Safety Architecture</div>
+      <div class="ctx-layer-sub" style="color:var(--coral-d);">Autonomous web browsing · Code execution · Third-party app integration · Safeguards</div>
+      <div class="ctx-layer-detail" style="color:var(--coral-d);">
+        Represents a significant architectural advance: autonomous internet navigation for real-time data, dynamic code generation and execution, and direct integration with third-party applications. This enables orchestrating complex sequential workflows from a single directive — performing market analysis and generating a presentation, or planning logistics. OpenAI proactively addressed safety with an accompanying System Card, requiring explicit user authorization for certain action classes and deploying content filtering. User feedback drives iterative safety refinement.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--blue-l);">
+      <h4 style="color:var(--blue-d);">GUI AGENTS</h4>
+      <p style="color:var(--blue-d);">Interact with software visually — screenshot, perceive, click, type. No API needed. Works with any app on any platform.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4 style="color:var(--purple-d);">BROWSER AGENTS</h4>
+      <p style="color:var(--purple-d);">Navigate the web autonomously — understand intent, apply filters, extract data, compile results across sites.</p>
+    </div>
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4 style="color:var(--teal-d);">REAL-WORLD AI</h4>
+      <p style="color:var(--teal-d);">Cameras + microphones + LLM = embodied understanding. Sees surroundings, hears context, responds naturally.</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);">
+      <h4 style="color:var(--coral-d);">VIBE CODING</h4>
+      <p style="color:var(--coral-d);">High-level intent → AI-generated code. Conversational, iterative, creative partnership. Focus on "what" not "how."</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Click each stage to explore the agent perception-action cycle</div>
+    <div class="diagram-nodes">
+      <div class="dia-node active" style="background:var(--blue-l);color:var(--blue-d);" onclick="simClick(0)">Perceive</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(1)">Recognize</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d);" onclick="simClick(2)">Interpret</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(3)">Act</div>
+    </div>
+    <div class="dia-output" id="sim-output">Perceive — The agent captures a screenshot, creating its visual representation of the current environment. All UI elements, text, and layout are encoded in this image for analysis.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Check</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>AI agents are evolving from conversational text partners to active, task-oriented systems that can visually control software through Graphical User Interfaces — just as a human would, without requiring specialized APIs.</li>
+    <li>The ACI (Agent-Computer Interface) perception loop — Visual Perception → GUI Recognition → Contextual Interpretation → Dynamic Action — enables any software to be operated autonomously by an AI agent.</li>
+    <li>Leading AI labs (OpenAI with Operator &amp; ChatGPT Agent, Google with Project Mariner, Anthropic with Computer Use) have all launched functional GUI agents demonstrating the power and commercial readiness of this paradigm.</li>
+    <li>The next frontier is real-world interaction. Projects like Google's Project Astra use cameras and microphones to see, hear, and understand physical surroundings, enabling truly embodied AI assistance.</li>
+    <li>Gemini Live and GPT-4o represent a convergence of voice, vision, and text modalities at low latency — enabling fluid, interruptible, natural conversations that mirror human interaction.</li>
+    <li>Microsoft's Seeing AI demonstrates how real-world AI interaction directly enhances human capability and independence for visually impaired users — a powerful example of AI benefiting accessibility.</li>
+    <li>"Vibe coding" signals a fundamental shift in how developers build software with AI: from precise specifications to high-level creative intent, treated as a conversational partnership rather than command execution.</li>
+    <li>Safety is an active concern: ChatGPT Agent's System Card acknowledges operational hazards and requires explicit user authorization for certain action classes, representing the industry's evolving approach to responsible agentic deployment.</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>OpenAI Operator — <a href="https://openai.com/index/introducing-operator/" target="_blank">https://openai.com/index/introducing-operator/</a></li>
+    <li><span class="ref-num">2</span>OpenAI ChatGPT Agent — <a href="https://openai.com/index/introducing-chatgpt-agent/" target="_blank">https://openai.com/index/introducing-chatgpt-agent/</a></li>
+    <li><span class="ref-num">3</span>Browser Use — <a href="https://docs.browser-use.com/introduction" target="_blank">https://docs.browser-use.com/introduction</a></li>
+    <li><span class="ref-num">4</span>Google Project Mariner — <a href="https://deepmind.google/models/project-mariner/" target="_blank">https://deepmind.google/models/project-mariner/</a></li>
+    <li><span class="ref-num">5</span>Anthropic Computer Use — <a href="https://docs.anthropic.com/en/docs/build-with-claude/computer-use" target="_blank">https://docs.anthropic.com/en/docs/build-with-claude/computer-use</a></li>
+    <li><span class="ref-num">6</span>Google Project Astra — <a href="https://deepmind.google/models/project-astra/" target="_blank">https://deepmind.google/models/project-astra/</a></li>
+    <li><span class="ref-num">7</span>Gemini Live — <a href="https://gemini.google/overview/gemini-live/?hl=en" target="_blank">https://gemini.google/overview/gemini-live/</a></li>
+    <li><span class="ref-num">8</span>OpenAI GPT-4o — <a href="https://openai.com/index/gpt-4o-research/" target="_blank">https://openai.com/index/gpt-4o-research/</a></li>
+    <li><span class="ref-num">9</span>Claude 4 Series — <a href="https://www.anthropic.com/news/claude-4" target="_blank">https://www.anthropic.com/news/claude-4</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>Appendix B · AI Agentic Interactions · Interactive Learning Module</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  'Perceive — The agent captures a screenshot, creating its visual representation of the current environment. All UI elements, text, and layout are encoded in this image for analysis.',
+  'Recognize — The agent distinguishes between interactive elements: clickable buttons vs. static images, editable text fields vs. labels, scroll areas vs. fixed content. Requires multimodal vision.',
+  'Interpret — The ACI module bridges vision and intelligence. Elements are interpreted in task context: magnifying glass = search, radio buttons = choice, blue button = primary action. Enables plan formation.',
+  'Act — The agent executes its plan via programmatic mouse/keyboard control (click, type, scroll, drag), then monitors the screen for visual feedback before determining the next action.'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: 'What does ACI stand for, and what problem does it solve?',
+    opts: [
+      'Automated Coding Interface — it generates code from natural language',
+      'Agent-Computer Interface — it enables AI to interact with GUIs without requiring specialized APIs for each application',
+      'Anthropic Computer Intelligence — it is a proprietary system for desktop control',
+      'Asynchronous Communication Interface — it allows LLMs to run tasks in parallel'
+    ],
+    ans: 1,
+    ok: 'Correct! ACI (Agent-Computer Interface) allows AI to interact with any software through its visual GUI — clicking, typing, and scrolling just like a human — without needing a custom API for each application.',
+    no: 'Not quite. ACI stands for Agent-Computer Interface. It solves the problem of API dependency by allowing AI to control any software through its visual interface instead.'
+  },
+  {
+    q: 'What are the four stages of the ACI agent perception-action loop?',
+    opts: [
+      'Plan, Execute, Verify, Report',
+      'Visual Perception → GUI Recognition → Contextual Interpretation → Dynamic Action',
+      'Prompt, Generate, Validate, Deploy',
+      'Observe, Think, Decide, Respond'
+    ],
+    ans: 1,
+    ok: 'Correct! The four stages are: (1) Visual Perception (screenshot), (2) GUI Element Recognition (identify interactive elements), (3) Contextual Interpretation (understand in task context), (4) Dynamic Action (click/type/scroll + monitor feedback).',
+    no: 'Not quite. The ACI loop specifically involves: Visual Perception → GUI Element Recognition → Contextual Interpretation → Dynamic Action & Response.'
+  },
+  {
+    q: 'Google\'s Project Mariner is best described as:',
+    opts: [
+      'A physical robot that interacts with real-world environments',
+      'A research prototype that operates as an agent within the Chrome browser to autonomously carry out web-based tasks',
+      'A multimodal model for voice-based interaction',
+      'An SDK for building mobile AI applications'
+    ],
+    ans: 1,
+    ok: 'Correct! Project Mariner is a Chrome-embedded agent that understands user intent and autonomously carries out web-based tasks — navigating sites, applying filters, browsing listings, and extracting information.',
+    no: 'Not quite. Project Mariner is specifically a browser-based agent that operates within Chrome to autonomously perform web tasks on behalf of the user.'
+  },
+  {
+    q: 'What distinguishes "vibe coding" from traditional code-generation AI assistance?',
+    opts: [
+      'Vibe coding only works for front-end web development',
+      'It requires writing detailed technical specifications before the AI generates anything',
+      'Developers express high-level goals and creative intent (the "vibe") rather than precise specifications; the AI interprets and generates accordingly',
+      'It is only available through specialized IDEs with proprietary plugins'
+    ],
+    ans: 2,
+    ok: 'Correct! Vibe coding shifts from precise specifications to high-level creative intent. A developer might say "Create a modern-looking landing page" and the AI interprets "modern" to generate appropriate code — no detailed spec needed.',
+    no: 'Not quite. Vibe coding\'s defining characteristic is expressing high-level goals and creative direction rather than precise technical specifications, enabling a more intuitive and conversational development flow.'
+  },
+  {
+    q: 'What capability makes GPT-4o\'s interaction paradigm different from earlier LLMs?',
+    opts: [
+      'It can only process text, but at much higher speeds',
+      'It is the first model to support function calling',
+      'Its "omni" design processes voice, vision, and text simultaneously at low latency mirroring human response times',
+      'It uses reinforcement learning exclusively for all task types'
+    ],
+    ans: 2,
+    ok: 'Correct! GPT-4o\'s "omni" (meaning "all") design enables reasoning across voice, vision, and text simultaneously at latencies that mirror human response times — enabling truly natural real-time multimodal conversations.',
+    no: 'Not quite. GPT-4o\'s key innovation is its omni-modal capability: processing voice, vision, and text simultaneously at low latency, enabling natural human-speed conversations across all modalities at once.'
+  },
+  {
+    q: 'Google\'s Project Astra is primarily designed to:',
+    opts: [
+      'Replace traditional search engines with a conversational interface',
+      'Create a universal AI agent that interacts with the physical world using cameras and microphones for real-time contextual assistance',
+      'Automate code deployment pipelines',
+      'Generate synthetic training data for other AI models'
+    ],
+    ans: 1,
+    ok: 'Correct! Project Astra aims to create a universal AI agent helpful in everyday life, using multimodal inputs (sight, sound, voice) to contextually understand and interact with the physical world in real time.',
+    no: 'Not quite. Project Astra is about real-world interaction — using cameras and microphones to see and hear the physical environment and provide contextual assistance, like finding lost items or explaining what the camera sees.'
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot'; if (i===curQ) cls+=' current'; else if (scores[i]===true) cls+=' done'; else if (scores[i]===false) cls+=' wrong-dot';
+    dots += '<div class="'+cls+'"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question '+(curQ+1)+' of '+quizData.length+'</div>';
+  html += '<div class="quiz-q">'+q.q+'</div>';
+  q.opts.forEach((opt,i)=>{ html+='<button class="quiz-opt" id="qo'+i+'" onclick="answer('+i+')">'+opt+'</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ>0) html+='<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ<quizData.length-1) html+='<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html+='<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) { const q2=quizData[curQ]; document.querySelectorAll('.quiz-opt').forEach((btn,i)=>{btn.classList.add('disabled');if(i===q2.ans)btn.classList.add('correct');}); document.getElementById('nextBtn').style.display='inline-block'; }
+}
+function answer(i) {
+  if (answered.has(curQ)) return; answered.add(curQ);
+  const q=quizData[curQ]; const isRight=i===q.ans; scores[curQ]=isRight;
+  document.getElementById('qo'+i).classList.add(isRight?'correct':'wrong');
+  if (!isRight) document.getElementById('qo'+q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.classList.add('disabled'));
+  const fb=document.getElementById('qfb'); fb.textContent=isRight?q.ok:q.no; fb.className='quiz-fb show '+(isRight?'right':'wrng');
+  document.getElementById('nextBtn').style.display='inline-block'; renderQuiz();
+}
+function nextQ(){curQ++;renderQuiz();}
+function prevQ(){curQ--;renderQuiz();}
+renderQuiz();
+</script>
+</body>
+</html>

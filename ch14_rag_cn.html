@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第十四章：知识检索（RAG）— 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1; --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+
+<div class="chapter-tag">第十四章</div>
+<h1>知识检索（RAG）</h1>
+<p class="subtitle">检索增强生成（RAG）使大语言模型能够访问外部最新知识源——将智能体从封闭式对话者转变为有据可查、基于事实的推理工具。</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">概览</button>
+  <button class="nav-btn" onclick="go('problem')">问题所在</button>
+  <button class="nav-btn" onclick="go('solution')">解决方案</button>
+  <button class="nav-btn" onclick="go('concepts')">核心概念</button>
+  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
+  <button class="nav-btn" onclick="go('code')">代码实战</button>
+  <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
+  <button class="nav-btn" onclick="go('glance')">一览概要</button>
+  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
+  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
+  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+</nav>
+
+<!-- 1. 概览 -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">模式概览</div>
+  <p class="sec-desc">RAG 通过在生成响应前为大语言模型提供外部知识库访问权限，显著增强其能力。它不再依赖静态训练数据，而是允许大语言模型"查阅"信息——提供准确、及时、可核实且附有引用来源的答案。</p>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">模式类型</div><div class="metric-value">RAG</div></div>
+    <div class="metric"><div class="metric-label">核心技术</div><div class="metric-value">向量</div></div>
+    <div class="metric"><div class="metric-label">核心价值</div><div class="metric-value">事实接地</div></div>
+    <div class="metric"><div class="metric-label">高级形式</div><div class="metric-value">智能体RAG</div></div>
+  </div>
+  <div class="card card-bordered">
+    <h3>检索步骤</h3>
+    <p>当查询到达时，系统在庞大的外部知识库（文档、数据库或网页）中进行语义搜索，找出最相关的信息片段。这是语义搜索，而非简单的关键词匹配。</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--coral)">
+    <h3>增强步骤</h3>
+    <p>检索到的片段被附加到原始用户提示中，创建一个嵌入相关上下文的更丰富、更有据可查的查询。这个增强后的提示随后发送给大语言模型。</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--purple)">
+    <h3>生成步骤</h3>
+    <p>大语言模型基于检索到的外部数据（而非其训练记忆）生成响应。答案准确、可验证，并可包含指向源文档的引用链接。</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--amber)">
+    <h3>核心优势</h3>
+    <p>克服静态训练数据截止限制。通过事实接地减少幻觉。支持专有知识库集成。提供带来源引用的可归因答案，增强可信度和可核实性。</p>
+  </div>
+</div>
+
+<!-- 2. 问题所在 -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">RAG 解决的问题</div>
+  <p class="sec-desc">大语言模型拥有强大的文本生成能力，但根本上受限于其训练数据。点击每张卡片，探索 RAG 所应对的失效模式。</p>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>静态知识截止</h4>
+      <p>大语言模型只了解其训练数据中的内容，知识冻结于某一时间点。</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">2024 年训练的模型无法回答 2025 年发生的事件。对于需要实时信息的应用——新闻、股价、最新政策变化——没有 RAG 的静态大语言模型将给出过时或错误的答案。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>幻觉问题</h4>
+      <p>大语言模型自信地生成听起来合理但实际上错误的信息。</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">没有外部接地，大语言模型可能虚构听起来权威但完全捏造的事实、引用或统计数据。RAG 将响应锚定于可核实的检索文档中，显著降低这一失效模式的发生频率。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>无法访问私有知识</h4>
+      <p>大语言模型无法访问专有公司数据、内部文档或专业数据库。</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">客户支持机器人仅凭基础大语言模型知识无法回答关于您特定产品手册或内部政策文件的问题。RAG 在查询时注入私有、特定领域的知识，解决这一根本限制。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>无来源归因</h4>
+      <p>纯大语言模型的答案无法追溯到具体的权威来源。</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">出于合规、信任和核实目的，用户需要知道信息来自哪里。RAG 实现了可归因的答案——系统可以引用答案所基于的确切文档章节、页码和来源。</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. 解决方案 -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">RAG 处理管道</div>
+  <p class="sec-desc">RAG 通过结构化管道将大语言模型与外部知识连接起来。点击每个步骤了解系统工作原理。</p>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d)">1</div>
+        <div><div class="chain-title">文档摄取与分块</div><div class="chain-role">预处理知识库</div></div>
+      </div>
+      <div class="chain-detail">文档（PDF、维基页面、手册）被加载，拆分为较小的"块"（段落、章节），每个块通过嵌入模型转换为数值向量嵌入。这些嵌入捕获语义含义，而非仅仅是词汇。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d)">2</div>
+        <div><div class="chain-title">向量存储</div><div class="chain-role">为语义搜索建立索引</div></div>
+      </div>
+      <div class="chain-detail">所有文档块的嵌入存储在向量数据库（Pinecone、Weaviate、Chroma、Qdrant、pgvector）中。这种专用数据库支持对数百万向量进行高速近邻搜索，在毫秒内找到语义相似内容。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d)">3</div>
+        <div><div class="chain-title">查询嵌入与检索</div><div class="chain-role">寻找相关上下文</div></div>
+      </div>
+      <div class="chain-detail">用户查询使用相同模型转换为嵌入。向量数据库通过最小化余弦距离找到语义最相似的 top-k 文档块。混合搜索（向量 + BM25 关键词）通常可进一步提高召回率。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d)">4</div>
+        <div><div class="chain-title">增强与生成</div><div class="chain-role">有据可查的大语言模型响应</div></div>
+      </div>
+      <div class="chain-detail">检索到的块作为上下文注入大语言模型提示："请使用以下检索文档回答问题。"大语言模型基于这些真实数据（而非其参数记忆）生成响应——产出准确、可引用的答案。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. 核心概念 -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">核心概念</div>
+  <p class="sec-desc">理解 RAG 需要掌握文本如何被表示和检索的几个基础概念。</p>
+  <div class="card card-bordered">
+    <h3>嵌入（Embeddings）</h3>
+    <p>捕获语义含义的文本数值向量表示。含义相近的词汇或短语在高维空间中几何上相互接近。"猫"与"小猫"相近；"汽车"则相距甚远。这些向量支持理解含义（而非仅字符）的语义搜索。</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--purple)">
+    <h3>语义相似度与距离</h3>
+    <p>语义相似度衡量两段文本在含义上的相似程度，与确切措辞无关。"法国的首都是什么？"和"哪个城市是法国首都？"在语义上完全相同。余弦相似度对此进行量化。RAG 查找与查询语义距离最小的块。</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--amber)">
+    <h3>分块策略</h3>
+    <p>将文档分解为适当大小的片段至关重要。块太小会丢失上下文；太大则超出大语言模型上下文窗口。常见策略：固定大小（带重叠）、基于句子、基于段落，以及语义分块（在主题边界处切分）。块质量直接影响检索质量。</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--coral)">
+    <h3>向量数据库</h3>
+    <p>专门存储高维嵌入向量并使用 HNSW（层次可导航小世界）等算法优化近邻搜索的数据库。它们搜索含义而非关键词。选项：托管服务（Pinecone、Weaviate）、开源（Chroma、Qdrant、Milvus），或向量扩展（Postgres 的 pgvector）。</p>
+  </div>
+</div>
+
+<!-- 5. 应用场景 -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">应用场景</div>
+  <p class="sec-desc">RAG 正在改变大语言模型在各行业的应用方式。探索主要应用领域。</p>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">企业搜索</button>
+    <button class="uc-tab" onclick="showUC(1)">客户支持</button>
+    <button class="uc-tab" onclick="showUC(2)">法律研究</button>
+    <button class="uc-tab" onclick="showUC(3)">新闻摘要</button>
+    <button class="uc-tab" onclick="showUC(4)">医疗问答</button>
+    <button class="uc-tab" onclick="showUC(5)">代码辅助</button>
+  </div>
+  <div id="uc-0" class="uc-panel active">
+    <div class="card"><h3>企业搜索与问答</h3><p>企业构建内部聊天机器人，利用人力资源政策、技术手册、产品规格等内部文档回答员工咨询。RAG 系统提取相关章节以支撑大语言模型的响应，使员工能以自然语言询问任何内部文档。</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>员工问："承包商的陪产假政策是什么？"</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>RAG 检索相关人力资源政策文档块</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>大语言模型生成基于实际政策文本的答案</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>响应附有具体政策文档和章节的引用</div>
+    </div></div>
+  </div>
+  <div id="uc-1" class="uc-panel">
+    <div class="card"><h3>客户支持与服务台</h3><p>基于 RAG 的系统通过访问产品手册、常见问题解答和支持工单，提供精确且一致的响应。这减少了常规问题的人工干预需求。系统始终可以引用最新产品文档，而非依赖某时间点训练的大语言模型。</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>客户问："如何将我的设备恢复出厂设置？"</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>RAG 从产品手册中找到精确说明</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>大语言模型格式化清晰的分步骤响应</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>附上手册章节链接供用户核实</div>
+    </div></div>
+  </div>
+  <div id="uc-2" class="uc-panel">
+    <div class="card"><h3>法律研究与文件审查</h3><p>法律 RAG 系统搜索判例法、法规和合同数据库，提取相关先例和条款。律师以自然语言查询，在数千份文件中查找相关判例法。系统检索带引用的具体段落，加速研究同时保持准确性。</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>律师询问特定法律情况的相关先例</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>RAG 搜索判例法和法规数据库</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>大语言模型综合相关先例并附引用</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>律师审查源文档做出最终判断</div>
+    </div></div>
+  </div>
+  <div id="uc-3" class="uc-panel">
+    <div class="card"><h3>新闻与时事摘要</h3><p>大语言模型与实时新闻源集成。当被问及当前事件时，RAG 系统检索近期文章，使大语言模型能生成基于实际最新报道的及时摘要——完全克服训练截止限制。</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>用户询问某突发新闻的最新进展</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>RAG 从实时新闻索引中检索文章</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>大语言模型从多个来源生成平衡摘要</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>引用文章来源供用户核实</div>
+    </div></div>
+  </div>
+  <div id="uc-4" class="uc-panel">
+    <div class="card"><h3>医疗问答与临床决策支持</h3><p>医疗 RAG 系统从临床指南、药物数据库和研究文献中检索。临床医生获得基于当前医学文献（而非大语言模型训练数据）的循证答案，并附有具体指南引用以确保问责性和可审计性。</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>临床医生询问特定药物相互作用的剂量指南</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>RAG 检索相关临床指南和药物数据库条目</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>大语言模型综合建议并附明确注意事项</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>引用具体指南来源；医生保留最终判断</div>
+    </div></div>
+  </div>
+  <div id="uc-5" class="uc-panel">
+    <div class="card"><h3>基于内部代码库的代码辅助</h3><p>开发者查询基于内部代码库、API 文档和编码规范训练的 RAG 系统。与通用代码大语言模型不同，该系统从团队自身代码仓库检索实际代码模式，确保建议与现有架构和约定保持一致。</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>开发者问："我们的支付服务如何处理重试逻辑？"</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>RAG 检索相关代码文件和文档</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>大语言模型用代码库中的实际代码片段解释模式</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>引用文件路径和函数名称供导航</div>
+    </div></div>
+  </div>
+</div>
+
+<!-- 6. 代码实战 -->
+<div id="sec-code" class="section">
+  <div class="sec-title">代码实战</div>
+  <p class="sec-desc">实现 RAG 的三种方法：Google ADK + Google 搜索、Vertex AI RAG，以及完整的 LangChain/LangGraph 管道。</p>
+
+  <div class="card"><h3>1. ADK + Google 搜索（简单 RAG）</h3></div>
+  <div class="code-block"><span class="code-keyword">from</span> google.adk.tools <span class="code-keyword">import</span> google_search
+<span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> Agent
+
+<span class="code-comment"># Google 搜索作为内置 RAG 工具</span>
+search_agent = Agent(
+    name=<span class="code-string">"research_assistant"</span>,
+    model=<span class="code-string">"gemini-2.0-flash-exp"</span>,
+    instruction=<span class="code-string">"你帮助用户研究主题。当被问及时，使用 Google 搜索工具查找当前准确信息并引用来源。"</span>,
+    tools=[google_search]
+)</div>
+
+  <div class="card" style="margin-top:1.5rem;"><h3>2. Vertex AI RAG 记忆服务</h3></div>
+  <div class="code-block"><span class="code-keyword">from</span> google.adk.memory <span class="code-keyword">import</span> VertexAiRagMemoryService
+
+RAG_CORPUS_RESOURCE_NAME = <span class="code-string">"projects/your-gcp-project-id/locations/us-central1/ragCorpora/your-corpus-id"</span>
+
+<span class="code-comment"># 检索的相似结果数量上限</span>
+SIMILARITY_TOP_K = 5
+
+<span class="code-comment"># 检索结果的最大语义距离阈值</span>
+VECTOR_DISTANCE_THRESHOLD = 0.7
+
+<span class="code-comment"># 初始化与 Vertex AI RAG 语料库的连接</span>
+memory_service = VertexAiRagMemoryService(
+    rag_corpus=RAG_CORPUS_RESOURCE_NAME,
+    similarity_top_k=SIMILARITY_TOP_K,
+    vector_distance_threshold=VECTOR_DISTANCE_THRESHOLD
+)</div>
+
+  <div class="card" style="margin-top:1.5rem;"><h3>3. LangChain + LangGraph RAG 完整管道</h3></div>
+  <div class="code-block"><span class="code-keyword">from</span> langchain_community.document_loaders <span class="code-keyword">import</span> TextLoader
+<span class="code-keyword">from</span> langchain.text_splitter <span class="code-keyword">import</span> CharacterTextSplitter
+<span class="code-keyword">from</span> langchain_community.vectorstores <span class="code-keyword">import</span> Weaviate
+<span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> ChatOpenAI, OpenAIEmbeddings
+<span class="code-keyword">from</span> langchain_core.prompts <span class="code-keyword">import</span> ChatPromptTemplate
+<span class="code-keyword">from</span> langgraph.graph <span class="code-keyword">import</span> StateGraph, END
+<span class="code-keyword">from</span> typing <span class="code-keyword">import</span> TypedDict, List
+<span class="code-keyword">from</span> langchain_core.documents <span class="code-keyword">import</span> Document
+
+<span class="code-comment"># 1. 加载并分块文档</span>
+loader = TextLoader(<span class="code-string">'./knowledge_base.txt'</span>)
+documents = loader.load()
+text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+chunks = text_splitter.split_documents(documents)
+
+<span class="code-comment"># 2. 嵌入并存入向量数据库</span>
+vectorstore = Weaviate.from_documents(documents=chunks,
+    embedding=OpenAIEmbeddings())
+retriever = vectorstore.as_retriever()
+
+<span class="code-comment"># 3. LangGraph 状态与节点定义</span>
+<span class="code-keyword">class</span> RAGGraphState(TypedDict):
+    question: str
+    documents: List[Document]
+    generation: str
+
+<span class="code-keyword">def</span> retrieve_documents_node(state: RAGGraphState) -> RAGGraphState:
+    question = state[<span class="code-string">"question"</span>]
+    documents = retriever.invoke(question)
+    <span class="code-keyword">return</span> {<span class="code-string">"documents"</span>: documents, <span class="code-string">"question"</span>: question, <span class="code-string">"generation"</span>: <span class="code-string">""</span>}
+
+<span class="code-keyword">def</span> generate_response_node(state: RAGGraphState) -> RAGGraphState:
+    llm = ChatOpenAI(model_name=<span class="code-string">"gpt-4o"</span>, temperature=0)
+    context = <span class="code-string">"\n\n"</span>.join([doc.page_content <span class="code-keyword">for</span> doc <span class="code-keyword">in</span> state[<span class="code-string">"documents"</span>]])
+    prompt = ChatPromptTemplate.from_template(
+        <span class="code-string">"使用上下文回答问题。上下文：{context}\n问题：{question}"</span>)
+    rag_chain = prompt | llm
+    generation = rag_chain.invoke({<span class="code-string">"context"</span>: context,
+        <span class="code-string">"question"</span>: state[<span class="code-string">"question"</span>]})
+    <span class="code-keyword">return</span> {**state, <span class="code-string">"generation"</span>: generation.content}
+
+<span class="code-comment"># 4. 构建并编译图</span>
+workflow = StateGraph(RAGGraphState)
+workflow.add_node(<span class="code-string">"retrieve"</span>, retrieve_documents_node)
+workflow.add_node(<span class="code-string">"generate"</span>, generate_response_node)
+workflow.set_entry_point(<span class="code-string">"retrieve"</span>)
+workflow.add_edge(<span class="code-string">"retrieve"</span>, <span class="code-string">"generate"</span>)
+workflow.add_edge(<span class="code-string">"generate"</span>, END)
+app = workflow.compile()</div>
+</div>
+
+<!-- 7. 深入解析 -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">深入解析：高级 RAG 概念</div>
+  <p class="sec-desc">探索超越基础检索的高级 RAG 系统演进。点击每个层级展开详情。</p>
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--teal-l);border-color:var(--teal)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--teal-d)">图 RAG（GraphRAG）</div>
+      <div class="ctx-layer-sub" style="color:var(--teal-d)">基于知识图谱的检索，适用于复杂关系查询</div>
+      <div class="ctx-layer-detail" style="color:var(--teal-d)">GraphRAG 使用知识图谱（节点=实体，边=关系）而非向量数据库。它可以通过导航明确关系回答复杂查询——例如"哪些基因与癌症 X 和药物 Y 都相关？"它在标准 RAG 失效的场景下表现出色：综合跨多个文档的碎片化信息。权衡：构建和维护知识图谱的复杂度和成本显著更高。</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--purple-l);border-color:var(--purple)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--purple-d)">智能体 RAG（Agentic RAG）</div>
+      <div class="ctx-layer-sub" style="color:var(--purple-d)">增加推理智能体以验证和精炼检索知识</div>
+      <div class="ctx-layer-detail" style="color:var(--purple-d)">智能体 RAG 在检索与生成之间添加 AI 智能体作为守门人。智能体不被动接受检索数据，而是主动：(1) 验证来源的时效性和权威性；(2) 调和多个来源的冲突信息；(3) 将复杂查询分解为子查询；(4) 识别知识空白并使用外部工具（网络搜索）填补。这以更高延迟和复杂性为代价，产生更可靠的答案。</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--amber-l);border-color:var(--amber)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--amber-d)">混合搜索</div>
+      <div class="ctx-layer-sub" style="color:var(--amber-d)">结合向量语义搜索与 BM25 关键词搜索</div>
+      <div class="ctx-layer-detail" style="color:var(--amber-d)">纯向量搜索擅长概念相似性（"毛茸茸的猫科伴侣"能找到"猫"），但可能遗漏精确关键词匹配。BM25（词频排名）非常适合特定术语、产品代码或专有名词。混合搜索使用互惠排名融合（RRF）结合两者——捕获字面匹配和概念相关性。这通常比单独使用任一方法提高 10-20% 的召回率。</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--coral-l);border-color:var(--coral)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--coral-d)">RAG 的挑战</div>
+      <div class="ctx-layer-sub" style="color:var(--coral-d)">已知局限性和失效模式</div>
+      <div class="ctx-layer-detail" style="color:var(--coral-d)">主要挑战：(1) 信息碎片化——跨多个文档的答案可能无法被完整检索；(2) 块质量依赖——糟糕的分块策略导致糟糕的检索；(3) 知识库维护——整个语料库需要预处理、嵌入并保持更新（尤其是对不断演进的维基）；(4) 延迟和成本——额外的检索步骤增加延迟和令牌使用量；(5) 不相关块注入——检索到错误块时会混淆大语言模型并降低输出质量。</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--blue-l);border-color:var(--blue)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--blue-d)">检索质量评估</div>
+      <div class="ctx-layer-sub" style="color:var(--blue-d)">衡量 RAG 系统质量的方法</div>
+      <div class="ctx-layer-detail" style="color:var(--blue-d)">RAG 系统需要在两个层面进行评估：(1) 检索质量——是否检索到了正确的块？通过 recall@k（相关块是否出现在 top-k 结果中？）和 precision@k（检索的块大多相关？）衡量；(2) 生成质量——大语言模型的答案是否忠实于检索上下文？通过忠实度得分、答案相关性和上下文利用指标衡量。RAGAS 等框架可自动化此评估流程。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. 一览概要 -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">一览概要</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);border-color:var(--teal)">
+      <h4 style="color:var(--teal-d)">问题是什么？</h4>
+      <p style="color:var(--teal-d)">大语言模型局限于其静态训练数据——无法访问实时信息、私有公司数据或高度专业化的细节。其响应可能过时、存在幻觉，或缺乏可核实来源，限制了其在需要事实准确性的应用中的可靠性。</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);border-color:var(--purple)">
+      <h4 style="color:var(--purple-d)">为何 RAG 有效？</h4>
+      <p style="color:var(--purple-d)">RAG 在查询时将大语言模型与外部知识连接起来。检索到的片段附加到提示中，使大语言模型能生成准确、可核实、有据可查的响应。它将大语言模型从封闭式推理者转变为开放式推理者——显著提升实用性和可信度。</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);border-color:var(--amber)">
+      <h4 style="color:var(--amber-d)">何时使用？</h4>
+      <p style="color:var(--amber-d)">当大语言模型需要基于特定的、最新的或专有信息（不在其训练数据中）回答问题时使用 RAG。非常适合内部文档 Q&A 系统、客户支持机器人，以及需要带引用的可核实事实响应的应用场景。</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);border-color:var(--coral)">
+      <h4 style="color:var(--coral-d)">主要注意事项</h4>
+      <p style="color:var(--coral-d)">检索质量取决于分块策略和嵌入模型的质量。碎片化信息可能无法被完整检索。知识库需要预处理和定期更新。与纯大语言模型相比，增加了延迟、成本和令牌使用量。不相关块注入可能降低响应质量。</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">点击节点探索 RAG 处理管道</div>
+    <div class="diagram-nodes">
+      <div class="dia-node active" style="background:var(--blue-l);color:var(--blue-d)" onclick="simClick(0)">用户查询</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d)" onclick="simClick(1)">查询嵌入</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d)" onclick="simClick(2)">向量搜索</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d)" onclick="simClick(3)">增强提示</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d)" onclick="simClick(4)">大语言模型 + 引用</div>
+    </div>
+    <div class="dia-output" id="sim-output">用户向 RAG 系统提交自然语言查询。</div>
+  </div>
+</div>
+
+<!-- 9. 知识测验 -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">知识测验</div>
+  <p class="sec-desc">通过以下问题检验你对知识检索（RAG）模式的掌握程度。</p>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. 核心要点 -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">核心要点</div>
+  <ul class="tk-list">
+    <li>RAG 通过允许大语言模型在查询时访问外部最新的特定信息，增强其能力——克服了静态训练数据的根本限制。</li>
+    <li>处理流程包括：检索（语义搜索知识库）+ 增强（将检索块附加到提示）+ 生成（大语言模型产出有据可查的响应）。</li>
+    <li>RAG 通过将响应锚定于可核实数据来减少幻觉，并支持带有指向源文档引用的可归因答案。</li>
+    <li>核心技术：嵌入（语义向量表示）、向量数据库（HNSW 驱动的近邻搜索）和分块策略（将文档拆分为可检索单元）。</li>
+    <li>图 RAG 利用知识图谱理解信息实体间的关系——能够从碎片化、相互关联的数据源综合答案。</li>
+    <li>智能体 RAG 引入推理智能体，主动验证、调和和精炼检索知识——以更高延迟和复杂性换取更可靠的答案。</li>
+    <li>RAG 需要知识库预处理、定期更新和仔细评估——检索质量直接决定最终答案质量。</li>
+    <li>实际应用涵盖企业搜索、客户支持、法律研究、医疗问答、代码辅助，以及任何需要当前或专有知识的领域。</li>
+  </ul>
+</div>
+
+<!-- 11. 参考资料 -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">参考资料</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>Lewis, P. 等 (2020)，《面向知识密集型 NLP 任务的检索增强生成》，<a href="https://arxiv.org/abs/2005.11401" target="_blank">arxiv.org/abs/2005.11401</a></li>
+    <li><span class="ref-num">2</span>Google AI 开发者文档，《检索增强生成》，<a href="https://cloud.google.com/vertex-ai/generative-ai/docs/rag-engine/rag-overview" target="_blank">cloud.google.com/vertex-ai/…/rag-overview</a></li>
+    <li><span class="ref-num">3</span>《使用图谱的检索增强生成（GraphRAG）》，<a href="https://arxiv.org/abs/2501.00309" target="_blank">arxiv.org/abs/2501.00309</a></li>
+    <li><span class="ref-num">4</span>Monigatti, L.，《检索增强生成（RAG）：从理论到 LangChain 实现》，<a href="https://medium.com/data-science/retrieval-augmented-generation-rag-from-theory-to-langchain-implementation-4e9bd5f6a4f2" target="_blank">medium.com</a></li>
+    <li><span class="ref-num">5</span>谷歌云 Vertex AI RAG 语料库，<a href="https://cloud.google.com/vertex-ai/generative-ai/docs/rag-engine/manage-your-rag-corpus" target="_blank">cloud.google.com/vertex-ai/…/manage-your-rag-corpus</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>智能体设计模式 — 第十四章：知识检索（RAG）</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  '用户向 RAG 系统提交自然语言查询。',
+  '查询使用与文档索引相同的嵌入模型转换为高维向量嵌入。',
+  '向量数据库使用 HNSW 近邻搜索，找到与查询嵌入余弦距离最小的 top-k 文档块。',
+  '检索到的块被插入大语言模型提示作为上下文：原始查询被来自知识库的相关真实信息增强。',
+  '大语言模型基于检索到的外部数据（而非其训练记忆）生成响应，可包含来源引用以供核实。'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  { q: 'RAG 代表什么？其主要目的是什么？', opts: ['检索增强生成（RAG）——将大语言模型连接到外部知识', '随机图聚合（RAG）——组织数据结构', '递归注意力生成（RAG）——改善大语言模型焦点', '鲁棒智能体接地（RAG）——保护 AI 系统'], ans: 0, ok: '正确！RAG = 检索增强生成。它将大语言模型连接到外部知识库以克服训练数据限制。', no: '不正确。RAG 代表检索增强生成——它将大语言模型连接到外部知识源，提供有据可查的准确答案。' },
+  { q: 'RAG 中的"嵌入"是什么？', opts: ['存储在数据库中的加密数据', '捕获语义含义的文本数值向量表示', '大型文档的压缩版本', '用于显示结果的用户界面组件'], ans: 1, ok: '正确！嵌入是捕获语义含义的数值向量表示——支持基于相似度的搜索。', no: '不正确。嵌入是捕获语义含义的文本数值向量表示——支持语义搜索而非关键词搜索。' },
+  { q: '向量数据库相对于传统关键词搜索在 RAG 中的主要优势是什么？', opts: ['速度更快', '按概念含义搜索，而非仅匹配精确关键词', '需要更少存储空间', '更容易维护'], ans: 1, ok: '正确！向量数据库基于语义含义查找文档——"毛茸茸的猫科伴侣"即使没有共同关键词也能匹配"猫"。', no: '不正确。向量数据库擅长语义搜索——即使确切词语不匹配，也能找到概念上相似的内容。' },
+  { q: '"智能体 RAG"与标准 RAG 有何区别？', opts: ['智能体 RAG 速度更快', 'AI 智能体在生成前验证、调和并精炼检索知识', '智能体 RAG 使用更大的文档', '智能体 RAG 不需要向量数据库'], ans: 1, ok: '正确！智能体 RAG 添加了推理智能体，主动验证来源、调和冲突并分解复杂查询。', no: '不正确。智能体 RAG 引入推理智能体，主动验证来源质量、调和冲突信息，并可使用外部工具填补知识空白。' },
+  { q: 'RAG 中的"分块"是什么，为何重要？', opts: ['出于安全目的加密文档', '将文档分解为较小的片段以实现高效检索', '用 AI 总结文档', '按发布日期索引文档'], ans: 1, ok: '正确！分块将文档拆分为大小适当的可检索单元。块质量直接决定检索质量。', no: '不正确。分块将文档分解为较小的可检索单元。分块策略直接影响检索质量——过大或过小的块都会降低性能。' },
+  { q: 'RAG 解决的主要问题是什么？', opts: ['大语言模型对实时使用来说太慢', '大语言模型的知识局限于训练数据，无法访问当前或专有信息', '大语言模型无法理解复杂问题', '大语言模型运营成本太高'], ans: 1, ok: '正确！大语言模型局限于其静态训练数据——RAG 在查询时支持访问当前、特定和专有外部知识。', no: '不正确。主要挑战是大语言模型局限于其静态训练数据——RAG 将它们连接到当前、特定和专有的外部知识。' }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">第 ' + (curQ+1) + ' 题 / 共 ' + quizData.length + ' 题</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">下一题</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">查看核心要点</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    if (scores[curQ] === false) document.getElementById('qo' + q2.ans).classList.remove('disabled');
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

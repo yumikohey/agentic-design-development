@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 18: Guardrails &amp; Safety Patterns — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --serif: Georgia, "Times New Roman", serif;
+  --mono: 'Courier New', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1; --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text2); text-decoration: none; margin-bottom: 20px; }
+.back-link:hover { color: var(--text); }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; background: var(--bg2); }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+<a href="./index_en.html" class="back-link">← Back to Chapters</a>
+<div class="chapter-tag">Chapter 18</div>
+<h1>Guardrails &amp; Safety Patterns</h1>
+<p class="subtitle">Ensuring intelligent agents operate safely, ethically, and as intended — through layered defense mechanisms that validate inputs, filter outputs, and constrain behavior.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Pattern</div><div class="metric-value">Guardrails</div></div>
+    <div class="metric"><div class="metric-label">Strategy</div><div class="metric-value">Layered Defense</div></div>
+    <div class="metric"><div class="metric-label">Key Benefit</div><div class="metric-value">Safe &amp; Trustworthy</div></div>
+    <div class="metric"><div class="metric-label">Primary Goal</div><div class="metric-value">Responsible AI</div></div>
+  </div>
+  <div class="card card-bordered">
+    <h3>What are Guardrails?</h3>
+    <p>Guardrails are protective mechanisms that ensure AI agents operate safely, ethically, and as intended. They serve as a safety layer that guides agent behavior and output to prevent harmful, biased, irrelevant, or undesirable responses — without restricting legitimate capabilities.</p>
+  </div>
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Six Types of Guardrails</h3>
+    <ul>
+      <li><strong>Input Validation/Sanitization</strong> — filters malicious or out-of-scope inputs</li>
+      <li><strong>Output Filtering/Post-processing</strong> — checks responses for toxicity or bias</li>
+      <li><strong>Behavioral Constraints</strong> — direct prompt-level instructions to the agent</li>
+      <li><strong>Tool Use Restrictions</strong> — limits which tools an agent can invoke</li>
+      <li><strong>External Moderation APIs</strong> — third-party content moderation services</li>
+      <li><strong>Human Oversight/Intervention</strong> — Human-in-the-Loop at critical points</li>
+    </ul>
+  </div>
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Why Guardrails Matter</h3>
+    <p>Without guardrails, an AI system may be unconstrained, unpredictable, and potentially hazardous. They prevent manipulation, uphold ethical and legal standards, and maintain user trust by ensuring predictable, safe behavior. A lightweight fast model can serve as a rapid additional safeguard to pre-screen inputs or double-check outputs.</p>
+  </div>
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Defense in Depth</h3>
+    <p>Implementing guardrails with frameworks like CrewAI requires a layered approach: input sanitization, schema validation with Pydantic, monitoring &amp; observability, error handling with retries, agent configuration with specific roles, and Human-in-the-Loop for critical decisions.</p>
+  </div>
+</div>
+
+<div id="sec-problem" class="section">
+  <div class="sec-title">Problems Without Guardrails</div>
+  <div class="sec-desc">Unconstrained AI agents face five critical failure modes. Click each card to learn more:</div>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Jailbreaking &amp; Prompt Injection</h4>
+      <p>Malicious inputs bypass agent instructions</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Attackers use instructions like "ignore previous rules" or "reset your memory" to subvert the agent's foundational parameters. Without input validation, the agent may comply with harmful requests that violate its intended purpose.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Harmful Output Generation</h4>
+      <p>Agent produces toxic, biased, or dangerous content</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Without output filtering, agents may generate discriminatory speech, hazardous instructions, explicit material, or abusive language. Post-processing guardrails are critical to catch these issues before delivery to users.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Off-Domain Behavior</h4>
+      <p>Agent answers questions outside its intended scope</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">An agent designed for customer service might discuss political topics, provide legal advice, or engage in conversations entirely outside its operational focus. Behavioral constraints and scope definitions prevent this drift.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Uncontrolled Tool Use</h4>
+      <p>Agent invokes powerful tools inappropriately</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Without tool use restrictions, an agent may call file deletion APIs, send emails, make financial transactions, or execute code in unsafe ways. Tool restrictions limit which capabilities can be invoked in which contexts.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Compliance &amp; Legal Risk</h4>
+      <p>Outputs violate regulations or intellectual property</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Agents providing definitive legal/medical advice, reproducing copyrighted content, or violating GDPR expose organizations to significant liability. Guardrails enforce regulatory compliance and appropriate disclaimers.</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="sec-solution" class="section">
+  <div class="sec-title">The Layered Defense Solution</div>
+  <div class="sec-desc">Guardrails work as a multi-layer defense system. Click each layer to see how it operates:</div>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--red);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--red-l);color:var(--red-d);">1</div>
+        <div><div class="chain-title">Input Validation Layer</div><div class="chain-role">First line of defense</div></div>
+      </div>
+      <div class="chain-detail">Screen incoming requests before they reach the primary agent. Use content moderation APIs to detect inappropriate prompts. Apply Pydantic schema validation to ensure structured inputs adhere to predefined rules. Reject or flag inputs violating safety policy directives on jailbreaking, prohibited content, or off-domain topics.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--amber);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">2</div>
+        <div><div class="chain-title">Agent Configuration Constraints</div><div class="chain-role">Role-based behavioral guardrails</div></div>
+      </div>
+      <div class="chain-detail">Define agent roles, goals, and backstories precisely to guide behavior and reduce unintended outputs. Specialized agents outperform generalists. Manage context windows, set rate limits, securely manage API keys, and define clear operational boundaries through system prompts and behavioral constraints.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">3</div>
+        <div><div class="chain-title">Output Filtering Layer</div><div class="chain-role">Post-processing safety check</div></div>
+      </div>
+      <div class="chain-detail">After the primary agent generates a response, apply output filtering to check for toxicity, bias, policy violations, or incorrect formats. Use a lightweight fast model (e.g., gemini-2.0-flash) as a rapid safeguard. Validate structured outputs with Pydantic models to ensure data integrity.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">4</div>
+        <div><div class="chain-title">Monitoring &amp; Human Oversight</div><div class="chain-role">Continuous observability &amp; escalation</div></div>
+      </div>
+      <div class="chain-detail">Log all actions, tool usage, inputs, and outputs for debugging and auditing. Gather metrics on latency, success rates, and errors. When guardrails detect issues or critical decisions arise, integrate Human-in-the-Loop to validate outputs or intervene. This traceability links each action back to its source for anomaly investigation.</div>
+    </div>
+  </div>
+</div>
+
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+  <div class="card card-bordered">
+    <h3>Safety Policy Directives</h3>
+    <p>A structured set of rules that define what constitutes non-compliant input. The four key directive categories are: (1) Instruction Subversion Attempts — jailbreaking, prompt injection; (2) Prohibited Content — hate speech, hazardous activities, explicit material; (3) Irrelevant/Off-Domain Discussions — politics, religion, out-of-scope topics; (4) Proprietary/Competitive Information.</p>
+  </div>
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Pydantic-Based Output Validation</h3>
+    <p>Structured output validation ensures guardrail results are machine-readable and actionable. A <code>PolicyEvaluation</code> model captures three fields: <code>compliance_status</code> ("compliant" or "non-compliant"), <code>evaluation_summary</code> (brief explanation), and <code>triggered_policies</code> (list of violated directives).</p>
+  </div>
+  <div class="json-block">{
+  "compliance_status": "non-compliant",
+  "evaluation_summary": "Attempted policy bypass and hazardous instructions",
+  "triggered_policies": [
+    "1. Instruction Subversion Attempts",
+    "2. Prohibited Content: Hazardous Activities"
+  ]
+}</div>
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Evaluation Process</h3>
+    <p>The guardrail agent assesses every input against every safety policy directive. If the input violates <em>any single</em> directive, the outcome is "non-compliant." If there is any ambiguity, default to "compliant" to avoid over-blocking legitimate requests. This conservative approach balances safety with usability.</p>
+  </div>
+</div>
+
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Practical Applications</div>
+  <div class="sec-desc">Guardrails are applied across diverse domains. Click each tab to explore:</div>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Customer Service</button>
+    <button class="uc-tab" onclick="showUC(1)">Content Generation</button>
+    <button class="uc-tab" onclick="showUC(2)">Education</button>
+    <button class="uc-tab" onclick="showUC(3)">Legal &amp; HR</button>
+    <button class="uc-tab" onclick="showUC(4)">Social Media</button>
+    <button class="uc-tab" onclick="showUC(5)">Scientific Research</button>
+  </div>
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Customer Service Chatbots</h3>
+      <p>Prevent generation of offensive language, incorrect medical/legal advice, or off-topic responses. Guardrails detect toxic user input and instruct the bot to respond with a refusal or escalate to a human agent.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Receive user message and run input validation</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Screen for toxicity, jailbreak attempts, off-domain topics</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Process compliant requests with primary agent</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Filter output for harmful content before delivery</div></div>
+        <div class="uc-step"><div class="uc-step-num">5</div><div>Escalate flagged cases to human agent</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Content Generation Systems</h3>
+      <p>Ensure generated articles, marketing copy, or creative content adheres to guidelines, legal requirements, and ethical standards — avoiding hate speech, misinformation, or explicit content via post-processing filters that flag and redact problematic phrases.</p>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Educational Tutors/Assistants</h3>
+      <p>Prevent the agent from providing incorrect answers, promoting biased viewpoints, or engaging in inappropriate conversations. Content filtering adheres to a predefined curriculum and age-appropriate guidelines.</p>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Legal Research &amp; HR Tools</h3>
+      <p><strong>Legal:</strong> Prevent providing definitive legal advice or acting as a substitute for a licensed attorney — guide users to consult with legal professionals.<br><strong>HR:</strong> Ensure fairness and prevent bias in candidate screening or employee evaluations by filtering discriminatory language or criteria.</p>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--pink);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Social Media Content Moderation</h3>
+      <p>Automatically identify and flag posts containing hate speech, misinformation, or graphic content. Guardrails function as a defense mechanism protecting users, organizations, and the AI system's reputation.</p>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-5">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Scientific Research Assistants</h3>
+      <p>Prevent fabricating research data or drawing unsupported conclusions. Guardrails emphasize the need for empirical validation and peer review, ensuring the agent acknowledges uncertainty and cites sources properly.</p>
+    </div>
+  </div>
+</div>
+
+<div id="sec-code" class="section">
+  <div class="sec-title">Code Implementation</div>
+  <div class="sec-desc">CrewAI implementation of a safety guardrail using Pydantic validation and a dedicated policy enforcer agent:</div>
+  <div class="code-block"><span class="code-keyword">from</span> crewai <span class="code-keyword">import</span> Agent, Task, Crew, Process, LLM
+<span class="code-keyword">from</span> pydantic <span class="code-keyword">import</span> BaseModel, Field, ValidationError
+<span class="code-keyword">from</span> typing <span class="code-keyword">import</span> Tuple, Any, List
+
+<span class="code-comment"># Using a fast model for the guardrail is cost-effective</span>
+CONTENT_POLICY_MODEL = <span class="code-string">"gemini/gemini-2.0-flash"</span>
+
+<span class="code-comment"># Structured output for the guardrail evaluation</span>
+<span class="code-keyword">class</span> PolicyEvaluation(BaseModel):
+    compliance_status: str = Field(
+        description=<span class="code-string">"'compliant' or 'non-compliant'"</span>)
+    evaluation_summary: str = Field(
+        description=<span class="code-string">"Brief explanation of the compliance status"</span>)
+    triggered_policies: List[str] = Field(
+        description=<span class="code-string">"List of triggered policy directives"</span>)
+
+<span class="code-comment"># Guardrail validation function</span>
+<span class="code-keyword">def</span> validate_policy_evaluation(output: Any) -> Tuple[bool, Any]:
+    <span class="code-keyword">try</span>:
+        <span class="code-keyword">if</span> isinstance(output, PolicyEvaluation):
+            evaluation = output
+        <span class="code-keyword">else</span>:
+            data = json.loads(output)
+            evaluation = PolicyEvaluation.model_validate(data)
+
+        <span class="code-keyword">if</span> evaluation.compliance_status <span class="code-keyword">not in</span> [<span class="code-string">"compliant"</span>, <span class="code-string">"non-compliant"</span>]:
+            <span class="code-keyword">return</span> False, <span class="code-string">"Invalid compliance_status"</span>
+        <span class="code-keyword">return</span> True, evaluation
+    <span class="code-keyword">except</span> Exception <span class="code-keyword">as</span> e:
+        <span class="code-keyword">return</span> False, <span class="code-string">f"Validation failed: {e}"</span></div>
+
+  <div class="code-block"><span class="code-comment"># Policy enforcer agent with strict, focused role</span>
+policy_enforcer_agent = Agent(
+    role=<span class="code-string">'AI Content Policy Enforcer'</span>,
+    goal=<span class="code-string">'Rigorously screen user inputs against safety policies'</span>,
+    backstory=<span class="code-string">'An impartial AI maintaining system integrity'</span>,
+    verbose=False,
+    allow_delegation=False,
+    llm=LLM(model=CONTENT_POLICY_MODEL, temperature=0.0)
+)
+
+<span class="code-comment"># Run the guardrail crew</span>
+<span class="code-keyword">def</span> run_guardrail_crew(user_input: str) -> Tuple[bool, str, List[str]]:
+    result = crew.kickoff(inputs={<span class="code-string">'user_input'</span>: user_input})
+    <span class="code-keyword">if</span> result.compliance_status == <span class="code-string">"non-compliant"</span>:
+        <span class="code-keyword">return</span> False, result.evaluation_summary, result.triggered_policies
+    <span class="code-keyword">return</span> True, result.evaluation_summary, []</div>
+</div>
+
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: Guardrail Architecture Layers</div>
+  <div class="sec-desc">Click each layer to explore the technical depth of a production guardrail system:</div>
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--red-l);">
+      <div class="ctx-layer-title">Layer 1: Input Sanitization &amp; Schema Validation</div>
+      <div class="ctx-layer-sub">First contact — cleaning and structuring incoming data</div>
+      <div class="ctx-layer-detail">Uses content moderation APIs to detect inappropriate prompts before reaching the primary agent. Pydantic schema validation ensures structured inputs adhere to predefined rules. Can restrict agent engagement with sensitive topics at the input stage, preventing any processing of clearly violating content.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);">
+      <div class="ctx-layer-title">Layer 2: Agent Role Configuration</div>
+      <div class="ctx-layer-sub">Behavioral constraints through agent design</div>
+      <div class="ctx-layer-detail">Defining roles, goals, and backstories guides agent behavior and reduces unintended outputs. Employing specialized agents over generalists maintains focused behavior. Setting rate limits prevents API abuse. Securely managing API keys and protecting sensitive data are critical infrastructure guardrails.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);">
+      <div class="ctx-layer-title">Layer 3: Real-Time Monitoring &amp; Observability</div>
+      <div class="ctx-layer-sub">Continuous tracking for compliance and debugging</div>
+      <div class="ctx-layer-detail">Logging all actions, tool usage, inputs, and outputs creates an audit trail for debugging and compliance. Gathering metrics on latency, success rates, and errors enables proactive issue detection. Traceability links each agent action back to its source and purpose, facilitating anomaly investigation and root cause analysis.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);">
+      <div class="ctx-layer-title">Layer 4: Error Handling &amp; Resilience</div>
+      <div class="ctx-layer-sub">Graceful failure management</div>
+      <div class="ctx-layer-detail">Anticipate failures and design the system to manage them gracefully using try-except blocks and retry logic with exponential backoff for transient issues. Clear error messages are key for troubleshooting. Error handling itself acts as a guardrail by preventing cascade failures when one component encounters unexpected inputs.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);">
+      <div class="ctx-layer-title">Layer 5: Human-in-the-Loop Escalation</div>
+      <div class="ctx-layer-sub">Human oversight for critical or ambiguous cases</div>
+      <div class="ctx-layer-detail">For critical decisions or when guardrails detect ambiguous issues, integrating human oversight validates outputs or intervenes in agent workflows. This "human safety net" is the final guardrail for edge cases that automated systems cannot handle reliably, ensuring accountability for high-stakes actions.</div>
+    </div>
+  </div>
+</div>
+
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4>When to Apply</h4>
+      <p>Any customer-facing AI system, content generation pipeline, agentic workflow with tool access, or application in regulated industries (healthcare, legal, finance).</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4>Key Tradeoffs</h4>
+      <p>Stricter guardrails reduce risk but may over-block legitimate requests. Lighter guardrails improve UX but increase exposure. Default to "compliant" when ambiguous to preserve usability.</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);">
+      <h4>Performance Impact</h4>
+      <p>Using a fast, cheap model (gemini-2.0-flash) for guardrail evaluation adds minimal latency. A dedicated guardrail agent runs independently before the primary agent, adding ~100-500ms.</p>
+    </div>
+    <div class="glance-card" style="background:var(--blue-l);">
+      <h4>Integration Pattern</h4>
+      <p>Implement as a pre-processing step (input guardrail) AND post-processing step (output guardrail). CrewAI's native guardrail parameter on Task objects provides structured integration.</p>
+    </div>
+  </div>
+  <div class="diagram-sim">
+    <p style="font-size:13px;color:var(--text3);margin-bottom:8px;">Click each stage to see its role in the guardrail pipeline:</p>
+    <div class="diagram-nodes">
+      <div class="dia-node" style="background:var(--red-l);color:var(--red-d);" onclick="simClick(0)">User Input</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d);" onclick="simClick(1)">Input Guardrail</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(2)">Primary Agent</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(3)">Output Guardrail</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" style="background:var(--green-l);color:var(--green-d);" onclick="simClick(4)">Safe Response</div>
+    </div>
+    <div class="dia-output" id="sim-output">Click a stage above to explore the guardrail pipeline flow.</div>
+  </div>
+</div>
+
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Quiz</div>
+  <div id="quizProgress" class="quiz-progress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>Guardrails are essential protective mechanisms that ensure agents operate safely, ethically, and as intended — without unnecessarily restricting legitimate capabilities.</li>
+    <li>A layered defense approach is most effective: input validation, behavioral constraints, output filtering, monitoring, and human oversight work together.</li>
+    <li>Using a fast, lightweight model (e.g., Gemini Flash) as a dedicated guardrail agent provides rapid pre-screening with minimal latency and cost impact.</li>
+    <li>Pydantic-based structured output validation ensures guardrail results are machine-readable, actionable, and consistently formatted.</li>
+    <li>Safety policy directives should cover four key categories: instruction subversion, prohibited content, off-domain behavior, and proprietary information.</li>
+    <li>When ambiguous, default to "compliant" — overly strict guardrails harm usability and create friction for legitimate users.</li>
+    <li>Monitoring and observability are themselves guardrails: logging all agent actions enables anomaly detection, debugging, and compliance auditing.</li>
+    <li>Human-in-the-Loop escalation is the final safety net for cases that automated guardrails cannot reliably resolve.</li>
+  </ul>
+</div>
+
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> CrewAI Guardrails Documentation: <a href="https://docs.crewai.com/concepts/tasks#task-guardrails" target="_blank">docs.crewai.com/concepts/tasks</a></li>
+    <li><span class="ref-num">[2]</span> Pydantic Data Validation: <a href="https://docs.pydantic.dev/" target="_blank">docs.pydantic.dev</a></li>
+    <li><span class="ref-num">[3]</span> Google Gemini Safety Settings: <a href="https://ai.google.dev/gemini-api/docs/safety-settings" target="_blank">ai.google.dev/gemini-api/docs/safety-settings</a></li>
+    <li><span class="ref-num">[4]</span> Anthropic Constitutional AI: <a href="https://www.anthropic.com/research/constitutional-ai" target="_blank">anthropic.com/research/constitutional-ai</a></li>
+    <li><span class="ref-num">[5]</span> OWASP LLM Top 10 Security Risks: <a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/" target="_blank">owasp.org/LLM-Top-10</a></li>
+    <li><span class="ref-num">[6]</span> NIST AI Risk Management Framework: <a href="https://www.nist.gov/system/files/documents/2023/01/26/AI%20RMF%201.0.pdf" target="_blank">nist.gov/AI-RMF</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>Chapter 18 · Guardrails &amp; Safety Patterns · Interactive Learning</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  "User Input: The raw message arrives from the user. It may contain legitimate requests, but also potentially harmful, off-domain, or malicious content. The guardrail pipeline begins here — no input reaches the primary agent without screening.",
+  "Input Guardrail: The dedicated policy enforcer agent screens the input against all safety policy directives. It checks for jailbreaking attempts, prohibited content, off-domain topics, and proprietary information requests. Non-compliant inputs are blocked and returned with an explanation.",
+  "Primary Agent: Only compliant, validated inputs reach the primary agent. It operates within its defined role and tool restrictions. Agent configuration (role, goals, backstory) acts as an implicit behavioral guardrail throughout processing.",
+  "Output Guardrail: The generated response is checked for toxicity, bias, policy violations, and format correctness. Pydantic validation ensures structured outputs conform to expected schemas. Problematic responses are filtered, reformatted, or escalated before delivery.",
+  "Safe Response: The validated, compliant response is delivered to the user. All actions are logged for monitoring and audit. Edge cases or ambiguous decisions are escalated to Human-in-the-Loop review. The user receives a trustworthy, predictable response."
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  { q: "What is the primary purpose of guardrails in an AI agent system?", opts: ["To restrict all agent capabilities equally", "To ensure agents operate safely and as intended without restricting legitimate use", "To replace human operators entirely", "To reduce API costs by filtering requests"], ans: 1, ok: "Correct! Guardrails are designed to ensure safe, ethical, intended operation — not to restrict legitimate capabilities. They function as a safety measure while maintaining full functionality for compliant use cases.", no: "The primary purpose isn't restriction — it's safety and trustworthiness. Guardrails should be calibrated to block genuinely harmful content while allowing legitimate requests to pass through." },
+  { q: "Why is using a fast, lightweight model recommended for guardrail evaluation?", opts: ["Because it is smarter than large models", "To add minimal latency and cost while still screening inputs effectively", "Because large models cannot evaluate safety policies", "To avoid using the primary agent's context window"], ans: 1, ok: "Correct! A fast model like Gemini Flash provides rapid pre-screening with minimal latency overhead. Guardrail evaluation doesn't require maximum capability — it needs speed and accuracy on policy classification.", no: "Speed and cost are the key factors. A lightweight model adds ~100-500ms for guardrail evaluation while keeping costs low, making it practical to apply guardrails to every request." },
+  { q: "When a guardrail encounters an ambiguous input (unclear if it violates policy), what should it do?", opts: ["Block it to be safe", "Default to 'compliant' to avoid over-blocking", "Escalate to the highest-capability model", "Reject with no explanation"], ans: 1, ok: "Correct! The recommended approach is to default to 'compliant' when uncertain. Overly strict guardrails harm usability by blocking legitimate requests. The policy is: only block when demonstrably non-compliant.", no: "Always blocking ambiguous inputs leads to over-filtering and poor user experience. The chapter recommends defaulting to 'compliant' for ambiguous cases to balance safety with usability." },
+  { q: "Which of the following is NOT one of the six guardrail types described in Chapter 18?", opts: ["Input Validation/Sanitization", "Output Filtering/Post-processing", "Model Fine-tuning", "Human Oversight/Intervention"], ans: 2, ok: "Correct! Model fine-tuning is not one of the six guardrail types. The six types are: Input Validation, Output Filtering, Behavioral Constraints, Tool Use Restrictions, External Moderation APIs, and Human Oversight/Intervention.", no: "Model fine-tuning is a training technique, not a runtime guardrail. The six types are: Input Validation, Output Filtering, Behavioral Constraints, Tool Use Restrictions, External Moderation APIs, and Human Oversight." },
+  { q: "What role does monitoring and logging play in a guardrail system?", opts: ["It only helps with debugging errors", "It serves as a guardrail itself by enabling anomaly detection and compliance auditing", "It increases latency too much to be practical", "It is optional for production systems"], ans: 1, ok: "Correct! Monitoring and observability are themselves guardrails. Logging all actions, tool usage, inputs, and outputs creates an audit trail that enables anomaly detection, debugging, compliance verification, and root cause analysis.", no: "Monitoring does much more than debug errors — it provides continuous oversight of agent behavior, links actions to their sources, and enables proactive detection of safety issues before they escalate." },
+  { q: "In the CrewAI guardrail example, what does the Pydantic PolicyEvaluation model provide?", opts: ["A natural language description of safety policies", "Structured, machine-readable evaluation results with compliance_status, evaluation_summary, and triggered_policies", "A list of approved user requests", "The primary agent's response content"], ans: 1, ok: "Correct! The PolicyEvaluation Pydantic model captures three structured fields: compliance_status ('compliant'/'non-compliant'), evaluation_summary (brief explanation), and triggered_policies (list of violated directives). This structured format enables programmatic processing of guardrail results.", no: "The Pydantic model provides structured, machine-readable output — not natural language. Its three fields (compliance_status, evaluation_summary, triggered_policies) enable downstream code to make programmatic decisions based on the guardrail evaluation." }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot'; if(i===curQ)cls+=' current'; else if(scores[i]===true)cls+=' done'; else if(scores[i]===false)cls+=' wrong-dot';
+    dots += '<div class="'+cls+'"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question '+(curQ+1)+' of '+quizData.length+'</div>';
+  html += '<div class="quiz-q">'+q.q+'</div>';
+  q.opts.forEach((opt,i) => { html += '<button class="quiz-opt" id="qo'+i+'" onclick="answer('+i+')">'+opt+'</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if(curQ>0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if(curQ<quizData.length-1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if(answered.has(curQ)) { const q2=quizData[curQ]; document.querySelectorAll('.quiz-opt').forEach((btn,i)=>{btn.classList.add('disabled');if(i===q2.ans)btn.classList.add('correct');}); document.getElementById('nextBtn').style.display='inline-block'; }
+}
+function answer(i) {
+  if(answered.has(curQ)) return; answered.add(curQ);
+  const q=quizData[curQ]; const isRight=i===q.ans; scores[curQ]=isRight;
+  document.getElementById('qo'+i).classList.add(isRight?'correct':'wrong');
+  if(!isRight) document.getElementById('qo'+q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.classList.add('disabled'));
+  const fb=document.getElementById('qfb'); fb.textContent=isRight?q.ok:q.no; fb.className='quiz-fb show '+(isRight?'right':'wrng');
+  document.getElementById('nextBtn').style.display='inline-block'; renderQuiz();
+}
+function nextQ(){curQ++;renderQuiz();}
+function prevQ(){curQ--;renderQuiz();}
+renderQuiz();
+</script>
+</body>
+</html>

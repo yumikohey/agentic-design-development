@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 4: Reflection — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --serif: Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", "Fira Code", monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  background: var(--teal-l);
+  padding: 4px 14px;
+  border-radius: 99px;
+  margin-bottom: 16px;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  max-width: 640px;
+}
+.nav-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 0.5px solid var(--border2);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+  padding-top: 8px;
+}
+.nav-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 7px 16px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active {
+  background: var(--teal-l);
+  color: var(--teal-d);
+  border-color: var(--teal);
+  font-weight: 500;
+}
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 16px;
+  border: 0.5px solid var(--border);
+}
+.card-bordered {
+  border-left: 3px solid var(--teal);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+.metric {
+  background: var(--bg2);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  border: 0.5px solid var(--border);
+}
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card {
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg2);
+}
+.fail-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all .25s;
+}
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 500; flex-shrink: 0;
+}
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail {
+  max-height: 0; overflow: hidden; transition: max-height .35s ease;
+  font-size: 13px; color: var(--text2); line-height: 1.8;
+}
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow {
+  width: 2px; height: 32px; background: var(--border2); position: relative;
+}
+.chain-arrow::after {
+  content: '';
+  position: absolute;
+  bottom: -5px; left: -5px;
+  width: 0; height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--border2);
+}
+.json-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+}
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab {
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+}
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--bg3); color: var(--text2);
+  font-size: 11px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px;
+}
+.code-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+  tab-size: 2;
+}
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer {
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .25s;
+  border: 0.5px solid transparent;
+}
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail {
+  max-height: 0; overflow: hidden; transition: max-height .35s;
+  font-size: 13px; line-height: 1.8;
+}
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--bg3); transition: all .3s;
+}
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt {
+  display: block; width: 100%; text-align: left;
+  padding: 12px 18px; margin-bottom: 8px;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--bg2); color: var(--text);
+  font-size: 14px; cursor: pointer;
+  font-family: var(--sans); transition: all .2s; line-height: 1.6;
+}
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb {
+  padding: 14px 18px; border-radius: var(--radius-sm);
+  font-size: 13px; line-height: 1.7; margin: 12px 0; display: none;
+}
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn {
+  font-family: var(--sans); padding: 8px 22px;
+  border-radius: 99px; border: 0.5px solid var(--border2);
+  background: transparent; color: var(--text);
+  font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px;
+}
+.btn:hover { background: var(--bg3); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li {
+  counter-increment: tk;
+  display: flex; gap: 14px; align-items: flex-start;
+  margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8;
+}
+.tk-list li::before {
+  content: counter(tk);
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--teal-l); color: var(--teal-d);
+  font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px;
+}
+.glance-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card {
+  padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border);
+}
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim {
+  background: var(--bg2); border-radius: var(--radius);
+  padding: 24px; margin: 1.5rem 0;
+  border: 0.5px solid var(--border); text-align: center;
+}
+.diagram-nodes {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; flex-wrap: wrap; margin: 1rem 0;
+}
+.dia-node {
+  padding: 10px 18px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all .3s; position: relative; min-width: 100px; text-align: center;
+}
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output {
+  margin-top: 16px; padding: 14px 18px;
+  background: var(--bg3); border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--text2); line-height: 1.7;
+  text-align: left; min-height: 60px; transition: all .3s;
+}
+.ref-list { list-style: none; padding: 0; }
+.ref-list li {
+  font-size: 13px; color: var(--text2);
+  padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6;
+}
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Chapter 4</div>
+<h1>Reflection</h1>
+<p class="subtitle">A pattern where agents evaluate their own outputs and iteratively refine them — introducing a feedback loop of generation, critique, and improvement to produce higher-quality results.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Pattern Name</div><div class="metric-value">Reflection</div></div>
+    <div class="metric"><div class="metric-label">Key Strategy</div><div class="metric-value">Feedback Loop</div></div>
+    <div class="metric"><div class="metric-label">Key Benefit</div><div class="metric-value">Self-Correction</div></div>
+    <div class="metric"><div class="metric-label">Primary Goal</div><div class="metric-value">Quality</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>What is the Reflection Pattern?</h3>
+    <p>The Reflection pattern involves an agent evaluating its own work, output, or internal state and using that evaluation to improve its performance or refine its response. It is a form of self-correction or self-improvement, allowing the agent to iteratively refine its output or adjust its approach based on feedback, internal critique, or comparison against desired criteria.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>The Feedback Loop</h3>
+    <p>Unlike a simple sequential chain, Reflection introduces a feedback loop. The agent doesn't just produce an output; it then examines that output, identifies potential issues or areas for improvement, and uses those insights to generate a better version. Reflection can occasionally be facilitated by a separate agent whose specific role is to analyze the output of an initial agent.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Producer-Critic Model</h3>
+    <p>A highly effective implementation separates the process into two distinct logical roles: a Producer and a Critic (the "Generator-Critic" or "Producer-Reviewer" model). Using two specialized agents with distinct system prompts often yields more robust and unbiased results, preventing the cognitive bias of an agent reviewing its own work.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Relationship to Other Patterns</h3>
+    <p>The effectiveness of Reflection is enhanced when the LLM has memory of the conversation (Chapter 8). It also intersects with goal-setting and monitoring (Chapter 11), where Reflection acts as the corrective engine, using monitored feedback to analyze deviations and adjust strategy, transforming a passive executor into a purposeful, adaptive system.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Problems Reflection Solves</div>
+  <div class="sec-desc">Even with sophisticated agentic workflows, an agent's initial output or plan might not be optimal, accurate, or complete. Click each card to explore the specific failures this pattern addresses:</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Suboptimal First Outputs</h4>
+      <p>Initial responses often lack polish or completeness</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Agents producing an initial output or plan frequently generate results that are functional but not optimal. Without a review cycle, these first-draft outputs become the final answer, even when significant improvements are possible with additional passes.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Factual Inaccuracies</h4>
+      <p>LLMs can generate plausible but incorrect information</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Language models sometimes produce factually incorrect statements with high confidence. A separate critic agent, acting as a meticulous fact-checker, can verify claims against the original task requirements and flag inaccuracies for correction.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Code Bugs and Inefficiencies</h4>
+      <p>Generated code may contain errors or style issues</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">When generating code, LLMs may produce implementations that compile but have bugs, miss edge cases, or violate style requirements. A senior engineer critic persona can catch these issues — bugs, missing error handling, inefficiencies — and guide refinement.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Cognitive Bias in Self-Review</h4>
+      <p>A single agent reviewing its own work misses its own blind spots</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">When the same LLM call both generates and reviews output, it is prone to confirming its own assumptions. A separate critic agent with a distinct system prompt approaches the output with a fresh perspective, dedicated entirely to finding errors and areas for improvement.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>No Mechanism for Improvement</h4>
+      <p>Basic workflows lack built-in self-correction</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Standard agentic patterns (chaining, routing, parallelization) do not include any mechanism for the agent to recognize and fix its own errors. The initial response becomes the final one regardless of quality. Reflection addresses this structural gap.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">The Reflection Loop</div>
+  <div class="sec-desc">The Reflection pattern introduces a structured cycle of generation, evaluation, and refinement. Click each step to explore what happens:</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Execution (Generate)</div>
+          <div class="chain-role">Role: Producer Agent</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The agent (Producer) performs the task and generates an initial output. Its sole focus is on generating the content — writing code, drafting text, creating a plan. It takes the initial prompt and produces the first version of the output.<br><br>
+        <strong>Input:</strong> Task prompt + requirements<br>
+        <strong>Output:</strong> First draft / initial attempt
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">2</div>
+        <div>
+          <div class="chain-title">Evaluation / Critique</div>
+          <div class="chain-role">Role: Critic Agent</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The Critic agent (often a separate LLM call with a different system prompt) analyzes the result from the previous step. This evaluation checks for factual accuracy, coherence, style, completeness, and adherence to instructions. The Critic is designed to find flaws and provide structured feedback — or signal that the output is already perfect.<br><br>
+        <strong>Input:</strong> Original task + first draft<br>
+        <strong>Output:</strong> Structured critique / "CODE_IS_PERFECT"
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">3</div>
+        <div>
+          <div class="chain-title">Reflection / Refinement</div>
+          <div class="chain-role">Role: Producer Agent (with critique context)</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        Based on the critique, the Producer agent determines how to improve. This involves generating a refined output, adjusting parameters, or even modifying the overall plan. The conversation history containing the task, previous output, and critique provides full context for targeted improvement.<br><br>
+        <strong>Input:</strong> Original task + previous output + critique<br>
+        <strong>Output:</strong> Refined version
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--blue);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">4</div>
+        <div>
+          <div class="chain-title">Iteration (Loop or Stop)</div>
+          <div class="chain-role">Role: Orchestrator</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The refined output can be re-evaluated and the process repeats until a satisfactory result is achieved or a stopping condition is met (e.g., critique signals "perfect", max iterations reached). This iterative cycle progressively enhances quality, leading to more accurate, coherent, and reliable outcomes.<br><br>
+        <strong>Stopping conditions:</strong> Critic approves OR max iterations reached<br>
+        <strong>Output:</strong> Final, high-quality result
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+
+  <div class="card card-bordered">
+    <h3>The Two-Agent Architecture</h3>
+    <p>The most powerful implementation of Reflection uses two distinct agents: the <strong>Producer</strong> (focuses entirely on generating content) and the <strong>Critic</strong> (sole purpose is to evaluate the Producer's output using a specialized persona like "senior software engineer" or "meticulous fact-checker"). This separation prevents cognitive bias and enables specialized, structured feedback.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Conversation History as Context</h3>
+    <p>The reflection loop maintains a conversation history containing the original task, generated outputs, and critiques. This history provides full context for each subsequent step, enabling the agent to learn from past critiques and avoid repeating errors. Without memory, each reflection is isolated; with memory, it becomes cumulative.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Stopping Conditions</h3>
+    <p>A key design decision is when to stop iterating. Common approaches include: (1) a sentinel phrase from the critic (e.g., "CODE_IS_PERFECT"), (2) a maximum number of iterations to control cost, or (3) a quality threshold score. Balancing thoroughness against latency and cost is essential for practical deployment.</p>
+  </div>
+
+  <p style="font-size:13px;color:var(--text3);margin:1rem 0 0.5rem;">Reflection State Structure</p>
+  <div class="json-block">{
+  "task_prompt": "Write a Python function for factorial...",
+  "message_history": [
+    {"role": "human", "content": "Your task is to create..."},
+    {"role": "ai",    "content": "def calculate_factorial(n):..."},
+    {"role": "human", "content": "Critique: Missing docstring, no edge case for 0"},
+    {"role": "ai",    "content": "def calculate_factorial(n):\n  \"\"\"...\"\"\"\n  if n &lt; 0:..."}
+  ],
+  "current_code": "latest refined version...",
+  "iteration": 2,
+  "max_iterations": 3,
+  "stopping_signal": "CODE_IS_PERFECT"
+}</div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Practical Applications</div>
+  <div class="sec-desc">Reflection is valuable in scenarios where output quality, accuracy, or adherence to complex constraints is critical. Select a use case:</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Creative Writing</button>
+    <button class="uc-tab" onclick="showUC(1)">Code Generation</button>
+    <button class="uc-tab" onclick="showUC(2)">Problem Solving</button>
+    <button class="uc-tab" onclick="showUC(3)">Summarization</button>
+    <button class="uc-tab" onclick="showUC(4)">Planning</button>
+    <button class="uc-tab" onclick="showUC(5)">Conversational AI</button>
+  </div>
+
+  <div id="uc-0" class="uc-panel active">
+    <div class="card card-bordered">
+      <h3>Creative Writing and Content Generation</h3>
+      <p>Refining generated text, stories, poems, or marketing copy to achieve polish and effectiveness.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Use Case:</strong> An agent writing a blog post.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Reflection:</strong> Generate a draft, critique it for flow, tone, and clarity, then rewrite based on the critique. Repeat until the post meets quality standards.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Benefit:</strong> Produces more polished and effective content that would be difficult to achieve in a single pass.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-1" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Code Generation and Debugging</h3>
+      <p>Writing code, identifying errors, and fixing them through iterative critique.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Use Case:</strong> An agent writing a Python function.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Reflection:</strong> Write initial code, run tests or static analysis, identify errors or inefficiencies via a senior engineer critic, then modify the code based on findings.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Benefit:</strong> Generates more robust, functional code with proper edge case handling and documentation.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-2" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Complex Problem Solving</h3>
+      <p>Evaluating intermediate steps or proposed solutions in multi-step reasoning tasks.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Use Case:</strong> An agent solving a logic puzzle or math problem.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Reflection:</strong> Propose a step, evaluate if it leads closer to the solution or introduces contradictions, backtrack or choose a different step if needed.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Benefit:</strong> Improves the agent's ability to navigate complex problem spaces that require backtracking.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-3" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Summarization and Information Synthesis</h3>
+      <p>Refining summaries for accuracy, completeness, and conciseness.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Use Case:</strong> An agent summarizing a long document.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Reflection:</strong> Generate an initial summary, compare it against key points in the original document, refine to include missing information or improve accuracy.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Benefit:</strong> Creates more accurate and comprehensive summaries with fewer omissions.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-4" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Planning and Strategy</h3>
+      <p>Evaluating a proposed plan and identifying potential flaws or improvements before execution.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Use Case:</strong> An agent planning a series of actions to achieve a goal.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Reflection:</strong> Generate a plan, simulate its execution or evaluate its feasibility against constraints, revise the plan based on the evaluation.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Benefit:</strong> Develops more effective and realistic plans with fewer blind spots.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-5" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Conversational Agents</h3>
+      <p>Reviewing previous turns to maintain context, correct misunderstandings, or improve response quality.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Use Case:</strong> A customer support chatbot.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Reflection:</strong> After generating a user response, review the conversation history and the last message to ensure coherence and that the user's latest input is accurately addressed.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Benefit:</strong> Leads to more natural and effective conversations with fewer misunderstandings.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Code Examples</div>
+  <div class="sec-desc">The following examples demonstrate the Reflection pattern using LangChain (iterative loop) and Google ADK (Generator-Critic pipeline).</div>
+
+  <p style="font-size:13px;font-weight:500;margin-bottom:8px;">LangChain: Iterative Reflection Loop</p>
+  <div class="code-block"><span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> ChatOpenAI
+<span class="code-keyword">from</span> langchain_core.messages <span class="code-keyword">import</span> SystemMessage, HumanMessage
+<span class="code-keyword">from</span> dotenv <span class="code-keyword">import</span> load_dotenv
+
+load_dotenv()
+llm = ChatOpenAI(model=<span class="code-string">"gpt-4o"</span>, temperature=<span class="code-string">0.1</span>)
+
+<span class="code-keyword">def</span> run_reflection_loop():
+    task_prompt = <span class="code-string">"""Write a Python function named `calculate_factorial`.
+    It must: accept integer n, compute n!, include a docstring,
+    handle n=0, raise ValueError for negative n."""</span>
+
+    max_iterations = <span class="code-string">3</span>
+    message_history = [HumanMessage(content=task_prompt)]
+    current_code = <span class="code-string">""</span>
+
+    <span class="code-keyword">for</span> i <span class="code-keyword">in</span> range(max_iterations):
+        <span class="code-comment"># --- GENERATE / REFINE STAGE ---</span>
+        <span class="code-keyword">if</span> i == <span class="code-string">0</span>:
+            response = llm.invoke(message_history)
+        <span class="code-keyword">else</span>:
+            message_history.append(
+                HumanMessage(content=<span class="code-string">"Please refine the code using the critiques."</span>))
+            response = llm.invoke(message_history)
+        current_code = response.content
+        message_history.append(response)
+
+        <span class="code-comment"># --- REFLECT STAGE (Critic persona) ---</span>
+        reflector_prompt = [
+            SystemMessage(content=<span class="code-string">"""You are a senior software engineer.
+            Critically evaluate the code against the original task.
+            Look for bugs, style issues, missing edge cases.
+            If perfect, respond with 'CODE_IS_PERFECT'.
+            Otherwise, provide a bulleted critique."""</span>),
+            HumanMessage(content=f<span class="code-string">"Task:\n{task_prompt}\n\nCode:\n{current_code}"</span>)
+        ]
+        critique = llm.invoke(reflector_prompt).content
+
+        <span class="code-comment"># --- STOPPING CONDITION ---</span>
+        <span class="code-keyword">if</span> <span class="code-string">"CODE_IS_PERFECT"</span> <span class="code-keyword">in</span> critique:
+            <span class="code-keyword">break</span>
+        message_history.append(
+            HumanMessage(content=f<span class="code-string">"Critique:\n{critique}"</span>))
+
+    <span class="code-keyword">return</span> current_code</div>
+
+  <p style="font-size:13px;font-weight:500;margin:16px 0 8px;">Google ADK: Generator-Critic Pipeline</p>
+  <div class="code-block"><span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> SequentialAgent, LlmAgent
+
+<span class="code-comment"># The first agent generates the initial draft</span>
+generator = LlmAgent(
+    name=<span class="code-string">"DraftWriter"</span>,
+    instruction=<span class="code-string">"Write a short, informative paragraph about the user's subject."</span>,
+    output_key=<span class="code-string">"draft_text"</span>  <span class="code-comment"># output saved to state</span>
+)
+
+<span class="code-comment"># The second agent critiques the draft from the first agent</span>
+reviewer = LlmAgent(
+    name=<span class="code-string">"FactChecker"</span>,
+    instruction=<span class="code-string">"""You are a meticulous fact-checker.
+    Read the text in state key 'draft_text'.
+    Verify factual accuracy of all claims.
+    Output a dict: {'status': 'ACCURATE'|'INACCURATE', 'reasoning': '...'}"""</span>,
+    output_key=<span class="code-string">"review_output"</span>
+)
+
+<span class="code-comment"># SequentialAgent ensures generator runs before reviewer</span>
+review_pipeline = SequentialAgent(
+    name=<span class="code-string">"WriteAndReview_Pipeline"</span>,
+    sub_agents=[generator, reviewer]
+)</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: Design Dimensions</div>
+  <div class="sec-desc">Click each layer to explore key design considerations for implementing the Reflection pattern effectively:</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--teal-l);color:var(--teal-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Single-Agent vs. Dual-Agent Reflection</div>
+      <div class="ctx-layer-sub">Architectural choice that impacts objectivity and quality</div>
+      <div class="ctx-layer-detail">A single agent can perform self-reflection by reviewing its own output. However, this introduces cognitive bias — the model tends to agree with its previous output. Using two separate LLM calls with distinct system prompts (Producer + Critic) yields more robust and unbiased results. The Critic approaches the output with a fresh perspective, dedicated entirely to finding errors and areas for improvement. For high-stakes tasks, always prefer the dual-agent approach.</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--purple-l);color:var(--purple-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Cost and Latency Trade-offs</div>
+      <div class="ctx-layer-sub">Each reflection cycle requires additional LLM calls</div>
+      <div class="ctx-layer-detail">The iterative process significantly enhances output quality but comes at the cost of increased latency and computational expense. Every refinement loop requires at least one new LLM call, making it suboptimal for time-sensitive applications. The pattern is also memory-intensive; with each iteration, the conversational history expands. Design your stopping conditions carefully to balance quality against cost and speed.</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--amber-l);color:var(--amber-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">State Management for Iteration</div>
+      <div class="ctx-layer-sub">How to maintain context across multiple reflection cycles</div>
+      <div class="ctx-layer-detail">True iterative reflection requires stateful workflows. In LangChain, this can be achieved through graph-based frameworks like LangGraph that support state management and conditional transitions. In simpler implementations, maintaining a conversation history list (task → output → critique → refined output) provides the necessary context. Google ADK's LoopAgent is also available for iterative loops with state management.</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--coral-l);color:var(--coral-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Critic Persona Design</div>
+      <div class="ctx-layer-sub">The system prompt for the Critic agent is critical</div>
+      <div class="ctx-layer-detail">The quality of reflection depends heavily on how you instruct the Critic. Effective Critic prompts give a specialized role ("You are a senior software engineer"), define specific evaluation criteria (factual accuracy, code quality, stylistic requirements, completeness), instruct it to produce structured output (bulleted critique), and provide a stopping signal ("CODE_IS_PERFECT" when no issues are found). Domain-specific critics produce far better results than generic reviewers.</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--blue-l);color:var(--blue-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Integration with Memory and Goals</div>
+      <div class="ctx-layer-sub">Reflection is amplified by contextual awareness</div>
+      <div class="ctx-layer-detail">The effectiveness of Reflection is significantly enhanced when the LLM keeps a memory of the conversation. This conversational history provides crucial context for the evaluation phase, allowing the agent to assess its output against previous interactions, user feedback, and evolving goals. It enables the agent to learn from past critiques and avoid repeating errors. When combined with goal monitoring, Reflection acts as the corrective engine, analyzing deviations and adjusting strategy.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4>WHAT</h4>
+      <p>An agent's initial output is often suboptimal. Basic workflows lack a built-in process for the agent to recognize and fix its own errors. Reflection solves this by having the agent evaluate its own work, preventing the initial response from being the final one regardless of quality.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4>WHY</h4>
+      <p>Reflection offers self-correction and refinement via a feedback loop where a "producer" generates output and a "critic" evaluates it against predefined criteria. This iterative process progressively enhances quality, leading to more accurate, coherent, and reliable outcomes.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);">
+      <h4>WHEN TO USE</h4>
+      <p>Use Reflection when quality, accuracy, and detail of the final output are more important than speed and cost. Particularly effective for polished long-form content, writing and debugging code, and creating detailed plans. Use a separate critic for high objectivity needs.</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);">
+      <h4>TRADE-OFFS</h4>
+      <p>Benefits come at the cost of increased latency and expense. Each refinement loop requires new LLM calls. The pattern is also memory-intensive as history expands. Full iterative reflection requires stateful workflows like LangGraph; single-step reflection can use simpler LCEL chains.</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">Interactive Flow: Click each node to see its role</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" style="background:var(--blue-l);color:var(--blue-d);" onclick="simClick(0)">Prompt</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(1)">Producer</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d);" onclick="simClick(2)">Critic</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(3)">Refine</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--green-l);color:var(--green-d);" onclick="simClick(4)">Output</div>
+    </div>
+    <div class="dia-output" id="sim-output">Click a node above to see what happens at that stage of the Reflection loop.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Check</div>
+  <div id="quizProgress" class="quiz-progress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>The Reflection pattern introduces a feedback loop of execution, evaluation/critique, and refinement — moving agents beyond single-pass execution toward iterative self-improvement.</li>
+    <li>The primary advantage is the ability to iteratively self-correct and refine outputs, leading to significantly higher quality, accuracy, and adherence to complex instructions.</li>
+    <li>The Producer-Critic model (separate agents with distinct system prompts) is a powerful implementation that prevents cognitive bias and enables more specialized, objective feedback.</li>
+    <li>A well-designed Critic agent must have a specialized role, clear evaluation criteria, structured output format, and a stopping signal (like "CODE_IS_PERFECT") to terminate the loop.</li>
+    <li>These benefits come at the cost of increased latency and computational expense — every refinement loop requires at least one additional LLM call. Balance quality vs. cost carefully.</li>
+    <li>Full iterative reflection requires stateful workflows (LangGraph, ADK LoopAgent); a single reflection step can be implemented with simpler LCEL chains or sequential ADK pipelines.</li>
+    <li>Google ADK facilitates reflection through sequential workflows where one agent's output is critiqued by another, enabling subsequent refinement steps.</li>
+    <li>Reflection is most valuable when quality, accuracy, and completeness matter more than speed — for tasks like generating polished content, writing and debugging code, and creating detailed plans.</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>Training Language Models to Self-Correct via Reinforcement Learning — <a href="https://arxiv.org/abs/2409.12917" target="_blank">arxiv.org/abs/2409.12917</a></li>
+    <li><span class="ref-num">2</span>LangChain Expression Language (LCEL) Documentation — <a href="https://python.langchain.com/docs/introduction/" target="_blank">python.langchain.com/docs/introduction/</a></li>
+    <li><span class="ref-num">3</span>LangGraph Documentation — <a href="https://www.langchain.com/langgraph" target="_blank">langchain.com/langgraph</a></li>
+    <li><span class="ref-num">4</span>Google Agent Developer Kit (ADK) — Multi-Agent Systems — <a href="https://google.github.io/adk-docs/agents/multi-agents/" target="_blank">google.github.io/adk-docs/agents/multi-agents/</a></li>
+    <li><span class="ref-num">5</span>Reflexion: Language Agents with Verbal Reinforcement Learning — <a href="https://arxiv.org/abs/2303.11366" target="_blank">arxiv.org/abs/2303.11366</a></li>
+  </ul>
+</div>
+
+<div class="footer">
+  <p>Agentic Design Patterns — Chapter 4: Reflection</p>
+</div>
+
+</div><!-- .app -->
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  "Prompt: The user provides the task requirements — e.g., 'Write a Python function calculate_factorial with a docstring, edge case for 0, and ValueError for negative input.' This becomes the initial task for the Producer agent.",
+  "Producer Agent: Focuses entirely on generating the initial output. It writes the first version of the code or content based solely on the task prompt. In iteration 1 it generates from scratch; in subsequent iterations it refines based on critiques from the Critic.",
+  "Critic Agent: A separate LLM call with a specialized system prompt (e.g., 'You are a senior software engineer'). It evaluates the Producer's output against the original requirements, looking for bugs, style issues, missing edge cases. It returns a structured critique or 'CODE_IS_PERFECT' if satisfied.",
+  "Refinement: The Producer receives the original task + its previous output + the Critic's critique and generates an improved version. The conversation history provides full context, enabling targeted improvements. This cycle repeats until the Critic approves or max iterations are reached.",
+  "Final Output: Once the Critic signals approval (or max iterations are reached), the latest refined version becomes the final output. The iterative process has progressively enhanced quality through each generate-critique-refine cycle."
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: "What is the fundamental mechanism that distinguishes the Reflection pattern from other agentic patterns like Chaining or Routing?",
+    opts: [
+      "It uses multiple LLM calls in parallel",
+      "It introduces a feedback loop where output is evaluated and refined",
+      "It routes requests to specialized agents based on content type",
+      "It breaks tasks into sequential, focused sub-prompts"
+    ],
+    ans: 1,
+    ok: "Correct! The key differentiator is the feedback loop — the agent produces output, evaluates it (via critique), and uses that evaluation to generate an improved version. This cyclical process is distinct from linear chaining or routing.",
+    no: "Not quite. The feedback loop is what sets Reflection apart. Chaining is sequential steps, Routing is path selection, and Parallelization is concurrent execution. Reflection adds the ability to evaluate and improve outputs iteratively."
+  },
+  {
+    q: "In the Producer-Critic model, what is the primary purpose of using TWO separate LLM calls with distinct system prompts, rather than having one agent review its own work?",
+    opts: [
+      "To reduce the total number of tokens consumed",
+      "To enable parallel processing of the task",
+      "To prevent cognitive bias — a separate critic approaches output with a fresh, objective perspective",
+      "To comply with API rate limiting requirements"
+    ],
+    ans: 2,
+    ok: "Correct! A single agent reviewing its own work suffers from cognitive bias — it tends to agree with its previous output. A separate Critic agent with a distinct system prompt approaches the output with a fresh perspective, dedicated entirely to finding errors and areas for improvement.",
+    no: "Incorrect. The key reason is preventing cognitive bias. When the same model both generates and reviews, it tends to confirm its own work. A separate Critic with a different persona (e.g., 'senior software engineer') provides genuinely independent evaluation."
+  },
+  {
+    q: "What is a 'stopping condition' in a Reflection loop, and why is it necessary?",
+    opts: [
+      "A syntax error that terminates the Python script",
+      "A user command that cancels the operation",
+      "A condition that ends the iteration cycle — such as a quality signal from the critic or a max iteration count — to prevent infinite loops and control cost",
+      "A network timeout that forces the agent to return its last result"
+    ],
+    ans: 2,
+    ok: "Correct! Without a stopping condition, the reflection loop could run indefinitely, consuming unbounded resources. Practical implementations use signals like 'CODE_IS_PERFECT' from the critic, a maximum iteration count, or a quality threshold to terminate the loop appropriately.",
+    no: "Incorrect. A stopping condition is a deliberate design decision to control when the reflection loop terminates. Common approaches include a sentinel phrase from the critic (e.g., 'CODE_IS_PERFECT'), a maximum number of iterations, or a quality score threshold."
+  },
+  {
+    q: "According to the chapter, when is the Reflection pattern most appropriate to use?",
+    opts: [
+      "When low latency and real-time responses are the top priority",
+      "When tasks are simple and can be solved with a single LLM call",
+      "When the quality, accuracy, and detail of the final output are more important than speed and cost",
+      "When the task requires accessing real-time external data"
+    ],
+    ans: 2,
+    ok: "Correct! The Reflection pattern is best suited for tasks where quality matters more than speed — polished long-form content, writing and debugging code, creating detailed plans. The increased latency and cost are justified by the significant improvement in output quality.",
+    no: "The Reflection pattern involves multiple LLM calls, increasing latency and cost. It is designed for tasks where output quality is paramount — polished content, robust code, detailed plans — not for real-time or simple tasks."
+  },
+  {
+    q: "What role does conversation history play in the Reflection pattern?",
+    opts: [
+      "It is discarded after each iteration to save context window space",
+      "It provides context for each subsequent generate/refine step, allowing the agent to learn from past critiques and avoid repeating errors",
+      "It is only used to store the final output",
+      "It limits the number of reflection cycles that can occur"
+    ],
+    ans: 1,
+    ok: "Correct! The conversation history — containing the original task, generated outputs, and critiques — provides full context for each subsequent step. This enables the agent to learn from past critiques, target improvements precisely, and avoid repeating the same errors in each iteration.",
+    no: "Incorrect. Conversation history is crucial to the Reflection pattern. It contains the original task, all generated versions, and all critiques. This cumulative context enables the agent to make targeted improvements in each iteration rather than starting fresh."
+  },
+  {
+    q: "Which framework feature makes implementing full iterative (multi-cycle) Reflection more natural than using basic LangChain LCEL chains?",
+    opts: [
+      "LangChain's ChatPromptTemplate",
+      "LangGraph, which supports stateful workflows with conditional transitions and loops",
+      "LangChain's AgentExecutor for tool calling",
+      "LangChain's output parsers for structured responses"
+    ],
+    ans: 1,
+    ok: "Correct! LangGraph supports stateful workflows with conditional transitions and loops — making it natural to implement iterative reflection cycles where the flow continues until a stopping condition is met. Basic LCEL chains are better suited for single-pass reflection.",
+    no: "While LCEL chains can demonstrate a single reflection step, LangGraph's support for stateful workflows and conditional transitions makes it the right tool for full iterative reflection with multiple cycles."
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div>';
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    const fb = document.getElementById('qfb');
+    fb.textContent = scores[curQ] ? q2.ok : q2.no;
+    fb.className = 'quiz-fb show ' + (scores[curQ] ? 'right' : 'wrng');
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

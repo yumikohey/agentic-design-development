@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第十五章：智能体间通信（A2A）— 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  background: var(--teal-l);
+  padding: 4px 14px;
+  border-radius: 99px;
+  margin-bottom: 16px;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  max-width: 640px;
+}
+.nav-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 0.5px solid var(--border2);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+  padding-top: 8px;
+}
+.nav-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 7px 16px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active {
+  background: var(--teal-l);
+  color: var(--teal-d);
+  border-color: var(--teal);
+  font-weight: 500;
+}
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 16px;
+  border: 0.5px solid var(--border);
+}
+.card-bordered {
+  border-left: 3px solid var(--teal);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.card h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+.sec-desc {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+.metric {
+  background: var(--bg2);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  border: 0.5px solid var(--border);
+}
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card {
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+  overflow: hidden;
+}
+.fail-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all .25s;
+}
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s ease;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow {
+  width: 2px;
+  height: 32px;
+  background: var(--border2);
+  position: relative;
+}
+.chain-arrow::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: -5px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--border2);
+}
+.json-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+}
+.uc-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.uc-tab {
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+}
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active {
+  background: var(--purple-l);
+  color: var(--purple-d);
+  border-color: var(--purple);
+  font-weight: 500;
+}
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+.uc-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+.uc-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 11px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.code-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+  tab-size: 2;
+}
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer {
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .25s;
+  border: 0.5px solid transparent;
+}
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 1.5rem;
+}
+.quiz-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg3);
+  transition: all .3s;
+}
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.quiz-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 18px;
+  margin-bottom: 8px;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--bg2);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all .2s;
+  line-height: 1.6;
+}
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb {
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 12px 0;
+  display: none;
+}
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn {
+  font-family: var(--sans);
+  padding: 8px 22px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+  margin-top: 12px;
+}
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li {
+  counter-increment: tk;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.tk-list li::before {
+  content: counter(tk);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--teal-l);
+  color: var(--teal-d);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.glance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card {
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+}
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin: 1.5rem 0;
+  border: 0.5px solid var(--border);
+  text-align: center;
+}
+.diagram-nodes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+.dia-node {
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .3s;
+  position: relative;
+  min-width: 100px;
+  text-align: center;
+}
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow {
+  font-size: 18px;
+  color: var(--text3);
+  padding: 0 6px;
+  flex-shrink: 0;
+}
+.dia-output {
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+  text-align: left;
+  min-height: 60px;
+  transition: all .3s;
+}
+.ref-list { list-style: none; padding: 0; }
+.ref-list li {
+  font-size: 13px;
+  color: var(--text2);
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--border);
+  line-height: 1.6;
+}
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+.quiz-nav { display: flex; gap: 8px; margin-top: 16px; align-items: center; }
+.quiz-counter { font-size: 12px; color: var(--text3); margin-left: auto; }
+</style>
+</head>
+<body>
+<div class="app">
+  <a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+  <div class="chapter-tag">第十五章</div>
+  <h1>智能体间通信（A2A）</h1>
+  <p class="subtitle">单个 AI 智能体面对复杂多面问题时往往力不从心。智能体间通信（A2A）协议使不同框架构建的 AI 智能体能够无缝协作，实现任务委派、信息共享与跨框架互操作。</p>
+
+  <nav class="nav-bar">
+    <button class="nav-btn active" onclick="go('overview')">概览</button>
+    <button class="nav-btn" onclick="go('problem')">问题所在</button>
+    <button class="nav-btn" onclick="go('solution')">解决方案</button>
+    <button class="nav-btn" onclick="go('concepts')">核心概念</button>
+    <button class="nav-btn" onclick="go('usecases')">应用场景</button>
+    <button class="nav-btn" onclick="go('code')">代码实战</button>
+    <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
+    <button class="nav-btn" onclick="go('glance')">一览概要</button>
+    <button class="nav-btn" onclick="go('quiz')">知识测验</button>
+    <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
+    <button class="nav-btn" onclick="go('refs')">参考资料</button>
+  </nav>
+
+  <!-- 概览 -->
+  <section id="sec-overview" class="section active">
+    <h2 class="sec-title">本章概览</h2>
+    <p class="sec-desc">Google 的 A2A（Agent2Agent）协议是一个开放标准，专为实现不同 AI 智能体框架之间的通用通信而设计，支持 LangGraph、CrewAI、Google ADK 等框架间的无缝协作。</p>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">支持企业</div>
+        <div class="metric-value">10+</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">核心角色</div>
+        <div class="metric-value">3 类</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">交互模式</div>
+        <div class="metric-value">4 种</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">任务状态</div>
+        <div class="metric-value">多态</div>
+      </div>
+    </div>
+    <div class="card card-bordered">
+      <h3>A2A：跨框架协作的开放标准</h3>
+      <p>A2A 协议由 Google 开发，得到 Atlassian、Box、LangChain、MongoDB、Salesforce、SAP、ServiceNow 等技术公司的广泛支持。Microsoft 计划将 A2A 集成到 Azure AI Foundry 和 Copilot Studio，Auth0 和 SAP 也在将 A2A 支持整合至其平台与智能体产品中。</p>
+    </div>
+    <div class="card card-bordered" style="border-color:var(--purple)">
+      <h3>A2A 与 MCP 的互补关系</h3>
+      <p>A2A 专注于智能体之间的高层任务协调与委派，而 Anthropic 的模型上下文协议（MCP）专注于为智能体提供结构化上下文以及与外部工具和数据的交互。两者相辅相成，共同构建完整的智能体生态。</p>
+    </div>
+    <div class="card card-bordered" style="border-color:var(--amber)">
+      <h3>开放源代码生态</h3>
+      <p>作为开源协议，A2A 欢迎社区贡献，推动协议持续演进与广泛普及。代码仓库提供 Java、Go、Python 的示例实现，涵盖 LangGraph、CrewAI、Azure AI Foundry 等多种框架集成方案。</p>
+    </div>
+  </section>
+
+  <!-- 问题所在 -->
+  <section id="sec-problem" class="section">
+    <h2 class="sec-title">核心挑战</h2>
+    <p class="sec-desc">单个 AI 智能体在面对复杂、多面向问题时存在固有局限。点击各卡片了解具体挑战。</p>
+    <div class="fail-grid">
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>框架隔离问题</h4>
+        <p>不同框架（LangGraph、CrewAI、ADK）构建的智能体无法直接通信。</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">每个框架都有专属通信格式与接口，使跨框架集成需要大量定制开发工作，严重阻碍多智能体系统的构建效率。</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>缺乏统一发现机制</h4>
+        <p>智能体无法自动找到并了解其他智能体的能力边界。</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">没有标准化的能力描述格式，智能体必须依赖硬编码配置才能知道"哪个智能体能做什么"，极大限制了系统的灵活性与可扩展性。</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>集成成本高昂</h4>
+        <p>为每对智能体定制集成接口，工程成本随规模指数级增长。</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">N 个智能体之间若两两定制集成，需要 N×(N-1)/2 个独立接口。这使得大规模多智能体系统在工程上几乎不可维护。</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>异步任务管理困难</h4>
+        <p>长时间运行的任务缺乏标准化的状态追踪与中断恢复机制。</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">复杂工作流中，任务可能耗时数分钟乃至数小时。没有统一的任务状态模型，协调智能体无法可靠地追踪进度或处理失败情况。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 解决方案 -->
+  <section id="sec-solution" class="section">
+    <h2 class="sec-title">A2A 协议架构</h2>
+    <p class="sec-desc">A2A 通过一套标准化的组件体系解决跨框架协作难题。点击各节点了解详细设计。</p>
+    <div class="chain-container">
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d)">1</div>
+          <div>
+            <div class="chain-title">智能体名片（Agent Card）：数字身份标识</div>
+            <div class="chain-role">JSON 格式的能力声明文件</div>
+          </div>
+        </div>
+        <div class="chain-detail">每个智能体都拥有一张名片（JSON 文件），定义其身份、服务端点 URL、版本号、支持的能力（流式传输、推送通知）、具体技能列表、默认输入/输出模式以及身份验证要求。其他智能体通过读取名片即可自动发现并理解该智能体的能力。</div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d)">2</div>
+          <div>
+            <div class="chain-title">智能体发现：三种定位策略</div>
+            <div class="chain-role">Well-Known URI / 注册表 / 直接配置</div>
+          </div>
+        </div>
+        <div class="chain-detail">客户端可通过三种方式发现 A2A 服务端：(1) 知名 URI——智能体在标准路径（如 /.well-known/agent.json）托管名片，适合公开或域级服务；(2) 集中注册表——企业环境下发布和查询名片的中心目录，支持访问控制；(3) 直接配置——将名片信息嵌入或私下共享，适合紧耦合私有系统。</div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d)">3</div>
+          <div>
+            <div class="chain-title">任务与消息：通信的基本单元</div>
+            <div class="chain-role">异步任务 + JSON-RPC 2.0</div>
+          </div>
+        </div>
+        <div class="chain-detail">A2A 的通信围绕异步任务构建——每个任务获得唯一标识符，经历"已提交→处理中→已完成"等状态转换，支持复杂操作的并行处理。消息包含键值元数据属性和承载实际内容的消息段（文本、文件或 JSON 数据）。任务产出的有形结果称为制品（Artifact），可增量流式传输。所有通信基于 HTTP(S) + JSON-RPC 2.0，通过服务端生成的 contextId 维护跨任务的会话连续性。</div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d)">4</div>
+          <div>
+            <div class="chain-title">安全机制：多层防护体系</div>
+            <div class="chain-role">mTLS + 审计日志 + OAuth 2.0</div>
+          </div>
+        </div>
+        <div class="chain-detail">A2A 内置多层安全机制：相互传输层安全（mTLS）加密认证连接，防止未授权访问与数据截获；全面审计日志记录所有智能体间通信细节，支持问责与安全分析；名片声明认证需求（OAuth 2.0、API 密钥等），通过 HTTP 请求头传递凭证，避免在 URL 或消息体中暴露敏感信息。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 核心概念 -->
+  <section id="sec-concepts" class="section">
+    <h2 class="sec-title">核心概念详解</h2>
+    <p class="sec-desc">深入理解 A2A 协议的关键组成要素与交互机制。</p>
+    <div class="card">
+      <h3>三类核心角色</h3>
+      <ul>
+        <li><strong>用户（User）：</strong>发起智能体辅助请求的人或系统</li>
+        <li><strong>A2A 客户端（Client Agent）：</strong>代表用户行事的应用程序或 AI 智能体，负责发出请求或获取信息</li>
+        <li><strong>A2A 服务端（Remote Agent）：</strong>提供 HTTP 端点处理客户端请求并返回结果的 AI 智能体或系统。服务端作为"不透明"系统运行，客户端无需了解其内部实现细节</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>四种交互机制</h3>
+      <ul>
+        <li><strong>同步请求/响应：</strong>适用于快速即时操作。客户端发送请求并等待服务端在单次同步交换中返回完整响应（sendTask 方法）</li>
+        <li><strong>异步轮询：</strong>适用于耗时较长的任务。服务端立即返回"处理中"状态和任务 ID，客户端定期轮询检查状态直至完成或失败</li>
+        <li><strong>流式更新（SSE）：</strong>通过服务器推送事件建立持久单向连接，服务端持续推送状态变更或部分结果，无需客户端多次请求（sendTaskSubscribe 方法）</li>
+        <li><strong>推送通知（Webhook）：</strong>适用于极长时间或资源密集型任务。客户端注册 Webhook URL，任务状态发生重大变化时服务端主动通知</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>智能体名片示例（WeatherBot）</h3>
+      <p>名片完整声明了智能体的身份、端点、能力与技能：</p>
+    </div>
+    <div class="json-block">{
+  "name": "WeatherBot",
+  "description": "提供精准天气预报及历史气象数据",
+  "url": "http://weather-service.example.com/a2a",
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": false,
+    "stateTransitionHistory": true
+  },
+  "authentication": {
+    "schemes": ["apiKey"]
+  },
+  "defaultInputModes": ["text"],
+  "defaultOutputModes": ["text"],
+  "skills": [
+    {
+      "id": "get_current_weather",
+      "name": "获取实时天气",
+      "description": "检索任意地点的实时天气数据",
+      "tags": ["weather", "current", "real-time"]
+    },
+    {
+      "id": "get_forecast",
+      "name": "获取天气预报",
+      "description": "获取 5 天天气预测",
+      "tags": ["weather", "forecast", "prediction"]
+    }
+  ]
+}</div>
+  </section>
+
+  <!-- 应用场景 -->
+  <section id="sec-usecases" class="section">
+    <h2 class="sec-title">实际应用场景</h2>
+    <p class="sec-desc">智能体间通信是构建跨领域复杂 AI 解决方案的基础，支撑模块化、可扩展的系统架构。</p>
+    <div class="uc-tabs">
+      <button class="uc-tab active" onclick="showUC(0)">多框架协作</button>
+      <button class="uc-tab" onclick="showUC(1)">企业工作流</button>
+      <button class="uc-tab" onclick="showUC(2)">动态信息检索</button>
+      <button class="uc-tab" onclick="showUC(3)">日历管理</button>
+      <button class="uc-tab" onclick="showUC(4)">分布式推理</button>
+    </div>
+    <div id="uc-0" class="uc-panel active">
+      <div class="card">
+        <h3>多框架智能体协作</h3>
+        <p>A2A 的核心使用场景：使不同底层框架（ADK、LangGraph、CrewAI）构建的独立 AI 智能体能够无障碍通信与协作。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>各智能体发布各自的名片，声明技能与能力</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>主控智能体通过 Well-Known URI 发现可用的专业智能体</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>将任务的不同部分委派给最适合的专业智能体处理</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>通过标准 A2A 消息格式汇聚各智能体的处理结果</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-1" class="uc-panel">
+      <div class="card">
+        <h3>企业自动化工作流编排</h3>
+        <p>在企业环境中，A2A 可支持复杂工作流的智能体协作：一个智能体负责初始数据收集，将分析任务委派给另一个智能体，最终由第三个智能体生成报告，全程通过 A2A 协议通信。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>数据采集智能体通过 API 收集原始业务数据</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>通过 A2A 将数据集及分析指令传递给数据分析智能体</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>分析智能体处理完成后，结果通过流式 SSE 实时推送</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>报告生成智能体接收分析结果，输出最终格式化报告</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-2" class="uc-panel">
+      <div class="card">
+        <h3>动态实时信息检索</h3>
+        <p>智能体之间通过通信实时检索和交换信息。主控智能体可向专业的"数据获取智能体"请求实时市场行情，该智能体调用外部 API 获取数据后回传。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>主控智能体识别需要外部实时数据的子任务</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>查找注册表中专精于特定数据源的智能体</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>通过 A2A 同步请求获取即时数据（适合低延迟场景）</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>接收结构化 JSON 数据并融入当前推理上下文</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-3" class="uc-panel">
+      <div class="card">
+        <h3>Google 日历管理智能体</h3>
+        <p>A2A 官方示例：基于 Google ADK 的日历智能体，通过 A2A 协议对外暴露日历管理服务，支持检查用户可用时间、创建与修改日历事件。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>智能体名片声明 check_availability 等技能及 Google OAuth 认证要求</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>客户端通过 A2A 任务请求用户某时段的日历可用性</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>ADK 智能体调用 Google Calendar API 获取实时数据</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>结果通过流式 SSE 或同步响应返回客户端智能体</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-4" class="uc-panel">
+      <div class="card">
+        <h3>分布式推理与专业智能体网络</h3>
+        <p>A2A 支持构建由专业智能体组成的分布式网络，各智能体独立运行在不同端口，系统整体实现高可扩展性与分布式部署。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>部署专注于不同领域的专业智能体（法律、财务、技术等）</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>路由智能体根据查询内容动态选择最适合的专业智能体</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>多个专业智能体并行处理复杂问题的不同子任务</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>聚合智能体整合多路响应，生成统一的综合答复</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 代码实战 -->
+  <section id="sec-code" class="section">
+    <h2 class="sec-title">代码实战</h2>
+    <p class="sec-desc">以下代码展示如何使用 Google ADK 构建 A2A 兼容的日历智能体，涵盖名片定义、智能体创建与服务器启动的完整流程。</p>
+
+    <div class="card">
+      <h3>同步请求示例（sendTask）</h3>
+      <p style="margin-bottom:12px">同步请求使用 sendTask 方法，客户端期望获得单一完整响应。</p>
+    </div>
+<div class="code-block"><span class="code-comment"># 同步请求示例（JSON-RPC 2.0）</span>
+{
+  <span class="code-string">"jsonrpc"</span>: <span class="code-string">"2.0"</span>,
+  <span class="code-string">"id"</span>: <span class="code-string">"1"</span>,
+  <span class="code-string">"method"</span>: <span class="code-string">"sendTask"</span>,
+  <span class="code-string">"params"</span>: {
+    <span class="code-string">"id"</span>: <span class="code-string">"task-001"</span>,
+    <span class="code-string">"sessionId"</span>: <span class="code-string">"session-001"</span>,
+    <span class="code-string">"message"</span>: {
+      <span class="code-string">"role"</span>: <span class="code-string">"user"</span>,
+      <span class="code-string">"parts"</span>: [{
+        <span class="code-string">"type"</span>: <span class="code-string">"text"</span>,
+        <span class="code-string">"text"</span>: <span class="code-string">"USD 兑 EUR 的汇率是多少？"</span>
+      }]
+    },
+    <span class="code-string">"acceptedOutputModes"</span>: [<span class="code-string">"text/plain"</span>],
+    <span class="code-string">"historyLength"</span>: 5
+  }
+}</div>
+
+    <div class="card" style="margin-top:1.5rem">
+      <h3>ADK 日历智能体：名片与服务器配置</h3>
+      <p style="margin-bottom:12px">下方代码演示构建 A2A 兼容的"日历智能体"：定义名片声明技能，配置 ADK 运行器，初始化 Starlette 应用并通过 Uvicorn 暴露 HTTP 服务。</p>
+    </div>
+<div class="code-block"><span class="code-keyword">import</span> datetime
+<span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> LlmAgent
+<span class="code-keyword">from</span> google.adk.tools.google_api_tool <span class="code-keyword">import</span> CalendarToolset
+
+<span class="code-keyword">async def</span> create_agent(client_id, client_secret) -> LlmAgent:
+    <span class="code-string">"""构建 ADK 日历智能体"""</span>
+    toolset = CalendarToolset(
+        client_id=client_id, client_secret=client_secret
+    )
+    <span class="code-keyword">return</span> LlmAgent(
+        model=<span class="code-string">'gemini-2.0-flash-001'</span>,
+        name=<span class="code-string">'calendar_agent'</span>,
+        description=<span class="code-string">"能够管理用户日历的智能体"</span>,
+        instruction=<span class="code-string">f"""你是一个能够帮助管理用户日历的智能体。
+用户将查询其日历状态或请求变更。
+请使用提供的工具与 Calendar API 交互。
+今天是 {datetime.datetime.now()}。"""</span>,
+        tools=<span class="code-keyword">await</span> toolset.get_tools(),
+    )
+
+<span class="code-keyword">def</span> main(host: str, port: int):
+    <span class="code-comment"># 定义技能与名片</span>
+    skill = AgentSkill(
+        id=<span class="code-string">'check_availability'</span>,
+        name=<span class="code-string">'检查日历可用性'</span>,
+        description=<span class="code-string">"使用 Google 日历检查用户特定时段的可用性"</span>,
+        tags=[<span class="code-string">'calendar'</span>],
+        examples=[<span class="code-string">'明天上午 10 点到 11 点我有空吗？'</span>],
+    )
+    agent_card = AgentCard(
+        name=<span class="code-string">'Calendar Agent'</span>,
+        url=<span class="code-string">f'http://{host}:{port}/'</span>,
+        version=<span class="code-string">'1.0.0'</span>,
+        capabilities=AgentCapabilities(streaming=<span class="code-keyword">True</span>),
+        skills=[skill],
+    )
+    <span class="code-comment"># 初始化运行器并启动 A2A 服务</span>
+    runner = Runner(
+        app_name=agent_card.name,
+        agent=adk_agent,
+        artifact_service=InMemoryArtifactService(),
+        session_service=InMemorySessionService(),
+        memory_service=InMemoryMemoryService(),
+    )
+    a2a_app = A2AStarletteApplication(
+        agent_card=agent_card, http_handler=request_handler
+    )
+    uvicorn.run(a2a_app, host=host, port=port)</div>
+  </section>
+
+  <!-- 深入解析 -->
+  <section id="sec-deepdive" class="section">
+    <h2 class="sec-title">深入解析：A2A 协议五大支柱</h2>
+    <p class="sec-desc">A2A 协议建立在五个相互支撑的核心概念之上。点击各层深入了解。</p>
+    <div class="ctx-stack">
+      <div class="ctx-layer" style="background:var(--teal-l);border-color:var(--teal)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--teal-d)">支柱一：核心角色体系</div>
+        <div class="ctx-layer-sub" style="color:var(--teal-d)">用户 → A2A 客户端 → A2A 服务端</div>
+        <div class="ctx-layer-detail" style="color:var(--teal-d)">A2A 的角色体系清晰划分职责：用户（真实人类或触发系统）→ A2A 客户端（代理用户行动，发出请求）→ A2A 服务端（提供 HTTP 端点，作为不透明系统处理请求）。这种分层设计确保了松耦合，服务端可自由升级内部实现而无需通知客户端。</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--purple-l);border-color:var(--purple)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--purple-d)">支柱二：智能体名片机制</div>
+        <div class="ctx-layer-sub" style="color:var(--purple-d)">能力声明与自动发现的核心载体</div>
+        <div class="ctx-layer-detail" style="color:var(--purple-d)">名片是 A2A 生态的"通行证"，以标准化 JSON 格式声明智能体的完整数字身份：名称与描述、服务端点 URL、版本号、流式传输与推送通知能力、具体技能（含示例查询与标签）、默认 I/O 模式、认证方案。无论采用 Well-Known URI、集中注册表还是直接配置，发现过程的核心始终是读取与解析名片。</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--amber-l);border-color:var(--amber)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--amber-d)">支柱三：任务生命周期管理</div>
+        <div class="ctx-layer-sub" style="color:var(--amber-d)">异步任务状态机设计</div>
+        <div class="ctx-layer-detail" style="color:var(--amber-d)">A2A 的任务是一级公民，拥有完整的生命周期管理：已提交（submitted）→ 处理中（working）→ 需要输入（input-required，支持多轮对话）→ 已完成（completed）/ 已失败（failed）/ 已取消（cancelled）。每个任务有唯一 ID，通过服务端生成的 contextId 将相关任务分组，维护跨多次交互的会话连续性。制品（Artifact）作为任务产出，可随处理进度增量流式传输。</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--coral-l);border-color:var(--coral)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--coral-d)">支柱四：多模态交互机制</div>
+        <div class="ctx-layer-sub" style="color:var(--coral-d)">A2A 的模态无关设计</div>
+        <div class="ctx-layer-detail" style="color:var(--coral-d)">A2A 采用模态无关设计，不仅支持文本，还支持音频、视频等多种数据类型，为构建富媒体多模态 AI 应用奠定基础。四种交互机制（同步、异步轮询、SSE 流式、Webhook 推送）分别针对不同的响应时延与资源特性场景，由名片中的 capabilities 字段声明支持情况。</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--blue-l);border-color:var(--blue)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--blue-d)">支柱五：A2A 与 MCP 的协同关系</div>
+        <div class="ctx-layer-sub" style="color:var(--blue-d)">互补而非竞争的两大协议</div>
+        <div class="ctx-layer-detail" style="color:var(--blue-d)">A2A 与 Anthropic 的 MCP（模型上下文协议）各司其职：MCP 专注于为单个智能体提供结构化的工具与外部数据访问接口（浏览器、文件系统、数据库、API）；A2A 专注于智能体之间的高层协调与任务委派。两者协同，MCP 解决"智能体如何使用工具"，A2A 解决"智能体如何合作"，共同构建完整的分层智能体生态系统。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 一览概要 -->
+  <section id="sec-glance" class="section">
+    <h2 class="sec-title">一览概要</h2>
+    <p class="sec-desc">本章核心要义速查：问题、解决方案与适用场景一览。</p>
+    <div class="glance-grid">
+      <div class="glance-card" style="background:var(--teal-l)">
+        <h4 style="color:var(--teal-d)">问题（WHAT）</h4>
+        <p>不同框架构建的 AI 智能体孤立运作，缺乏通用语言进行有效协作。这种隔离阻碍了多个专业智能体协同解决更大规模任务的系统架构。</p>
+      </div>
+      <div class="glance-card" style="background:var(--purple-l)">
+        <h4 style="color:var(--purple-d)">解决方案（WHY）</h4>
+        <p>A2A 协议提供基于 HTTP 的开放标准，通过智能体名片实现能力发现，通过标准任务模型支持异步协作，通过 mTLS 保障通信安全，使不同框架的智能体能够无缝互操作。</p>
+      </div>
+      <div class="glance-card" style="background:var(--amber-l)">
+        <h4 style="color:var(--amber-d)">适用场景（WHEN）</h4>
+        <p>当需要协调两个或更多 AI 智能体的协作时，尤其是当它们基于不同框架构建。特别适合构建模块化复杂应用，如将数据分析委派给一个智能体、报告生成委派给另一个。</p>
+      </div>
+      <div class="glance-card" style="background:var(--coral-l)">
+        <h4 style="color:var(--coral-d)">关键洞察（KEY INSIGHT）</h4>
+        <p>A2A 通过模块化与可扩展的生态为开发者赋能：智能体作为独立服务部署，通过标准协议即插即用，大幅降低集成成本，推动 AI 系统向真正的分布式、协作式架构演进。</p>
+      </div>
+    </div>
+    <div class="diagram-sim">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:8px">点击节点模拟 A2A 通信流程</p>
+      <div class="diagram-nodes">
+        <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d)" onclick="simClick(this,'用户 / 客户端智能体：发起任务请求，通过读取目标智能体的名片了解其能力与端点信息。')">客户端智能体</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d)" onclick="simClick(this,'A2A 协议层：基于 HTTP(S) + JSON-RPC 2.0 传输，通过 contextId 维护会话状态，支持同步、轮询、SSE 流式与 Webhook 四种交互模式。')">A2A 协议</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d)" onclick="simClick(this,'服务端智能体：接收任务请求，以不透明方式内部处理（可能调用工具或子智能体），通过任务状态机管理执行进度。')">服务端智能体</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d)" onclick="simClick(this,'制品输出：任务产出的有形结果（文本、文件、JSON 数据），可增量流式传输，通过 contextId 与会话关联，保持跨任务连续性。')">任务制品</div>
+      </div>
+      <div class="dia-output" id="sim-output">点击上方任意节点，查看该环节在 A2A 通信模式中的作用说明。</div>
+    </div>
+  </section>
+
+  <!-- 知识测验 -->
+  <section id="sec-quiz" class="section">
+    <h2 class="sec-title">知识测验</h2>
+    <p class="sec-desc">检验你对 A2A 协议核心概念的掌握程度。</p>
+    <div class="quiz-progress" id="quizProgress"></div>
+    <div id="quizArea"></div>
+  </section>
+
+  <!-- 核心要点 -->
+  <section id="sec-takeaways" class="section">
+    <h2 class="sec-title">核心要点</h2>
+    <p class="sec-desc">本章最重要的八大洞察与结论。</p>
+    <ul class="tk-list">
+      <li>Google A2A 协议是一个基于 HTTP 的开放标准，专为实现不同框架（ADK、LangGraph、CrewAI 等）构建的 AI 智能体之间的通信与协作而设计。</li>
+      <li>智能体名片（Agent Card）是 A2A 生态的核心标识，以 JSON 文件描述智能体的身份、能力、技能与认证要求，支持自动发现与交互理解。</li>
+      <li>A2A 同时提供同步请求/响应（sendTask）和流式更新（sendTaskSubscribe）两种交互模式，满足从即时查询到长时间运行任务的多样化通信需求。</li>
+      <li>协议支持多轮对话的 input-required 状态，使智能体在执行任务过程中能够请求补充信息，保持交互上下文的连续性。</li>
+      <li>A2A 推崇模块化架构，各专业智能体可独立部署在不同端口，通过标准协议即插即用，实现系统的高可扩展性与分布式部署。</li>
+      <li>A2A 内置多层安全机制，包括 mTLS 加密认证连接、全面审计日志以及通过名片显式声明的认证要求，确保智能体间通信的安全性与可追溯性。</li>
+      <li>A2A 与 MCP 是互补关系而非竞争：MCP 解决智能体如何访问外部工具与数据，A2A 解决智能体之间如何协作与委派任务，两者共同构建完整的分层智能体生态。</li>
+      <li>Trickle AI 等工具提供 A2A 通信的可视化与追踪能力，帮助开发者监控、调试和优化多智能体系统的协作行为。</li>
+    </ul>
+    <button class="btn btn-teal" onclick="go('quiz')">前往知识测验 →</button>
+  </section>
+
+  <!-- 参考资料 -->
+  <section id="sec-refs" class="section">
+    <h2 class="sec-title">参考资料</h2>
+    <p class="sec-desc">本章内容所依据的核心文献与资源。</p>
+    <ul class="ref-list">
+      <li><span class="ref-num">[1]</span>Chen, B. (2025, April 22). <em>How to Build Your First Google A2A Project: A Step-by-Step Tutorial</em>. Trickle.so Blog. <a href="https://www.trickle.so/blog/how-to-build-google-a2a-project" target="_blank">trickle.so</a></li>
+      <li><span class="ref-num">[2]</span>Google A2A GitHub Repository. <a href="https://github.com/google-a2a/A2A" target="_blank">github.com/google-a2a/A2A</a></li>
+      <li><span class="ref-num">[3]</span>Google Agent Development Kit (ADK). <a href="https://google.github.io/adk-docs/" target="_blank">google.github.io/adk-docs</a></li>
+      <li><span class="ref-num">[4]</span>Getting Started with Agent-to-Agent (A2A) Protocol. <a href="https://codelabs.developers.google.com/intro-a2a-purchasing-concierge#0" target="_blank">Google Codelabs</a></li>
+      <li><span class="ref-num">[5]</span>Google AgentDiscovery – A2A Protocol 规范. <a href="https://a2a-protocol.org/latest/" target="_blank">a2a-protocol.org</a></li>
+      <li><span class="ref-num">[6]</span>LangGraph、CrewAI 与 Google ADK 跨框架通信实践. <a href="https://www.trickle.so/blog/how-to-build-google-a2a-project" target="_blank">trickle.so</a></li>
+      <li><span class="ref-num">[7]</span>Designing Collaborative Multi-Agent Systems with the A2A Protocol. <a href="https://www.oreilly.com/radar/designing-collaborative-multi-agent-systems-with-the-a2a-protocol/" target="_blank">O'Reilly Radar</a></li>
+    </ul>
+  </section>
+
+  <div class="footer">
+    <p>第十五章：智能体间通信（A2A）· 智能体 AI 交互式学习系列</p>
+  </div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  const labels = ['overview','problem','solution','concepts','usecases','code','deepdive','glance','quiz','takeaways','refs'];
+  const idx = labels.indexOf(id);
+  if (idx >= 0) document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleChain(node) {
+  node.classList.toggle('open');
+}
+
+function toggleCtx(layer) {
+  layer.classList.toggle('open');
+}
+
+function showUC(idx) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + idx).classList.add('active');
+  document.querySelectorAll('.uc-tab')[idx].classList.add('active');
+}
+
+function simClick(node, text) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  node.classList.add('active');
+  document.getElementById('sim-output').textContent = text;
+}
+
+const quizData = [
+  {
+    q: "A2A 协议中，智能体名片（Agent Card）的主要作用是什么？",
+    opts: ["存储智能体的训练数据和模型权重", "以标准 JSON 格式描述智能体的身份、能力、技能与认证要求，支持自动发现", "充当智能体之间传输消息的中间代理", "记录所有智能体通信的审计日志"],
+    ans: 1,
+    fb: "正确！智能体名片是 A2A 生态的核心标识机制。它以标准化 JSON 格式声明智能体的完整数字身份，使其他智能体能够自动发现并理解其能力，无需任何硬编码配置。"
+  },
+  {
+    q: "A2A 中的 sendTaskSubscribe 方法主要用于哪种场景？",
+    opts: ["快速即时操作，期望获得单一完整响应", "注册 Webhook URL 以接收推送通知", "建立持久 SSE 连接，接收实时增量更新与流式结果", "向注册表发布智能体的名片信息"],
+    ans: 2,
+    fb: "正确！sendTaskSubscribe 通过服务器推送事件（SSE）建立持久的单向连接，非常适合需要接收实时增量结果的场景——服务端可以持续推送状态变更或部分结果，客户端无需重复发起请求。"
+  },
+  {
+    q: "A2A 协议与 MCP（模型上下文协议）的核心区别是什么？",
+    opts: ["A2A 是 MCP 的旧版本，两者功能完全相同", "A2A 专注于智能体间的协作与任务委派；MCP 专注于为智能体提供外部工具与数据访问", "A2A 仅支持 Google 框架，而 MCP 支持所有框架", "MCP 处理智能体间通信，A2A 处理工具调用"],
+    ans: 1,
+    fb: "非常准确！A2A 与 MCP 分工明确，相辅相成。MCP 解决"智能体如何使用工具和访问外部数据"，A2A 解决"智能体之间如何协作、委派和共享任务"。两者共同构成完整的分层智能体生态架构。"
+  },
+  {
+    q: "在 A2A 框架中，A2A 服务端（Remote Agent）被描述为"不透明"系统，这意味着什么？",
+    opts: ["服务端的代码必须开源公开", "客户端无需了解服务端的内部实现细节，只需与其名片声明的接口交互", "服务端不支持任何形式的身份验证", "服务端必须用与客户端相同的框架构建"],
+    ans: 1,
+    fb: "准确！"不透明"设计是 A2A 实现真正松耦合的关键。客户端只需知道服务端名片中声明的接口（端点、技能、I/O 格式），完全不关心服务端内部用什么模型、框架或数据库——这使得任何一方都可以独立升级替换。"
+  },
+  {
+    q: "A2A 中的 contextId 有什么作用？",
+    opts: ["在 HTTP 头中传递身份验证令牌", "将相关任务分组，维护多次交互之间的会话连续性", "标识每个智能体名片的唯一版本号", "限制客户端智能体的最大并发请求数量"],
+    ans: 1,
+    fb: "正确！contextId 是 A2A 支持有状态多轮对话的关键机制。服务端生成 contextId 并将其与相关任务关联，使客户端在发起后续请求时能够引用同一上下文，确保整个对话流程的连贯性与状态持久化。"
+  },
+  {
+    q: "以下哪种智能体发现策略最适合企业内部需要集中管控的私有智能体生态？",
+    opts: ["Well-Known URI（知名统一资源标识符）", "集中注册表（Curated Registry）", "直接配置（Direct Configuration）", "DNS 服务发现（DNS-SD）"],
+    ans: 1,
+    fb: "完全正确！集中注册表提供集中式目录，支持基于特定条件发布和查询名片，并提供访问控制能力，非常适合需要统一管理智能体资产的企业环境。Well-Known URI 更适合公开服务，直接配置则适合紧耦合的私有系统。"
+  }
+];
+
+let curQ = 0;
+const results = new Array(quizData.length).fill(null);
+
+function renderQuiz() {
+  const prog = document.getElementById('quizProgress');
+  prog.innerHTML = quizData.map((_, i) => {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (results[i] === true) cls += ' done';
+    else if (results[i] === false) cls += ' wrong-dot';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  const q = quizData[curQ];
+  const area = document.getElementById('quizArea');
+  area.innerHTML = `
+    <p style="font-size:12px;color:var(--text3);margin-bottom:8px">第 ${curQ + 1} 题 / 共 ${quizData.length} 题</p>
+    <div class="quiz-q">${q.q}</div>
+    ${q.opts.map((o, i) => `<button class="quiz-opt" onclick="answer(${i})">${o}</button>`).join('')}
+    <div class="quiz-fb" id="qfb"></div>
+    <div class="quiz-nav">
+      <button class="btn" onclick="prevQ()" ${curQ === 0 ? 'disabled style="opacity:.4"' : ''}>上一题</button>
+      <button class="btn" onclick="nextQ()" ${curQ === quizData.length - 1 ? 'disabled style="opacity:.4"' : ''}>下一题</button>
+      ${curQ === quizData.length - 1 ? '<button class="btn btn-teal" onclick="go(\'takeaways\')" style="margin-left:auto">查看核心要点</button>' : ''}
+    </div>
+  `;
+  if (results[curQ] !== null) {
+    restoreAnswer(results[curQ], q.ans, q.fb);
+  }
+}
+
+function answer(idx) {
+  const q = quizData[curQ];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(o => { o.classList.add('disabled'); });
+  const isRight = idx === q.ans;
+  results[curQ] = isRight;
+  opts[idx].classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) opts[q.ans].classList.add('correct');
+  const fb = document.getElementById('qfb');
+  fb.textContent = q.fb;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  renderQuiz();
+}
+
+function restoreAnswer(wasRight, correctIdx, fb) {
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.classList.add('disabled'));
+  opts[correctIdx].classList.add('correct');
+  const fbEl = document.getElementById('qfb');
+  fbEl.textContent = fb;
+  fbEl.className = 'quiz-fb show ' + (wasRight ? 'right' : 'wrng');
+}
+
+function nextQ() { if (curQ < quizData.length - 1) { curQ++; renderQuiz(); } }
+function prevQ() { if (curQ > 0) { curQ--; renderQuiz(); } }
+
+renderQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第九章：学习与适应 — 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  background: var(--teal-l);
+  padding: 4px 14px;
+  border-radius: 99px;
+  margin-bottom: 16px;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  max-width: 640px;
+}
+.nav-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 0.5px solid var(--border2);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+  padding-top: 8px;
+}
+.nav-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 7px 16px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active {
+  background: var(--teal-l);
+  color: var(--teal-d);
+  border-color: var(--teal);
+  font-weight: 500;
+}
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 16px;
+  border: 0.5px solid var(--border);
+}
+.card-bordered {
+  border-left: 3px solid var(--teal);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.card h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+.sec-desc {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+.metric {
+  background: var(--bg2);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  border: 0.5px solid var(--border);
+}
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card {
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+  overflow: hidden;
+}
+.fail-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all .25s;
+}
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s ease;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow {
+  width: 2px;
+  height: 32px;
+  background: var(--border2);
+  position: relative;
+}
+.chain-arrow::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: -5px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--border2);
+}
+.json-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+}
+.uc-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.uc-tab {
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+}
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active {
+  background: var(--purple-l);
+  color: var(--purple-d);
+  border-color: var(--purple);
+  font-weight: 500;
+}
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+.uc-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+.uc-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 11px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.code-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+  tab-size: 2;
+}
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer {
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .25s;
+  border: 0.5px solid transparent;
+}
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 1.5rem;
+}
+.quiz-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg3);
+  transition: all .3s;
+}
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.quiz-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 18px;
+  margin-bottom: 8px;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--bg2);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all .2s;
+  line-height: 1.6;
+}
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb {
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 12px 0;
+  display: none;
+}
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn {
+  font-family: var(--sans);
+  padding: 8px 22px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+  margin-top: 12px;
+}
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li {
+  counter-increment: tk;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.tk-list li::before {
+  content: counter(tk);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--teal-l);
+  color: var(--teal-d);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.glance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card {
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+}
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin: 1.5rem 0;
+  border: 0.5px solid var(--border);
+  text-align: center;
+}
+.diagram-nodes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+.dia-node {
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .3s;
+  position: relative;
+  min-width: 100px;
+  text-align: center;
+}
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow {
+  font-size: 18px;
+  color: var(--text3);
+  padding: 0 6px;
+  flex-shrink: 0;
+}
+.dia-output {
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+  text-align: left;
+  min-height: 60px;
+  transition: all .3s;
+}
+.ref-list { list-style: none; padding: 0; }
+.ref-list li {
+  font-size: 13px;
+  color: var(--text2);
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--border);
+  line-height: 1.6;
+}
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+.quiz-nav { display: flex; gap: 8px; margin-top: 16px; align-items: center; }
+.quiz-counter { font-size: 12px; color: var(--text3); margin-left: auto; }
+</style>
+</head>
+<body>
+<div class="app">
+  <a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+  <div class="chapter-tag">第九章</div>
+  <h1>学习与适应</h1>
+  <p class="subtitle">学习与适应是提升人工智能智能体能力的核心驱动力。这些机制使智能体能够超越预设参数，通过经验与环境交互自主进化，从容应对新情境，无需持续人工干预。</p>
+
+  <nav class="nav-bar">
+    <button class="nav-btn active" onclick="go('overview')">概览</button>
+    <button class="nav-btn" onclick="go('problem')">问题所在</button>
+    <button class="nav-btn" onclick="go('solution')">解决方案</button>
+    <button class="nav-btn" onclick="go('concepts')">核心概念</button>
+    <button class="nav-btn" onclick="go('usecases')">应用场景</button>
+    <button class="nav-btn" onclick="go('code')">代码实战</button>
+    <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
+    <button class="nav-btn" onclick="go('glance')">一览概要</button>
+    <button class="nav-btn" onclick="go('quiz')">知识测验</button>
+    <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
+    <button class="nav-btn" onclick="go('refs')">参考资料</button>
+  </nav>
+
+  <!-- 概览 -->
+  <section id="sec-overview" class="section active">
+    <h2 class="sec-title">本章概览</h2>
+    <p class="sec-desc">智能体通过改变思维方式、行动策略或知识基础来学习和适应新经验与数据，从而从单纯执行指令进化为随时间不断成长的智能系统。</p>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">学习范式</div>
+        <div class="metric-value">6 种</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">SICA 迭代轮次</div>
+        <div class="metric-value">15+</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">AlphaEvolve 改进</div>
+        <div class="metric-value">23%</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">开放数学难题</div>
+        <div class="metric-value">75%</div>
+      </div>
+    </div>
+    <div class="card card-bordered">
+      <h3>强化学习（Reinforcement Learning）</h3>
+      <p>智能体尝试行动，对正向结果给予奖励，对负向结果施以惩罚，从而在变化的情境中习得最优行为策略。适用于机器人控制、游戏博弈等场景。</p>
+    </div>
+    <div class="card card-bordered" style="border-color:var(--purple)">
+      <h3>监督学习（Supervised Learning）</h3>
+      <p>智能体从带标签的样本中学习，建立输入与期望输出之间的映射关系，支持决策制定与模式识别任务，如邮件分类与趋势预测。</p>
+    </div>
+    <div class="card card-bordered" style="border-color:var(--amber)">
+      <h3>无监督学习（Unsupervised Learning）</h3>
+      <p>智能体在无标签数据中自主发现隐藏联系与模式，形成对环境的认知地图，适用于数据探索与结构发现任务。</p>
+    </div>
+    <div class="card card-bordered" style="border-color:var(--coral)">
+      <h3>少样本 / 零样本学习（Few-Shot / Zero-Shot）</h3>
+      <p>基于大语言模型的智能体凭借极少量示例甚至无示例即可快速适应新任务，实现对新指令与情境的即时响应。</p>
+    </div>
+  </section>
+
+  <!-- 问题所在 -->
+  <section id="sec-problem" class="section">
+    <h2 class="sec-title">核心挑战</h2>
+    <p class="sec-desc">AI 智能体常在动态、不可预测的环境中运行，预设逻辑往往力不从心。点击各卡片了解具体问题。</p>
+    <div class="fail-grid">
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>静态知识局限</h4>
+        <p>预训练参数固定，面对分布外场景时性能急剧下滑。</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">智能体无法处理训练阶段未覆盖的新情境，导致决策失误甚至系统故障。</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>无法个性化适配</h4>
+        <p>缺乏学习机制时，智能体无法根据用户偏好优化交互。</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">每次交互都从零开始，无法积累用户行为模式，导致体验千篇一律。</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>性能无法自主提升</h4>
+        <p>静态智能体无法从错误中吸取教训，持续优化策略。</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">重复犯相同错误，缺乏迭代改进能力，整体效能停滞不前。</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>难以应对动态环境</h4>
+        <p>环境规则变化时，硬编码策略迅速过时失效。</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">市场波动、用户行为变化或新型欺诈模式都会令固定规则的智能体束手无策。</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>需要持续人工干预</h4>
+        <p>每次场景变化都需要工程师手动重新编程或重训练。</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">这不仅耗费大量人力资源，还造成系统更新滞后，错失实时优化机会。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 解决方案 -->
+  <section id="sec-solution" class="section">
+    <h2 class="sec-title">学习与适应机制</h2>
+    <p class="sec-desc">将学习与适应机制整合进智能体架构，可将静态系统转化为动态演化的智能体。点击各节点查看详情。</p>
+    <div class="chain-container">
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d)">1</div>
+          <div>
+            <div class="chain-title">在线学习：持续更新知识</div>
+            <div class="chain-role">实时数据流驱动适应</div>
+          </div>
+        </div>
+        <div class="chain-detail">智能体持续从新数据中更新知识，对动态环境中的实时事件做出即时响应。这对于处理连续数据流（如金融市场、传感器数据）的智能体尤为关键。</div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d)">2</div>
+          <div>
+            <div class="chain-title">记忆式学习：调取历史经验</div>
+            <div class="chain-role">情景记忆增强决策</div>
+          </div>
+        </div>
+        <div class="chain-detail">智能体回忆相似情境下的历史经验，据此调整当前行为，提升上下文感知能力与决策质量。在反复出现相似模式的领域中效果显著。</div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d)">3</div>
+          <div>
+            <div class="chain-title">强化学习：奖惩驱动优化</div>
+            <div class="chain-role">PPO / DPO 策略优化</div>
+          </div>
+        </div>
+        <div class="chain-detail">通过奖励正向结果、惩罚负向结果，智能体在不断尝试中习得最优策略。近端策略优化（PPO）通过裁剪机制确保更新稳定；直接偏好优化（DPO）则绕过奖励模型，直接从人类偏好数据优化大语言模型。</div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d)">4</div>
+          <div>
+            <div class="chain-title">自我改进：代码级元学习</div>
+            <div class="chain-role">SICA 式迭代进化</div>
+          </div>
+        </div>
+        <div class="chain-detail">最前沿的方式是让智能体直接修改自身源代码。以 SICA（自我改进编程智能体）为例，它审视历史版本的基准测试表现，选取最优版本，识别改进方向，然后直接修改代码库，形成持续进化的闭环。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 核心概念 -->
+  <section id="sec-concepts" class="section">
+    <h2 class="sec-title">核心概念详解</h2>
+    <p class="sec-desc">深入理解支撑学习与适应的关键算法和理论框架。</p>
+    <div class="card">
+      <h3>近端策略优化（PPO）</h3>
+      <p>PPO 是一种用于连续动作空间的强化学习算法，核心思想是对策略进行小幅、谨慎的更新，避免剧烈变化导致性能崩溃。</p>
+      <ul>
+        <li><strong>数据采集：</strong>智能体按当前策略与环境交互，收集（状态、动作、奖励）批次经验</li>
+        <li><strong>代理目标：</strong>计算策略更新对期望奖励的影响，使用带裁剪的目标函数</li>
+        <li><strong>裁剪机制：</strong>在当前策略周围创建"信任域"，防止更新幅度过大，确保学习稳定</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>直接偏好优化（DPO）</h3>
+      <p>DPO 是专为大语言模型对齐设计的更简洁方法，完全绕过奖励模型，直接用偏好数据优化模型策略。</p>
+      <ul>
+        <li><strong>PPO 路径（两步）：</strong>先训练奖励模型，再用 PPO 微调大语言模型——复杂且容易被"钻空子"</li>
+        <li><strong>DPO 路径（一步）：</strong>利用偏好数据与最优策略的数学关系，直接提高偏好回答的概率，降低非偏好回答的概率</li>
+        <li><strong>核心优势：</strong>消除训练奖励模型的不稳定性，使对齐过程更高效稳健</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>知识库学习智能体（RAG 增强）</h3>
+      <p>智能体利用检索增强生成（RAG）维护动态知识库，存储问题描述与已验证解决方案，在决策时检索参考，从而将历史经验转化为实时智慧。</p>
+    </div>
+  </section>
+
+  <!-- 应用场景 -->
+  <section id="sec-usecases" class="section">
+    <h2 class="sec-title">实际应用场景</h2>
+    <p class="sec-desc">自适应智能体通过经验数据驱动的迭代更新，在多变环境中展现出卓越性能。</p>
+    <div class="uc-tabs">
+      <button class="uc-tab active" onclick="showUC(0)">个人助理</button>
+      <button class="uc-tab" onclick="showUC(1)">交易机器人</button>
+      <button class="uc-tab" onclick="showUC(2)">游戏 AI</button>
+      <button class="uc-tab" onclick="showUC(3)">欺诈检测</button>
+      <button class="uc-tab" onclick="showUC(4)">推荐系统</button>
+      <button class="uc-tab" onclick="showUC(5)">自动驾驶</button>
+    </div>
+    <div id="uc-0" class="uc-panel active">
+      <div class="card">
+        <h3>个性化助理智能体</h3>
+        <p>通过对用户行为的纵向分析，持续优化交互协议，提供高度个性化的响应体验。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>记录用户偏好、沟通风格与常用术语</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>分析历史交互模式，识别高满意度回应特征</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>动态调整回答长度、语气与信息深度</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>随时间积累用户专属知识图谱，持续优化</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-1" class="uc-panel">
+      <div class="card">
+        <h3>交易机器人智能体</h3>
+        <p>通过动态调整模型参数，基于高精度实时市场数据优化决策算法，最大化收益并控制风险。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>实时采集市场行情、成交量、新闻情绪等多维数据</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>对历史交易结果进行奖惩标注，训练策略网络</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>在市场波动时自动重新校准风险参数</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>回测新策略，通过 PPO 稳健更新决策模型</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-2" class="uc-panel">
+      <div class="card">
+        <h3>游戏 AI 智能体</h3>
+        <p>通过动态调整策略算法，提升玩家参与度，增加游戏难度与挑战层次。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>持续监测玩家行为模式与胜率统计</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>利用强化学习发现新的有效博弈策略</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>根据玩家技术水平动态平衡 AI 难度</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>在多对局中保持战术多样性，避免被玩家摸透规律</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-3" class="uc-panel">
+      <div class="card">
+        <h3>欺诈检测智能体</h3>
+        <p>通过持续学习新型欺诈模式，优化预测模型，提升异常检测精度，强化系统安全性。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>实时分析交易流水，识别异常行为特征</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>将确认的欺诈案例纳入训练数据集</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>通过在线学习即时更新欺诈特征库</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>动态调整风险阈值，平衡误报率与漏报率</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-4" class="uc-panel">
+      <div class="card">
+        <h3>推荐系统智能体</h3>
+        <p>运用用户偏好学习算法，持续优化内容筛选精度，提供高度个性化的情境相关推荐。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>追踪用户点击、停留时长、评分等隐式反馈</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>构建并持续更新用户兴趣向量表示</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>融合协同过滤与内容特征进行混合推荐</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>通过 A/B 测试验证推荐策略效果，迭代优化</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-5" class="uc-panel">
+      <div class="card">
+        <h3>自动驾驶智能体</h3>
+        <p>整合传感器数据与历史行为分析，增强导航与响应能力，支持在多样化环境条件下安全高效运行。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>融合激光雷达、摄像头、GPS 等多模态传感数据</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>从人类驾驶示范中提取驾驶策略</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>在仿真环境中强化学习边缘场景处理能力</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>持续将实车数据反馈至训练流水线，闭环优化</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 代码实战 -->
+  <section id="sec-code" class="section">
+    <h2 class="sec-title">代码实战</h2>
+    <p class="sec-desc">以下代码示例来自 OpenEvolve 框架，展示进化式智能体优化的核心实现模式。</p>
+
+    <div class="card">
+      <h3>OpenEvolve：进化式代码优化</h3>
+      <p style="margin-bottom:12px">OpenEvolve 利用大语言模型驱动代码生成、评估与筛选的流水线，持续优化程序性能。其控制器协调程序数据库、提示采样器、评估器池与 LLM 集成，形成异步优化闭环。</p>
+    </div>
+<div class="code-block"><span class="code-keyword">from</span> openevolve <span class="code-keyword">import</span> OpenEvolve
+
+<span class="code-comment"># 初始化进化优化系统</span>
+evolve = OpenEvolve(
+    initial_program_path=<span class="code-string">"path/to/initial_program.py"</span>,
+    evaluation_file=<span class="code-string">"path/to/evaluator.py"</span>,
+    config_path=<span class="code-string">"path/to/config.yaml"</span>
+)
+
+<span class="code-comment"># 启动进化过程，运行 1000 次迭代</span>
+best_program = <span class="code-keyword">await</span> evolve.run(iterations=<span class="code-string">1000</span>)
+
+<span class="code-comment"># 输出最优程序的性能指标</span>
+print(<span class="code-string">f"最优程序性能指标:"</span>)
+<span class="code-keyword">for</span> name, value <span class="code-keyword">in</span> best_program.metrics.items():
+    print(<span class="code-string">f"  {name}: {value:.4f}"</span>)</div>
+
+    <div class="card" style="margin-top:1.5rem">
+      <h3>SICA：自我改进编程智能体架构</h3>
+      <p style="margin-bottom:12px">SICA 的核心是一个模块化架构，通过异步监督者监控主智能体的行为，防止循环或停滞，并协调编码、问题求解、推理等专用子智能体。</p>
+    </div>
+<div class="code-block"><span class="code-comment"># SICA 上下文窗口结构组织</span>
+context_structure = {
+    <span class="code-string">"system_prompt"</span>: {
+        <span class="code-string">"agent_goals"</span>: <span class="code-string">"定义智能体目标与约束"</span>,
+        <span class="code-string">"tool_docs"</span>: <span class="code-string">"工具与子智能体文档"</span>,
+        <span class="code-string">"system_instructions"</span>: <span class="code-string">"操作规程"</span>
+    },
+    <span class="code-string">"core_prompt"</span>: {
+        <span class="code-string">"problem_statement"</span>: <span class="code-string">"当前任务描述"</span>,
+        <span class="code-string">"open_files"</span>: <span class="code-string">"当前代码文件内容"</span>,
+        <span class="code-string">"directory_map"</span>: <span class="code-string">"代码库结构映射"</span>
+    },
+    <span class="code-string">"assistant_messages"</span>: {
+        <span class="code-string">"reasoning_trace"</span>: <span class="code-string">"逐步推理过程"</span>,
+        <span class="code-string">"tool_calls"</span>: <span class="code-string">"工具调用记录与结果"</span>,
+        <span class="code-string">"overseer_comms"</span>: <span class="code-string">"监督者通信日志"</span>
+    }
+}
+
+<span class="code-comment"># 性能评分公式（综合成功率、耗时、计算成本）</span>
+<span class="code-keyword">def</span> compute_score(success_rate, time_cost, compute_cost):
+    <span class="code-keyword">return</span> (0.7 * success_rate) - (0.2 * time_cost) - (0.1 * compute_cost)</div>
+  </section>
+
+  <!-- 深入解析 -->
+  <section id="sec-deepdive" class="section">
+    <h2 class="sec-title">深入解析：SICA 的进化机制</h2>
+    <p class="sec-desc">自我改进编程智能体（SICA）由 Maxime Robeyns、Laurence Aitchison 和 Martin Szummer 开发，展示了智能体修改自身源代码的能力。点击各层查看详细信息。</p>
+    <div class="ctx-stack">
+      <div class="ctx-layer" style="background:var(--teal-l);border-color:var(--teal)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--teal-d)">第一层：基准版本归档</div>
+        <div class="ctx-layer-sub" style="color:var(--teal-d)">历史版本性能记录库</div>
+        <div class="ctx-layer-detail" style="color:var(--teal-d)">SICA 维护所有历史版本及其在基准测试上的性能记录。选取综合成功率、耗时与计算成本的加权评分最高的版本作为下一轮改进的起点，确保进化方向始终朝向更优性能。</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--purple-l);border-color:var(--purple)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--purple-d)">第二层：智能代码编辑进化</div>
+        <div class="ctx-layer-sub" style="color:var(--purple-d)">从文件覆写到 AST 精准修改</div>
+        <div class="ctx-layer-detail" style="color:var(--purple-d)">SICA 自主进化出更复杂的编辑工具：初期采用基础文件覆写方式 → 进化为"智能编辑器"支持上下文感知编辑 → 再升级为"差异增强智能编辑器"，引入差异比对与模式编辑 → 最终引入基于 AST 解析的"最小差异输出优化"，大幅降低处理开销。</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--amber-l);border-color:var(--amber)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--amber-d)">第三层：符号定位能力提升</div>
+        <div class="ctx-layer-sub" style="color:var(--amber-d)">代码导航从线性搜索到混合定位</div>
+        <div class="ctx-layer-detail" style="color:var(--amber-d)">在代码导航方面，SICA 自主创建了"AST 符号定位器"，利用代码的抽象语法树结构图定位代码库内的定义。后续开发出结合快速搜索与 AST 检查的"混合符号定位器"，并进一步优化为聚焦相关代码段的"优化 AST 解析混合定位器"，显著提升搜索速度。</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--coral-l);border-color:var(--coral)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--coral-d)">第四层：异步监督者机制</div>
+        <div class="ctx-layer-sub" style="color:var(--coral-d)">防止循环与停滞的安全卫士</div>
+        <div class="ctx-layer-detail" style="color:var(--coral-d)">异步监督者是另一个并发运行的 LLM，持续监控 SICA 的行为，识别潜在循环或停滞问题。它接收 SICA 行为的详细文本报告（含调用图和消息、工具动作日志），可在必要时介入通信，甚至终止执行，确保系统不陷入无效循环。</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--blue-l);border-color:var(--blue)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--blue-d)">第五层：AlphaEvolve 的进化算法突破</div>
+        <div class="ctx-layer-sub" style="color:var(--blue-d)">Google 的算法发现引擎</div>
+        <div class="ctx-layer-detail" style="color:var(--blue-d)">AlphaEvolve 运用 Gemini 模型集成（Flash 生成广泛提案，Pro 深度分析精炼），配合自动化评估系统，已在数据中心调度中降低 0.7% 全球算力消耗，为 TPU 芯片设计提供 Verilog 代码优化建议，并将 Gemini 架构核心内核加速 23%，FlashAttention 的低级 GPU 指令优化达 32.5%。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 一览概要 -->
+  <section id="sec-glance" class="section">
+    <h2 class="sec-title">一览概要</h2>
+    <p class="sec-desc">本章核心要义速查：问题、解决方案与适用场景一览。</p>
+    <div class="glance-grid">
+      <div class="glance-card" style="background:var(--teal-l)">
+        <h4 style="color:var(--teal-d)">问题（WHAT）</h4>
+        <p>AI 智能体在动态不可预测的环境中运行，预设逻辑力不从心。面对新情境时性能下滑，无法个性化，也无法在没有持续人工干预的情况下自主优化策略。</p>
+      </div>
+      <div class="glance-card" style="background:var(--purple-l)">
+        <h4 style="color:var(--purple-d)">解决方案（WHY）</h4>
+        <p>整合学习与适应机制，将静态智能体转化为动态演化系统。从强化学习到 SICA 式自我修改，再到 AlphaEvolve 的进化算法框架，系统可持续学习并自主优化。</p>
+      </div>
+      <div class="glance-card" style="background:var(--amber-l)">
+        <h4 style="color:var(--amber-d)">适用场景（WHEN）</h4>
+        <p>当构建需要在动态、不确定或持续演化环境中运行的智能体时。尤其适用于需要个性化、持续性能提升和自主应对新情境的应用场景。</p>
+      </div>
+      <div class="glance-card" style="background:var(--coral-l)">
+        <h4 style="color:var(--coral-d)">关键洞察（KEY INSIGHT）</h4>
+        <p>真正的自主性要求具备学习能力。SICA 证明了配备基础编程工具的智能体系统可以自主修改自身代码，从而在基准任务上实现性能的持续提升。</p>
+      </div>
+    </div>
+    <div class="diagram-sim">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:8px">点击节点模拟学习适应流程</p>
+      <div class="diagram-nodes">
+        <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d)" onclick="simClick(this,'提示输入：用户或环境发出任务请求，智能体接收输入信息。')">提示输入</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d)" onclick="simClick(this,'智能体处理：基于当前策略与记忆执行推理，生成响应动作。')">智能体</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d)" onclick="simClick(this,'学习记忆库：存储经验、成功策略与历史版本，支撑持续进化。')">学习记忆</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d)" onclick="simClick(this,'输出结果：向用户返回响应，同时反馈性能数据用于下一轮策略优化。')">输出结果</div>
+      </div>
+      <div class="dia-output" id="sim-output">点击上方任意节点，查看该环节在学习适应模式中的作用说明。</div>
+    </div>
+  </section>
+
+  <!-- 知识测验 -->
+  <section id="sec-quiz" class="section">
+    <h2 class="sec-title">知识测验</h2>
+    <p class="sec-desc">检验你对学习与适应机制的掌握程度。</p>
+    <div class="quiz-progress" id="quizProgress"></div>
+    <div id="quizArea"></div>
+  </section>
+
+  <!-- 核心要点 -->
+  <section id="sec-takeaways" class="section">
+    <h2 class="sec-title">核心要点</h2>
+    <p class="sec-desc">本章最重要的八大洞察与结论。</p>
+    <ul class="tk-list">
+      <li>学习与适应的本质是让智能体通过经验不断提升能力，处理全新情境，而非仅仅执行预设指令。</li>
+      <li>"适应"是学习的外在表现——智能体行为或知识的可见变化，体现在策略、理解方式或目标的转变上。</li>
+      <li>近端策略优化（PPO）通过裁剪机制创建"信任域"，确保策略更新稳定可靠，防止灾难性性能退化。</li>
+      <li>直接偏好优化（DPO）绕过奖励模型，直接用人类偏好数据优化大语言模型，使对齐过程更高效稳健。</li>
+      <li>SICA 证明了具备基础编程工具的智能体系统可以自主修改自身代码，实现真正的元学习式自我进化。</li>
+      <li>专用子智能体（编码、推理、问题求解）与异步监督者的协作，是自我改进系统管理复杂任务、防止停滞的关键架构。</li>
+      <li>AlphaEvolve 利用大语言模型集成与进化算法框架，在 75% 的开放数学难题上重现了最优已知解法，并在 20% 的案例中超越了现有最优解。</li>
+      <li>构建会学习的智能体，意味着将机器学习工具有机整合进系统架构，并精心设计数据流动路径，使每次交互都成为系统进化的养料。</li>
+    </ul>
+    <button class="btn btn-teal" onclick="go('quiz')">前往知识测验 →</button>
+  </section>
+
+  <!-- 参考资料 -->
+  <section id="sec-refs" class="section">
+    <h2 class="sec-title">参考资料</h2>
+    <p class="sec-desc">本章内容所依据的核心文献与资源。</p>
+    <ul class="ref-list">
+      <li><span class="ref-num">[1]</span>Sutton, R. S., &amp; Barto, A. G. (2018). <em>Reinforcement Learning: An Introduction</em>. MIT Press.</li>
+      <li><span class="ref-num">[2]</span>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>. MIT Press.</li>
+      <li><span class="ref-num">[3]</span>Mitchell, T. M. (1997). <em>Machine Learning</em>. McGraw-Hill.</li>
+      <li><span class="ref-num">[4]</span>Schulman, J., Wolski, F., Dhariwal, P., Radford, A., &amp; Klimov, O. 近端策略优化算法. arXiv. <a href="https://arxiv.org/abs/1707.06347" target="_blank">https://arxiv.org/abs/1707.06347</a></li>
+      <li><span class="ref-num">[5]</span>Robeyns, M., Aitchison, L., &amp; Szummer, M. (2025). <em>A Self-Improving Coding Agent</em>. arXiv:2504.15228v2. <a href="https://arxiv.org/pdf/2504.15228" target="_blank">论文链接</a> | <a href="https://github.com/MaximeRobeyns/self_improving_coding_agent" target="_blank">GitHub 仓库</a></li>
+      <li><span class="ref-num">[6]</span>AlphaEvolve 博客. <a href="https://deepmind.google/discover/blog/alphaevolve-a-gemini-powered-coding-agent-for-designing-advanced-algorithms/" target="_blank">deepmind.google</a></li>
+      <li><span class="ref-num">[7]</span>OpenEvolve. <a href="https://github.com/codelion/openevolve" target="_blank">https://github.com/codelion/openevolve</a></li>
+    </ul>
+  </section>
+
+  <div class="footer">
+    <p>第九章：学习与适应 · 智能体 AI 交互式学习系列</p>
+  </div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  const btns = document.querySelectorAll('.nav-btn');
+  const labels = ['overview','problem','solution','concepts','usecases','code','deepdive','glance','quiz','takeaways','refs'];
+  const idx = labels.indexOf(id);
+  if (idx >= 0) btns[idx].classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleChain(node) {
+  node.classList.toggle('open');
+}
+
+function toggleCtx(layer) {
+  layer.classList.toggle('open');
+}
+
+function showUC(idx) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + idx).classList.add('active');
+  document.querySelectorAll('.uc-tab')[idx].classList.add('active');
+}
+
+function simClick(node, text) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  node.classList.add('active');
+  document.getElementById('sim-output').textContent = text;
+}
+
+const quizData = [
+  {
+    q: "近端策略优化（PPO）采用哪种核心机制来确保训练稳定性？",
+    opts: ["随机重置策略参数", "裁剪目标函数，创建策略更新的"信任域"", "每次迭代完全替换神经网络", "使用固定学习率不做调整"],
+    ans: 1,
+    fb: "正确！PPO 的"裁剪机制"是其稳定性的关键所在。它在当前策略周围创建安全区间，防止更新幅度过大，避免灾难性的性能退化，确保学习过程平稳可靠。"
+  },
+  {
+    q: "直接偏好优化（DPO）相比 PPO 对齐方法的核心优势是什么？",
+    opts: ["DPO 需要更多的计算资源", "DPO 绕过奖励模型，直接使用偏好数据优化 LLM 策略", "DPO 只适用于小型语言模型", "DPO 依赖人工标注员实时反馈"],
+    ans: 1,
+    fb: "完全正确！DPO 的核心创新在于完全跳过奖励模型的训练。传统 PPO 对齐需要先训练奖励模型再微调 LLM，这个两步流程复杂且不稳定。DPO 直接用偏好数据优化，更高效也更稳健。"
+  },
+  {
+    q: "SICA（自我改进编程智能体）的自我进化如何运作？",
+    opts: ["由人类工程师手动选择最优版本进行更新", "SICA 审视历史版本性能，选取最优版本，识别改进点，然后直接修改自身代码", "通过下载外部插件来添加新功能", "仅依赖强化学习奖励信号，不修改代码"],
+    ans: 1,
+    fb: "正确！SICA 的自我改进遵循一个迭代闭环：归档历史版本 → 基于加权评分选取最优版本 → 分析改进机会 → 直接修改代码库 → 测试并记录结果。整个过程无需人工干预。"
+  },
+  {
+    q: "AlphaEvolve 在实际计算应用中取得了哪项具体成就？",
+    opts: ["将数据中心全球算力消耗降低了 0.7%", "将所有谷歌搜索查询速度提升了 50%", "完全替代了人类程序员进行软件开发", "仅在理论数学研究中有应用，无工程实践"],
+    ans: 0,
+    fb: "正确！AlphaEvolve 已在谷歌基础设施中实际部署，在数据中心调度优化方面降低了 0.7% 的全球算力消耗。此外，它还为 TPU 硬件设计提供 Verilog 代码优化，将 Gemini 架构核心内核加速 23%。"
+  },
+  {
+    q: "SICA 的异步监督者（Overseer）主要承担什么职责？",
+    opts: ["替代主智能体执行所有编程任务", "监控 SICA 行为，识别循环或停滞，必要时介入或终止执行", "仅负责记录日志，不做任何干预", "管理 SICA 与外部用户之间的所有通信"],
+    ans: 1,
+    fb: "非常准确！异步监督者是一个并发运行的 LLM，它持续观察 SICA 的行为轨迹（含调用图和消息日志），专门识别低效模式或无效重复工作。一旦发现问题，它可以主动介入通知 SICA，甚至在必要时取消其执行，是系统安全运行的重要保障。"
+  },
+  {
+    q: "以下哪种学习范式最适合需要实时响应连续数据流的智能体？",
+    opts: ["批量监督学习", "在线学习（Online Learning）", "零样本学习（Zero-Shot Learning）", "无监督聚类分析"],
+    ans: 1,
+    fb: "正确！在线学习的设计初衷正是支持对新数据的持续实时更新，使智能体能对动态环境中的事件做出即时响应。这对于处理金融市场数据流、IoT 传感器数据或实时新闻等场景的智能体尤为关键。"
+  }
+];
+
+let curQ = 0;
+const results = new Array(quizData.length).fill(null);
+
+function renderQuiz() {
+  const prog = document.getElementById('quizProgress');
+  prog.innerHTML = quizData.map((_, i) => {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (results[i] === true) cls += ' done';
+    else if (results[i] === false) cls += ' wrong-dot';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  const q = quizData[curQ];
+  const area = document.getElementById('quizArea');
+  area.innerHTML = `
+    <p style="font-size:12px;color:var(--text3);margin-bottom:8px">第 ${curQ + 1} 题 / 共 ${quizData.length} 题</p>
+    <div class="quiz-q">${q.q}</div>
+    ${q.opts.map((o, i) => `<button class="quiz-opt" onclick="answer(${i})">${o}</button>`).join('')}
+    <div class="quiz-fb" id="qfb"></div>
+    <div class="quiz-nav">
+      <button class="btn" onclick="prevQ()" ${curQ === 0 ? 'disabled style="opacity:.4"' : ''}>上一题</button>
+      <button class="btn" onclick="nextQ()" ${curQ === quizData.length - 1 ? 'disabled style="opacity:.4"' : ''}>下一题</button>
+      ${curQ === quizData.length - 1 ? '<button class="btn btn-teal" onclick="go(\'takeaways\')" style="margin-left:auto">查看核心要点</button>' : ''}
+    </div>
+  `;
+  if (results[curQ] !== null) {
+    restoreAnswer(results[curQ], q.ans, q.fb);
+  }
+}
+
+function answer(idx) {
+  const q = quizData[curQ];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(o => { o.classList.add('disabled'); });
+  const isRight = idx === q.ans;
+  results[curQ] = isRight;
+  opts[idx].classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) opts[q.ans].classList.add('correct');
+  const fb = document.getElementById('qfb');
+  fb.textContent = q.fb;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  renderQuiz();
+}
+
+function restoreAnswer(wasRight, correctIdx, fb) {
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.classList.add('disabled'));
+  opts[correctIdx].classList.add('correct');
+  const fbEl = document.getElementById('qfb');
+  fbEl.textContent = fb;
+  fbEl.className = 'quiz-fb show ' + (wasRight ? 'right' : 'wrng');
+}
+
+function nextQ() { if (curQ < quizData.length - 1) { curQ++; renderQuiz(); } }
+function prevQ() { if (curQ > 0) { curQ--; renderQuiz(); } }
+
+renderQuiz();
+</script>
+</body>
+</html>

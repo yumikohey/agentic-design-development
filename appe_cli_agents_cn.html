@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>附录 E：CLI 上的 AI 智能体 — 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2; --text: #1A1A18;
+  --text2: #5C5B57; --text3: #8A8983; --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15); --teal: #1D9E75; --teal-l: #E1F5EE;
+  --teal-d: #085041; --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489; --blue: #378ADD;
+  --blue-l: #E6F1FB; --blue-d: #0C447C; --amber: #BA7517; --amber-l: #FAEEDA;
+  --amber-d: #633806; --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F; --green: #639922;
+  --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431; --text: #E8E7E2;
+    --text2: #ADACA6; --text3: #7A7974; --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15); --teal-l: #0A3D30; --teal-d: #9FE1CB;
+    --coral-l: #3D1E12; --coral-d: #F5C4B3; --purple-l: #2A2555; --purple-d: #CECBF6;
+    --blue-l: #0A2E4D; --blue-d: #B5D4F4; --amber-l: #3A2805; --amber-d: #FAC775;
+    --pink-l: #3D1528; --pink-d: #F4C0D1; --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.3rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--teal); }
+.fail-card:nth-child(2)::before { background: var(--purple); }
+.fail-card:nth-child(3)::before { background: var(--coral); }
+.fail-card:nth-child(4)::before { background: var(--amber); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 560px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 500px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .tool-grid { grid-template-columns: 1fr; } }
+.tool-card { padding: 18px 20px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.tool-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.tool-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.tool-badge { display: inline-block; font-size: 10px; font-weight: 500; letter-spacing: 1px; padding: 2px 10px; border-radius: 99px; margin-bottom: 8px; text-transform: uppercase; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 80px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+
+<div class="chapter-tag">附录 E</div>
+<h1>CLI 上的 AI 智能体</h1>
+<p class="subtitle">开发者终端正在从简单的命令行界面演变为智能化的协作工作空间。四款领先的 AI CLI 智能体——Claude Code、Gemini CLI、Aider 和 GitHub Copilot CLI——正在从根本上改变开发者构建、调试和管理软件的方式。</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">概览</button>
+  <button class="nav-btn" onclick="go('problem')">问题所在</button>
+  <button class="nav-btn" onclick="go('solution')">解决方案</button>
+  <button class="nav-btn" onclick="go('concepts')">核心概念</button>
+  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
+  <button class="nav-btn" onclick="go('code')">代码实战</button>
+  <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
+  <button class="nav-btn" onclick="go('glance')">一览概要</button>
+  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
+  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
+  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+</nav>
+
+<!-- 1. 概览 -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">AI CLI 革命</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">工具数量</div><div class="metric-value">4 款智能体</div></div>
+    <div class="metric"><div class="metric-label">Claude Code</div><div class="metric-value">架构级理解</div></div>
+    <div class="metric"><div class="metric-label">Gemini CLI</div><div class="metric-value">多模态能力</div></div>
+    <div class="metric"><div class="metric-label">Aider</div><div class="metric-value">Git 中心化</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>从 Shell 到智能工作空间</h3>
+    <p>开发者的命令行界面——长期以来精确、命令式指令的堡垒——正在经历深刻的变革。它正从简单的 Shell 演变为由新一类工具驱动的智能协作工作空间：AI 智能体命令行接口（CLI）。这些智能体远不止于执行命令——它们理解自然语言，维护对整个代码库的上下文理解，并能执行复杂的多步骤任务，自动化开发生命周期的重要部分。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>四款领先工具</h3>
+    <p>本附录涵盖四款领先工具：Anthropic 的 <strong>Claude CLI（Claude Code）</strong>——深度架构理解；Google 的 <strong>Gemini CLI</strong>——多功能多模态开源；<strong>Aider</strong>——开源、以 Git 为中心的结对程序员；<strong>GitHub Copilot CLI</strong>——深度 GitHub 生态系统集成。每款工具都有专属优势，最佳选择取决于您的工作流。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>质量是核心差异化因素</h3>
+    <p>值得注意的是，某款工具的许多示例用例通常也可以由其他智能体完成。这些工具之间的关键差异往往在于针对特定任务所能达到的结果质量、效率和细腻程度。Terminal-Bench 等专项基准测试正是为衡量这些能力而设计的。</p>
+  </div>
+</div>
+
+<!-- 2. 问题所在 -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">传统开发的局限性</div>
+  <div class="sec-desc">在 AI CLI 智能体出现之前，开发者在常见任务中面临反复的摩擦。点击各卡片了解这些工具所解决的挑战：</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>上下文切换开销</h4>
+      <p>频繁离开终端查阅文档</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">开发者必须不断在终端、浏览器、IDE 和文档之间切换，以了解 API、调试错误和查找命令语法——打断心流，大幅降低生产效率。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>大规模重构之痛</h4>
+      <p>跨多文件的手动协调工作</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">涉及数十个文件的重构操作——如替换认证模式或更新废弃库——需要手动搜索替换、深入了解每处用法，以及极易出错的多文件协调工作。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>文档债务</h4>
+      <p>代码开发速度超过文档编写</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">编写全面文档耗时耗力，在截止日期压力下常被跳过。复杂模块在没有完整 TSDoc 注释、API 文档或使用示例的情况下积累，造成长期维护债务。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Shell 命令复杂性</h4>
+      <p>晦涩的标志和管道语法</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">复杂的 Shell 操作——按条件查找文件、处理数据流、管理云资源——需要记忆晦涩的命令标志和管道语法，即使是经验丰富的开发者在面对不熟悉的任务时也会遭遇速度瓶颈。</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. 解决方案 -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">四款 AI CLI 智能体详解</div>
+  <div class="sec-desc">每款智能体对相同问题采取了截然不同的解决方式。点击各工具了解其设计理念和优势：</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Claude CLI（Claude Code）</div>
+          <div class="chain-role">Anthropic 出品 — 全局架构智能体</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        Anthropic 的 Claude CLI 被设计为高级编码智能体，对项目架构具有深入的整体理解。其核心优势在于"智能体化"特性，能够为复杂多步骤任务创建代码库的心智模型。交互高度对话化——如同结对编程会话，在执行前解释计划。<br><br>
+        <strong>最适合：</strong>在涉及大规模重构或架构影响广泛的功能实现的大型项目上工作的专业开发者。<br><br>
+        <strong>核心特性：</strong>通过 MCP（多工具控制协议）可扩展，支持自定义工具、私有 API 集成、数据库查询和项目特定脚本。深度 Git 集成，支持分支和提交管理。
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Gemini CLI</div>
+          <div class="chain-role">Google 出品 — 多功能多模态开源工具</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        Google 的 Gemini CLI 是一款多功能的开源 AI 智能体，兼顾强大性能与易用性。它以 Gemini 2.5 Pro 模型、超大上下文窗口和多模态能力（同时处理图像和文本）脱颖而出。开源特性、慷慨的免费额度和"推理与行动"循环使其透明、可控。<br><br>
+        <strong>最适合：</strong>从业余爱好者到企业开发者的广泛受众——尤其是需要多模态能力或身处 Google Cloud 生态系统的开发者。<br><br>
+        <strong>核心特性：</strong>内置文件系统操作、Shell 命令、网络获取/搜索和多文件读取工具。沙箱机制隔离模型操作。MCP 服务器桥接本地环境和外部 API。
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div>
+          <div class="chain-title">Aider</div>
+          <div class="chain-role">开源 — 以 Git 为中心的结对程序员</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        Aider 是一款开源 AI 编码助手，通过直接操作文件并将更改提交到 Git 来充当真正的结对程序员。其定义性特征是直接性：应用编辑、运行测试验证，并自动提交每次成功的更改。模型无关性设计让用户对成本和能力拥有完全控制权。<br><br>
+        <strong>最适合：</strong>重视效率、控制力以及通过 Git 提供透明可审计修改记录的开发者。<br><br>
+        <strong>核心特性：</strong>每次验证通过的更改自动 Git 提交。模型无关——可使用 GPT-4、Claude、Gemini 或任何兼容模型。原生 TDD 工作流支持。
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--blue);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">4</div>
+        <div>
+          <div class="chain-title">GitHub Copilot CLI</div>
+          <div class="chain-role">GitHub 出品 — GitHub 生态系统深度集成</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        GitHub Copilot CLI 将流行的 AI 结对程序员扩展到终端，其主要优势在于与 GitHub 生态系统的原生深度集成。它理解项目在 GitHub 内部的上下文。其智能体能力允许被分配 GitHub Issue、完成修复并提交 Pull Request 供人工审核。<br><br>
+        <strong>最适合：</strong>已将 GitHub 用于项目管理、Issue 跟踪和 CI/CD 的团队，希望 AI 参与完整 GitHub 工作流。<br><br>
+        <strong>核心特性：</strong>可被分配 GitHub Issue，自主创建分支、编写修复并开启 Pull Request。对整个代码库具有仓库级感知的问答能力。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. 核心概念 -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">核心概念</div>
+  <div class="sec-desc">所有 AI CLI 智能体共享几个基础概念。理解这些有助于更有效地使用其中任何一款：</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);color:var(--teal-d);border-color:var(--teal);">
+      <div class="ctx-layer-title">智能体循环（推理与行动）</div>
+      <div class="ctx-layer-sub">所有 CLI 智能体的核心执行周期</div>
+      <div class="ctx-layer-detail">所有 AI CLI 智能体都在"推理与行动"循环中运行：接收任务、推理所需步骤、选择并执行工具（读取文件、运行命令、编辑代码）、观察结果，然后重复，直到任务完成。正是这个迭代循环实现了超越简单问答的多步骤任务执行。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);color:var(--purple-d);border-color:var(--purple);">
+      <div class="ctx-layer-title">MCP（多工具控制协议）</div>
+      <div class="ctx-layer-sub">用自定义工具扩展智能体能力的标准</div>
+      <div class="ctx-layer-detail">MCP 是一个协议，允许 Claude CLI 和 Gemini CLI 通过自定义工具进行扩展。开发者定义智能体可调用的工具（带有类型化参数的函数）——连接私有 API、运行项目特定脚本、查询数据库或与任何系统交互。这使得智能体的功能范围完全由用户定义。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);color:var(--blue-d);border-color:var(--blue);">
+      <div class="ctx-layer-title">代码库上下文窗口</div>
+      <div class="ctx-layer-sub">智能体如何理解整个代码库</div>
+      <div class="ctx-layer-detail">AI CLI 智能体在行动前会读取并索引代码库以构建上下文模型。Claude Code 创建代码库架构的心智模型；Gemini CLI 利用超大上下文窗口同时容纳多个文件；Aider 为每个任务选择性地将文件添加到"上下文"中。这个上下文的质量直接决定输出的质量。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);color:var(--amber-d);border-color:var(--amber);">
+      <div class="ctx-layer-title">Git 集成工作流</div>
+      <div class="ctx-layer-sub">版本控制作为 AI 变更的安全网</div>
+      <div class="ctx-layer-detail">所有智能体都与 Git 深度集成。Claude Code 管理分支和提交；Aider 自动提交每次验证通过的更改；Copilot CLI 为 Issue 创建分支和 PR。这意味着每次 AI 生成的更改都被追踪、可回滚、可审查——Git 成为所有智能体操作的审计追踪和质量门控。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);color:var(--coral-d);border-color:var(--coral);">
+      <div class="ctx-layer-title">Terminal-Bench 评估体系</div>
+      <div class="ctx-layer-sub">衡量 CLI 智能体熟练度的标准化基准</div>
+      <div class="ctx-layer-detail">Terminal-Bench 是一个新型评估框架，用于评估 AI 智能体在 CLI 任务中的熟练度。初始版本（Terminal-Bench-Core-v0）包含 80 个手工筛选的任务，涵盖科学工作流和数据分析领域。它使用 Terminus——一个极简智能体——作为标准化测试平台，确保不同语言模型和智能体实现之间的公平比较。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. 应用场景 -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">实际应用场景</div>
+  <div class="sec-desc">每款智能体在不同类别的任务上表现出色。点击标签探索具体示例：</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">大规模重构</button>
+    <button class="uc-tab" onclick="showUC(1)">TDD 工作流</button>
+    <button class="uc-tab" onclick="showUC(2)">多模态开发</button>
+    <button class="uc-tab" onclick="showUC(3)">Issue 自动解决</button>
+    <button class="uc-tab" onclick="showUC(4)">文档生成</button>
+  </div>
+
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>大规模重构（Claude Code）</h3>
+      <p>Claude 的整体代码库理解使其非常适合同时跨多个文件进行协调重构。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>指令："将整个代码库重构为使用无状态 JWT，更新登录/登出端点、中间件和前端令牌处理"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Claude 读取所有相关文件并构建认证架构的心智模型</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>在执行前解释计划——您可以审核并调整</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>依次对所有受影响文件执行协调一致的变更</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>测试驱动开发（Aider）</h3>
+      <p>Aider 的自动测试执行和 Git 提交工作流使其成为天然的 TDD 搭档——严格执行红/绿/重构循环。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>告诉 Aider："为计算阶乘的函数创建一个失败测试"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Aider 编写测试——测试失败（红色）。您确认。</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>下一条指令："现在编写使测试通过的代码"</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Aider 实现函数、运行测试（绿色），并自动提交更改</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>多模态开发（Gemini CLI）</h3>
+      <p>Gemini CLI 的图像处理能力让您能够直接从视觉设计稿生成代码——这是 CLI 智能体中独一无二的差异化特性。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>运行：<code>gemini describe component.png</code>，提供 UI 组件截图</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>指令："编写与此设计完全匹配的 React 组件的 HTML 和 CSS，确保响应式"</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Gemini 分析图像并生成像素级精准的实现代码</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>审核、调整并集成生成的组件</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Issue 自动解决（GitHub Copilot CLI）</h3>
+      <p>Copilot CLI 的深度 GitHub 集成使其能够自主处理从 Issue 到 Pull Request 的全流程工作。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>经理将 Issue #123："修复分页中的差一错误"分配给 Copilot 智能体</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Copilot 按 Issue 命名检出新分支</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>利用仓库全局上下文感知定位分页逻辑</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>编写修复代码，提交引用 Issue #123 的 Pull Request</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>文档生成（Claude Code）</h3>
+      <p>Claude 深入的代码理解能力使其在为复杂代码库生成准确全面的文档方面表现卓越。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>将 Claude 指向模块："分析 ./src/utils/data_processing.js"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>指令："为每个函数生成全面的 TSDoc 注释，解释其用途、参数和返回值"</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Claude 读取并理解完整模块，包括边缘案例</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>内联生成准确、具有上下文适当性的文档</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. 代码实战 -->
+<div id="sec-code" class="section">
+  <div class="sec-title">CLI 使用示例</div>
+  <div class="sec-desc">各款智能体的具体命令行示例，展示安装方式和常见工作流：</div>
+
+  <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Claude Code — 安装与使用</h3>
+  </div>
+  <div class="json-block">npm install -g @anthropic-ai/claude-code</div>
+  <div class="code-block"><span class="code-comment"># 在项目目录启动交互式会话</span>
+claude
+
+<span class="code-comment"># 一次性任务执行</span>
+claude -p "为 src/api/ 中的所有 API 调用添加错误处理"
+
+<span class="code-comment"># 大规模重构示例</span>
+claude -p "将会话 Cookie 认证重构为整个代码库使用 JWT。
+  更新中间件、登录/登出端点和前端令牌存储。"
+
+<span class="code-comment"># 文档生成</span>
+claude -p "为 src/utils/data_processing.ts 中每个导出函数生成 TSDoc 文档"</div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;margin-top:16px;">
+    <h3>Gemini CLI — 安装与使用</h3>
+  </div>
+  <div class="json-block">npm install -g @google/gemini-cli</div>
+  <div class="code-block"><span class="code-comment"># 启动交互式会话</span>
+gemini
+
+<span class="code-comment"># 大规模 Java 重构</span>
+gemini -p "读取 src/main/java 中所有 *.java 文件。
+  将所有 'org.apache.log4j' 导入替换为 'org.slf4j.Logger' 和 'LoggerFactory'。
+  重写日志器实例化及所有 .info()、.debug()、.error() 调用。"
+
+<span class="code-comment"># 云资源管理</span>
+gemini -p "查找生产环境中所有运行版本低于 1.28 的 GKE 集群，
+  生成逐一升级的 gcloud 命令。"</div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;margin-top:16px;">
+    <h3>Aider — 安装与 TDD 工作流</h3>
+  </div>
+  <div class="json-block">pip install aider-chat</div>
+  <div class="code-block"><span class="code-comment"># 启动 aider，将特定文件加入上下文</span>
+aider billing.py tests/test_billing.py
+
+<span class="code-comment"># TDD：先编写失败测试</span>
+<span class="code-comment"># 在 aider 提示符中：</span>
+<span class="code-string">&gt; 为阶乘函数创建失败测试</span>
+
+<span class="code-comment"># Aider 编写测试、运行（红色）、提交："Add failing factorial test"</span>
+
+<span class="code-comment"># 实现代码使测试通过</span>
+<span class="code-string">&gt; 编写使测试通过的代码</span>
+
+<span class="code-comment"># Aider 实现、运行测试（绿色）、提交："Add factorial implementation"</span>
+
+<span class="code-comment"># Bug 修复并通过测试验证</span>
+<span class="code-string">&gt; calculate_total 函数在闰年失败。修复该 Bug 并针对测试套件验证修复。</span></div>
+
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;margin-top:16px;">
+    <h3>GitHub Copilot CLI — Shell 命令助手</h3>
+  </div>
+  <div class="code-block"><span class="code-comment"># 通过 GitHub CLI 扩展安装</span>
+gh extension install github/gh-copilot
+
+<span class="code-comment"># 请求 Shell 命令帮助（gh? 前缀）</span>
+gh copilot suggest "查找所有大于 50MB 的文件，压缩后放入 archive/ 目录"
+
+<span class="code-comment"># 将 Issue 分配给 Copilot 智能体</span>
+gh copilot assign-issue 123
+
+<span class="code-comment"># 仓库感知问答</span>
+gh copilot ask "数据库连接逻辑在哪里定义？需要哪些环境变量？"</div>
+</div>
+
+<!-- 7. 深入解析 -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">深入解析：Terminal-Bench 与工具对比</div>
+  <div class="sec-desc">深入了解这些工具在实践中的差异，有助于为您的工作流选择合适的工具。</div>
+
+  <div class="card card-bordered">
+    <h3>Terminal-Bench：衡量 CLI 智能体熟练度</h3>
+    <p>Terminal-Bench 是一个新型评估框架，用于评估 AI 智能体执行复杂 CLI 任务的熟练度。终端被认为是 AI 智能体评估的最佳环境，因为它具有基于文本、沙箱化的特性。初始版本（Terminal-Bench-Core-v0）包含 80 个手工筛选的任务，涵盖科学工作流和数据分析领域。Terminus——一个极简智能体——作为模型间公平比较的标准化测试平台。</p>
+  </div>
+
+  <div class="tool-grid">
+    <div class="tool-card" style="background:var(--teal-l);">
+      <div class="tool-badge" style="background:var(--teal);color:white;">Claude Code</div>
+      <h4 style="color:var(--teal-d);">最适合</h4>
+      <p style="color:var(--teal-d);">复杂架构任务、大规模重构、整体理解代码库。当任务需要推理系统级影响时表现最佳。</p>
+    </div>
+    <div class="tool-card" style="background:var(--purple-l);">
+      <div class="tool-badge" style="background:var(--purple);color:white;">Gemini CLI</div>
+      <h4 style="color:var(--purple-d);">最适合</h4>
+      <p style="color:var(--purple-d);">多功能多模态问题解决。需要处理图像、使用 Google Cloud 资源，或需要慷慨免费额度时的理想选择。</p>
+    </div>
+    <div class="tool-card" style="background:var(--coral-l);">
+      <div class="tool-badge" style="background:var(--coral);color:white;">Aider</div>
+      <h4 style="color:var(--coral-d);">最适合</h4>
+      <p style="color:var(--coral-d);">以 Git 为中心的直接代码编辑。适合 TDD 工作流、精确 Bug 修复，以及希望完全掌控模型选择和 Git 提交记录的场景。</p>
+    </div>
+    <div class="tool-card" style="background:var(--blue-l);">
+      <div class="tool-badge" style="background:var(--blue);color:white;">Copilot CLI</div>
+      <h4 style="color:var(--blue-d);">最适合</h4>
+      <p style="color:var(--blue-d);">无缝 GitHub 工作流集成。重度使用 GitHub Issues 和 PR 的团队，希望 AI 参与完整 Issue 生命周期的理想选择。</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">智能体选择指南 — 点击各场景查看最佳工具推荐</p>
+    <div class="diagram-nodes">
+      <div class="dia-node" onclick="simClick(0)" style="background:var(--teal-l);color:var(--teal-d);">架构任务</div>
+      <div class="dia-arrow">|</div>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--purple-l);color:var(--purple-d);">多模态</div>
+      <div class="dia-arrow">|</div>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--coral-l);color:var(--coral-d);">TDD/Git</div>
+      <div class="dia-arrow">|</div>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--blue-l);color:var(--blue-d);">GitHub 流</div>
+      <div class="dia-arrow">|</div>
+      <div class="dia-node" onclick="simClick(4)" style="background:var(--amber-l);color:var(--amber-d);">基准测试</div>
+    </div>
+    <div class="dia-output" id="sim-output">点击上方场景，查看哪款 AI CLI 智能体最适合该用例及原因。</div>
+  </div>
+</div>
+
+<!-- 8. 一览概要 -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">一览概要</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--red-l);color:var(--red-d);">
+      <h4>问题（WHAT）</h4>
+      <p>开发者在重构、文档编写、调试和命令行任务中面临反复的摩擦。传统工具需要跨文件手动协调、频繁的上下文切换，以及对晦涩语法的深入了解。</p>
+    </div>
+    <div class="glance-card" style="background:var(--teal-l);color:var(--teal-d);">
+      <h4>方案（WHY）</h4>
+      <p>AI CLI 智能体理解自然语言，维护代码库上下文，并自主执行多步骤任务。四款领先工具各有专属优势，面向不同的开发者工作流。</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);color:var(--purple-d);">
+      <h4>核心差异化因素</h4>
+      <p>关键差异不在于每款工具能做什么任务，而在于结果的质量、效率和细腻程度。Terminal-Bench 通过 80 个 CLI 任务提供标准化评估，客观衡量这些能力。</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);color:var(--amber-d);">
+      <h4>工具选择指南</h4>
+      <p>架构复杂性选 Claude Code；多模态和 Google Cloud 选 Gemini CLI；TDD 和可审计 Git 历史选 Aider；端到端 GitHub Issue 到 PR 工作流选 GitHub Copilot CLI。</p>
+    </div>
+  </div>
+</div>
+
+<!-- 9. 知识测验 -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">知识测验</div>
+  <div class="sec-desc">测试您对 AI CLI 智能体及其差异化特性的理解。</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. 核心要点 -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">核心要点</div>
+
+  <ul class="tk-list">
+    <li>AI CLI 智能体将开发者终端变革为协作工作空间——理解自然语言、维护代码库上下文，并自主执行复杂多步骤任务。</li>
+    <li>Claude Code（Anthropic 出品）在整体架构理解、大规模重构和对话式结对编程方面表现卓越，可通过 MCP 扩展自定义工具。</li>
+    <li>Gemini CLI（Google 出品）是一款具备多模态能力（图像+文本）的开源多功能智能体，拥有超大上下文窗口和慷慨的免费额度，适合 Google Cloud 用户。</li>
+    <li>Aider 是开源、模型无关的结对程序员，直接编辑文件并将每次验证通过的更改提交到 Git——非常适合 TDD 工作流和可审计的代码修改。</li>
+    <li>GitHub Copilot CLI 具备原生 GitHub 生态系统集成，能够被分配 Issue、创建分支、实现修复并自主提交 Pull Request。</li>
+    <li>工具间的关键差异不在于能做什么任务，而在于结果的质量、效率和细腻程度——Terminal-Bench 提供标准化评估框架。</li>
+    <li>MCP（多工具控制协议）使 Claude Code 和 Gemini CLI 都能通过连接私有 API、数据库和项目特定系统的自定义工具进行扩展。</li>
+  </ul>
+
+  <div class="card card-bordered">
+    <h3>总结</h3>
+    <p>没有单一"最佳"的 AI CLI 工具。最理想的选择完全取决于开发者的需求和工作流：Claude Code 适合复杂架构任务和整体重构；Gemini CLI 适合多功能多模态问题解决和 Google Cloud 集成；Aider 适合以 Git 为中心的直接代码编辑（自动提交）；GitHub Copilot CLI 适合端到端 GitHub 工作流集成。熟练运用这些工具正在成为开发者不可或缺的核心技能。</p>
+  </div>
+</div>
+
+<!-- 11. 参考资料 -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">参考资料</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> Anthropic. Claude Code CLI 参考文档：<a href="https://docs.anthropic.com/en/docs/claude-code/cli-reference" target="_blank">docs.anthropic.com</a></li>
+    <li><span class="ref-num">[2]</span> Google Gemini CLI：<a href="https://github.com/google-gemini/gemini-cli" target="_blank">github.com/google-gemini/gemini-cli</a></li>
+    <li><span class="ref-num">[3]</span> Aider AI 编码助手：<a href="https://aider.chat/" target="_blank">aider.chat</a></li>
+    <li><span class="ref-num">[4]</span> GitHub Copilot CLI：<a href="https://docs.github.com/en/copilot/github-copilot-enterprise/copilot-cli" target="_blank">docs.github.com</a></li>
+    <li><span class="ref-num">[5]</span> Terminal Bench：<a href="https://www.tbench.ai/" target="_blank">tbench.ai</a></li>
+  </ul>
+</div>
+
+<div class="footer">
+  <p>附录 E · CLI 上的 AI 智能体 · 交互式学习体验</p>
+</div>
+
+</div>
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  "架构任务 → Claude Code：当任务需要理解变更如何在整个代码库中产生影响——重构认证模式、迁移数据库、协调多文件 API 变更——Claude Code 的整体代码库模型和对话式规划使其成为最强的选择。",
+  "多模态任务 → Gemini CLI：当需要同时处理图像和文本（例如从设计截图生成代码）、使用 Google Cloud 资源，或需要强大的开源选项与慷慨免费额度时，Gemini CLI 凭借其 2.5 Pro 模型和内置多模态支持处于独特优势地位。",
+  "TDD / Git 中心化 → Aider：当希望智能体通过自动测试执行强制执行纪律，并将每次验证通过的更改提交到 Git 时，Aider 是明确的选择。它还是希望完全掌控底层模型选择（GPT-4、Claude、Gemini 等）时的最佳选项。",
+  "GitHub 工作流 → Copilot CLI：当团队完全在 GitHub 内工作——管理 Issue、审核 PR、运行 Actions——Copilot CLI 在每个层面进行集成。可以直接分配 Issue，创建修复分支并开启 PR，无需任何开发者干预（除最终审核外）。",
+  "基准测试 → Terminal-Bench：Terminal-Bench（tbench.ai）是衡量 CLI 智能体熟练度的标准化评估框架。其涵盖科学工作流和数据分析的 80 个精心筛选任务，让您客观比较哪个模型/智能体在您的特定领域提供最佳结果。"
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: "Claude Code 相比其他 AI CLI 智能体的主要架构优势是什么？",
+    opts: ["它拥有最大的免费额度", "它为复杂多步骤任务创建代码库的整体心智模型", "它自动将每次更改提交到 Git", "它能同时处理图像和文本"],
+    ans: 1,
+    ok: "正确！Claude Code 的核心优势在于其"智能体化"特性——构建代码库的深度整体心智模型，使协调多文件更改具备完整的架构意识。",
+    no: "Claude Code 的关键差异化因素是其整体代码库理解，而非免费额度大小、自动提交（那是 Aider）或图像处理（那是 Gemini CLI）。"
+  },
+  {
+    q: "是什么使 Aider 在四款 CLI 智能体中独树一帜？",
+    opts: ["它是唯一的闭源智能体", "它自动将每次验证通过的更改提交到 Git，且模型无关", "它使用最强大的底层 AI 模型", "它专门与 GitHub 集成"],
+    ans: 1,
+    ok: "正确！Aider 的定义性特征是为每次验证通过的更改自动 Git 提交，以及模型无关的设计——您可以选择底层 LLM（GPT-4、Claude、Gemini 等）。",
+    no: "Aider 是开源的（非闭源），模型无关（非绑定单一模型），可与任何 Git 仓库配合使用（非仅 GitHub）。"
+  },
+  {
+    q: "Gemini CLI 拥有其他智能体所不具备的哪项独特能力？",
+    opts: ["自动 Git 提交", "原生 GitHub Issue 分配", "多模态能力——同时处理图像和文本", "通过 MCP 集成自定义工具"],
+    ans: 2,
+    ok: "正确！Gemini CLI 的突出特性是多模态能力——您可以提供 UI 组件截图并要求生成对应代码。",
+    no: "自动提交是 Aider 的特性；GitHub Issue 分配是 Copilot CLI 的特性；MCP 在 Claude Code 和 Gemini CLI 中都有。只有 Gemini CLI 具备原生多模态（图像+文本）能力。"
+  },
+  {
+    q: "Terminal-Bench 是什么？",
+    opts: ["一款运行 AI 智能体的终端模拟器", "衡量 AI 智能体在 CLI 任务中熟练度的标准化评估框架", "GitHub 为 Copilot CLI 提供的基准测试工具", "用自定义工具扩展 CLI 智能体的插件系统"],
+    ans: 1,
+    ok: "正确！Terminal-Bench 是一个包含 80 个精心筛选 CLI 任务（Terminal-Bench-Core-v0）的评估框架。它使用极简的 Terminus 智能体作为标准化测试平台，用于比较不同语言模型。",
+    no: "Terminal-Bench 专门是针对 AI 智能体的评估/基准测试框架，不是终端模拟器、GitHub 工具或插件系统。"
+  },
+  {
+    q: "对于团队使用 GitHub Issues 并希望 AI 处理从 Issue 到 PR 完整生命周期的开发者，哪款工具最合适？",
+    opts: ["Claude Code", "Gemini CLI", "Aider", "GitHub Copilot CLI"],
+    ans: 3,
+    ok: "正确！GitHub Copilot CLI 与 GitHub 生态系统具有原生深度集成——可被分配 Issue、创建修复分支、实现解决方案并自主提交 Pull Request。",
+    no: "GitHub Copilot CLI 专门为深度 GitHub 工作流集成而设计。其他工具更专注于代码生成、重构或 TDD，而非完整的 GitHub Issue 生命周期。"
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">第 ' + (curQ+1) + ' 题 / 共 ' + quizData.length + ' 题</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">下一题</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">查看核心要点</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

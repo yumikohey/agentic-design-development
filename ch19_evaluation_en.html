@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 19: Evaluation and Monitoring — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: system-ui, -apple-system, sans-serif;
+  --serif: Georgia, serif;
+  --mono: 'JetBrains Mono', 'Fira Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Chapter 19</div>
+<h1>Evaluation and Monitoring</h1>
+<p class="subtitle">Methodologies that allow intelligent agents to systematically assess performance, monitor progress toward goals, and detect operational anomalies in dynamic environments.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Pattern Type</div><div class="metric-value">Monitoring</div></div>
+    <div class="metric"><div class="metric-label">Key Method</div><div class="metric-value">LLM-as-Judge</div></div>
+    <div class="metric"><div class="metric-label">Core Goal</div><div class="metric-value">Reliability</div></div>
+    <div class="metric"><div class="metric-label">Framework</div><div class="metric-value">Google ADK</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>What is Evaluation and Monitoring?</h3>
+    <p>This chapter examines methodologies that allow intelligent agents to systematically assess their performance, monitor progress toward goals, and detect operational anomalies. While goal setting focuses on <em>what</em> an agent should achieve, evaluation and monitoring focus on <em>how well</em> it is achieving those goals — continuously and externally measuring effectiveness, efficiency, and compliance with requirements.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Why Continuous Evaluation Matters</h3>
+    <p>Agentic systems and LLMs operate in complex, dynamic environments where performance can degrade over time. Their probabilistic and non-deterministic nature means traditional software testing — which yields predictable pass/fail results — is insufficient. Continuous assessment measures an agent's effectiveness, efficiency, and adherence to operational and safety requirements.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Three Pillars of Evaluation</h3>
+    <ul>
+      <li><strong>Defining clear metrics</strong> — accuracy, latency, token usage, helpfulness</li>
+      <li><strong>Establishing feedback loops</strong> — continuous measurement and A/B testing</li>
+      <li><strong>Implementing reporting systems</strong> — ensuring performance aligns with expectations</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>From Agents to Contractors</h3>
+    <p>A significant evolution covered in this chapter is the shift from simple prompt-driven agents to advanced "contractors" — agents bound by formal, verifiable agreements. This transformation makes AI reliable enough to deploy in mission-critical, high-stakes environments by embedding principles of negotiation, formal specification, and self-validation into the agent's core logic.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Why Standard Testing Fails for Agents</div>
+  <div class="sec-desc">Traditional software testing is insufficient for agentic AI. Click each failure mode to understand why:</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Probabilistic Behavior</h4>
+      <p>Agents don't produce deterministic outputs</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Standard code either passes or fails a test. Agents produce probabilistic outputs — the same input can yield different, yet equally valid, responses. This demands qualitative assessment alongside binary pass/fail checks, requiring a fundamentally different evaluation philosophy.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Performance Drift</h4>
+      <p>Agent quality degrades over time</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Data drift, environmental shifts, and concept drift can degrade an agent's performance after deployment. An agent performing well at launch may deteriorate as the world changes around it, making continuous monitoring — not just pre-deployment testing — essential.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Trajectory Complexity</h4>
+      <p>Multi-step paths are hard to validate</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Agents take sequences of steps (trajectories) to reach a goal. The final output may be correct while the reasoning process was flawed — or vice versa. Both the final output and the full sequence of intermediate actions must be evaluated, which standard tests cannot easily do.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Multi-Agent Complexity</h4>
+      <p>Teamwork is harder to measure than solo work</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Evaluating multi-agent systems requires measuring not just individual agent performance but also inter-agent cooperation, handoff quality, and overall system effectiveness. A hotel agent booking a room for the wrong week — due to a failure in flight agent communication — is a system-level problem invisible to individual unit tests.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Subjective Qualities</h4>
+      <p>Helpfulness resists objective measurement</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Qualities like "helpfulness," "coherence," and "appropriateness" cannot be measured with simple metrics. A response that is factually correct may still be unhelpful in context. Evaluating these subjective dimensions requires advanced techniques like LLM-as-a-Judge approaches.</p></div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--red); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>The Cost of Poor Evaluation</h3>
+    <p>Without robust evaluation, agents deployed in production can silently degrade, produce harmful outputs, violate compliance requirements, or make costly errors in high-stakes domains. The challenge intensifies in multi-agent systems where failures compound across handoffs and the root cause of a final error may be buried deep in an earlier agent's decision.</p>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">A Layered Evaluation Framework</div>
+  <div class="sec-desc">Comprehensive agent evaluation requires multiple complementary approaches. Click each layer to explore:</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Response Accuracy Assessment</div>
+          <div class="chain-role">Measure: Factual correctness, fluency, semantic similarity</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        This core process evaluates whether the agent delivers pertinent, correct, logical, unbiased, and accurate information. Basic exact-match comparison is a starting point, but real-world scenarios require sophisticated metrics: String Similarity (Levenshtein, Jaccard), Keyword Analysis, Semantic Similarity via cosine distance on embeddings, LLM-as-a-Judge evaluations, and RAG-specific metrics like faithfulness and relevance.<br><br>
+        <strong>Key insight:</strong> A simple string comparison between "The capital of France is Paris" and "Paris is the capital of France" will incorrectly return 0.0 accuracy — despite identical meaning — illustrating why semantic evaluation is essential.
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Latency and Resource Monitoring</div>
+          <div class="chain-role">Measure: Response time, token counts, operational cost</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        Speed is a critical factor in real-time applications. Latency monitoring measures the duration required for an agent to process requests and generate outputs. Elevated latency adversely affects user experience and overall agent effectiveness.<br><br>
+        Token usage tracking is equally crucial — billing for LLM interactions depends on token counts, so monitoring consumption directly controls costs. Logging should persist to structured stores (JSON, InfluxDB, Prometheus, Datadog) rather than console output alone.
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div>
+          <div class="chain-title">Trajectory Evaluation</div>
+          <div class="chain-role">Measure: Action sequences, tool use, reasoning path</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        Agents' trajectories — the sequence of steps taken to reach a solution — are essential to evaluate. The agent's actual actions are compared to an expected ground-truth trajectory. Comparison methods include: exact match (perfect sequence), in-order match (correct actions in order, extra steps allowed), any-order match, precision (relevance of predicted actions), and recall (completeness of essential actions).<br><br>
+        High-stakes scenarios demand exact match; flexible situations may use in-order or any-order matching.
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--amber);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">4</div>
+        <div>
+          <div class="chain-title">LLM-as-a-Judge</div>
+          <div class="chain-role">Measure: Helpfulness, coherence, appropriateness</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        For subjective qualities, a secondary LLM acts as an evaluator, assessing another agent's output based on predefined rubrics. This approach offers nuanced, human-like evaluation that surpasses simple keyword matching.<br><br>
+        The judge is prompted with structured criteria (clarity, neutrality, relevance, completeness, appropriateness) and returns structured JSON feedback including overall score, rationale, detailed feedback per criterion, concerns, and recommended action.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+
+  <div class="card card-bordered">
+    <h3>Evaluation Methods Compared</h3>
+    <p>Three primary evaluation approaches each have distinct trade-offs:</p>
+    <ul>
+      <li><strong>Human Evaluation</strong> — Captures subtle behavior; difficult to scale, expensive, time-consuming</li>
+      <li><strong>LLM-as-a-Judge</strong> — Consistent, efficient, scalable; may overlook intermediate steps, limited by LLM capabilities</li>
+      <li><strong>Automated Metrics</strong> — Scalable, efficient, objective; may fail to capture complete agent capabilities</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Test Files vs. Evalset Files (Google ADK)</h3>
+    <p><strong>Test files</strong> (JSON) represent single, simple agent-model interactions — ideal for unit testing during development. Each file contains a session with user query, expected tool use trajectory, intermediate responses, and final response.<br><br>
+    <strong>Evalset files</strong> utilize a dataset ("evalset") for evaluating complex, multi-turn conversations — suited for integration tests. Each eval contains one or more sessions with multiple turns, expected tool use, intermediate responses, and a reference final response.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>The Agent Contractor Model</h3>
+    <p>An evolution from simple agents to "contractors" bound by formal agreements. Four pillars make this work:</p>
+    <ul>
+      <li><strong>Formalized Contract</strong> — Explicit deliverables, data sources, scope, cost, and completion time</li>
+      <li><strong>Negotiation Lifecycle</strong> — Agent can flag ambiguities and negotiate terms before execution</li>
+      <li><strong>Quality-Focused Execution</strong> — Self-validation loop: generate, review, improve until specs are met</li>
+      <li><strong>Hierarchical Decomposition</strong> — Main contract broken into formal subcontracts for specialized agents</li>
+    </ul>
+  </div>
+
+  <div class="json-block">{
+  "overall_score": 4,
+  "rationale": "Clear and well-structured question with minor precision issues.",
+  "detailed_feedback": {
+    "Clarity": "Score 4/5 - Generally unambiguous",
+    "Neutrality": "Score 5/5 - No detectable bias",
+    "Relevance": "Score 4/5 - Directly on topic",
+    "Completeness": "Score 4/5 - Minor context gaps",
+    "Appropriateness": "Score 4/5 - Suitable for audience"
+  },
+  "recommended_action": "Approve as is"
+}</div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Practical Applications</div>
+  <div class="sec-desc">Select a use case to explore how evaluation and monitoring applies in practice:</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Live Performance</button>
+    <button class="uc-tab" onclick="showUC(1)">A/B Testing</button>
+    <button class="uc-tab" onclick="showUC(2)">Compliance Audits</button>
+    <button class="uc-tab" onclick="showUC(3)">Drift Detection</button>
+    <button class="uc-tab" onclick="showUC(4)">Anomaly Detection</button>
+    <button class="uc-tab" onclick="showUC(5)">Learning Progress</button>
+    <button class="uc-tab" onclick="showUC(6)">Multi-Agent Eval</button>
+  </div>
+
+  <div id="uc-0" class="uc-panel active">
+    <div class="card card-bordered">
+      <h3>Performance Tracking in Live Systems</h3>
+      <p>Continuously monitoring the accuracy, latency, and resource consumption of an agent deployed in a production environment.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Instrument agent to emit metrics on every request (response time, token count, tool calls made)</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Log to time-series database (InfluxDB, Prometheus) or observability platform (Datadog, Grafana)</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Set thresholds and alert when latency exceeds SLA or accuracy drops below baseline</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Example: customer service chatbot's resolution rate and mean response time tracked hourly</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-1" class="uc-panel">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>A/B Testing for Agent Improvements</h3>
+      <p>Systematically comparing the performance of different agent versions or strategies in parallel to identify optimal approaches.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Deploy two variants — e.g., two different planning algorithms for a logistics agent</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Route traffic randomly or by cohort to each variant, collecting identical metrics</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Apply statistical significance tests to determine which variant performs better</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Gradually shift traffic to winning variant while monitoring for regressions</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-2" class="uc-panel">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Compliance and Safety Audits</h3>
+      <p>Generating automated audit reports that track an agent's compliance with ethical guidelines, regulatory requirements, and safety protocols over time.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Define compliance criteria as machine-readable rules (output format, forbidden content, required disclosures)</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Run agent outputs through automated compliance checker on every interaction</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Generate KPI reports and trigger alerts when violations are detected</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Route flagged cases to human-in-the-loop review for final adjudication</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-3" class="uc-panel">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Drift Detection</h3>
+      <p>Monitoring the relevance or accuracy of an agent's outputs over time, detecting when performance degrades due to changes in input data distribution (concept drift) or environmental shifts.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Establish performance baseline at deployment using a held-out reference dataset</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Periodically re-evaluate agent on the same reference set to detect score changes</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Monitor input distribution statistics to detect when real-world data diverges from training distribution</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Trigger retraining or model update pipeline when drift exceeds threshold</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-4" class="uc-panel">
+    <div class="card" style="border-left:3px solid var(--pink);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Anomaly Detection in Agent Behavior</h3>
+      <p>Identifying unusual or unexpected actions taken by an agent that might indicate an error, a malicious attack, or an emergent undesired behavior.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Profile normal agent behavior patterns (typical tool sequences, response length distributions, latency ranges)</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Deploy statistical or ML-based anomaly detector monitoring agent action logs in real time</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Alert when agent takes actions outside normal operating envelope (e.g., calling an unexpected API, producing unusually long outputs)</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Automatically quarantine or roll back agent when severe anomalies are detected</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-5" class="uc-panel">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Learning Progress Assessment</h3>
+      <p>For agents designed to learn, tracking their learning curve, improvement in specific skills, or generalization capabilities over different tasks or datasets.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Define skill-specific benchmarks at multiple difficulty levels for each target capability</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Run agent on benchmark suite after each training epoch or fine-tuning cycle</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Track learning curves across skills — flag catastrophic forgetting or uneven skill development</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Compare generalization on held-out tasks vs. training tasks to detect overfitting</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-6" class="uc-panel">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Multi-Agent System Evaluation</h3>
+      <p>Evaluating complex systems where multiple agents cooperate, requiring assessment of both individual and collective performance.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Evaluate cooperation: after a Flight-Booking Agent secures a flight, does it pass correct dates to the Hotel-Booking Agent?</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Check plan adherence: does the system book flight before hotel, as planned — or does it deviate?</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Verify agent selection: is the right specialized agent chosen for each sub-task?</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Test scalability: does adding a new agent (e.g., Restaurant Reservation) improve or degrade overall performance?</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Code Examples</div>
+
+  <div class="card card-bordered">
+    <h3>Response Accuracy Evaluator</h3>
+    <p>A simple baseline evaluator using exact string matching — illustrating why more sophisticated approaches are needed:</p>
+  </div>
+  <div class="code-block"><span class="code-keyword">def</span> evaluate_response_accuracy(agent_output: str, expected_output: str) -> float:
+    <span class="code-string">"""Calculates a simple accuracy score for agent responses."""</span>
+    <span class="code-comment"># Basic exact match — real-world needs more sophisticated metrics</span>
+    <span class="code-keyword">return</span> 1.0 <span class="code-keyword">if</span> agent_output.strip().lower() == expected_output.strip().lower() <span class="code-keyword">else</span> 0.0
+
+<span class="code-comment"># Example — demonstrates the semantic equivalence problem</span>
+agent_response = <span class="code-string">"The capital of France is Paris."</span>
+ground_truth = <span class="code-string">"Paris is the capital of France."</span>
+score = evaluate_response_accuracy(agent_response, ground_truth)
+<span class="code-comment"># Returns 0.0 despite semantically identical meaning!</span>
+print(f<span class="code-string">"Response accuracy: {score}"</span>)  <span class="code-comment"># Output: 0.0</span></div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;margin-top:1.5rem;">
+    <h3>LLM Token Usage Monitor</h3>
+    <p>Tracking token consumption for cost management and optimization of LLM-powered agents:</p>
+  </div>
+  <div class="code-block"><span class="code-keyword">class</span> LLMInteractionMonitor:
+    <span class="code-keyword">def</span> __init__(self):
+        self.total_input_tokens = 0
+        self.total_output_tokens = 0
+
+    <span class="code-keyword">def</span> record_interaction(self, prompt: str, response: str):
+        <span class="code-comment"># In production, use LLM API's token counter or a tokenizer</span>
+        input_tokens = len(prompt.split())   <span class="code-comment"># Placeholder estimate</span>
+        output_tokens = len(response.split()) <span class="code-comment"># Placeholder estimate</span>
+        self.total_input_tokens += input_tokens
+        self.total_output_tokens += output_tokens
+        print(f<span class="code-string">"Interaction: Input={input_tokens}, Output={output_tokens}"</span>)
+
+    <span class="code-keyword">def</span> get_total_tokens(self):
+        <span class="code-keyword">return</span> self.total_input_tokens, self.total_output_tokens
+
+<span class="code-comment"># Example usage</span>
+monitor = LLMInteractionMonitor()
+monitor.record_interaction(<span class="code-string">"What is the capital of France?"</span>, <span class="code-string">"Paris."</span>)
+input_t, output_t = monitor.get_total_tokens()
+print(f<span class="code-string">"Total — Input: {input_t}, Output: {output_t}"</span>)</div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;margin-top:1.5rem;">
+    <h3>LLM-as-a-Judge for Helpfulness</h3>
+    <p>Using Gemini to evaluate survey question quality across five criteria with structured JSON output:</p>
+  </div>
+  <div class="code-block"><span class="code-keyword">import</span> google.generativeai <span class="code-keyword">as</span> genai, json, os
+
+RUBRIC = <span class="code-string">"""You are an expert reviewer. Score the input on 5 criteria (1-5 each):
+1. Clarity & Precision
+2. Neutrality & Bias
+3. Relevance & Focus
+4. Completeness
+5. Appropriateness for Audience
+Return JSON with: overall_score, rationale, detailed_feedback, concerns, recommended_action."""</span>
+
+<span class="code-keyword">class</span> LLMJudgeForLegalSurvey:
+    <span class="code-keyword">def</span> __init__(self, model_name=<span class="code-string">'gemini-1.5-flash-latest'</span>, temperature=0.2):
+        self.model = genai.GenerativeModel(model_name)
+        self.temperature = temperature
+
+    <span class="code-keyword">def</span> judge_survey_question(self, survey_question: str):
+        full_prompt = f<span class="code-string">"{RUBRIC}\n\nQUESTION:\n{survey_question}"</span>
+        response = self.model.generate_content(
+            full_prompt,
+            generation_config=genai.types.GenerationConfig(
+                temperature=self.temperature,
+                response_mime_type=<span class="code-string">"application/json"</span>
+            )
+        )
+        <span class="code-keyword">return</span> json.loads(response.text)</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: Advanced Evaluation Concepts</div>
+  <div class="sec-desc">Click each layer to explore advanced evaluation concepts in depth:</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);border-color:var(--teal);">
+      <div class="ctx-layer-title" style="color:var(--teal-d);">Trajectory Matching Methods</div>
+      <div class="ctx-layer-sub" style="color:var(--teal-d);">Exact, in-order, any-order, precision, recall</div>
+      <div class="ctx-layer-detail" style="color:var(--teal-d);">Exact match requires a perfect sequence of actions — used in high-stakes scenarios where any deviation is unacceptable. In-order match allows extra steps as long as required actions appear in order. Any-order match allows correct actions in any sequence. Precision measures the fraction of predicted actions that are actually necessary. Recall measures the fraction of necessary actions that were captured. Choose based on risk: a medical diagnosis agent might need exact match, while a trip planner can tolerate any-order.</div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);border-color:var(--purple);">
+      <div class="ctx-layer-title" style="color:var(--purple-d);">Google ADK Evaluation Methods</div>
+      <div class="ctx-layer-sub" style="color:var(--purple-d);">Web UI, pytest integration, CLI</div>
+      <div class="ctx-layer-detail" style="color:var(--purple-d);">Google's Agent Development Kit provides three evaluation pathways. The web-based UI (adk web) enables interactive session creation and saving into eval sets — ideal for exploratory testing. Pytest integration allows test files to run as part of CI/CD pipelines by calling AgentEvaluator.evaluate(). The command-line interface (adk eval) facilitates automated batch evaluation for regular build verification. All three methods share the same underlying test/evalset file format.</div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);border-color:var(--coral);">
+      <div class="ctx-layer-title" style="color:var(--coral-d);">The Agent Contractor Model in Detail</div>
+      <div class="ctx-layer-sub" style="color:var(--coral-d);">Formalized contracts for verifiable AI execution</div>
+      <div class="ctx-layer-detail" style="color:var(--coral-d);">The contractor model (proposed in Agent Companion, Gulli et al.) transforms AI from probabilistic assistants to deterministic contractors. A contract for a financial analysis task doesn't just say "analyze Q1 sales" — it specifies "a 20-page PDF analyzing European market sales from Q1 2025, including five data visualizations, comparative analysis against Q1 2024, and a risk assessment." The agent negotiates unclear terms before starting, self-validates during execution, and only delivers when all contract specifications are met.</div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);border-color:var(--amber);">
+      <div class="ctx-layer-title" style="color:var(--amber-d);">Multi-Agent System Evaluation Challenges</div>
+      <div class="ctx-layer-sub" style="color:var(--amber-d);">Cooperation, handoffs, scalability</div>
+      <div class="ctx-layer-detail" style="color:var(--amber-d);">Multi-agent evaluation requires a fundamentally different approach because there are many steps and handoffs. Key questions: Are agents cooperating effectively? Are they sticking to the plan? Is the right agent being chosen for each task? Does adding agents improve the system? Each handoff is an opportunity for failure — a Flight-Booking Agent securing a correct flight means nothing if it passes wrong dates to the Hotel-Booking Agent, resulting in the wrong week being booked.</div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);border-color:var(--blue);">
+      <div class="ctx-layer-title" style="color:var(--blue-d);">From Prompts to Formal Specifications</div>
+      <div class="ctx-layer-sub" style="color:var(--blue-d);">Why informal instructions fail in production</div>
+      <div class="ctx-layer-detail" style="color:var(--blue-d);">Common AI agents operate on brief, underspecified instructions. These work for simple demonstrations but are brittle in production — ambiguity leads to failure. The contractor model establishes a rigorous, formalized relationship built on clearly defined and mutually agreed-upon terms, much like a legal service agreement. This supports building trust required to deploy sophisticated agentic AI in mission-critical domains where reliability and accountability are paramount.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4 style="color:var(--teal-d);">WHAT</h4>
+      <p style="color:var(--teal-d);">Agentic systems operate in complex, dynamic environments where performance can degrade over time. Their probabilistic nature means traditional software testing is insufficient for ensuring reliability.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4 style="color:var(--purple-d);">WHY</h4>
+      <p style="color:var(--purple-d);">A standardized evaluation framework provides systematic performance assessment — defining metrics, analyzing trajectories, using LLM-as-a-Judge, and establishing feedback loops for continuous improvement.</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);">
+      <h4 style="color:var(--coral-d);">WHEN</h4>
+      <p style="color:var(--coral-d);">Use when deploying agents in live production environments, when comparing agent versions, in regulated domains requiring compliance audits, or when agents may drift due to changing data or environment.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);">
+      <h4 style="color:var(--amber-d);">RULE OF THUMB</h4>
+      <p style="color:var(--amber-d);">Match evaluation rigor to stakes: exact trajectory matching for high-stakes scenarios; semantic similarity and LLM-as-Judge for nuanced outputs; automated metrics for scalable continuous monitoring.</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">Click each node to understand its role in the evaluation pipeline:</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" onclick="simClick(0)" style="background:var(--bg3);">Prompt</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--teal-l);color:var(--teal-d);">Agent</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--purple-l);color:var(--purple-d);">Output</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--coral-l);color:var(--coral-d);">Observer</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(4)" style="background:var(--amber-l);color:var(--amber-d);">Alarm</div>
+    </div>
+    <div class="dia-output" id="sim-output">Click a node above to learn about its role in agent evaluation and monitoring.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Quiz</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>Evaluating intelligent agents goes beyond traditional tests to continuously measure effectiveness, efficiency, and adherence to requirements in real-world environments.</li>
+    <li>Basic evaluation assesses response accuracy, while real-world scenarios demand sophisticated metrics like latency monitoring and token usage tracking for LLM-powered agents.</li>
+    <li>Agent trajectories — the sequence of steps an agent takes — are crucial for evaluation, comparing actual actions against an ideal, ground-truth path to identify errors and inefficiencies.</li>
+    <li>The LLM-as-a-Judge approach enables nuanced, human-like evaluation of subjective qualities like helpfulness, coherence, and appropriateness that resist objective measurement.</li>
+    <li>Google ADK provides structured evaluation methods: individual test files for unit testing and comprehensive evalset files for integration testing, with three execution paths (web UI, pytest, CLI).</li>
+    <li>Practical applications include performance tracking in live systems, A/B testing for improvements, compliance audits, and detecting drift or anomalies in behavior.</li>
+    <li>For reliable deployment in complex, high-stakes tasks, the paradigm is shifting from simple prompts to formal "contracts" that precisely define verifiable deliverables and execution scope.</li>
+    <li>Multi-agent system evaluation requires assessing cooperation, plan adherence, agent selection, and scalability — not just individual agent performance.</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>ADK Web — Interactive agent evaluation UI: <a href="https://github.com/google/adk-web" target="_blank">https://github.com/google/adk-web</a></li>
+    <li><span class="ref-num">2</span>ADK Evaluate — Google ADK evaluation documentation: <a href="https://google.github.io/adk-docs/evaluate/" target="_blank">https://google.github.io/adk-docs/evaluate/</a></li>
+    <li><span class="ref-num">3</span>Survey on Evaluation of LLM-based Agents: <a href="https://arxiv.org/abs/2503.16416" target="_blank">https://arxiv.org/abs/2503.16416</a></li>
+    <li><span class="ref-num">4</span>Agent-as-a-Judge: Evaluate Agents with Agents: <a href="https://arxiv.org/abs/2410.10934" target="_blank">https://arxiv.org/abs/2410.10934</a></li>
+    <li><span class="ref-num">5</span>Agent Companion (Gulli et al.) — Contractor model for agentic AI: <a href="https://www.kaggle.com/whitepaper-agent-companion" target="_blank">https://www.kaggle.com/whitepaper-agent-companion</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>Agentic Design Patterns — Chapter 19</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  'Prompt: The input given to the agent. In evaluation, prompts are carefully crafted test cases drawn from test files or evalset files, representing real-world user requests.',
+  'Agent: The system under evaluation. The agent processes the prompt, calls tools, reasons through a trajectory of steps, and produces an output. Its full trajectory is recorded for evaluation.',
+  'Output: The agent\'s final response or action. Evaluated for accuracy (semantic similarity, exact match), quality (LLM-as-Judge), and appropriateness. Both the output and the reasoning path matter.',
+  'Observer (Metrics): The monitoring layer that continuously measures agent behavior. Tracks latency, token usage, tool call patterns, accuracy metrics, and flags anomalies or drift in real time.',
+  'Alarm: Triggered when metrics exceed thresholds — latency too high, accuracy dropping, anomalous behavior detected, or compliance violations found. Routes alerts to dashboards, on-call engineers, or automated remediation.'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  { q: 'Why is traditional software testing insufficient for evaluating AI agents?', opts: ['Agents are too slow to test', 'Agents produce probabilistic outputs, not deterministic pass/fail results', 'Software testing is always sufficient', 'Agents cannot be tested at all'], ans: 1, ok: 'Correct! Agents produce probabilistic, non-deterministic outputs. The same input can yield different valid responses, requiring qualitative assessment beyond binary pass/fail checks.', no: 'Not quite. The core issue is that agents produce probabilistic outputs — the same input can yield different, yet equally valid, responses. Standard tests assume deterministic behavior.' },
+  { q: 'What does "trajectory evaluation" assess in an agentic system?', opts: ['The speed at which an agent runs', 'The visual path an agent takes in a UI', 'The sequence of steps (actions, tool calls) an agent takes to reach its goal', 'The geographic location of the server'], ans: 2, ok: 'Correct! Trajectory evaluation examines the full sequence of steps (tool calls, reasoning, intermediate actions) an agent takes — not just the final output.', no: 'Trajectory evaluation focuses on the sequence of actions the agent takes, not physical or visual paths. Both the reasoning process and the final output need evaluation.' },
+  { q: 'What is the key advantage of the LLM-as-a-Judge evaluation approach?', opts: ['It is the cheapest evaluation method', 'It can evaluate subjective qualities like helpfulness that resist objective measurement', 'It always produces correct evaluations', 'It replaces all other evaluation methods'], ans: 1, ok: 'Correct! LLM-as-a-Judge enables nuanced evaluation of subjective qualities — helpfulness, coherence, appropriateness — that simple metrics cannot capture.', no: 'LLM-as-a-Judge\'s key strength is evaluating subjective qualities like helpfulness that resist objective measurement, offering human-like nuance at scale.' },
+  { q: 'In Google ADK, what is the difference between test files and evalset files?', opts: ['Test files are larger than evalset files', 'Test files are for simple unit tests; evalset files are for complex multi-turn integration tests', 'Evalset files are only for security testing', 'There is no practical difference between them'], ans: 1, ok: 'Correct! Test files contain single, simple agent interactions ideal for unit testing during development. Evalset files handle complex, multi-turn sessions suited for integration testing.', no: 'Test files (JSON) represent single simple interactions for unit testing. Evalset files handle complex, potentially lengthy multi-turn conversations for integration testing.' },
+  { q: 'What is the primary purpose of the "Agent Contractor" model described in this chapter?', opts: ['To reduce the cost of running agents', 'To replace human workers with AI agents', 'To make AI reliable for high-stakes tasks via formal, verifiable agreements', 'To connect agents to external contractors'], ans: 2, ok: 'Correct! The contractor model transforms AI from probabilistic assistants to systems bound by formal, verifiable agreements — enabling reliable deployment in mission-critical, high-stakes environments.', no: 'The contractor model transforms AI agents into reliable systems for high-stakes tasks by binding them to formal, verifiable agreements with explicit deliverables, negotiation, and self-validation.' },
+  { q: 'Which trajectory matching method is most appropriate for a high-stakes medical diagnosis agent?', opts: ['Any-order match', 'In-order match', 'Exact match', 'Precision-only match'], ans: 2, ok: 'Correct! High-stakes scenarios like medical diagnosis demand exact match — where the agent must follow the precise expected sequence without deviation.', no: 'High-stakes scenarios demand exact match, requiring the agent to follow the precise expected sequence. Any deviation in a medical context could be dangerous.' }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

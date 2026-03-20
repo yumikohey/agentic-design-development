@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 13: Human-in-the-Loop — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB;
+    --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6;
+    --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775;
+    --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Chapter 13</div>
+<h1>Human-in-the-Loop</h1>
+<p class="subtitle">Strategically interweaving human judgment, creativity, and oversight with AI's computational power — ensuring ethical, safe, and effective agent behavior in complex and high-stakes domains.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <p class="sec-desc">The Human-in-the-Loop (HITL) pattern deliberately integrates human cognition into AI agent workflows — providing oversight, intervention, feedback, and collaborative decision-making to achieve outcomes neither human nor AI could accomplish alone.</p>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Pattern Type</div><div class="metric-value">HITL</div></div>
+    <div class="metric"><div class="metric-label">Primary Goal</div><div class="metric-value">Safety</div></div>
+    <div class="metric"><div class="metric-label">Key Trade-off</div><div class="metric-value">Scale</div></div>
+    <div class="metric"><div class="metric-label">Key Benefit</div><div class="metric-value">Trust</div></div>
+  </div>
+  <div class="card card-bordered">
+    <h3>Human Oversight</h3>
+    <p>Monitor AI agent performance and output via log reviews or real-time dashboards to ensure adherence to guidelines and prevent undesirable outcomes.</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--coral)">
+    <h3>Intervention & Correction</h3>
+    <p>When an AI agent encounters errors or ambiguous scenarios, human operators can rectify errors, supply missing data, or guide the agent — informing future improvements.</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--purple)">
+    <h3>Human Feedback for Learning</h3>
+    <p>Collected feedback refines AI models, prominently through reinforcement learning with human feedback (RLHF), where human preferences directly shape the agent's learning trajectory.</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--amber)">
+    <h3>Decision Augmentation</h3>
+    <p>AI provides analyses and recommendations; humans make the final decision. This enhances human decision-making through AI-generated insights rather than full autonomy.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">The Problems HITL Solves</div>
+  <p class="sec-desc">Fully autonomous AI systems face critical limitations in high-stakes domains. Click each card to explore the failure modes that necessitate human involvement.</p>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Ethical Boundary Violations</h4>
+      <p>AI may act outside acceptable ethical bounds without supervision.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">Without HITL, AI agents may optimize for measurable metrics while violating implicit ethical norms — e.g., a content recommendation system maximizing engagement at the cost of mental health. Human oversight defines and enforces ethical guardrails.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Nuanced Judgment Gaps</h4>
+      <p>LLMs lack common-sense reasoning and contextual wisdom in edge cases.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">A loan approval AI may correctly analyze financials but miss qualitative signals about leadership character or business context that an experienced loan officer would catch. Human judgment fills this gap in ambiguous situations.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>High-Stakes Error Costs</h4>
+      <p>In healthcare, law, or finance, AI errors can have severe consequences.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">In medical diagnosis, a false negative could mean a missed cancer. In legal sentencing, an AI error could imprison an innocent person. The cost of error demands human verification before irreversible actions are taken.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Scalability vs. Accuracy Trade-off</h4>
+      <p>Full automation scales but sacrifices accuracy; full HITL is accurate but cannot scale.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">Human operators cannot review millions of transactions or content pieces. A hybrid approach is required — automating routine cases at scale while routing only uncertain or high-risk cases to humans, balancing throughput and precision.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Lack of Accountability</h4>
+      <p>Fully autonomous AI systems create accountability voids in critical decisions.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">Legal and ethical frameworks typically require a human decision-maker to be accountable for consequential actions. A judge must retain final sentencing authority; a doctor must sign off on diagnoses. HITL ensures this accountability chain remains intact.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">The HITL Solution Architecture</div>
+  <p class="sec-desc">HITL creates a symbiotic workflow where AI handles computational tasks and humans provide critical validation. Click each step to see details.</p>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d)">1</div>
+        <div><div class="chain-title">AI Agent Processes Task</div><div class="chain-role">Automated analysis and generation</div></div>
+      </div>
+      <div class="chain-detail">The AI agent autonomously handles routine, well-defined tasks — data processing, pattern recognition, initial classification, draft generation. It operates at scale and speed impossible for humans alone, producing outputs, recommendations, or flags for review.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d)">2</div>
+        <div><div class="chain-title">Escalation Policy Triggered</div><div class="chain-role">Confidence thresholds and complexity detection</div></div>
+      </div>
+      <div class="chain-detail">The agent evaluates whether its output meets confidence thresholds. If uncertainty is high, the case is complex, or policy rules mandate review (e.g., any decision above $10k), the escalation policy routes the task to a human queue. This is the core HITL decision gate.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d)">3</div>
+        <div><div class="chain-title">Human Reviews & Decides</div><div class="chain-role">Expert judgment and contextual reasoning</div></div>
+      </div>
+      <div class="chain-detail">A human expert reviews the AI's analysis, adds contextual knowledge, applies ethical and domain judgment, and makes the final decision or correction. This is where human creativity, empathy, and accountability enter the system.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d)">4</div>
+        <div><div class="chain-title">Feedback Loop Closes</div><div class="chain-role">Continuous model improvement</div></div>
+      </div>
+      <div class="chain-detail">Human decisions and corrections are fed back into the system as labeled training data or policy updates. This continuous feedback loop enables the AI agent to improve over time, gradually reducing the need for human intervention on previously-ambiguous cases.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+  <p class="sec-desc">Understanding HITL requires grasping several interrelated concepts about how humans and AI agents interact.</p>
+
+  <div class="card">
+    <h3>Human-Agent Collaboration</h3>
+    <p>A cooperative interaction where humans and AI agents contribute their respective strengths. Routine data processing is handled by the agent; creative problem-solving or complex negotiations are managed by the human. Neither replaces the other — they form a composite intelligence.</p>
+  </div>
+  <div class="card">
+    <h3>Escalation Policies</h3>
+    <p>Established protocols that dictate when and how an agent should escalate tasks to human operators. These policies prevent errors in situations beyond the agent's capability. Policies can be rule-based (e.g., confidence &lt; 0.8), event-based (e.g., transaction &gt; $50k), or model-predicted (e.g., anomaly detection).</p>
+  </div>
+
+  <div class="sec-title" style="margin-top:2rem;">Human-on-the-Loop Variant</div>
+  <p class="sec-desc">A related pattern where humans define overarching policy and AI executes immediate actions autonomously within that policy framework.</p>
+  <div class="json-block">{
+  "pattern": "Human-on-the-Loop",
+  "description": "Human sets policy; AI executes actions",
+  "examples": [
+    {
+      "domain": "Algorithmic Trading",
+      "human_role": "Define investment policy rules",
+      "human_policy": "70% tech stocks, 30% bonds; sell if -10%",
+      "ai_role": "Execute trades in real-time within policy"
+    },
+    {
+      "domain": "Call Center",
+      "human_role": "Define routing and escalation rules",
+      "human_policy": "Route 'outage' calls to tech; escalate frustrated callers",
+      "ai_role": "Classify and route calls autonomously"
+    }
+  ]
+}</div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Practical Use Cases</div>
+  <p class="sec-desc">HITL is vital across industries where accuracy, safety, ethics, or nuanced understanding are paramount. Explore each use case.</p>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Content Moderation</button>
+    <button class="uc-tab" onclick="showUC(1)">Financial Fraud</button>
+    <button class="uc-tab" onclick="showUC(2)">Legal Review</button>
+    <button class="uc-tab" onclick="showUC(3)">Autonomous Driving</button>
+    <button class="uc-tab" onclick="showUC(4)">Customer Support</button>
+    <button class="uc-tab" onclick="showUC(5)">Data Labeling</button>
+    <button class="uc-tab" onclick="showUC(6)">Gen AI Refinement</button>
+  </div>
+  <div id="uc-0" class="uc-panel active">
+    <div class="card"><h3>Content Moderation</h3><p>AI agents rapidly filter vast amounts of online content for violations (hate speech, spam, CSAM). However, ambiguous or borderline content is escalated to human moderators for review and final decision, ensuring nuanced judgment and adherence to complex, context-dependent policies.</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>AI scans all content, auto-removing clear violations</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>Borderline content flagged and queued for human review</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>Human moderator reviews context, cultural nuance, intent</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>Decision recorded as training data to improve AI accuracy</div>
+    </div></div>
+  </div>
+  <div id="uc-1" class="uc-panel">
+    <div class="card"><h3>Financial Fraud Detection</h3><p>AI systems flag suspicious transactions based on patterns and behavioral anomalies. High-risk or ambiguous alerts are sent to human analysts who investigate further, contact customers if needed, and make the final determination on whether a transaction is fraudulent — balancing fraud prevention with customer experience.</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>AI scores all transactions in real-time for fraud probability</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>High-score alerts routed to human fraud analyst queue</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>Analyst reviews transaction history, calls customer if needed</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>Analyst approves, blocks, or escalates; outcome feeds model</div>
+    </div></div>
+  </div>
+  <div id="uc-2" class="uc-panel">
+    <div class="card"><h3>Legal Document Review</h3><p>AI can quickly scan and categorize thousands of legal documents to identify relevant clauses or evidence. Human legal professionals then review the AI's findings for accuracy, context, and legal implications — especially for critical cases where consequences of error are severe.</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>AI ingests and classifies thousands of documents</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>AI surfaces potentially relevant clauses and evidence</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>Attorney reviews AI-curated set for legal accuracy and strategy</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>Final inclusion/exclusion decisions made by legal professional</div>
+    </div></div>
+  </div>
+  <div id="uc-3" class="uc-panel">
+    <div class="card"><h3>Autonomous Driving</h3><p>Self-driving cars handle most driving tasks autonomously. They are designed to hand over control to a human driver in complex, unpredictable, or dangerous situations the AI cannot confidently navigate — such as extreme weather, unusual road conditions, or emergency scenarios requiring moral judgment.</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>AI handles all standard driving tasks autonomously</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>Confidence monitoring detects edge cases and uncertainty</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>System alerts human driver with sufficient warning time</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>Human takes control; AI logs scenario for future training</div>
+    </div></div>
+  </div>
+  <div id="uc-4" class="uc-panel">
+    <div class="card"><h3>Customer Support Escalation</h3><p>Chatbots handle routine customer inquiries efficiently at scale. When a user's problem is too complex, emotionally charged, or requires empathy the AI cannot provide, the conversation is seamlessly handed over to a human support agent — with full context transferred to avoid repetition.</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>Chatbot handles tier-1 inquiries (FAQs, order status)</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>Sentiment analysis detects frustration or complexity</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>Context summary passed to human agent before handoff</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>Human resolves issue; resolution tagged for chatbot training</div>
+    </div></div>
+  </div>
+  <div id="uc-5" class="uc-panel">
+    <div class="card"><h3>Data Labeling & Annotation</h3><p>AI models require large datasets of labeled data for training. Humans provide the ground truth by accurately labeling images, text, or audio. Human annotators may require special training to correct AI in ways that produce high-quality training data — a continuous process as models evolve.</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>AI pre-labels data with confidence scores</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>Low-confidence items routed to human annotators</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>Annotators correct labels using specialized guidelines</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>Corrected data improves future AI label accuracy</div>
+    </div></div>
+  </div>
+  <div id="uc-6" class="uc-panel">
+    <div class="card"><h3>Generative AI Refinement</h3><p>When an LLM generates creative content — marketing copy, design briefs, code — human editors, designers, or engineers review and refine the output. They ensure it meets brand guidelines, resonates with the target audience, maintains quality standards, and avoids subtle errors.</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>LLM generates draft content based on brief</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>Human expert reviews for accuracy, tone, brand fit</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>Edits and corrections applied and annotated</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>Refined examples used for fine-tuning future outputs</div>
+    </div></div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Hands-On Code Example</div>
+  <p class="sec-desc">A technical support agent built with Google ADK, designed around a HITL framework with escalation and personalization.</p>
+
+  <div class="card"><h3>Agent Setup with Escalation Tools</h3></div>
+  <div class="code-block"><span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> Agent
+<span class="code-keyword">from</span> google.adk.tools.tool_context <span class="code-keyword">import</span> ToolContext
+<span class="code-keyword">from</span> google.adk.callbacks <span class="code-keyword">import</span> CallbackContext
+<span class="code-keyword">from</span> google.adk.models.llm <span class="code-keyword">import</span> LlmRequest
+<span class="code-keyword">from</span> google.genai <span class="code-keyword">import</span> types
+<span class="code-keyword">from</span> typing <span class="code-keyword">import</span> Optional
+
+<span class="code-comment"># HITL tools: troubleshoot → ticket → escalate</span>
+<span class="code-keyword">def</span> troubleshoot_issue(issue: str) -> dict:
+    <span class="code-keyword">return</span> {<span class="code-string">"status"</span>: <span class="code-string">"success"</span>, <span class="code-string">"report"</span>: f<span class="code-string">"Troubleshooting steps for {issue}."</span>}
+
+<span class="code-keyword">def</span> create_ticket(issue_type: str, details: str) -> dict:
+    <span class="code-keyword">return</span> {<span class="code-string">"status"</span>: <span class="code-string">"success"</span>, <span class="code-string">"ticket_id"</span>: <span class="code-string">"TICKET123"</span>}
+
+<span class="code-keyword">def</span> escalate_to_human(issue_type: str) -> dict:
+    <span class="code-comment"># Core HITL tool: transfers to human specialist queue</span>
+    <span class="code-keyword">return</span> {<span class="code-string">"status"</span>: <span class="code-string">"success"</span>,
+            <span class="code-string">"message"</span>: f<span class="code-string">"Escalated {issue_type} to a human specialist."</span>}
+
+technical_support_agent = Agent(
+    name=<span class="code-string">"technical_support_specialist"</span>,
+    model=<span class="code-string">"gemini-2.0-flash-exp"</span>,
+    instruction=<span class="code-string">"""
+You are a technical support specialist for our electronics company.
+FIRST, check state["customer_info"]["support_history"] for context.
+
+For technical issues:
+1. Use troubleshoot_issue to analyze the problem.
+2. Guide the user through basic troubleshooting steps.
+3. If the issue persists, use create_ticket to log the issue.
+
+For complex issues beyond basic troubleshooting:
+1. Use escalate_to_human to transfer to a human specialist.
+
+Maintain a professional but empathetic tone.
+"""</span>,
+    tools=[troubleshoot_issue, create_ticket, escalate_to_human]
+)</div>
+
+  <div class="card" style="margin-top:1.5rem;"><h3>Personalization Callback (Pre-LLM Hook)</h3></div>
+  <div class="code-block"><span class="code-keyword">def</span> personalization_callback(
+    callback_context: CallbackContext, llm_request: LlmRequest
+) -> Optional[LlmRequest]:
+    <span class="code-string">"""Injects customer context into LLM request before processing."""</span>
+    customer_info = callback_context.state.get(<span class="code-string">"customer_info"</span>)
+    <span class="code-keyword">if</span> customer_info:
+        customer_name = customer_info.get(<span class="code-string">"name"</span>, <span class="code-string">"valued customer"</span>)
+        customer_tier = customer_info.get(<span class="code-string">"tier"</span>, <span class="code-string">"standard"</span>)
+        recent_purchases = customer_info.get(<span class="code-string">"recent_purchases"</span>, [])
+
+        personalization_note = (
+            f<span class="code-string">"\nIMPORTANT PERSONALIZATION:\n"</span>
+            f<span class="code-string">"Customer Name: {customer_name}\n"</span>
+            f<span class="code-string">"Customer Tier: {customer_tier}\n"</span>
+        )
+        <span class="code-keyword">if</span> recent_purchases:
+            personalization_note += f<span class="code-string">"Recent Purchases: {', '.join(recent_purchases)}\n"</span>
+
+        <span class="code-keyword">if</span> llm_request.contents:
+            system_content = types.Content(
+                role=<span class="code-string">"system"</span>,
+                parts=[types.Part(text=personalization_note)]
+            )
+            llm_request.contents.insert(0, system_content)
+    <span class="code-keyword">return</span> None  <span class="code-comment"># Continue with modified request</span></div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: HITL Dimensions</div>
+  <p class="sec-desc">Explore the key dimensions that determine how HITL is implemented and its trade-offs. Click each layer to expand.</p>
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--teal-l);border-color:var(--teal)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--teal-d)">Oversight Mechanisms</div>
+      <div class="ctx-layer-sub" style="color:var(--teal-d)">How humans monitor AI behavior</div>
+      <div class="ctx-layer-detail" style="color:var(--teal-d)">Oversight ranges from passive (log reviews, dashboards, periodic audits) to active (real-time monitoring, A/B testing decisions). The intensity of oversight scales with risk: a low-stakes recommendation engine needs lighter oversight than an autonomous medical diagnosis system.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--purple-l);border-color:var(--purple)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--purple-d)">Intervention Points</div>
+      <div class="ctx-layer-sub" style="color:var(--purple-d)">When and how humans step in</div>
+      <div class="ctx-layer-detail" style="color:var(--purple-d)">Intervention can occur before action (human approves AI plan), during action (human monitors live process), or after action (human reviews completed AI output). Pre-action intervention provides maximum safety; post-action review allows higher throughput. The choice depends on reversibility and time sensitivity.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--amber-l);border-color:var(--amber)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--amber-d)">Scalability Constraints</div>
+      <div class="ctx-layer-sub" style="color:var(--amber-d)">The fundamental HITL bottleneck</div>
+      <div class="ctx-layer-detail" style="color:var(--amber-d)">The primary limitation of HITL is that human operators cannot scale to millions of tasks. Solutions include: (1) risk-based routing — only route high-risk cases; (2) confidence-based routing — only route low-confidence predictions; (3) sampling-based oversight — randomly review a percentage; (4) outcome monitoring — trigger review only when results are anomalous.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--coral-l);border-color:var(--coral)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--coral-d)">Expertise Requirements</div>
+      <div class="ctx-layer-sub" style="color:var(--coral-d)">The quality of human input</div>
+      <div class="ctx-layer-detail" style="color:var(--coral-d)">HITL effectiveness depends heavily on human expertise. An AI-generated code review requires a skilled developer. Medical AI escalations require clinicians. For annotation tasks, annotators need domain training to provide corrections that produce high-quality training data. Low-expertise reviewers can introduce noise rather than signal.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--blue-l);border-color:var(--blue)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--blue-d)">Privacy Considerations</div>
+      <div class="ctx-layer-sub" style="color:var(--blue-d)">Data protection when humans review AI outputs</div>
+      <div class="ctx-layer-detail" style="color:var(--blue-d)">Implementing HITL raises significant privacy concerns: sensitive information must be rigorously anonymized before exposure to human operators. Medical records, financial data, and private communications often cannot be shown in raw form. Differential privacy, data masking, and need-to-know access controls add process complexity but are essential for compliance.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);border-color:var(--teal)">
+      <h4 style="color:var(--teal-d)">WHAT IS THE PROBLEM?</h4>
+      <p style="color:var(--teal-d)">AI systems struggle with nuanced judgment, ethical reasoning, and complex ambiguous contexts. Fully autonomous AI in high-stakes environments carries significant risks — errors can cause severe safety, financial, or ethical consequences.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);border-color:var(--purple)">
+      <h4 style="color:var(--purple-d)">WHY HITL WORKS</h4>
+      <p style="color:var(--purple-d)">HITL creates a symbiotic partnership: AI handles computational heavy-lifting, humans provide critical validation and intervention. This ensures AI actions align with human values, mitigates risks of full automation, and enables continuous improvement through feedback.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);border-color:var(--amber)">
+      <h4 style="color:var(--amber-d)">WHEN TO USE IT</h4>
+      <p style="color:var(--amber-d)">Use HITL when deploying AI in domains where errors have significant safety, ethical, or financial consequences (healthcare, finance, law). Essential for tasks with ambiguity that LLMs cannot reliably handle, or when continuously improving models with human-labeled data.</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);border-color:var(--coral)">
+      <h4 style="color:var(--coral-d)">KEY CAVEATS</h4>
+      <p style="color:var(--coral-d)">Inherent lack of scalability creates a trade-off between accuracy and volume. Effectiveness depends on highly skilled domain experts. Privacy concerns require anonymization processes. Annotators need special training to produce high-quality feedback data.</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">Click a node to explore the HITL flow</div>
+    <div class="diagram-nodes">
+      <div class="dia-node active" style="background:var(--blue-l);color:var(--blue-d)" onclick="simClick(0)">User / Prompt</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d)" onclick="simClick(1)">AI Agent</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d)" onclick="simClick(2)">Escalation?</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d)" onclick="simClick(3)">Human Expert</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d)" onclick="simClick(4)">Output + Feedback</div>
+    </div>
+    <div class="dia-output" id="sim-output">The user submits a request or task. The AI agent begins autonomous processing.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Check</div>
+  <p class="sec-desc">Test your understanding of the Human-in-the-Loop pattern with these questions from the chapter.</p>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>Human-in-the-Loop (HITL) integrates human intelligence and judgment directly into AI workflows, creating a collaborative ecosystem where each party leverages their distinct strengths.</li>
+    <li>HITL is crucial for safety, ethics, and effectiveness in complex or high-stakes scenarios — particularly healthcare, finance, legal, and autonomous systems domains.</li>
+    <li>Key aspects include human oversight, intervention and correction, feedback for continuous learning, decision augmentation, and human-agent collaboration.</li>
+    <li>Escalation policies are essential mechanisms for agents to recognize when to hand off to a human operator, preventing errors in situations beyond the agent's capability.</li>
+    <li>The primary drawback is a fundamental lack of scalability — humans cannot manage millions of tasks, creating a necessary trade-off between accuracy and throughput volume.</li>
+    <li>HITL effectiveness is heavily dependent on the expertise of human operators; low-expertise reviewers can introduce noise rather than improving system quality.</li>
+    <li>Privacy concerns require sensitive information to be anonymized before human exposure, adding process complexity but remaining essential for regulatory compliance.</li>
+    <li>"Human-on-the-Loop" is a related variant where humans set overarching policy and AI autonomously executes actions within those policy boundaries at scale.</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>Wu, X., et al. "A Survey of Human-in-the-loop for Machine Learning." <a href="https://arxiv.org/abs/2108.00941" target="_blank">arxiv.org/abs/2108.00941</a></li>
+    <li><span class="ref-num">2</span>Amershi, S., et al. (2014). "Power to the People: The Role of Humans in Interactive Machine Learning." <a href="https://ojs.aaai.org/index.php/aimagazine/article/view/2513" target="_blank">AAAI AI Magazine</a></li>
+    <li><span class="ref-num">3</span>Christiano, P., et al. (2017). "Deep Reinforcement Learning from Human Preferences." <a href="https://arxiv.org/abs/1706.03741" target="_blank">arxiv.org/abs/1706.03741</a></li>
+    <li><span class="ref-num">4</span>Google Agent Development Kit (ADK) Documentation. <a href="https://google.github.io/adk-docs/" target="_blank">google.github.io/adk-docs/</a></li>
+    <li><span class="ref-num">5</span>Monarch, R. M. (2021). "Human-in-the-Loop Machine Learning." Manning Publications.</li>
+  </ul>
+</div>
+
+<div class="footer"><p>Agentic Design Patterns — Chapter 13: Human-in-the-Loop</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  'The user submits a request or task. The AI agent begins autonomous processing.',
+  'The AI agent processes the task autonomously — analyzing data, generating outputs, and evaluating its own confidence level using internal metrics.',
+  'The escalation policy evaluates: Is confidence above threshold? Is the task high-risk? Does policy mandate review? If yes to any, the task is routed to the human queue.',
+  'The human expert reviews the AI\'s analysis, applies domain knowledge and ethical judgment, makes a final decision or correction. This is where human accountability enters.',
+  'The final output is delivered to the user. The human decision is logged as feedback, closing the learning loop and improving future AI performance.'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  { q: 'What is the primary purpose of the Human-in-the-Loop (HITL) pattern?', opts: ['To replace human workers with AI', 'To integrate human oversight and judgment into AI workflows', 'To automate all decision-making processes', 'To slow down AI processing for accuracy'], ans: 1, ok: 'Correct! HITL integrates human intelligence and judgment into AI workflows, creating a collaborative ecosystem.', no: 'Incorrect. HITL integrates human oversight into AI workflows — it augments human capabilities rather than replacing workers.' },
+  { q: 'Which of the following is described as the primary drawback of the HITL pattern?', opts: ['High computational cost', 'Lack of scalability', 'Poor accuracy', 'Slow AI training'], ans: 1, ok: 'Correct! The primary drawback is lack of scalability — human operators cannot manage millions of tasks.', no: 'Incorrect. The primary drawback is lack of scalability — humans cannot scale to process millions of tasks.' },
+  { q: 'What are "escalation policies" in the context of HITL?', opts: ['Rules for increasing AI computing resources', 'Protocols that dictate when an agent should hand off to a human', 'Algorithms for improving AI accuracy over time', 'Security measures for protecting AI systems'], ans: 1, ok: 'Correct! Escalation policies are protocols that dictate when and how an agent should escalate tasks to human operators.', no: 'Incorrect. Escalation policies are protocols dictating when an agent should route tasks to human operators.' },
+  { q: 'In the "Human-on-the-Loop" variant, what is the human\'s primary role?', opts: ['Reviewing every individual AI decision', 'Defining overarching policy that AI operates within', 'Training the AI model directly', 'Executing tasks that the AI cannot handle'], ans: 1, ok: 'Correct! In Human-on-the-Loop, humans define overarching policy and the AI autonomously handles immediate actions within that policy.', no: 'Incorrect. In Human-on-the-Loop, humans define the overarching policy and AI executes actions autonomously within it.' },
+  { q: 'Which scenario best exemplifies a need for HITL rather than full AI autonomy?', opts: ['Sorting email spam', 'Recommending movies', 'Sentencing decisions in criminal court', 'Generating weather forecasts'], ans: 2, ok: 'Correct! Sentencing decisions require complex moral reasoning and human accountability — a judge must retain final authority.', no: 'Incorrect. Sentencing decisions involve complex moral reasoning and accountability that demand human judgment and oversight.' },
+  { q: 'Why does implementing HITL raise privacy concerns?', opts: ['AI models store sensitive data permanently', 'Human operators may need to review sensitive information', 'HITL requires public disclosure of AI decisions', 'Human reviewers must have admin access to all systems'], ans: 1, ok: 'Correct! Sensitive information must be carefully anonymized before being exposed to human operators, adding process complexity.', no: 'Incorrect. The issue is that human reviewers may need to see sensitive data, requiring anonymization before exposure.' }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    if (scores[curQ] === false) document.getElementById('qo' + q2.ans).classList.remove('disabled');
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

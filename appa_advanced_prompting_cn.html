@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>附录 A：高级提示技术 — 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FAFAF8;--bg2:#F2F1ED;--bg3:#E8E7E2;--text:#1A1A18;--text2:#5C5B57;--text3:#8A8983;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.15);--teal:#1D9E75;--teal-l:#E1F5EE;--teal-d:#085041;--coral:#D85A30;--coral-l:#FAECE7;--coral-d:#712B13;--purple:#7F77DD;--purple-l:#EEEDFE;--purple-d:#3C3489;--blue:#378ADD;--blue-l:#E6F1FB;--blue-d:#0C447C;--amber:#BA7517;--amber-l:#FAEEDA;--amber-d:#633806;--pink:#D4537E;--pink-l:#FBEAF0;--pink-d:#72243E;--red:#E24B4A;--red-l:#FCEBEB;--red-d:#791F1F;--green:#639922;--green-l:#EAF3DE;--green-d:#27500A;--sans:'Noto Sans SC',system-ui,sans-serif;--serif:'Noto Serif SC',serif;--mono:'JetBrains Mono',monospace;--radius:12px;--radius-sm:8px;}
+@media(prefers-color-scheme:dark){:root{--bg:#1C1C1A;--bg2:#2A2A27;--bg3:#343431;--text:#E8E7E2;--text2:#ADACA6;--text3:#7A7974;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--teal-l:#0A3D30;--teal-d:#9FE1CB;--coral-l:#3D1E12;--coral-d:#F5C4B3;--purple-l:#2A2555;--purple-d:#CECBF6;--blue-l:#0A2E4D;--blue-d:#B5D4F4;--amber-l:#3A2805;--amber-d:#FAC775;--pink-l:#3D1528;--pink-d:#F4C0D1;--red-l:#3D1313;--red-d:#F7C1C1;--green-l:#1E3008;--green-d:#C0DD97;}}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.8;-webkit-font-smoothing:antialiased;}
+.app{max-width:860px;margin:0 auto;padding:2rem 1.5rem 4rem;}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;}
+.back-link:hover{color:var(--text);}
+.chapter-tag{display:inline-block;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--teal);background:var(--teal-l);padding:4px 14px;border-radius:99px;margin-bottom:16px;}
+h1{font-family:var(--serif);font-size:2.2rem;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:12px;}
+.subtitle{font-size:1.05rem;color:var(--text2);line-height:1.8;margin-bottom:2rem;max-width:640px;}
+.nav-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:0.5px solid var(--border2);position:sticky;top:0;background:var(--bg);z-index:100;padding-top:8px;}
+.nav-btn{font-family:var(--sans);font-size:13px;padding:7px 16px;border-radius:99px;border:0.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .2s;font-weight:400;white-space:nowrap;}
+.nav-btn:hover{border-color:var(--text3);color:var(--text);}
+.nav-btn.active{background:var(--teal-l);color:var(--teal-d);border-color:var(--teal);font-weight:500;}
+.section{display:none;animation:fadeUp .4s ease;}
+.section.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.card{background:var(--bg2);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:16px;border:0.5px solid var(--border);}
+.card-bordered{border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;}
+.card h3{font-size:1rem;font-weight:500;margin-bottom:8px;color:var(--text);}
+.card p{font-size:14px;color:var(--text2);line-height:1.8;}
+.card ul{padding-left:1.4rem;margin-top:8px;}
+.card li{font-size:14px;color:var(--text2);margin-bottom:4px;line-height:1.7;}
+.sec-title{font-family:var(--serif);font-size:1.4rem;font-weight:600;margin-bottom:1rem;color:var(--text);}
+.sec-desc{font-size:14px;color:var(--text2);margin-bottom:1.5rem;line-height:1.8;}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:2rem;}
+.metric{background:var(--bg2);border-radius:var(--radius-sm);padding:16px 20px;border:0.5px solid var(--border);}
+.metric-label{font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-weight:500;}
+.metric-value{font-size:1.5rem;font-weight:500;color:var(--text);margin-top:4px;}
+.fail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:1.5rem 0;}
+@media(max-width:560px){.fail-grid{grid-template-columns:1fr;}}
+.fail-card{padding:16px 20px;border-radius:var(--radius-sm);border:0.5px solid var(--border);cursor:pointer;transition:all .25s;position:relative;overflow:hidden;background:var(--bg2);}
+.fail-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.fail-card:nth-child(1)::before{background:var(--red);}
+.fail-card:nth-child(2)::before{background:var(--coral);}
+.fail-card:nth-child(3)::before{background:var(--amber);}
+.fail-card:nth-child(4)::before{background:var(--pink);}
+.fail-card:nth-child(5)::before{background:var(--purple);}
+.fail-card h4{font-size:14px;font-weight:500;margin-bottom:4px;}
+.fail-card p{font-size:13px;color:var(--text2);line-height:1.6;}
+.fail-card .detail{max-height:0;overflow:hidden;transition:max-height .3s;}
+.fail-card.open .detail{max-height:200px;}
+.chain-container{display:flex;flex-direction:column;align-items:center;gap:0;margin:2rem 0;}
+.chain-node{width:100%;max-width:520px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px 20px;cursor:pointer;transition:all .25s;}
+.chain-node.open{border-color:var(--teal);background:var(--teal-l);}
+.chain-head{display:flex;align-items:center;gap:14px;}
+.chain-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;flex-shrink:0;}
+.chain-title{font-size:15px;font-weight:500;}
+.chain-role{font-size:12px;color:var(--text3);margin-top:2px;}
+.chain-detail{max-height:0;overflow:hidden;transition:max-height .35s ease;font-size:13px;color:var(--text2);line-height:1.8;}
+.chain-node.open .chain-detail{max-height:400px;padding-top:14px;}
+.chain-arrow{width:2px;height:32px;background:var(--border2);position:relative;}
+.chain-arrow::after{content:'';position:absolute;bottom:-5px;left:-5px;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:7px solid var(--border2);}
+.json-block{background:var(--bg3);border-radius:var(--radius-sm);padding:16px 20px;font-family:var(--mono);font-size:12px;line-height:1.7;overflow-x:auto;white-space:pre;color:var(--text);margin:12px 0;border:0.5px solid var(--border);}
+.uc-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem;}
+.uc-tab{font-family:var(--sans);font-size:12px;padding:6px 14px;border-radius:99px;border:0.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .2s;}
+.uc-tab.active{background:var(--purple-l);color:var(--purple-d);border-color:var(--purple);font-weight:500;}
+.uc-panel{display:none;animation:fadeUp .3s ease;}
+.uc-panel.active{display:block;}
+.uc-steps{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+.uc-step{display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--text2);line-height:1.7;}
+.uc-step-num{width:22px;height:22px;border-radius:50%;background:var(--bg3);color:var(--text2);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.code-block{background:var(--bg3);border-radius:var(--radius-sm);padding:20px 24px;font-family:var(--mono);font-size:12.5px;line-height:1.7;overflow-x:auto;white-space:pre;color:var(--text);margin:12px 0;border:0.5px solid var(--border);tab-size:2;}
+.code-comment{color:var(--text3);}
+.code-string{color:var(--teal);}
+.code-keyword{color:var(--purple);}
+.ctx-stack{display:flex;flex-direction:column;gap:6px;margin:1.5rem 0;}
+.ctx-layer{padding:14px 20px;border-radius:var(--radius-sm);cursor:pointer;transition:all .25s;border:0.5px solid transparent;}
+.ctx-layer:hover{transform:translateX(4px);}
+.ctx-layer.open{transform:translateX(0);}
+.ctx-layer-title{font-size:14px;font-weight:500;}
+.ctx-layer-sub{font-size:12px;opacity:.75;margin-top:2px;}
+.ctx-layer-detail{max-height:0;overflow:hidden;transition:max-height .35s;font-size:13px;line-height:1.8;}
+.ctx-layer.open .ctx-layer-detail{max-height:300px;padding-top:10px;}
+.quiz-progress{display:flex;gap:6px;margin-bottom:1.5rem;}
+.quiz-dot{width:8px;height:8px;border-radius:50%;background:var(--bg3);transition:all .3s;}
+.quiz-dot.current{background:var(--teal);transform:scale(1.3);}
+.quiz-dot.done{background:var(--green);}
+.quiz-dot.wrong-dot{background:var(--red);}
+.quiz-q{font-family:var(--serif);font-size:1.1rem;font-weight:600;margin-bottom:1rem;line-height:1.6;}
+.quiz-opt{display:block;width:100%;text-align:left;padding:12px 18px;margin-bottom:8px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg2);color:var(--text);font-size:14px;cursor:pointer;font-family:var(--sans);transition:all .2s;line-height:1.6;}
+.quiz-opt:hover{border-color:var(--text3);background:var(--bg3);}
+.quiz-opt.correct{background:var(--green-l);border-color:var(--green);color:var(--green-d);}
+.quiz-opt.wrong{background:var(--red-l);border-color:var(--red);color:var(--red-d);}
+.quiz-opt.disabled{pointer-events:none;opacity:.6;}
+.quiz-opt.disabled.correct{opacity:1;}
+.quiz-fb{padding:14px 18px;border-radius:var(--radius-sm);font-size:13px;line-height:1.7;margin:12px 0;display:none;}
+.quiz-fb.show{display:block;}
+.quiz-fb.right{background:var(--green-l);color:var(--green-d);}
+.quiz-fb.wrng{background:var(--red-l);color:var(--red-d);}
+.btn{font-family:var(--sans);padding:8px 22px;border-radius:99px;border:0.5px solid var(--border2);background:transparent;color:var(--text);font-size:13px;cursor:pointer;transition:all .15s;margin-top:12px;}
+.btn:hover{background:var(--bg3);}
+.btn-teal{background:var(--teal-l);color:var(--teal-d);border-color:var(--teal);}
+.tk-list{counter-reset:tk;list-style:none;padding:0;}
+.tk-list li{counter-increment:tk;display:flex;gap:14px;align-items:flex-start;margin-bottom:16px;font-size:14px;color:var(--text2);line-height:1.8;}
+.tk-list li::before{content:counter(tk);width:28px;height:28px;border-radius:50%;background:var(--teal-l);color:var(--teal-d);font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.glance-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:1.5rem 0;}
+@media(max-width:560px){.glance-grid{grid-template-columns:1fr;}}
+.glance-card{padding:20px 24px;border-radius:var(--radius);border:0.5px solid var(--border);}
+.glance-card h4{font-size:13px;font-weight:500;margin-bottom:8px;}
+.glance-card p{font-size:13px;color:var(--text2);line-height:1.7;}
+.diagram-sim{background:var(--bg2);border-radius:var(--radius);padding:24px;margin:1.5rem 0;border:0.5px solid var(--border);text-align:center;}
+.diagram-nodes{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;margin:1rem 0;}
+.dia-node{padding:10px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;transition:all .3s;min-width:80px;text-align:center;}
+.dia-node:hover{transform:scale(1.05);}
+.dia-node.active{transform:scale(1.1);box-shadow:0 0 0 3px rgba(29,158,117,.3);}
+.dia-arrow{font-size:18px;color:var(--text3);padding:0 6px;flex-shrink:0;}
+.dia-output{margin-top:16px;padding:14px 18px;background:var(--bg3);border-radius:var(--radius-sm);font-size:13px;color:var(--text2);line-height:1.7;text-align:left;min-height:60px;}
+.ref-list{list-style:none;padding:0;}
+.ref-list li{font-size:13px;color:var(--text2);padding:8px 0;border-bottom:0.5px solid var(--border);line-height:1.6;}
+.ref-list li:last-child{border-bottom:none;}
+.ref-list a{color:var(--blue-d);text-decoration:none;}
+.ref-list a:hover{text-decoration:underline;}
+.ref-num{font-weight:500;color:var(--text3);margin-right:8px;}
+.footer{margin-top:3rem;padding-top:1.5rem;border-top:0.5px solid var(--border2);text-align:center;}
+.footer p{font-size:12px;color:var(--text3);}
+</style>
+</head>
+<body>
+<div class="app">
+<a href="./index_cn.html" class="back-link">← 返回章节列表</a>
+<div class="chapter-tag">附录 A</div>
+<h1>高级提示技术</h1>
+<p class="subtitle">系统性掌握与语言模型高效沟通的方法——从零样本提示到思维链、系统提示和角色提示，构建高性能AI应用的核心技能。</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">概览</button>
+  <button class="nav-btn" onclick="go('problem')">问题所在</button>
+  <button class="nav-btn" onclick="go('solution')">解决方案</button>
+  <button class="nav-btn" onclick="go('concepts')">核心概念</button>
+  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
+  <button class="nav-btn" onclick="go('code')">代码实战</button>
+  <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
+  <button class="nav-btn" onclick="go('glance')">一览概要</button>
+  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
+  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
+  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+</nav>
+
+<div id="sec-overview" class="section active">
+  <div class="sec-title">附录概览</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">附录页数</div><div class="metric-value">28页</div></div>
+    <div class="metric"><div class="metric-label">技术分类</div><div class="metric-value">3大类</div></div>
+    <div class="metric"><div class="metric-label">核心原则</div><div class="metric-value">5项</div></div>
+    <div class="metric"><div class="metric-label">适用场景</div><div class="metric-value">全领域</div></div>
+  </div>
+  <div class="card card-bordered">
+    <h3>什么是提示工程？</h3>
+    <p>提示（Prompting）是与语言模型交互的主要界面——通过精心设计的输入引导模型生成期望输出的过程。这涉及结构化请求、提供相关上下文、指定输出格式，以及展示期望的响应类型。设计精良的提示能够最大化语言模型的潜力，产生准确、相关和创意性的响应；而设计不当的提示则会导致模糊、不相关或错误的输出。</p>
+  </div>
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>三大提示技术类别</h3>
+    <ul>
+      <li><strong>基础提示技术</strong>——零样本、单样本、少样本提示，控制提供给模型的示例数量</li>
+      <li><strong>结构化提示</strong>——系统提示、角色提示、上下文注入，控制提示的组织方式</li>
+      <li><strong>高级推理技术</strong>——思维链（CoT）、思维树（ToT）、自我一致性，增强模型的推理能力</li>
+    </ul>
+  </div>
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>与智能体模式的关系</h3>
+    <p>智能体模式（本书主要章节所述）是构建智能系统的架构结构，定义了代理如何规划、使用工具、管理记忆和协作。这些智能体系统的有效性取决于它们与语言模型有意义交互的能力——这正是本附录所涵盖的提示技术所确保的。</p>
+  </div>
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>为什么掌握提示技术如此重要</h3>
+    <p>提示工程的目标是从语言模型中持续引出高质量响应。这需要理解模型的能力和局限性，并有效传达预期目标。通过学习如何最好地指导AI，开发者可以显著提升智能体应用的性能和可靠性。</p>
+  </div>
+</div>
+
+<div id="sec-problem" class="section">
+  <div class="sec-title">糟糕提示导致的问题</div>
+  <div class="sec-desc">不当的提示设计是AI应用失败的最常见原因。点击卡片了解典型失败模式：</div>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>模糊性与歧义性</h4>
+      <p>不清晰的指令导致不可预测的输出</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">语言模型解释模式；多种解释可能导致意外响应。不明确的提示产生模糊和不准确的响应，阻碍有意义的输出。必须精确定义任务、期望的输出格式和任何限制。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>格式不匹配</h4>
+      <p>没有示例时模型无法推断期望的输出格式</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">当输出需要遵循特定格式（JSON、Markdown表格、特定结构）时，仅凭文字描述往往不够。少样本提示通过提供具体示例来解决这一问题，让模型理解确切的输出模式。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>角色和语气偏差</h4>
+      <p>没有明确定义时模型默认通用行为</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">没有角色提示，语言模型会以通用的方式响应，可能不符合应用需求。系统提示和角色定义使模型采用适合特定用例的语气、专业知识和行为方式。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>推理错误</h4>
+      <p>复杂问题需要结构化推理而非直接响应</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">对于多步推理、数学问题或逻辑分析，直接询问往往得到错误答案。思维链提示通过引导模型逐步推理来显著提升准确性，特别是在复杂的推断任务上。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>上下文窗口浪费</h4>
+      <p>信息组织不当导致模型遗漏关键内容</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">提示的结构和组织方式会影响模型对信息的处理效率。将最重要的信息放在提示的开头或结尾，使用清晰的分隔符和标签，可以帮助模型更有效地处理长上下文。</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="sec-solution" class="section">
+  <div class="sec-title">分层提示工程框架</div>
+  <div class="sec-desc">高效的提示设计遵循从基础到高级的分层框架。点击每个层级了解详情：</div>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head"><div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div><div><div class="chain-title">核心原则层</div><div class="chain-role">清晰性、简洁性、行动动词、积极指令、迭代优化</div></div></div>
+      <div class="chain-detail">五大核心原则构成有效提示的基础：<br><strong>清晰性与具体性</strong>——指令应无歧义且精确；<strong>简洁性</strong>——避免不必要的措辞；<strong>使用动词</strong>——"总结"比"关于总结"更有效；<strong>积极指令优于负面约束</strong>——"保持专业"比"不要非正式"更好；<strong>实验与迭代</strong>——提示工程是迭代过程，需要多次尝试和优化。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head"><div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div><div><div class="chain-title">样本控制层</div><div class="chain-role">零样本、单样本、少样本提示</div></div></div>
+      <div class="chain-detail"><strong>零样本</strong>——仅给出指令，依赖模型预训练知识，最快；<strong>单样本</strong>——提供一个输入-输出示例，指导模型了解期望格式；<strong>少样本（3-5例）</strong>——提供多个示例以展示更清晰的模式，特别适合格式敏感任务。随着模型变得更强，甚至支持"多样本"学习——在上下文中包含数百个示例。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head"><div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div><div><div class="chain-title">结构化层</div><div class="chain-role">系统提示、角色提示、上下文注入</div></div></div>
+      <div class="chain-detail"><strong>系统提示</strong>——设置整体上下文和目的，为整个交互定义预期行为，影响模型的语气、风格和方法；<strong>角色提示</strong>——指示模型采用特定人物形象（"你是一名资深Python工程师"），使其利用相关训练数据以特定专业角色响应；<strong>上下文注入</strong>——在提示中插入相关背景信息，为特定查询提供精确上下文。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--amber);">
+      <div class="chain-head"><div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">4</div><div><div class="chain-title">高级推理层</div><div class="chain-role">思维链、自我一致性、提示链</div></div></div>
+      <div class="chain-detail"><strong>思维链（CoT）</strong>——引导模型在给出答案之前逐步展示推理过程，显著提升多步推理准确性；<strong>自我一致性</strong>——对同一问题生成多条推理链，通过投票选择最一致的答案；<strong>提示链</strong>——将复杂任务分解为多个顺序子提示，每个提示专注于特定子任务，本书第1章的核心主题。</div>
+    </div>
+  </div>
+</div>
+
+<div id="sec-concepts" class="section">
+  <div class="sec-title">核心概念</div>
+  <div class="card card-bordered">
+    <h3>有效动词列表</h3>
+    <p>动词选择是关键的提示工具。行动动词表明期望的操作，精确引导模型激活相关的训练数据和流程。有效的动词包括：</p>
+    <p style="margin-top:8px;font-size:13px;color:var(--text2);font-family:var(--mono);line-height:2;">Act（行动）· Analyze（分析）· Categorize（分类）· Classify（分类）· Contrast（对比）· Compare（比较）· Create（创建）· Describe（描述）· Define（定义）· Evaluate（评估）· Extract（提取）· Find（查找）· Generate（生成）· Identify（识别）· List（列举）· Measure（衡量）· Organize（组织）· Parse（解析）· Pick（挑选）· Predict（预测）· Provide（提供）· Rank（排名）· Recommend（推荐）· Return（返回）· Retrieve（检索）· Rewrite（重写）· Select（选择）· Show（展示）· Sort（排序）· Summarize（总结）· Translate（翻译）· Write（撰写）</p>
+  </div>
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>零样本 vs 单样本 vs 少样本</h3>
+    <ul>
+      <li><strong>零样本</strong>：直接给出指令，无示例。适用于模型在训练中大量接触的任务（简单问答、基础摘要）。最快但一致性最低。</li>
+      <li><strong>单样本</strong>：提供一个输入-输出示例。适用于格式或风格不常见的任务。为模型提供可模仿的具体实例。</li>
+      <li><strong>少样本（3-5例）</strong>：提供多个示例展示更清晰的期望模式。特别适合分类、特定格式的数据提取或特定风格的文本生成。示例质量和多样性至关重要。</li>
+    </ul>
+  </div>
+  <div class="json-block"><span style="color:#5C5B57">// 少样本情感分类示例</span>
+示例1: 评论: "表演出色，故事引人入胜。" → 情感: 积极
+示例2: 评论: "还行，没什么特别的。"    → 情感: 中性
+示例3: 评论: "情节混乱，角色令人厌烦。" → 情感: 消极
+
+待分类: 评论: "视觉效果惊艳，但对白较弱。"
+情感: [?]</div>
+</div>
+
+<div id="sec-usecases" class="section">
+  <div class="sec-title">应用场景</div>
+  <div class="sec-desc">不同提示技术在各类任务中的最佳应用场景：</div>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">文本分类</button>
+    <button class="uc-tab" onclick="showUC(1)">数据提取</button>
+    <button class="uc-tab" onclick="showUC(2)">代码生成</button>
+    <button class="uc-tab" onclick="showUC(3)">推理分析</button>
+    <button class="uc-tab" onclick="showUC(4)">内容创作</button>
+    <button class="uc-tab" onclick="showUC(5)">智能体任务</button>
+  </div>
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>文本分类</h3>
+      <p>使用少样本提示确保分类标签的一致性和准确性。示例的质量和多样性至关重要——确保每个类别都有代表性示例，并随机混合不同类别的顺序以防止过拟合。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>定义所有可能的类别及其描述</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>为每个类别准备2-3个高质量代表性示例</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>随机混合示例顺序以防止偏差</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>在提示末尾插入待分类文本</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>结构化数据提取</h3>
+      <p>使用少样本提示展示期望的 JSON/XML 输出格式。明确定义所有字段名称和数据类型，提供处理缺失数据或边缘情况的示例，确保模型生成可机器解析的结构化输出。</p>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>代码生成与调试</h3>
+      <p>角色提示（"你是一名精通Python的资深工程师"）结合清晰的功能描述和期望的代码风格规范。对于复杂函数，使用思维链引导模型在写代码前先分析需求和边缘情况。</p>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>复杂推理分析</h3>
+      <p>使用思维链提示引导模型逐步展示推理过程："逐步思考"或通过少样本示例展示推理步骤。对于高风险决策，使用自我一致性——生成多条推理链并通过多数投票确定最可靠答案。</p>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--pink);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>内容创作与改写</h3>
+      <p>系统提示定义语气（专业/休闲）、受众和风格偏好。角色提示使模型以特定写作风格或专业视角生成内容。提供高质量示例展示期望的写作风格，而不是试图用文字详细描述它。</p>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-5">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>智能体任务提示</h3>
+      <p>在多智能体系统中，每个代理的系统提示应精确定义其角色、能力边界和输出格式。结构化输出要求（JSON模式）确保代理间数据传递的可靠性。使用提示链将复杂代理工作流分解为可管理的子任务。</p>
+    </div>
+  </div>
+</div>
+
+<div id="sec-code" class="section">
+  <div class="sec-title">代码实战</div>
+  <div class="sec-desc">系统提示和少样本提示的实际应用示例：</div>
+  <div class="code-block"><span class="code-keyword">from</span> google.generativeai <span class="code-keyword">import</span> GenerativeModel
+<span class="code-keyword">import</span> google.generativeai <span class="code-keyword">as</span> genai
+
+<span class="code-comment"># 系统提示示例——定义智能体角色</span>
+system_prompt = <span class="code-string">"""你是一名专业的技术文档写作专家，专注于将复杂的技术概念转化为
+清晰、准确的中文文档。你的回答应该：
+- 准确技术性，避免过度简化
+- 使用标准的技术术语并提供中文解释
+- 结构清晰，使用标题和列表提升可读性
+- 对于代码示例，提供充分的注释"""</span>
+
+model = GenerativeModel(
+    model_name=<span class="code-string">"gemini-2.0-flash"</span>,
+    system_instruction=system_prompt
+)
+
+response = model.generate_content(<span class="code-string">"请解释 RAG（检索增强生成）的工作原理"</span>)</div>
+  <div class="code-block"><span class="code-comment"># 少样本提示示例——情感分类</span>
+few_shot_prompt = <span class="code-string">"""将以下电影评论分类为：积极、中性或消极。
+
+评论: "演技令人信服，剧情扣人心弦。"
+情感: 积极
+
+评论: "作为一部爱好者电影还算可以。"
+情感: 中性
+
+评论: "情节漏洞百出，人物塑造薄弱。"
+情感: 消极
+
+评论: "视觉效果震撼，但故事平淡。"
+情感:"""</span>
+
+response = model.generate_content(few_shot_prompt)
+print(response.text)  <span class="code-comment"># 输出: 中性</span></div>
+</div>
+
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">深入解析：高级提示策略</div>
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);">
+      <div class="ctx-layer-title">思维链（CoT）提示的最佳实践</div>
+      <div class="ctx-layer-sub">让模型展示推理过程以提升准确性</div>
+      <div class="ctx-layer-detail">CoT可通过零样本方式（"请逐步思考..."）或少样本方式（提供展示逐步推理的示例）实现。关键是确保推理步骤清晰、逻辑连贯。CoT对于算术推理、常识推理、符号操作等需要多步推断的任务特别有效，可以将复杂问题的准确率提升显著。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);">
+      <div class="ctx-layer-title">角色提示与人物设定</div>
+      <div class="ctx-layer-sub">通过定义模型身份激活相关专业知识</div>
+      <div class="ctx-layer-detail">角色提示不仅仅是改变语气——它实际上引导模型激活与该角色相关的训练数据。"作为一名儿科医生"会引导模型使用适合家长的语言和关注儿科特定的临床知识，而"作为一名医学研究员"则会产生更技术性的响应。角色定义越具体，效果越精准。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);">
+      <div class="ctx-layer-title">结构化输出格式控制</div>
+      <div class="ctx-layer-sub">通过明确格式要求获得可解析的输出</div>
+      <div class="ctx-layer-detail">对于需要机器处理的输出，明确要求JSON、XML或Markdown格式，并在提示中提供格式示例。现代模型支持"结构化输出模式"，通过JSON Schema约束输出结构，确保输出始终符合预定义的格式，大大降低解析错误率。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);">
+      <div class="ctx-layer-title">提示迭代优化方法论</div>
+      <div class="ctx-layer-sub">系统性改进提示的工程流程</div>
+      <div class="ctx-layer-detail">有效的提示工程是迭代过程：(1) 从明确目标开始起草初始提示；(2) 在多个代表性测试用例上测试；(3) 分析失败案例，识别模式；(4) 有针对性地修改提示；(5) 记录每次尝试及其结果；(6) 通过A/B测试比较不同版本。文档化是关键——记录哪些方法有效，为什么有效。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);">
+      <div class="ctx-layer-title">多样本学习的新趋势</div>
+      <div class="ctx-layer-sub">随着上下文窗口扩大，百样本级别的学习成为可能</div>
+      <div class="ctx-layer-detail">随着 Gemini 等现代LLM获得更长的上下文建模能力，"多样本"学习正在兴起。通过在提示中包含数百甚至更多的示例，可以在不微调模型的情况下实现接近微调的性能。这对于高度专业化的分类任务和格式严格的输出生成特别有价值。</div>
+    </div>
+  </div>
+</div>
+
+<div id="sec-glance" class="section">
+  <div class="sec-title">一览概要</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4>首选技术指南</h4>
+      <p>先尝试零样本。如果结果不一致，添加单个示例。如果格式/风格至关重要，使用3-5个少样本示例。</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4>系统提示 vs 用户提示</h4>
+      <p>系统提示设置持久的行为规则；用户提示包含特定任务。将角色定义、输出格式要求和安全约束放在系统提示中。</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);">
+      <h4>何时使用CoT</h4>
+      <p>多步推理、数学、逻辑分析——任何需要中间步骤的任务。对简单分类或摘要任务，CoT会增加不必要的冗余。</p>
+    </div>
+    <div class="glance-card" style="background:var(--blue-l);">
+      <h4>提示调试技巧</h4>
+      <p>当提示失败时：增加具体性；替换模糊词汇；添加格式示例；尝试角色提示；检查负面约束并替换为正面指令。</p>
+    </div>
+  </div>
+  <div class="diagram-sim">
+    <p style="font-size:13px;color:var(--text3);margin-bottom:8px;">点击每种技术了解其适用场景：</p>
+    <div class="diagram-nodes">
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(0)">零样本</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(1)">少样本</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d);" onclick="simClick(2)">系统提示</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d);" onclick="simClick(3)">CoT</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" style="background:var(--blue-l);color:var(--blue-d);" onclick="simClick(4)">提示链</div>
+    </div>
+    <div class="dia-output" id="sim-output">点击上方技术了解每种高级提示方法的最佳应用场景和关键优势。</div>
+  </div>
+</div>
+
+<div id="sec-quiz" class="section">
+  <div class="sec-title">知识测验</div>
+  <div id="quizProgress" class="quiz-progress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">核心要点</div>
+  <ul class="tk-list">
+    <li>提示工程是与语言模型高效沟通的核心技能——设计精良的提示能够最大化模型潜力，而糟糕的提示会导致不可预测的输出。</li>
+    <li>五大核心原则是所有提示技术的基础：清晰性/具体性、简洁性、使用行动动词、积极指令优于负面约束、实验与迭代。</li>
+    <li>零样本、单样本、少样本技术提供了控制模型学习量的基本工具——先从零样本开始，根据需要逐步添加示例。</li>
+    <li>少样本示例的质量和多样性至关重要——涵盖潜在变体和边缘情况的高质量、准确示例比数量更重要。</li>
+    <li>系统提示设置整体交互上下文；角色提示激活模型的特定专业知识和行为模式——两者都是强大的行为控制工具。</li>
+    <li>思维链（CoT）提示通过引导模型展示逐步推理过程，显著提升多步推理、数学和逻辑分析任务的准确性。</li>
+    <li>随着模型上下文窗口扩大，"多样本"学习成为可能——通过在提示中包含数百个示例实现接近微调的专业化性能。</li>
+    <li>提示工程本质上是迭代优化——记录尝试、分析失败案例、系统性改进，是持续提升提示质量的关键方法论。</li>
+  </ul>
+</div>
+
+<div id="sec-refs" class="section">
+  <div class="sec-title">参考资料</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> 提示工程指南 (Promptingguide.ai): <a href="https://www.promptingguide.ai/zh" target="_blank">promptingguide.ai/zh</a></li>
+    <li><span class="ref-num">[2]</span> Google Gemini 提示策略: <a href="https://ai.google.dev/gemini-api/docs/prompting-strategies" target="_blank">ai.google.dev/prompting-strategies</a></li>
+    <li><span class="ref-num">[3]</span> Anthropic 提示工程文档: <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering" target="_blank">docs.anthropic.com/prompt-engineering</a></li>
+    <li><span class="ref-num">[4]</span> Wei et al. 思维链提示: <a href="https://arxiv.org/abs/2201.11903" target="_blank">arxiv.org/abs/2201.11903</a></li>
+    <li><span class="ref-num">[5]</span> OpenAI 提示工程指南: <a href="https://platform.openai.com/docs/guides/prompt-engineering" target="_blank">platform.openai.com/prompt-engineering</a></li>
+    <li><span class="ref-num">[6]</span> LangChain 提示模板文档: <a href="https://python.langchain.com/docs/concepts/prompt_templates/" target="_blank">python.langchain.com/prompt-templates</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>附录 A · 高级提示技术 · 交互式学习体验</p></div>
+</div>
+<script>
+function go(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active');window.scrollTo({top:document.getElementById('navbar').offsetTop-10,behavior:'smooth'});}
+function toggleChain(el){el.classList.toggle('open');}
+function toggleCtx(el){el.classList.toggle('open');}
+function showUC(i){document.querySelectorAll('.uc-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.uc-tab').forEach(t=>t.classList.remove('active'));document.getElementById('uc-'+i).classList.add('active');document.querySelectorAll('.uc-tab')[i].classList.add('active');}
+const simTexts=['零样本提示：最简单的形式——仅提供指令，无示例。依赖模型的预训练知识理解任务并生成相关响应。最快速但一致性最低。适用于模型在训练中大量接触的任务（简单问答、基础摘要、常识推理）。先尝试零样本，如果结果不够一致再添加示例。','少样本提示：通过提供3-5个高质量输入-输出示例展示期望的输出模式。特别适合格式敏感任务（特定JSON结构、特殊分类标准）或模型需要学习特定风格的情况。示例的质量和多样性至关重要，随机混合不同类别的示例顺序以防止过拟合。','系统提示：为整个交互设置持久的行为框架——定义模型的角色、语气、输出格式偏好和安全约束。不同于用户提示（特定任务），系统提示影响模型在整个会话中的基本行为方式。将长期规则、角色定义和格式要求放在系统提示而非每次的用户提示中。','思维链（CoT）：引导模型在给出最终答案之前逐步展示推理过程。可通过"逐步思考"指令（零样本CoT）或提供展示推理步骤的示例（少样本CoT）实现。对于多步推理、数学计算和复杂逻辑分析特别有效，显著提升准确性并使推理过程透明可验证。','提示链：将复杂任务分解为多个顺序子提示，每个提示专注于特定子任务。一个提示的输出成为下一个提示的输入，形成处理管道。与本书第1章的提示链设计模式直接对应——这是将单个大型复杂提示分解为更可靠、更可调试的模块化工作流的核心方法。'];
+function simClick(i){document.querySelectorAll('.dia-node').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.dia-node')[i].classList.add('active');document.getElementById('sim-output').textContent=simTexts[i];}
+const quizData=[
+  {q:'以下哪种提示技术最适合需要特定输出格式但零样本结果不一致的任务？',opts:['增加系统提示长度','使用3-5个示例的少样本提示','只使用角色提示','要求模型逐步思考'],ans:1,ok:'正确！当零样本结果不一致或格式不符合要求时，少样本提示是最直接的解决方案。通过提供3-5个高质量的输入-输出示例，模型能够推断并复制期望的输出模式。',no:'少样本提示是处理格式不一致问题的最直接解决方案——提供具体示例比用文字描述期望格式更有效。零样本提示对于格式敏感任务往往不够一致，示例让期望变得明确具体。'},
+  {q:'根据附录A，积极指令与负面约束相比，哪种更推荐？',opts:['负面约束——更精确地定义边界','积极指令——直接描述期望行为，减少歧义','两者同等有效，视情况而定','只使用负面约束来定义安全规则'],ans:1,ok:'正确！积极指令通常优于负面约束。指定期望的操作优于列出不应做的事情。虽然约束在安全或严格格式化中有其位置，但过度依赖可能导致模型专注于回避而非目标。积极指令与人类指导偏好一致，减少混淆。',no:'附录A明确指出积极指令通常比负面约束更有效。"保持专业语气"比"不要使用非正式语言"更直接有效。虽然约束在安全方面有价值，但过度依赖负面约束会让模型专注于回避而非实现目标。'},
+  {q:'少样本提示中，为什么要随机混合不同类别的示例顺序？',opts:['让提示看起来更随机更自然','防止模型过拟合到示例顺序，确保对各类别特征的独立识别','减少提示的总长度','提高模型的处理速度'],ans:1,ok:'正确！对于分类任务，随机混合不同类别示例的顺序是最佳实践，可以防止模型潜在地过拟合到特定示例序列。这确保模型学习识别每个类别的关键特征，而不是依赖示例在提示中出现的位置模式。',no:'混合示例顺序的目的是防止过拟合——确保模型学习每个类别的实质特征，而不是依赖位置线索。如果所有积极示例都在前面，所有消极示例都在后面，模型可能学到基于位置的规律而非真正的类别特征。'},
+  {q:'系统提示和用户提示的主要区别是什么？',opts:['系统提示更短，用户提示更长','系统提示设置持久的行为框架；用户提示包含特定任务请求','系统提示是可选的；用户提示是必需的','系统提示只用于设置语言'],ans:1,ok:'正确！系统提示为整个交互设置持久的行为框架——定义角色、语气、格式偏好和安全约束，影响整个会话的行为。用户提示包含特定的任务请求。将长期规则和角色定义放在系统提示中，将任务细节放在用户提示中，实现关注点分离。',no:'关键区别在于持久性和范围：系统提示为整个会话设置行为基准（角色、规则、格式偏好），而用户提示包含特定的即时任务请求。将两者混在一起会使提示难以维护和调试。'},
+  {q:'思维链（CoT）提示对哪类任务最有效？',opts:['简单的事实检索和翻译任务','需要多步推理的任务：数学计算、逻辑分析、多步推断','所有类型的任务都同样有效','只对代码生成有效'],ans:1,ok:'正确！CoT对需要中间推理步骤的任务最有价值：多步数学计算、复杂逻辑推断、常识推理、符号操作。对于简单的事实检索或直接翻译，CoT会增加不必要的冗余而没有显著好处。在这类任务上，零样本或少样本通常更高效。',no:'CoT不对所有任务都有效——它在需要多步推理的任务上最有价值。对于简单的事实检索、直接翻译或基础摘要，CoT会增加不必要的处理步骤而没有明显好处。合理的策略是按任务复杂度选择技术。'}
+];
+let curQ=0,answered=new Set(),scores=[];
+function renderQuiz(){let dots='';for(let i=0;i<quizData.length;i++){let cls='quiz-dot';if(i===curQ)cls+=' current';else if(scores[i]===true)cls+=' done';else if(scores[i]===false)cls+=' wrong-dot';dots+='<div class="'+cls+'"></div>';}document.getElementById('quizProgress').innerHTML=dots;const q=quizData[curQ];let html='<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">第 '+(curQ+1)+' 题 / 共 '+quizData.length+' 题</div>';html+='<div class="quiz-q">'+q.q+'</div>';q.opts.forEach((opt,i)=>{html+='<button class="quiz-opt" id="qo'+i+'" onclick="answer('+i+')">'+opt+'</button>';});html+='<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';if(curQ>0)html+='<button class="btn" onclick="prevQ()">上一题</button>';if(curQ<quizData.length-1)html+='<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">下一题</button>';else html+='<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">查看核心要点</button>';html+='</div>';document.getElementById('quizArea').innerHTML=html;if(answered.has(curQ)){const q2=quizData[curQ];document.querySelectorAll('.quiz-opt').forEach((btn,i)=>{btn.classList.add('disabled');if(i===q2.ans)btn.classList.add('correct');});document.getElementById('nextBtn').style.display='inline-block';}}
+function answer(i){if(answered.has(curQ))return;answered.add(curQ);const q=quizData[curQ];const isRight=i===q.ans;scores[curQ]=isRight;document.getElementById('qo'+i).classList.add(isRight?'correct':'wrong');if(!isRight)document.getElementById('qo'+q.ans).classList.add('correct');document.querySelectorAll('.quiz-opt').forEach(b=>b.classList.add('disabled'));const fb=document.getElementById('qfb');fb.textContent=isRight?q.ok:q.no;fb.className='quiz-fb show '+(isRight?'right':'wrng');document.getElementById('nextBtn').style.display='inline-block';renderQuiz();}
+function nextQ(){curQ++;renderQuiz();}
+function prevQ(){curQ--;renderQuiz();}
+renderQuiz();
+</script>
+</body>
+</html>

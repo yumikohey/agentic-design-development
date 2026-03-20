@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 20: Prioritization — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: system-ui, -apple-system, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB;
+    --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6;
+    --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775;
+    --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Chapter 20</div>
+<h1>Prioritization</h1>
+<p class="subtitle">In complex, dynamic environments agents frequently face conflicting goals and limited resources. The Prioritization pattern enables agents to rank tasks by significance, urgency, and dependencies — ensuring effort is focused on what matters most.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <p class="sec-desc">Without a defined process for determining the next action, agents in complex environments experience reduced efficiency, operational delays, or outright failure to achieve key objectives. Prioritization addresses this by enabling agents to assess and rank tasks based on significance, urgency, dependencies, and established criteria.</p>
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Priority Levels</div>
+      <div class="metric-value">3 (P0–P2)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Criteria Dimensions</div>
+      <div class="metric-value">6 types</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Prioritization Levels</div>
+      <div class="metric-value">3 scopes</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Core Use Cases</div>
+      <div class="metric-value">7 domains</div>
+    </div>
+  </div>
+  <div class="card card-bordered">
+    <h3>What Prioritization Solves</h3>
+    <p>Agents face a multitude of potential actions, conflicting goals, and finite resources. Without prioritization, they risk becoming inefficient and ineffective, leading to significant operational delays or failure to accomplish primary objectives.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Three Levels of Prioritization</h3>
+    <p><strong>High-level goal prioritization</strong> selects an overarching objective. <strong>Sub-task prioritization</strong> orders steps within a plan. <strong>Action selection</strong> chooses the next immediate action from available options.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Human Team Analogy</h3>
+    <p>This mirrors human team organization, where managers prioritize tasks by considering input from all team members. The agent acts as a strategic decision-maker, weighing criteria much as a human project manager would.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Dynamic Re-prioritization</h3>
+    <p>Circumstances change: a new critical event emerges, a deadline approaches. Dynamic re-prioritization allows agents to modify priorities in real time, ensuring adaptability and responsiveness in unpredictable environments.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">The Problems Without Prioritization</div>
+  <p class="sec-desc">Agents operating without a principled prioritization strategy face concrete, costly failure modes. Click each card to explore.</p>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Action Paralysis</h4>
+      <p>Agent stalls when facing too many equally-weighted options.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">When every task has the same apparent importance, the agent cannot determine the next move. This leads to loops, excessive reasoning overhead, or arbitrary selection — none of which serve the user's actual goals.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Resource Misallocation</h4>
+      <p>Critical tasks starved of resources while trivial ones proceed.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">Without urgency weighting, a low-impact batch job may consume compute resources needed for a time-sensitive customer request. Prioritization ensures critical workloads get served first.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Missed Deadlines</h4>
+      <p>Time-sensitive tasks fail due to unordered execution.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">An autonomous driving agent that treats collision avoidance and fuel optimization as equal priorities is dangerous. Safety actions must preempt efficiency goals. Time sensitivity must be a first-class criterion.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Goal Misalignment</h4>
+      <p>Agent pursues low-value activities while strategic goals languish.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">Without importance weighting tied to primary objectives, an agent might spend cycles on polishing minor outputs while the core deliverable remains incomplete. Prioritization keeps agent behavior strategically aligned.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Dependency Violations</h4>
+      <p>Agent attempts tasks before their prerequisites are complete.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">Complex workflows have prerequisite chains. Ignoring dependencies leads to failed tasks, wasted effort, and corrupted state. A robust prioritization system must account for task dependencies before scheduling execution.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">Solution: The Prioritization Pattern</div>
+  <p class="sec-desc">The pattern introduces a structured pipeline for evaluating and ranking tasks. Click each step to expand.</p>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Define Criteria</div>
+          <div class="chain-role">Establish the rules for task evaluation</div>
+        </div>
+      </div>
+      <div class="chain-detail">Identify the dimensions by which tasks will be judged: urgency (time sensitivity), importance (impact on primary objective), dependencies (prerequisite relationships), resource availability (tools and information readiness), cost/benefit ratio (effort vs. expected outcome), and user preferences for personalized agents.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Evaluate Tasks</div>
+          <div class="chain-role">Score each candidate action against the criteria</div>
+        </div>
+      </div>
+      <div class="chain-detail">Methods range from simple rule-based scoring (if urgency = high, score += 3) to complex LLM reasoning that weighs multiple competing factors simultaneously. The agent assesses each potential action against the defined criteria to produce a ranking.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">3</div>
+        <div>
+          <div class="chain-title">Schedule and Select</div>
+          <div class="chain-role">Execute optimal next action or task sequence</div>
+        </div>
+      </div>
+      <div class="chain-detail">The scheduling algorithm selects the optimal next action based on evaluation scores. This may use a priority queue, a planning component, or direct LLM selection. The agent commits to the highest-ranked task and begins execution.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">4</div>
+        <div>
+          <div class="chain-title">Dynamic Re-prioritization</div>
+          <div class="chain-role">Adapt priorities as circumstances evolve</div>
+        </div>
+      </div>
+      <div class="chain-detail">The priority queue is not static. When a new critical event emerges (system outage, deadline change, user escalation), the agent re-evaluates the task list and adjusts its focus accordingly. This real-time adaptability is what distinguishes a true agentic system from a simple script.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+  <p class="sec-desc">The fundamental building blocks of the Prioritization pattern.</p>
+  <div class="card">
+    <h3>The Six Prioritization Criteria</h3>
+    <ul>
+      <li><strong>Urgency:</strong> Time sensitivity — does this need to happen now or can it wait?</li>
+      <li><strong>Importance:</strong> Impact on the primary objective — how critical is this to the core goal?</li>
+      <li><strong>Dependencies:</strong> Is this task a prerequisite for other high-value tasks?</li>
+      <li><strong>Resource Availability:</strong> Are the necessary tools, data, and compute ready?</li>
+      <li><strong>Cost/Benefit:</strong> What is the effort required relative to the expected outcome?</li>
+      <li><strong>User Preferences:</strong> For personalized agents, what does the user value most?</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Priority Levels: P0, P1, P2</h3>
+    <p><strong>P0 (Highest):</strong> Critical, immediate. Maps to "urgent," "ASAP," "critical" language in requests. Agent must act now.<br>
+    <strong>P1 (Medium):</strong> Important but not time-critical. Default assignment when priority is unspecified.<br>
+    <strong>P2 (Lowest):</strong> Background or nice-to-have. Can be deferred when higher-priority work exists.</p>
+  </div>
+  <div class="card">
+    <h3>Task Evaluation Approaches</h3>
+    <p>Simple rule-based: deterministic scoring with explicit if-then logic. Fast and predictable but inflexible. LLM-based: the model reasons about competing priorities holistically, handling ambiguous requests (e.g., "urgent" may mean different things in different contexts). Hybrid: rules handle clear cases, LLM handles edge cases.</p>
+  </div>
+  <div class="card">
+    <h3>Priority Queue Architecture</h3>
+    <p>The internal data structure that maintains the ordered list of pending tasks. New tasks are inserted at the appropriate position based on their evaluated priority score. The agent always dequeues and executes the highest-priority available task. When priorities change, tasks can be re-inserted or reordered.</p>
+    <div class="json-block">{
+  "task_id": "TASK-001",
+  "description": "Implement new login system",
+  "priority": "P0",
+  "assigned_to": "Worker B",
+  "created_at": "2025-01-15T10:30:00Z"
+}</div>
+  </div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Use Cases</div>
+  <p class="sec-desc">AI agents apply prioritization across a wide spectrum of real-world domains. Select a use case to explore.</p>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Customer Support</button>
+    <button class="uc-tab" onclick="showUC(1)">Cloud Computing</button>
+    <button class="uc-tab" onclick="showUC(2)">Autonomous Driving</button>
+    <button class="uc-tab" onclick="showUC(3)">Financial Trading</button>
+    <button class="uc-tab" onclick="showUC(4)">Project Management</button>
+    <button class="uc-tab" onclick="showUC(5)">Cybersecurity</button>
+    <button class="uc-tab" onclick="showUC(6)">Personal Assistant</button>
+  </div>
+  <div id="uc-0" class="uc-panel active">
+    <div class="card">
+      <h3>Automated Customer Support</h3>
+      <p>Agents prioritize urgent requests — system outage reports, data loss incidents — over routine matters like password resets. High-value customers may also receive preferential treatment based on account tier.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>Incoming tickets classified by severity, account tier, and SLA deadline</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>Priority queue orders tickets: outages → billing errors → general inquiries</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>Agent handles highest-priority ticket first; re-evaluates queue after each resolution</span></div>
+      </div>
+    </div>
+  </div>
+  <div id="uc-1" class="uc-panel">
+    <div class="card">
+      <h3>Cloud Computing Resource Scheduling</h3>
+      <p>AI manages and schedules resources by prioritizing allocation to critical applications during peak demand, while relegating less urgent batch jobs to off-peak hours to optimize costs. Ensures SLA compliance for high-priority workloads.</p>
+    </div>
+  </div>
+  <div id="uc-2" class="uc-panel">
+    <div class="card">
+      <h3>Autonomous Driving Systems</h3>
+      <p>Continuously prioritize actions to ensure safety and efficiency. Braking to avoid a collision takes absolute precedence over maintaining lane discipline or optimizing fuel efficiency. Safety is a hard constraint, not a weighted criterion.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>Collision avoidance — P0, non-negotiable</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>Traffic law compliance — P0 in most scenarios</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>Passenger comfort, fuel efficiency — P1/P2</span></div>
+      </div>
+    </div>
+  </div>
+  <div id="uc-3" class="uc-panel">
+    <div class="card">
+      <h3>Financial Trading</h3>
+      <p>Bots prioritize trades by analyzing factors like market conditions, risk tolerance, profit margins, and real-time news, enabling prompt execution of high-priority transactions. Time is literally money — millisecond delays in prioritization can have significant financial consequences.</p>
+    </div>
+  </div>
+  <div id="uc-4" class="uc-panel">
+    <div class="card">
+      <h3>AI Project Manager Agent</h3>
+      <p>AI agents prioritize tasks on a project board based on deadlines, dependencies, team availability, and strategic importance. The LangChain-based project manager code example demonstrates creating, prioritizing, and assigning tasks with P0/P1/P2 levels to team members.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>User submits task request in natural language</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>Agent creates task, parses urgency signals ("ASAP" → P0)</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>Agent assigns priority and worker; defaults to P1 + Worker A if unspecified</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>Agent lists all tasks showing final state</span></div>
+      </div>
+    </div>
+  </div>
+  <div id="uc-5" class="uc-panel">
+    <div class="card">
+      <h3>Cybersecurity Threat Response</h3>
+      <p>Agents monitoring network traffic prioritize alerts by assessing threat severity, potential impact, and asset criticality, ensuring immediate responses to the most dangerous threats. A ransomware attempt on a production database is P0; a port scan on a dev server may be P2.</p>
+    </div>
+  </div>
+  <div id="uc-6" class="uc-panel">
+    <div class="card">
+      <h3>Personal Assistant AI</h3>
+      <p>Personal AI assistants utilize prioritization to manage daily lives, organizing calendar events, reminders, and notifications according to user-defined importance, upcoming deadlines, and current context. A meeting reminder 5 minutes before start takes priority over a weekly newsletter digest.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Code</div>
+  <p class="sec-desc">A LangChain-based Project Manager agent that creates, prioritizes, and assigns tasks — demonstrating the Prioritization pattern with real tools.</p>
+  <div class="card"><h3>Part 1: Task Model and Manager</h3></div>
+  <div class="code-block"><span class="code-keyword">import</span> os, asyncio
+<span class="code-keyword">from</span> typing <span class="code-keyword">import</span> List, Optional, Dict
+<span class="code-keyword">from</span> pydantic <span class="code-keyword">import</span> BaseModel, Field
+<span class="code-keyword">from</span> langchain_core.tools <span class="code-keyword">import</span> Tool
+<span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> ChatOpenAI
+<span class="code-keyword">from</span> langchain.agents <span class="code-keyword">import</span> AgentExecutor, create_react_agent
+
+<span class="code-keyword">class</span> <span class="code-string">Task</span>(BaseModel):
+    <span class="code-string">"""Represents a single task in the system."""</span>
+    id: str
+    description: str
+    priority: Optional[str] = None  <span class="code-comment"># P0, P1, P2</span>
+    assigned_to: Optional[str] = None
+
+<span class="code-keyword">class</span> <span class="code-string">SuperSimpleTaskManager</span>:
+    <span class="code-string">"""Efficient in-memory task manager."""</span>
+    <span class="code-keyword">def</span> __init__(self):
+        self.tasks: Dict[str, Task] = {}
+        self.next_task_id = 1
+
+    <span class="code-keyword">def</span> <span class="code-string">create_task</span>(self, description: str) -> Task:
+        task_id = f<span class="code-string">"TASK-{self.next_task_id:03d}"</span>
+        new_task = Task(id=task_id, description=description)
+        self.tasks[task_id] = new_task
+        self.next_task_id += 1
+        <span class="code-keyword">return</span> new_task
+
+    <span class="code-keyword">def</span> <span class="code-string">update_task</span>(self, task_id: str, **kwargs) -> Optional[Task]:
+        task = self.tasks.get(task_id)
+        <span class="code-keyword">if</span> task:
+            update_data = {k: v <span class="code-keyword">for</span> k, v <span class="code-keyword">in</span> kwargs.items() <span class="code-keyword">if</span> v <span class="code-keyword">is not</span> None}
+            <span class="code-keyword">return</span> task.model_copy(update=update_data)
+        <span class="code-keyword">return</span> None</div>
+
+  <div class="card"><h3>Part 2: Agent Tools and Priority Assignment</h3></div>
+  <div class="code-block"><span class="code-keyword">def</span> <span class="code-string">create_new_task_tool</span>(description: str) -> str:
+    task = task_manager.create_task(description)
+    <span class="code-keyword">return</span> f<span class="code-string">"Created task {task.id}: '{task.description}'."</span>
+
+<span class="code-keyword">def</span> <span class="code-string">assign_priority_to_task_tool</span>(task_id: str, priority: str) -> str:
+    <span class="code-keyword">if</span> priority <span class="code-keyword">not in</span> [<span class="code-string">"P0"</span>, <span class="code-string">"P1"</span>, <span class="code-string">"P2"</span>]:
+        <span class="code-keyword">return</span> <span class="code-string">"Invalid priority. Must be P0, P1, or P2."</span>
+    task = task_manager.update_task(task_id, priority=priority)
+    <span class="code-keyword">return</span> f<span class="code-string">"Assigned priority {priority} to task {task.id}."</span> <span class="code-keyword">if</span> task <span class="code-keyword">else</span> f<span class="code-string">"Task {task_id} not found."</span>
+
+<span class="code-comment"># Agent system prompt instructs priority reasoning:
+# - "urgent"/"ASAP"/"critical" → map to P0
+# - default missing priority → P1
+# - default missing worker → Worker A
+# After every task: list_all_tasks to show final state</span>
+
+<span class="code-comment"># Simulation: two scenarios</span>
+<span class="code-keyword">async def</span> <span class="code-string">run_simulation</span>():
+    <span class="code-comment"># Scenario 1: urgent + explicit worker</span>
+    <span class="code-keyword">await</span> pm_agent_executor.ainvoke({
+        <span class="code-string">"input"</span>: <span class="code-string">"Create a task to implement a new login system. It's urgent and should be assigned to Worker B."</span>
+    })
+    <span class="code-comment"># Scenario 2: low urgency, no details → defaults applied</span>
+    <span class="code-keyword">await</span> pm_agent_executor.ainvoke({
+        <span class="code-string">"input"</span>: <span class="code-string">"Manage a new task: Review marketing website content."</span>
+    })</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: Prioritization Mechanics</div>
+  <p class="sec-desc">The layers of a complete prioritization system, from input to execution. Click each layer to expand.</p>
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--teal-l);border-color:var(--teal);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--teal-d);">Layer 1: Criteria Definition</div>
+      <div class="ctx-layer-sub" style="color:var(--teal-d);">The foundation — what does "important" mean for this agent?</div>
+      <div class="ctx-layer-detail" style="color:var(--teal-d);">Criteria must be defined before any task can be evaluated. For a customer service agent, urgency might be paramount. For a research agent, importance (relevance to core question) dominates. Criteria can be weighted: urgency × 3 + importance × 2 + cost_benefit × 1. The design of this weighting function has an outsized impact on agent behavior.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--blue-l);border-color:var(--blue);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--blue-d);">Layer 2: Task Evaluation Engine</div>
+      <div class="ctx-layer-sub" style="color:var(--blue-d);">Scoring mechanism — rules, LLM, or hybrid</div>
+      <div class="ctx-layer-detail" style="color:var(--blue-d);">Rule-based systems are fast, deterministic, and auditable — but brittle when facing novel inputs. LLM-based evaluation can handle nuance ("this seems urgent based on the customer's frustrated tone") but introduces latency and non-determinism. Hybrid approaches use rules for clear-cut cases and LLM judgment for ambiguous ones.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--purple-l);border-color:var(--purple);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--purple-d);">Layer 3: Scheduling and Selection Logic</div>
+      <div class="ctx-layer-sub" style="color:var(--purple-d);">Algorithm that determines execution order</div>
+      <div class="ctx-layer-detail" style="color:var(--purple-d);">The scheduler maintains an ordered priority queue. It must handle ties (same priority score), dependency constraints (task B can't start until task A completes), and resource contention (two P0 tasks competing for the same tool). Advanced planners use graph-based dependency resolution before scheduling.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--amber-l);border-color:var(--amber);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--amber-d);">Layer 4: Dynamic Re-prioritization Triggers</div>
+      <div class="ctx-layer-sub" style="color:var(--amber-d);">When and how priorities change mid-execution</div>
+      <div class="ctx-layer-detail" style="color:var(--amber-d);">Triggers include: new task arrival with higher priority than current work, deadline approach (urgency score increases as deadline nears), task failure requiring re-routing, resource availability change, and external event signals (webhooks, alerts). The agent must decide: preempt current task or finish it first?</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--coral-l);border-color:var(--coral);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--coral-d);">Layer 5: Multi-level Prioritization</div>
+      <div class="ctx-layer-sub" style="color:var(--coral-d);">Goal, sub-task, and action levels work together</div>
+      <div class="ctx-layer-detail" style="color:var(--coral-d);">Top-level goal prioritization selects which overall objective to pursue. Within that goal, sub-task prioritization orders the work plan. At the lowest level, action selection picks the next API call or tool invocation. All three levels must be coherent — a high-priority goal served by low-priority sub-tasks is a design failure.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);border-color:var(--teal);">
+      <h4 style="color:var(--teal-d);">What</h4>
+      <p style="color:var(--teal-d);">AI agents in complex environments face a multitude of potential actions, conflicting goals, and finite resources. Without prioritization, agents risk becoming inefficient and failing to accomplish primary objectives. The core challenge is managing overwhelming choice to ensure purposeful, logical action.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);border-color:var(--purple);">
+      <h4 style="color:var(--purple-d);">Why</h4>
+      <p style="color:var(--purple-d);">The Prioritization pattern provides a standardized solution by enabling agents to rank tasks using clear criteria: urgency, importance, dependencies, and resource cost. This allows the system to dynamically adapt to changing circumstances, manage constrained resources effectively, and align behavior with strategic goals.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);border-color:var(--amber);">
+      <h4 style="color:var(--amber-d);">Rule of Thumb</h4>
+      <p style="color:var(--amber-d);">Use the Prioritization pattern when an agentic system must autonomously manage multiple, often conflicting, tasks or goals under resource constraints to operate effectively in a dynamic environment. Essential when decisions have time-sensitivity or strategic consequence.</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);border-color:var(--coral);">
+      <h4 style="color:var(--coral-d);">Key Insight</h4>
+      <p style="color:var(--coral-d);">What separates a true agentic system from a simple automated script is the ability to self-manage its own workflow. Dynamic re-prioritization — adjusting focus in real time as conditions change — is the hallmark of genuine agentic intelligence.</p>
+    </div>
+  </div>
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">Prioritization Design Pattern — click each node to explore</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(0)">Prompt</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(1)">Agent</div>
+      <div class="dia-arrow">⇄</div>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d);" onclick="simClick(2)">Priority Queue</div>
+    </div>
+    <div class="dia-output" id="sim-output">Click a node to see its role in the Prioritization pattern</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Quiz</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>Prioritization enables AI agents to function effectively in complex, multi-faceted environments by ranking tasks using urgency, importance, dependencies, and resource availability.</li>
+    <li>Agents utilize established criteria to evaluate each potential action — this evaluation can range from simple rule-based scoring to sophisticated LLM reasoning for ambiguous inputs.</li>
+    <li>Dynamic re-prioritization allows agents to adjust their operational focus in real time in response to new events, changing deadlines, or resource shifts.</li>
+    <li>Prioritization occurs at three levels: overarching strategic goal selection, sub-task ordering within a plan, and immediate action selection — all three must remain coherent.</li>
+    <li>Effective prioritization results in increased efficiency, improved operational robustness, and behavior that is genuinely aligned with the agent's strategic objectives.</li>
+    <li>The LangChain project manager example demonstrates that even simple natural language signals ("urgent," "ASAP") can be reliably mapped to priority levels (P0, P1, P2) through agent reasoning.</li>
+    <li>What separates a true agentic system from a simple automation script is the capacity for autonomous self-management of its own workflow through principled prioritization.</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span><a href="https://www.irejournals.com/paper-details/1706160" target="_blank">Examining the Security of AI in Project Management: AI-driven Project Scheduling and Resource Allocation — irejournals.com</a></li>
+    <li><span class="ref-num">2</span><a href="https://www.mdpi.com/2079-8954/13/3/208" target="_blank">AI-Driven Decision Support Systems in Agile Software Project Management — MDPI Systems, 2025</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>Chapter 20: Prioritization · Agentic AI Interactive Learning Module</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  'Prompt node: The agent receives task requests in natural language. Urgency signals like "ASAP", "urgent", or "critical" are parsed and mapped to priority levels (P0/P1/P2). Ambiguous priority language is resolved by the LLM reasoning engine.',
+  'Agent node: The AI agent evaluates incoming tasks against defined criteria (urgency, importance, dependencies, resource availability). It reasons about priorities, selects appropriate tools (create_task, assign_priority_to_task, assign_task_to_worker), and commits to the highest-ranked action.',
+  'Priority Queue node: The ordered data structure that maintains all pending tasks ranked by evaluated priority score. The agent always dequeues the highest-priority task. When new high-priority tasks arrive, the queue re-orders dynamically. P0 tasks always preempt P1 and P2.'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: 'An agent receives a task described as "review marketing website content" with no explicit priority or assignee. According to the Project Manager agent\'s default rules, what should happen?',
+    opts: ['Assign P0 and Worker B', 'Assign P1 and Worker A', 'Assign P2 and leave unassigned', 'Ask the user for clarification before proceeding'],
+    ans: 1,
+    ok: 'Correct! The agent\'s system prompt specifies that when priority and assignee information are missing, it should make a reasonable default assignment: P1 priority and "Worker A". This ensures no task is left without a priority.',
+    no: 'Not quite. The agent\'s rules specify that missing information should be filled with sensible defaults — P1 priority (medium, not critical) and Worker A as the default assignee. Asking for clarification would add unnecessary latency for routine tasks.'
+  },
+  {
+    q: 'Which of the following best describes "dynamic re-prioritization"?',
+    opts: [
+      'Sorting the task list alphabetically when a new task arrives',
+      'Adjusting the agent\'s focus in real time when circumstances change, such as a new critical event or approaching deadline',
+      'Permanently removing low-priority tasks from the queue',
+      'Delegating prioritization decisions to a human operator'
+    ],
+    ans: 1,
+    ok: 'Correct! Dynamic re-prioritization is the ability to modify priorities as circumstances change — a new P0 event can preempt ongoing P1 work, and urgency scores increase as deadlines approach. This real-time adaptability is a hallmark of true agentic behavior.',
+    no: 'Not quite. Dynamic re-prioritization means the agent continuously monitors its task list and adjusts execution order in response to real-world changes — new events, deadline pressure, resource shifts — rather than relying on a static initial ranking.'
+  },
+  {
+    q: 'In the Prioritization pattern, prioritization occurs at multiple levels. Which combination correctly describes these three levels?',
+    opts: [
+      'Tool selection, prompt engineering, and model fine-tuning',
+      'High-level goal selection, sub-task ordering within a plan, and immediate next-action selection',
+      'Training, inference, and deployment',
+      'User request, agent reasoning, and API call'
+    ],
+    ans: 1,
+    ok: 'Correct! The three levels are: (1) high-level goal prioritization — which overall objective to pursue; (2) sub-task prioritization — ordering steps within the chosen goal\'s plan; (3) action selection — choosing the next immediate tool call or operation.',
+    no: 'Not quite. The three prioritization levels in this pattern are: selecting an overarching goal, ordering tasks within that goal\'s plan, and selecting the next immediate action. All three must remain coherent for effective agent behavior.'
+  },
+  {
+    q: 'Why is LLM-based task evaluation preferable to pure rule-based scoring for handling natural language priority signals?',
+    opts: [
+      'LLMs are always faster than rule engines',
+      'LLMs can handle nuance and ambiguity — interpreting tone, context, and implicit urgency — which rigid rules cannot',
+      'Rule-based systems cannot handle more than 3 priority levels',
+      'LLMs automatically update their priority criteria as the project evolves'
+    ],
+    ans: 1,
+    ok: 'Correct! LLMs can reason holistically about competing factors and interpret ambiguous language. A rule engine might not know that "the client is furious" implies P0 urgency, but an LLM can infer this from context, making it far more flexible for real-world inputs.',
+    no: 'Not quite. The key advantage of LLM-based evaluation is its ability to handle nuance and ambiguity in natural language — inferring urgency from tone, resolving conflicting signals, and applying contextual judgment that brittle rule engines cannot match.'
+  },
+  {
+    q: 'What makes the Prioritization pattern essential in autonomous driving systems compared to general software agents?',
+    opts: [
+      'Autonomous vehicles use more LLM API calls',
+      'Safety-critical actions (collision avoidance) must have non-negotiable precedence over all other goals — prioritization has life-or-death consequences',
+      'Driving agents have more tasks than other agents',
+      'Traffic laws change frequently, requiring constant re-prioritization'
+    ],
+    ans: 1,
+    ok: 'Correct! In autonomous driving, collision avoidance is not just a high-priority task — it is a hard constraint that must preempt all other goals without exception. The Prioritization pattern must encode safety as non-negotiable, not merely as a high-weight criterion.',
+    no: 'Not quite. The critical distinction is that safety-critical actions must be treated as absolute constraints, not merely weighted preferences. Braking to avoid a collision must always override fuel efficiency and lane optimization — this requires explicit priority architecture, not just higher scores.'
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i===curQ) cls+=' current';
+    else if (scores[i]===true) cls+=' done';
+    else if (scores[i]===false) cls+=' wrong-dot';
+    dots += '<div class="'+cls+'"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question '+(curQ+1)+' of '+quizData.length+'</div>';
+  html += '<div class="quiz-q">'+q.q+'</div>';
+  q.opts.forEach((opt,i)=>{ html+='<button class="quiz-opt" id="qo'+i+'" onclick="answer('+i+')">'+opt+'</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ>0) html+='<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ<quizData.length-1) html+='<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html+='<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2=quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn,i)=>{btn.classList.add('disabled');if(i===q2.ans)btn.classList.add('correct');});
+    document.getElementById('nextBtn').style.display='inline-block';
+    const fb=document.getElementById('qfb');
+    fb.textContent=scores[curQ]?q2.ok:q2.no;
+    fb.className='quiz-fb show '+(scores[curQ]?'right':'wrng');
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q=quizData[curQ];
+  const isRight=i===q.ans;
+  scores[curQ]=isRight;
+  document.getElementById('qo'+i).classList.add(isRight?'correct':'wrong');
+  if (!isRight) document.getElementById('qo'+q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.classList.add('disabled'));
+  const fb=document.getElementById('qfb');
+  fb.textContent=isRight?q.ok:q.no;
+  fb.className='quiz-fb show '+(isRight?'right':'wrng');
+  document.getElementById('nextBtn').style.display='inline-block';
+  renderQuiz();
+}
+function nextQ(){curQ++;renderQuiz();}
+function prevQ(){curQ--;renderQuiz();}
+renderQuiz();
+</script>
+</body>
+</html>

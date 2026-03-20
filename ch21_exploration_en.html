@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 21: Exploration and Discovery — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: system-ui, -apple-system, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1; --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Chapter 21</div>
+<h1>Exploration and Discovery</h1>
+<p class="subtitle">This chapter explores patterns that enable intelligent agents to actively seek out novel information, uncover new possibilities, and identify unknown unknowns — moving beyond reactive optimization to proactive, open-ended discovery in complex domains.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <p class="sec-desc">Exploration and Discovery differs from reactive behavior or optimization within a predefined solution space. Agents proactively venture into unfamiliar territories, experiment with new approaches, and generate new knowledge — crucial for open-ended, complex, or rapidly evolving domains where static knowledge is insufficient.</p>
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Specialized Agents</div>
+      <div class="metric-value">6 roles</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Research Phases</div>
+      <div class="metric-value">4 phases</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Benchmark Accuracy</div>
+      <div class="metric-value">78.4%</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Validated Use Cases</div>
+      <div class="metric-value">6+ domains</div>
+    </div>
+  </div>
+  <div class="card card-bordered">
+    <h3>What Distinguishes Exploration from Optimization</h3>
+    <p>Optimization improves performance within a known solution space. Exploration actively seeks to expand that space — discovering new hypotheses, strategies, or knowledge that was previously unknown. It targets "unknown unknowns" rather than improving on known approaches.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>The Paradigm Shift Required</h3>
+    <p>Exploration requires shifting from purely reactive behavior (responding to inputs) to proactive behavior (independently setting sub-goals to uncover novel information). This innate agentic drive is what empowers AI to operate autonomously in complex domains.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Google Co-Scientist as Exemplar</h3>
+    <p>Google's AI co-scientist demonstrates exploration at scale — autonomously generating hypotheses, running simulated scientific debates, and evolving the most promising concepts. It achieved 78.4% top-1 accuracy on the challenging GPQA "diamond set" benchmark.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Agent Laboratory Framework</h3>
+    <p>Agent Laboratory (MIT License, Samuel Schmidgall) provides a concrete implementation: specialized LLMs autonomously handle literature review, experimentation, and report writing — augmenting human researchers rather than replacing them.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">The Problem: Static Knowledge Boundaries</div>
+  <p class="sec-desc">AI agents operating within predefined knowledge limits face fundamental constraints that prevent genuine discovery. Click to explore each failure mode.</p>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Static Knowledge Ceiling</h4>
+      <p>Agents bounded by training data cannot discover truly novel insights.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">An agent that only knows what it was trained on cannot identify unknown unknowns — the insights that exist just beyond the boundary of current knowledge. Without active exploration, the agent's outputs are inherently limited to recombinations of existing knowledge.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Reactive-Only Mode</h4>
+      <p>Agents that only respond to explicit prompts miss proactive discovery opportunities.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">In scientific research, the most important discoveries often emerge from unexpected connections not explicitly requested. A purely reactive agent waits to be asked the right question rather than proactively pursuing promising leads.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Single-Perspective Bias</h4>
+      <p>One agent with one viewpoint produces systematically biased hypotheses.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">Human scientific review uses multiple reviewers with different expertise specifically because diverse perspectives catch errors and identify non-obvious quality signals. A single-agent evaluator inherits all the biases and blindspots of its training.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Hypothesis Stagnation</h4>
+      <p>Without evolution mechanisms, initial hypotheses persist even when better ideas exist.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">Discovery requires continuous refinement — simplifying concepts, synthesizing ideas across domains, exploring unconventional reasoning. Without an explicit evolution mechanism, the agent's initial hypotheses are also its final ones, regardless of quality.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">Solution: Multi-Agent Exploration Framework</div>
+  <p class="sec-desc">The standardized solution builds agentic AI systems specifically designed for autonomous exploration using a multi-agent framework where specialized LLMs emulate the scientific method. Click each node to expand.</p>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Generation</div>
+          <div class="chain-role">Produce initial hypotheses through literature exploration</div>
+        </div>
+      </div>
+      <div class="chain-detail">The Generation agent (or Professor/PostDoc agent in Agent Laboratory) initiates the process by producing initial hypotheses through literature exploration and simulated scientific debates. It leverages external databases like arXiv to build a comprehensive knowledge base, going beyond simple retrieval to form genuinely novel combinations.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Reflection and Critique</div>
+          <div class="chain-role">Peer review: assess correctness, novelty, and quality</div>
+        </div>
+      </div>
+      <div class="chain-detail">The Reflection agent acts as a peer reviewer, critically assessing each hypothesis. In Agent Laboratory, three distinct Reviewer Agents evaluate from different perspectives: a harsh-but-fair quality reviewer, a critical impactfulness reviewer, and an open-minded novelty seeker. This tripartite judgment mimics human review panels.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">3</div>
+        <div>
+          <div class="chain-title">Ranking and Selection</div>
+          <div class="chain-role">Elo tournament to compare and prioritize hypotheses</div>
+        </div>
+      </div>
+      <div class="chain-detail">The Ranking agent employs an Elo-based tournament mechanism — the same system used for chess rating — to compare hypotheses through simulated scientific debates. This produces a calibrated, consistent ordering of ideas by quality. The Google Co-Scientist's internal Elo rating was shown to correlate with actual benchmark accuracy.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">4</div>
+        <div>
+          <div class="chain-title">Evolution and Synthesis</div>
+          <div class="chain-role">Refine top hypotheses through iterative improvement</div>
+        </div>
+      </div>
+      <div class="chain-detail">The Evolution agent continuously refines top-ranked hypotheses by simplifying concepts, synthesizing ideas across domains, and exploring unconventional reasoning paths. The Proximity agent computes a similarity graph to cluster related ideas and identify under-explored regions of the hypothesis space.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+  <p class="sec-desc">The foundational ideas powering exploration and discovery systems.</p>
+  <div class="card">
+    <h3>The Six Specialized Agents of Google Co-Scientist</h3>
+    <ul>
+      <li><strong>Generation agent:</strong> Produces initial hypotheses through literature exploration and simulated scientific debates</li>
+      <li><strong>Reflection agent:</strong> Acts as peer reviewer, assessing correctness, novelty, and quality of hypotheses</li>
+      <li><strong>Ranking agent:</strong> Employs Elo-based tournament to compare and rank hypotheses</li>
+      <li><strong>Evolution agent:</strong> Continuously refines top-ranked hypotheses by simplification and synthesis</li>
+      <li><strong>Proximity agent:</strong> Computes proximity graph to cluster similar ideas and map hypothesis landscape</li>
+      <li><strong>Meta-review agent:</strong> Synthesizes insights across all reviews to identify patterns and enable improvement</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Test-Time Compute Scaling</h3>
+    <p>A key mechanism: allocating increased computational resources at inference time to iteratively reason and enhance outputs. Analysis across 200+ research goals demonstrated that scaling test-time compute consistently improves hypothesis quality as measured by Elo rating. Unlike training-time scaling, this can be applied dynamically to individual problems.</p>
+  </div>
+  <div class="card">
+    <h3>The "Generate, Debate, Evolve" Loop</h3>
+    <p>The iterative core of exploration systems mirrors the scientific method: generate hypotheses → debate their merits through structured review → evolve the most promising ones. This self-improving cycle of hypothesis generation, evaluation, and refinement continues until the research goal is met or computational budget is exhausted.</p>
+  </div>
+  <div class="card">
+    <h3>Tripartite Judgment in Agent Laboratory</h3>
+    <p>To emulate human evaluative processes, three distinct reviewer agents each assess outputs from a specific perspective — quality, impact, and novelty — collectively mimicking the nuanced judgment of a human review panel. Each reviewer uses the same structured JSON output format for consistency.</p>
+    <div class="json-block">{
+  "Summary": "Paper summary and contributions",
+  "Strengths": ["list of strengths"],
+  "Weaknesses": ["list of weaknesses"],
+  "Originality": "high",
+  "Quality": "medium",
+  "Significance": "very high",
+  "Overall": 7,
+  "Decision": "Accept"
+}</div>
+  </div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Use Cases</div>
+  <p class="sec-desc">Exploration and Discovery agents drive breakthroughs across diverse domains. Select a use case to explore.</p>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Scientific Research</button>
+    <button class="uc-tab" onclick="showUC(1)">Drug Repurposing</button>
+    <button class="uc-tab" onclick="showUC(2)">Game Strategy</button>
+    <button class="uc-tab" onclick="showUC(3)">Market Research</button>
+    <button class="uc-tab" onclick="showUC(4)">Security Discovery</button>
+    <button class="uc-tab" onclick="showUC(5)">Creative Content</button>
+    <button class="uc-tab" onclick="showUC(6)">Education</button>
+  </div>
+  <div id="uc-0" class="uc-panel active">
+    <div class="card">
+      <h3>Scientific Research Automation</h3>
+      <p>An agent designs and runs experiments, analyzes results, and formulates new hypotheses to discover novel materials, drug candidates, or scientific principles. Google's AI Co-Scientist achieved this at scale, with its top-1 accuracy of 78.4% on the GPQA diamond benchmark outperforming state-of-the-art models and human expert "best guess" solutions.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>Human scientist specifies research goal in natural language</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>System generates initial hypotheses via literature review and simulated debates</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>Elo tournament ranks hypotheses; evolution agent refines top candidates</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>Human reviews and guides the AI's exploratory process ("scientist-in-the-loop")</span></div>
+      </div>
+    </div>
+  </div>
+  <div id="uc-1" class="uc-panel">
+    <div class="card">
+      <h3>Drug Repurposing (Validated in Wet Lab)</h3>
+      <p>For acute myeloid leukemia (AML), the Co-Scientist proposed novel drug candidates including KIRA6 — a completely novel suggestion with no prior preclinical evidence. Subsequent in vitro experiments confirmed that KIRA6 and other suggested drugs inhibited tumor cell viability at clinically relevant concentrations. The system also independently recapitulated unpublished antimicrobial resistance findings in just two days.</p>
+    </div>
+  </div>
+  <div id="uc-2" class="uc-panel">
+    <div class="card">
+      <h3>Game Playing and Strategy Generation</h3>
+      <p>Agents explore game states, discovering emergent strategies or identifying vulnerabilities in game environments. The classic example is AlphaGo, which discovered entirely novel Go strategies that no human had conceived, demonstrating that exploration can transcend the limits of accumulated human expertise.</p>
+    </div>
+  </div>
+  <div id="uc-3" class="uc-panel">
+    <div class="card">
+      <h3>Market Research and Trend Spotting</h3>
+      <p>Agents scan unstructured data sources (social media, news, reports) to identify emerging trends, consumer behaviors, or market opportunities before they become obvious. Unlike reactive search, exploratory agents proactively form and test hypotheses about market dynamics.</p>
+    </div>
+  </div>
+  <div id="uc-4" class="uc-panel">
+    <div class="card">
+      <h3>Security Vulnerability Discovery</h3>
+      <p>Agents probe systems or codebases to find security flaws or attack vectors that weren't explicitly known to exist. This moves beyond rule-based vulnerability scanning to genuinely novel discovery — finding classes of vulnerabilities that the rules didn't anticipate.</p>
+    </div>
+  </div>
+  <div id="uc-5" class="uc-panel">
+    <div class="card">
+      <h3>Creative Content Generation</h3>
+      <p>Agents explore combinations of styles, themes, or data to generate artistic pieces, musical compositions, or literary works. Exploration enables genuine creativity — not just recombination of training examples, but the discovery of novel aesthetic spaces.</p>
+    </div>
+  </div>
+  <div id="uc-6" class="uc-panel">
+    <div class="card">
+      <h3>Personalized Education and Training</h3>
+      <p>AI tutors prioritize learning paths and content delivery based on a student's progress, learning style, and areas needing improvement. Exploratory agents can discover non-obvious connections between concepts that create more effective learning sequences than pre-programmed curricula.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Code</div>
+  <p class="sec-desc">Agent Laboratory's multi-agent architecture demonstrates exploration in practice — specialized agents collaborating to autonomously conduct scientific research.</p>
+  <div class="card"><h3>Tripartite Reviewer Agent</h3></div>
+  <div class="code-block"><span class="code-keyword">class</span> <span class="code-string">ReviewersAgent</span>:
+    <span class="code-keyword">def</span> __init__(self, model=<span class="code-string">"gpt-4o-mini"</span>, notes=None, openai_api_key=None):
+        self.notes = [] <span class="code-keyword">if</span> notes <span class="code-keyword">is</span> None <span class="code-keyword">else</span> notes
+        self.model = model
+        self.openai_api_key = openai_api_key
+
+    <span class="code-keyword">def</span> <span class="code-string">inference</span>(self, plan, report):
+        <span class="code-comment"># Three reviewers with distinct evaluation perspectives</span>
+        reviewer_1 = <span class="code-string">"You are a harsh but fair reviewer who expects good experiments that lead to insights for the research topic."</span>
+        reviewer_2 = <span class="code-string">"You are a harsh and critical but fair reviewer who is looking for an idea that would be impactful in the field."</span>
+        reviewer_3 = <span class="code-string">"You are a harsh but fair open-minded reviewer that is looking for novel ideas that have not been proposed before."</span>
+
+        review_1 = get_score(outlined_plan=plan, latex=report,
+                             reward_model_llm=self.model,
+                             reviewer_type=reviewer_1,
+                             openai_api_key=self.openai_api_key)
+        review_2 = get_score(outlined_plan=plan, latex=report,
+                             reward_model_llm=self.model,
+                             reviewer_type=reviewer_2,
+                             openai_api_key=self.openai_api_key)
+        review_3 = get_score(outlined_plan=plan, latex=report,
+                             reward_model_llm=self.model,
+                             reviewer_type=reviewer_3,
+                             openai_api_key=self.openai_api_key)
+        <span class="code-keyword">return</span> f<span class="code-string">"Reviewer #1:\n{review_1}, \nReviewer #2:\n{review_2}, \nReviewer #3:\n{review_3}"</span></div>
+
+  <div class="card"><h3>Structured Review Scoring Function</h3></div>
+  <div class="code-block"><span class="code-keyword">def</span> <span class="code-string">get_score</span>(outlined_plan, latex, reward_model_llm,
+               reviewer_type=None, attempts=3, openai_api_key=None):
+    <span class="code-keyword">for</span> _attempt <span class="code-keyword">in</span> range(attempts):
+        <span class="code-keyword">try</span>:
+            template_instructions = <span class="code-string">"""
+Respond in the following format:
+
+THOUGHT:
+<THOUGHT>
+
+REVIEW JSON:
+```json
+<JSON>
+```
+
+In <THOUGHT>, briefly discuss your intuitions and reasoning.
+In <JSON>, provide the review with fields:
+- "Summary": paper content and contributions
+- "Strengths": list of strengths
+- "Weaknesses": list of weaknesses
+- "Originality": 1-4 (low/medium/high/very high)
+- "Quality": 1-4
+- "Significance": 1-4
+- "Overall": 1-10
+- "Decision": "Accept" or "Reject"
+"""</span>
+            <span class="code-comment"># Build full prompt with reviewer persona + plan + report + instructions</span>
+            <span class="code-comment"># Call LLM, parse JSON from response</span>
+            <span class="code-comment"># Return structured review dict</span>
+            <span class="code-keyword">pass</span>
+        <span class="code-keyword">except</span> Exception <span class="code-keyword">as</span> e:
+            <span class="code-keyword">if</span> _attempt == attempts - 1:
+                <span class="code-keyword">raise</span>
+            <span class="code-keyword">continue</span></div>
+
+  <div class="card"><h3>Professor and PostDoc Agent Architecture</h3></div>
+  <div class="code-block"><span class="code-keyword">class</span> <span class="code-string">ProfessorAgent</span>(BaseAgent):
+    <span class="code-keyword">def</span> __init__(self, model=<span class="code-string">"gpt4omini"</span>, notes=None,
+                 max_steps=100, openai_api_key=None):
+        super().__init__(model, notes, max_steps, openai_api_key)
+        self.phases = [<span class="code-string">"report writing"</span>]  <span class="code-comment"># Oversees final synthesis</span>
+
+    <span class="code-keyword">def</span> <span class="code-string">generate_readme</span>(self):
+        <span class="code-comment"># Synthesize all knowledge, code, reports into README</span>
+        sys_prompt = f<span class="code-string">"You are {self.role_description()} \n Here is the written paper \n{self.report}. Task: integrate all knowledge and generate a readme.md for a github repository."</span>
+        <span class="code-keyword">return</span> query_model(model_str=self.model,
+                           system_prompt=sys_prompt,
+                           openai_api_key=self.openai_api_key)
+
+<span class="code-keyword">class</span> <span class="code-string">PostdocAgent</span>(BaseAgent):
+    <span class="code-keyword">def</span> __init__(self, model=<span class="code-string">"gpt4omini"</span>, notes=None,
+                 max_steps=100, openai_api_key=None):
+        super().__init__(model, notes, max_steps, openai_api_key)
+        self.phases = [<span class="code-string">"plan formulation"</span>, <span class="code-string">"results interpretation"</span>]
+
+    <span class="code-keyword">def</span> <span class="code-string">context</span>(self, phase):
+        <span class="code-comment"># Provides phase-appropriate context to the agent</span>
+        <span class="code-keyword">if</span> phase == <span class="code-string">"plan formulation"</span>:
+            <span class="code-keyword">return</span> (sr_str, f<span class="code-string">"Current Literature Review: {self.lit_review_sum}"</span>)
+        <span class="code-keyword">elif</span> phase == <span class="code-string">"results interpretation"</span>:
+            <span class="code-keyword">return</span> (sr_str,
+                    f<span class="code-string">"Current Plan: {self.plan}\n"</span>
+                    f<span class="code-string">"Current Experiment code: {self.results_code}\n"</span>
+                    f<span class="code-string">"Current Results: {self.exp_results}"</span>)</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: Google Co-Scientist Architecture</div>
+  <p class="sec-desc">The AI Co-Scientist demonstrates exploration and discovery at its most sophisticated. Click each layer to examine the architecture.</p>
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--teal-l);border-color:var(--teal);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--teal-d);">Layer 1: Supervisor Agent</div>
+      <div class="ctx-layer-sub" style="color:var(--teal-d);">Manages and coordinates all specialized agents</div>
+      <div class="ctx-layer-detail" style="color:var(--teal-d);">The Supervisor Agent orchestrates the activities of all other agents within an asynchronous task execution framework that allows flexible scaling of computational resources. It ensures that the generate-debate-evolve cycle continues productively and that each agent's output feeds correctly into the next stage.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--blue-l);border-color:var(--blue);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--blue-d);">Layer 2: The Elo Rating System</div>
+      <div class="ctx-layer-sub" style="color:var(--blue-d);">Tournament-based hypothesis ranking</div>
+      <div class="ctx-layer-detail" style="color:var(--blue-d);">Borrowed from competitive chess rating, Elo assigns each hypothesis a numerical score based on head-to-head comparisons (simulated scientific debates). A hypothesis that consistently "wins" debates rises in rating. The key empirical finding: Elo scores correlate with actual benchmark accuracy on GPQA, validating the ranking mechanism as a meaningful quality signal.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--purple-l);border-color:var(--purple);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--purple-d);">Layer 3: Test-Time Compute Scaling</div>
+      <div class="ctx-layer-sub" style="color:var(--purple-d);">More compute = better hypotheses</div>
+      <div class="ctx-layer-detail" style="color:var(--purple-d);">Unlike training-time scaling (more data, more parameters), test-time compute scaling allocates more computational resources to reasoning at inference time. Analysis across 200+ research goals showed that scaling test-time compute consistently and monotonically improves hypothesis quality. This means the system gets better at harder problems if you give it more time to think.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--amber-l);border-color:var(--amber);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--amber-d);">Layer 4: Augmentation vs. Automation Philosophy</div>
+      <div class="ctx-layer-sub" style="color:var(--amber-d);">Scientist-in-the-loop collaborative paradigm</div>
+      <div class="ctx-layer-detail" style="color:var(--amber-d);">Both Co-Scientist and Agent Laboratory emphasize augmentation rather than replacement. Researchers interact through natural language, providing feedback and contributing their own ideas. Known limitations: constrained by reliance on open-access literature (may miss paywalled critical prior work), limited access to negative experimental results (crucial but rarely published), and inherits LLM hallucination tendencies.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--coral-l);border-color:var(--coral);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--coral-d);">Layer 5: Safety Architecture</div>
+      <div class="ctx-layer-sub" style="color:var(--coral-d);">Multi-layer safety evaluation for research goals</div>
+      <div class="ctx-layer-detail" style="color:var(--coral-d);">All research goals are reviewed for safety upon input, and generated hypotheses are also checked to prevent the system from being used for unsafe or unethical research. A preliminary safety evaluation using 1,200 adversarial research goals found that the system could robustly reject dangerous inputs. The system is available through a Trusted Tester Program to gather real-world safety feedback before wider release.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);border-color:var(--teal);">
+      <h4 style="color:var(--teal-d);">What</h4>
+      <p style="color:var(--teal-d);">AI agents often operate within predefined knowledge, limiting their ability to tackle novel situations. In complex domains, this static information is insufficient for true innovation. The challenge is enabling agents to move beyond optimization to actively seek "unknown unknowns" through proactive exploration.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);border-color:var(--purple);">
+      <h4 style="color:var(--purple-d);">Why</h4>
+      <p style="color:var(--purple-d);">Build agentic AI systems using multi-agent frameworks where specialized LLMs emulate the scientific method — generating hypotheses, critically reviewing them, and evolving the most promising concepts. This structured collaborative methodology enables intelligent navigation of vast information landscapes to generate genuinely new knowledge.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);border-color:var(--amber);">
+      <h4 style="color:var(--amber-d);">Rule of Thumb</h4>
+      <p style="color:var(--amber-d);">Use the Exploration and Discovery pattern when operating in open-ended, complex, or rapidly evolving domains where the solution space is not fully defined. Ideal for tasks requiring novel hypotheses, strategies, or insights. Essential when the objective is to uncover "unknown unknowns" rather than merely optimize a known process.</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);border-color:var(--coral);">
+      <h4 style="color:var(--coral-d);">Key Insight</h4>
+      <p style="color:var(--coral-d);">The Exploration and Discovery pattern is the very essence of a truly agentic system — defining its ability to move beyond passive instruction-following to proactively explore its environment. Multi-agent frameworks where each agent embodies a specific proactive role are the most powerful realization of this pattern.</p>
+    </div>
+  </div>
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">Exploration & Discovery design pattern — click each node to explore</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(0)">Prompt</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(1)">Agent</div>
+      <div class="dia-arrow">⇄</div>
+      <div class="dia-node" style="background:var(--blue-l);color:var(--blue-d);" onclick="simClick(2)">Critique Agent</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d);" onclick="simClick(3)">Hypotheses</div>
+    </div>
+    <div class="dia-output" id="sim-output">Click a node to explore its role in the Exploration & Discovery pattern</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Quiz</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>Exploration and Discovery enables agents to actively pursue new information and possibilities — essential for navigating complex and evolving environments where static knowledge is insufficient.</li>
+    <li>Systems like Google Co-Scientist demonstrate that agents can autonomously generate and evaluate hypotheses, supplementing human scientific research — achieving 78.4% accuracy on the GPQA diamond benchmark.</li>
+    <li>The multi-agent framework — exemplified by Agent Laboratory's specialized roles (Professor, PostDoc, Reviewer, ML Engineer) — improves research through automation of literature review, experimentation, and report writing.</li>
+    <li>The "generate, debate, evolve" loop mirrors the scientific method: hypothesis generation → structured peer review → iterative refinement of the most promising ideas.</li>
+    <li>Test-time compute scaling consistently improves hypothesis quality: more computational resources allocated to reasoning yields better exploration outcomes on harder problems.</li>
+    <li>The tripartite judgment mechanism — three reviewers evaluating from different perspectives (quality, impact, novelty) — produces more robust assessments than single-reviewer evaluation.</li>
+    <li>These agentic systems aim to enhance human creativity and problem-solving by managing computationally intensive tasks, thus accelerating innovation while maintaining human oversight through the "scientist-in-the-loop" paradigm.</li>
+    <li>Safety is a first-class concern: research goals and generated hypotheses must be screened to prevent misuse, with systems evaluated against adversarial test cases before wider deployment.</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span><a href="https://en.wikipedia.org/wiki/Exploration%E2%80%93exploitation_dilemma" target="_blank">Exploration–Exploitation Dilemma: A fundamental problem in reinforcement learning and decision-making under uncertainty</a></li>
+    <li><span class="ref-num">2</span><a href="https://research.google/blog/accelerating-scientific-breakthroughs-with-an-ai-co-scientist/" target="_blank">Google Co-Scientist: Accelerating Scientific Breakthroughs with an AI Co-Scientist</a></li>
+    <li><span class="ref-num">3</span><a href="https://github.com/SamuelSchmidgall/AgentLaboratory" target="_blank">Agent Laboratory: Using LLM Agents as Research Assistants (MIT License)</a></li>
+    <li><span class="ref-num">4</span><a href="https://agentrxiv.github.io/" target="_blank">AgentRxiv: Towards Collaborative Autonomous Research</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>Chapter 21: Exploration and Discovery · Agentic AI Interactive Learning Module</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  'Prompt node: A human scientist or user provides a research goal or open-ended question. Unlike simple queries, exploration prompts define a direction rather than a destination — "discover novel drug candidates for AML" rather than "what are known AML treatments?"',
+  'Agent node: The primary exploration agent (e.g., Generation agent or Professor agent) initiates the cycle. It leverages external databases (arXiv, PubMed), synthesizes literature, and generates initial hypotheses. Crucially, it also orchestrates the other specialized agents in the exploration pipeline.',
+  'Critique Agent node: The Reflection/Reviewer agents act as structured peer reviewers, assessing hypotheses from different perspectives (quality, impact, novelty). The tripartite judgment mechanism — three distinct reviewers — produces more robust, human-like evaluations than single-reviewer assessment. Their feedback drives the evolution cycle.',
+  'Hypotheses node: The ranked, evolved output of the exploration pipeline — a set of novel, evaluated, and refined hypotheses ordered by their Elo scores. This is not static; the system continues to generate, debate, and evolve until the research goal is satisfied or the computational budget is exhausted.'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: 'What is the fundamental difference between "optimization" and "exploration" in agentic AI systems?',
+    opts: [
+      'Optimization uses more computational resources than exploration',
+      'Optimization improves performance within a known solution space; exploration actively seeks to expand that space by discovering unknown unknowns',
+      'Exploration only works for scientific research applications',
+      'Optimization requires LLMs while exploration uses rule-based systems'
+    ],
+    ans: 1,
+    ok: 'Correct! Optimization fine-tunes performance within a predefined problem space. Exploration actively ventures beyond known boundaries to discover new hypotheses, strategies, or knowledge — specifically targeting "unknown unknowns" that weren\'t part of the original knowledge base.',
+    no: 'Not quite. The key distinction is scope: optimization works within a known solution space to improve existing approaches, while exploration actively seeks to expand the solution space itself by discovering genuinely new knowledge — things that were "unknown unknowns" before the exploration.'
+  },
+  {
+    q: 'In the Google AI Co-Scientist, what is the purpose of the Elo-based ranking mechanism?',
+    opts: [
+      'To sort hypotheses alphabetically for easier review',
+      'To produce a calibrated, consistent ordering of hypotheses by quality through simulated scientific debates — where winning debates increases an Elo rating',
+      'To limit the number of hypotheses generated per research session',
+      'To determine which agent gets more computational resources'
+    ],
+    ans: 1,
+    ok: 'Correct! The Elo-based tournament mechanism — borrowed from chess rating — compares hypotheses through simulated head-to-head scientific debates. Hypotheses that consistently win debates rise in Elo rating. Crucially, the empirical finding is that Elo scores correlate with actual benchmark accuracy (78.4% on GPQA), validating the ranking as meaningful.',
+    no: 'Not quite. The Elo mechanism produces a calibrated quality ordering through simulated scientific debates — each debate is like a chess match where the "winning" hypothesis gains Elo points. The key validation is that these Elo ratings were shown to correlate with real benchmark performance.'
+  },
+  {
+    q: 'Agent Laboratory uses three distinct reviewer agents with different perspectives. What is the primary purpose of this tripartite judgment?',
+    opts: [
+      'To reduce computational cost by distributing work across three smaller models',
+      'To emulate the nuanced, multi-perspective nature of human peer review panels, catching different types of quality signals',
+      'To ensure at least one reviewer always accepts the paper',
+      'To allow majority voting on Accept/Reject decisions'
+    ],
+    ans: 1,
+    ok: 'Correct! The tripartite judgment mimics human review panels where different reviewers bring different expertise and priorities. Reviewer 1 focuses on experimental quality, Reviewer 2 on field impact, and Reviewer 3 on novelty. This diversity catches different types of weaknesses that a single reviewer might miss.',
+    no: 'Not quite. The three-reviewer design explicitly emulates human peer review panels. Each reviewer is configured with a distinct persona and evaluation focus — quality, impact, novelty — specifically because diverse perspectives produce more comprehensive and robust assessments than any single viewpoint.'
+  },
+  {
+    q: 'What does "test-time compute scaling" mean in the context of the AI Co-Scientist?',
+    opts: [
+      'Training the model on more data during the test phase',
+      'Allocating more computational resources at inference time to iteratively reason and improve hypotheses — more thinking time yields better quality',
+      'Running the system on faster hardware to reduce latency',
+      'Increasing the number of training epochs for each experiment'
+    ],
+    ans: 1,
+    ok: 'Correct! Unlike training-time scaling (more data or parameters), test-time compute scaling allocates more resources to the reasoning process at inference time. Analysis across 200+ research goals confirmed that scaling test-time compute consistently improves hypothesis quality — the system gets demonstrably better when given more time to explore.',
+    no: 'Not quite. Test-time compute scaling is about allocating more computational resources to the reasoning/exploration process during inference — not more training data. The empirical finding is that giving the system more "thinking time" on a specific problem consistently improves the quality of hypotheses generated.'
+  },
+  {
+    q: 'Both Google Co-Scientist and Agent Laboratory emphasize "augmentation rather than automation" of human research. What does this mean in practice?',
+    opts: [
+      'The systems only work for simple, well-defined research tasks',
+      'Human researchers interact with and guide the system, providing feedback and ideas, maintaining oversight in a "scientist-in-the-loop" collaborative paradigm',
+      'The AI handles all research independently, only reporting results to humans at the end',
+      'Humans must manually review and approve every hypothesis before the system can proceed'
+    ],
+    ans: 1,
+    ok: 'Correct! Augmentation means the AI handles computationally intensive tasks (literature synthesis, hypothesis ranking, experiment design) while humans remain actively involved — providing feedback, contributing their own ideas, directing the exploration. This "scientist-in-the-loop" model produces better results than either pure AI or pure human work alone.',
+    no: 'Not quite. Augmentation specifically means the human stays in the loop as a collaborator — providing direction, feedback, and domain expertise — rather than being replaced. The AI handles the computationally expensive aspects of exploration while the human contributes insight, creativity, and judgment that the AI cannot replicate.'
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i===curQ) cls+=' current';
+    else if (scores[i]===true) cls+=' done';
+    else if (scores[i]===false) cls+=' wrong-dot';
+    dots += '<div class="'+cls+'"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question '+(curQ+1)+' of '+quizData.length+'</div>';
+  html += '<div class="quiz-q">'+q.q+'</div>';
+  q.opts.forEach((opt,i)=>{ html+='<button class="quiz-opt" id="qo'+i+'" onclick="answer('+i+')">'+opt+'</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ>0) html+='<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ<quizData.length-1) html+='<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html+='<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2=quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn,i)=>{btn.classList.add('disabled');if(i===q2.ans)btn.classList.add('correct');});
+    document.getElementById('nextBtn').style.display='inline-block';
+    const fb=document.getElementById('qfb');
+    fb.textContent=scores[curQ]?q2.ok:q2.no;
+    fb.className='quiz-fb show '+(scores[curQ]?'right':'wrng');
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q=quizData[curQ];
+  const isRight=i===q.ans;
+  scores[curQ]=isRight;
+  document.getElementById('qo'+i).classList.add(isRight?'correct':'wrong');
+  if (!isRight) document.getElementById('qo'+q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.classList.add('disabled'));
+  const fb=document.getElementById('qfb');
+  fb.textContent=isRight?q.ok:q.no;
+  fb.className='quiz-fb show '+(isRight?'right':'wrng');
+  document.getElementById('nextBtn').style.display='inline-block';
+  renderQuiz();
+}
+function nextQ(){curQ++;renderQuiz();}
+function prevQ(){curQ--;renderQuiz();}
+renderQuiz();
+</script>
+</body>
+</html>

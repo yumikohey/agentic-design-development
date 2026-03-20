@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第一章：提示链（Prompt Chaining）— 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+/* Header */
+.chapter-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  background: var(--teal-l);
+  padding: 4px 14px;
+  border-radius: 99px;
+  margin-bottom: 16px;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  max-width: 640px;
+}
+/* Navigation */
+.nav-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 0.5px solid var(--border2);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+  padding-top: 8px;
+}
+.nav-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 7px 16px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active {
+  background: var(--teal-l);
+  color: var(--teal-d);
+  border-color: var(--teal);
+  font-weight: 500;
+}
+/* Sections */
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+/* Cards */
+.card {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 16px;
+  border: 0.5px solid var(--border);
+}
+.card-bordered {
+  border-left: 3px solid var(--teal);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.card h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+/* Section titles */
+.sec-title {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+.sec-desc {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+}
+/* Metrics */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+.metric {
+  background: var(--bg2);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  border: 0.5px solid var(--border);
+}
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+/* Failure grid */
+.fail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card {
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+  overflow: hidden;
+}
+.fail-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+/* Chain */
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all .25s;
+}
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s ease;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow {
+  width: 2px;
+  height: 32px;
+  background: var(--border2);
+  position: relative;
+}
+.chain-arrow::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: -5px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--border2);
+}
+/* JSON block */
+.json-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+}
+/* Use case tabs */
+.uc-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.uc-tab {
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+}
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active {
+  background: var(--purple-l);
+  color: var(--purple-d);
+  border-color: var(--purple);
+  font-weight: 500;
+}
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+.uc-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+.uc-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 11px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+/* Code */
+.code-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+  tab-size: 2;
+}
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+/* Context layers */
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer {
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .25s;
+  border: 0.5px solid transparent;
+}
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+/* Quiz */
+.quiz-progress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 1.5rem;
+}
+.quiz-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg3);
+  transition: all .3s;
+}
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.quiz-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 18px;
+  margin-bottom: 8px;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--bg2);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all .2s;
+  line-height: 1.6;
+}
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb {
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 12px 0;
+  display: none;
+}
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn {
+  font-family: var(--sans);
+  padding: 8px 22px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+  margin-top: 12px;
+}
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+/* Takeaways */
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li {
+  counter-increment: tk;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.tk-list li::before {
+  content: counter(tk);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--teal-l);
+  color: var(--teal-d);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+/* Glance */
+.glance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card {
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+}
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+/* Diagram simulation */
+.diagram-sim {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin: 1.5rem 0;
+  border: 0.5px solid var(--border);
+  text-align: center;
+}
+.diagram-nodes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+.dia-node {
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .3s;
+  position: relative;
+  min-width: 100px;
+  text-align: center;
+}
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow {
+  font-size: 18px;
+  color: var(--text3);
+  padding: 0 6px;
+  flex-shrink: 0;
+}
+.dia-output {
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+  text-align: left;
+  min-height: 60px;
+  transition: all .3s;
+}
+/* Refs */
+.ref-list { list-style: none; padding: 0; }
+.ref-list li {
+  font-size: 13px;
+  color: var(--text2);
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--border);
+  line-height: 1.6;
+}
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+/* Footer */
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Header -->
+<div class="chapter-tag">第一章</div>
+<h1>提示链（Prompt Chaining）</h1>
+<p class="subtitle">将复杂任务分解为聚焦的顺序步骤——每个提示的输出作为下一个提示的输入。这是构建可靠 AI 代理的基础模式。</p>
+
+<!-- Navigation -->
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">概览</button>
+  <button class="nav-btn" onclick="go('problem')">问题所在</button>
+  <button class="nav-btn" onclick="go('solution')">解决方案</button>
+  <button class="nav-btn" onclick="go('structured')">结构化输出</button>
+  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
+  <button class="nav-btn" onclick="go('code')">代码实战</button>
+  <button class="nav-btn" onclick="go('context')">上下文工程</button>
+  <button class="nav-btn" onclick="go('glance')">一览概要</button>
+  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
+  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
+  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+</nav>
+
+<!-- 1. 概览 -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">模式概览</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">模式名称</div><div class="metric-value">管道模式</div></div>
+    <div class="metric"><div class="metric-label">核心策略</div><div class="metric-value">分而治之</div></div>
+    <div class="metric"><div class="metric-label">关键优势</div><div class="metric-value">模块化</div></div>
+    <div class="metric"><div class="metric-label">最终目标</div><div class="metric-value">AI 代理</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>什么是提示链？</h3>
+    <p>提示链（Prompt Chaining），又称管道模式（Pipeline Pattern），是一种处理复杂任务的强大范式。核心思想是：不要期望大语言模型（LLM）在一个庞大的步骤中解决复杂问题，而是将问题分解为一系列更小、更可控的子问题。每个子问题由一个专门设计的提示来处理，一个提示的输出作为下一个提示的输入。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>顺序处理的优势</h3>
+    <p>这种顺序处理技术天然引入了模块性和清晰度。通过分解复杂任务，每个步骤都更容易理解和调试，使整体过程更加健壮和可解释。链中的每一步都可以被精心设计和优化，专注于更大问题的特定方面，从而产生更准确和聚焦的输出。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>集成外部工具</h3>
+    <p>提示链不仅仅是分解问题——它还能集成外部知识和工具。在每一步中，LLM 可以与外部系统、API 或数据库交互，将其知识和能力扩展到内部训练数据之外。这种能力极大地扩展了 LLM 的潜力，使其不仅仅是孤立的模型，而是更广泛、更智能系统的核心组成部分。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>构建 AI 代理的基础</h3>
+    <p>提示链的意义超越了简单的问题解决。它是构建高级 AI 代理的基础技术。这些代理可以利用提示链在动态环境中自主规划、推理和行动。通过策略性地构建提示序列，代理可以参与需要多步推理、规划和决策的任务，更紧密地模拟人类思维过程。</p>
+  </div>
+</div>
+
+<!-- 2. 问题所在 -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">单一提示的局限性</div>
+  <div class="sec-desc">对于多方面的任务，使用单一复杂提示会导致模型难以处理约束和指令，可能产生以下五种失败模式。点击卡片查看详情：</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>指令忽略</h4>
+      <p>提示的部分内容被忽略</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">当提示中有太多竞争指令时，模型会选择性地忽略其中部分。越复杂的提示，被忽略的内容越多，导致输出不完整。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>上下文漂移</h4>
+      <p>模型失去对初始上下文的跟踪</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">随着提示变得越来越长和复杂，模型逐渐偏离最初的目标和上下文。后面的输出可能与前面的要求不一致。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>错误传播</h4>
+      <p>早期错误逐步放大</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">在单一提示中，模型一旦在早期产生错误，这个错误会被后续的推理步骤不断放大，最终导致结果严重偏差。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>上下文窗口不足</h4>
+      <p>信息量不够导致回复质量下降</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">当提示需要过多输入信息时，模型可能因为上下文窗口限制而无法获取足够的信息来生成准确回复。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>幻觉现象</h4>
+      <p>认知负荷增加产生错误信息</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">当模型同时处理过多任务时，认知负荷的增加会显著提高生成不正确信息（即"幻觉"）的概率。</p></div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--red); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>失败示例</h3>
+    <p>一个查询要求：分析市场研究报告 → 总结发现 → 用数据点识别趋势 → 起草邮件。模型可能总结得很好，但无法正确提取数据或起草邮件。当多个目标竞争注意力时，整体质量急剧下降。</p>
+  </div>
+</div>
+
+<!-- 3. 解决方案 -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">顺序分解：链式解决方案</div>
+  <div class="sec-desc">提示链通过将复杂任务分解为聚焦的顺序工作流来解决这些挑战。点击每个步骤查看详情：</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">总结报告</div>
+          <div class="chain-role">角色：市场分析师</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        <strong>提示：</strong>"总结以下市场研究报告的关键发现：[文本]。"<br><br>
+        模型的唯一焦点是总结，大幅提高了此初始步骤的准确性。通过将任务限制为单一操作，模型可以全力集中在内容理解和摘要生成上。<br><br>
+        <strong>输入：</strong>原始市场研究报告<br>
+        <strong>输出：</strong>关键发现的简要总结
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">识别趋势与数据</div>
+          <div class="chain-role">角色：贸易分析师</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        <strong>提示：</strong>"使用总结内容，识别前三个新兴趋势，并提取支持每个趋势的具体数据点：[步骤1的输出]。"<br><br>
+        此提示更加聚焦，直接建立在经过验证的输出之上。模型不再需要理解原始报告的全部内容，只需从已提炼的摘要中进一步提取和分析。<br><br>
+        <strong>输入：</strong>步骤1的总结<br>
+        <strong>输出：</strong>趋势列表及支持数据（理想情况下为结构化 JSON）
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div>
+          <div class="chain-title">撰写邮件</div>
+          <div class="chain-role">角色：专业文档撰写者</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        <strong>提示：</strong>"起草一封简洁的邮件给营销团队，概述以下趋势及其支持数据：[步骤2的输出]。"<br><br>
+        最终步骤从干净的结构化数据组合专业邮件。每个步骤都减少了歧义和认知负荷。为模型分配不同角色确保每个阶段的输出准确且符合领域要求。<br><br>
+        <strong>输入：</strong>步骤2的 JSON 趋势数据<br>
+        <strong>输出：</strong>给营销团队的专业邮件
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>为什么这有效？</h3>
+    <p>这种分解允许对过程进行更细粒度的控制。每个步骤都更简单、更明确，减少了模型的认知负荷，使最终输出更准确可靠。这种模块化类似于计算管道——每个函数执行特定操作，然后将结果传递给下一个。</p>
+  </div>
+</div>
+
+<!-- 4. 结构化输出 -->
+<div id="sec-structured" class="section">
+  <div class="sec-title">结构化输出的关键作用</div>
+  <div class="sec-desc">提示链的可靠性高度依赖于步骤间传递数据的完整性。如果一个提示的输出模糊或格式不佳，后续提示可能因错误输入而失败。</div>
+
+  <div class="card" style="border-left: 3px solid var(--amber); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>为什么需要结构化格式？</h3>
+    <p>指定结构化输出格式（如 JSON 或 XML）至关重要。这种做法将自然语言解释中可能出现的错误降到最低，是构建健壮、多步骤 LLM 系统的关键组件。结构化格式确保数据可机器读取，能被精确解析并插入到下一个提示中，消除歧义。</p>
+  </div>
+
+  <p style="font-size:14px;color:var(--text2);margin-bottom:12px;">例如，趋势识别步骤的输出可以格式化为如下 JSON 对象：</p>
+  <div class="json-block">{
+  "trends": [
+    {
+      "trend_name": "AI驱动的个性化",
+      "supporting_data": "73%的消费者更愿意与使用个人
+        信息来提升购物体验相关性的品牌合作。"
+    },
+    {
+      "trend_name": "可持续与道德品牌",
+      "supporting_data": "带有ESG相关声明的产品销售额
+        在过去五年中增长了28%，而没有此类声明
+        的产品增长为20%。"
+    }
+  ]
+}</div>
+
+  <div class="card" style="border-left: 3px solid var(--green); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>结构化输出的好处</h3>
+    <ul>
+      <li>数据可被精确解析，无歧义传递</li>
+      <li>减少自然语言解释产生的错误</li>
+      <li>每个步骤的输入输出契约明确</li>
+      <li>便于在步骤间插入验证和转换逻辑</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 5. 应用场景 -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">实际应用与用例</div>
+  <div class="sec-desc">提示链是构建代理系统时广泛适用的多功能模式。点击标签浏览七大应用场景：</div>
+
+  <div class="uc-tabs" id="ucTabs">
+    <button class="uc-tab active" onclick="showUC(0)">信息处理</button>
+    <button class="uc-tab" onclick="showUC(1)">复杂查询</button>
+    <button class="uc-tab" onclick="showUC(2)">数据提取</button>
+    <button class="uc-tab" onclick="showUC(3)">内容生成</button>
+    <button class="uc-tab" onclick="showUC(4)">对话代理</button>
+    <button class="uc-tab" onclick="showUC(5)">代码生成</button>
+    <button class="uc-tab" onclick="showUC(6)">多模态推理</button>
+  </div>
+
+  <!-- UC 0: 信息处理 -->
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>信息处理工作流</h3>
+      <p>许多任务涉及对原始信息的多重转换——总结文档、提取关键实体，然后使用这些实体查询数据库或生成报告。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>从给定 URL 或文档中提取文本内容</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>总结清理后的文本</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>从总结或原始文本中提取特定实体（姓名、日期、地点）</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>使用实体搜索内部知识库</div></div>
+        <div class="uc-step"><div class="uc-step-num">5</div><div>生成包含总结、实体和搜索结果的最终报告</div></div>
+      </div>
+      <p style="margin-top:8px;font-size:13px;color:var(--text3);">应用于自动化内容分析、AI驱动的研究助手和复杂报告生成。</p>
+    </div>
+  </div>
+
+  <!-- UC 1: 复杂查询 -->
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>复杂查询回答</h3>
+      <p>需要多步推理或信息检索的复杂问题。例如："1929年股市崩盘的主要原因是什么？政府政策如何应对？"</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>识别用户查询中的核心子问题（崩盘原因、政府回应）</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>专门检索1929年崩盘原因的信息</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>专门检索政府政策回应的信息</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>将步骤2和3的信息综合为连贯的回答</div></div>
+      </div>
+      <p style="margin-top:12px;">复杂操作通常结合<strong>并行处理</strong>（独立数据收集）与<strong>提示链</strong>（依赖性的综合和优化步骤）。例如，自动化研究代理可以并行提取多篇文章的信息，然后顺序地整理、综合和审查。</p>
+    </div>
+  </div>
+
+  <!-- UC 2: 数据提取 -->
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>数据提取与转换</h3>
+      <p>将非结构化文本转换为结构化格式的迭代过程，支持条件分支和外部工具调用。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>尝试从发票文档中提取特定字段（姓名、地址、金额）</div></div>
+        <div class="uc-step"><div class="uc-step-num">⚙</div><div>验证：检查所有必需字段是否已提取且格式正确</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>条件提示：如字段缺失或格式错误，创建新提示专门查找缺失信息</div></div>
+        <div class="uc-step"><div class="uc-step-num">⚙</div><div>再次验证，必要时重复</div></div>
+        <div class="uc-step"><div class="uc-step-num">✓</div><div>输出验证后的结构化数据</div></div>
+      </div>
+      <p style="margin-top:12px;">典型案例：处理PDF表单的OCR问题——LLM提取文本 → 数据标准化（如"一千零五十"转为1050） → 外部计算器工具执行精确运算 → 整合最终准确结果。</p>
+    </div>
+  </div>
+
+  <!-- UC 3: 内容生成 -->
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>内容生成工作流</h3>
+      <p>复杂内容创作分解为构思、大纲、撰写和修订阶段。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>根据用户兴趣生成5个主题创意</div></div>
+        <div class="uc-step"><div class="uc-step-num">⚙</div><div>用户选择或自动选择最佳主题</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>基于选定主题生成详细大纲</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>根据大纲逐节撰写草稿（每节提供前一节作为上下文）</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>审查和优化完整草稿的连贯性、语气和语法</div></div>
+      </div>
+      <p style="margin-top:8px;font-size:13px;color:var(--text3);">应用于创意叙事、技术文档和其他结构化文本内容的自动化创作。</p>
+    </div>
+  </div>
+
+  <!-- UC 4: 对话代理 -->
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--pink);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>带状态的对话代理</h3>
+      <p>提示链为保持对话连续性提供基础机制，通过将每个对话轮次构建为新提示并系统性地融入之前交互中的信息。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>处理用户输入，识别意图和关键实体</div></div>
+        <div class="uc-step"><div class="uc-step-num">⚙</div><div>用意图和实体更新对话状态</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>基于当前状态生成回应，或识别下一个所需信息</div></div>
+        <div class="uc-step"><div class="uc-step-num">↻</div><div>后续轮次重复——每次新输入都利用累积的对话历史</div></div>
+      </div>
+      <p style="margin-top:12px;">这一原则是开发对话代理的基础，使其能够在多轮对话中保持上下文和连贯性。</p>
+    </div>
+  </div>
+
+  <!-- UC 5: 代码生成 -->
+  <div class="uc-panel" id="uc-5">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>代码生成与优化</h3>
+      <p>将编码任务分解为渐进式阶段，允许在模型调用之间插入确定性逻辑。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>理解用户需求，生成伪代码或大纲</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>基于大纲编写初始代码草稿</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>识别潜在错误或改进点（静态分析或另一次 LLM 调用）</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>基于发现的问题重写或优化代码</div></div>
+        <div class="uc-step"><div class="uc-step-num">5</div><div>添加文档和测试用例</div></div>
+      </div>
+      <p style="margin-top:12px;">模块化结构降低了每一步的操作复杂度，允许插入中间数据处理、输出验证和条件分支。</p>
+    </div>
+  </div>
+
+  <!-- UC 6: 多模态推理 -->
+  <div class="uc-panel" id="uc-6">
+    <div class="card" style="border-left:3px solid var(--green);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>多模态与多步推理</h3>
+      <p>分析多种模态的数据集需要将问题分解为基于提示的子任务。例如，解释一张包含图片、嵌入文本、标注标签和表格数据的图像：</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>提取并理解用户图像请求中的文本</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>将提取的图像文本与对应标签关联</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>利用表格信息解释收集的信息以确定所需输出</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. 代码实战 -->
+<div id="sec-code" class="section">
+  <div class="sec-title">代码实战</div>
+  <div class="sec-desc">以下代码使用 LangChain 实现了一个两步提示链——作为数据处理管道。第一步从非结构化文本中提取信息，第二步将提取结果转换为结构化 JSON 格式。</div>
+
+  <div class="card" style="border-left:3px solid var(--text3);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>可用框架</h3>
+    <p>实现提示链的框架包括 LangChain、LangGraph、Crew AI 和 Google Agent Development Kit (ADK)。LangChain 提供线性序列的基础抽象，LangGraph 扩展至支持状态化和循环计算。</p>
+  </div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0;">安装依赖：</p>
+  <div class="json-block">pip install langchain langchain-community langchain-openai langgraph</div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0;">完整代码实现：</p>
+  <div class="code-block"><span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> ChatOpenAI
+<span class="code-keyword">from</span> langchain_core.prompts <span class="code-keyword">import</span> ChatPromptTemplate
+<span class="code-keyword">from</span> langchain_core.output_parsers <span class="code-keyword">import</span> StrOutputParser
+
+<span class="code-comment"># 初始化语言模型</span>
+llm = ChatOpenAI(temperature=<span class="code-string">0</span>)
+
+<span class="code-comment"># --- 提示 1: 提取信息 ---</span>
+prompt_extract = ChatPromptTemplate.from_template(
+  <span class="code-string">"Extract the technical specifications "</span>
+  <span class="code-string">"from the following text:\n\n{text_input}"</span>
+)
+
+<span class="code-comment"># --- 提示 2: 转换为 JSON ---</span>
+prompt_transform = ChatPromptTemplate.from_template(
+  <span class="code-string">"Transform the following specifications "</span>
+  <span class="code-string">"into a JSON object with 'cpu', 'memory', "</span>
+  <span class="code-string">"and 'storage' as keys:\n\n{specifications}"</span>
+)
+
+<span class="code-comment"># --- 使用 LCEL 构建链 ---</span>
+extraction_chain = prompt_extract | llm | StrOutputParser()
+
+full_chain = (
+  {<span class="code-string">"specifications"</span>: extraction_chain}
+  | prompt_transform
+  | llm
+  | StrOutputParser()
+)
+
+<span class="code-comment"># --- 运行链 ---</span>
+input_text = <span class="code-string">"The new laptop model features a 3.5 GHz "</span>
+             <span class="code-string">"octa-core processor, 16GB of RAM, "</span>
+             <span class="code-string">"and a 1TB NVMe SSD."</span>
+
+result = full_chain.invoke({<span class="code-string">"text_input"</span>: input_text})
+<span class="code-keyword">print</span>(result)</div>
+
+  <div class="card card-bordered" style="margin-top:16px;">
+    <h3>代码解析</h3>
+    <p><code>extraction_chain</code> 运行第一个提示并将输出解析为字符串。<code>full_chain</code> 获取该字符串，将其注入第二个提示的 <code>{specifications}</code> 变量，运行后返回最终 JSON。LangChain 表达式语言（LCEL）使用管道操作符 <code>|</code> 优雅地连接这些组件。每个步骤都是独立的、可测试的、可替换的。<code>langchain-openai</code> 可替换为其他模型提供商的包（如 Google Gemini 或 Anthropic）。</p>
+  </div>
+</div>
+
+<!-- 7. 上下文工程 -->
+<div id="sec-context" class="section">
+  <div class="sec-title">上下文工程</div>
+  <div class="sec-desc">上下文工程（Context Engineering）是设计、构建和传递完整信息环境给 AI 模型的系统性学科。核心主张：模型输出的质量更少依赖于模型架构本身，更多依赖于所提供上下文的丰富度。它代表了从传统提示工程的重大进化。点击各层探索：</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);color:var(--teal-d);border-color:var(--teal);">
+      <div class="ctx-layer-title">系统提示（System Prompt）</div>
+      <div class="ctx-layer-sub">定义 AI 运行参数的基础指令集</div>
+      <div class="ctx-layer-detail">定义 AI 的角色、语气和约束。例如："你是一名技术文档撰写者；你的语气必须正式且精确。" 这是塑造所有后续行为的基础层。系统提示建立了整个交互的框架和边界。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);color:var(--purple-d);border-color:var(--purple);">
+      <div class="ctx-layer-title">检索文档（Retrieved Documents）</div>
+      <div class="ctx-layer-sub">从知识库主动获取的外部信息</div>
+      <div class="ctx-layer-detail">AI 主动从知识库获取信息来丰富回答——例如获取项目的技术规格。这将上下文扩展到远超用户即时查询的范围，确保回答基于最新和最相关的信息。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);color:var(--blue-d);border-color:var(--blue);">
+      <div class="ctx-layer-title">工具输出（Tool Outputs）</div>
+      <div class="ctx-layer-sub">外部 API 提供的实时数据</div>
+      <div class="ctx-layer-detail">来自外部 API 的结果——查询日历获取可用性、检查数据库、调用搜索引擎。这些提供了模型仅凭训练数据无法获知的实时、最新信息。工具输出使 AI 能够与真实世界系统交互。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);color:var(--amber-d);border-color:var(--amber);">
+      <div class="ctx-layer-title">隐式数据（Implicit Data）</div>
+      <div class="ctx-layer-sub">用户身份、交互历史、环境状态</div>
+      <div class="ctx-layer-detail">一个经过上下文工程设计的代理不仅仅回答查询，而是首先整合用户的日历可用性（工具输出）、与邮件收件人的职业关系（隐式数据）以及之前会议的笔记（检索文档），从而生成高度相关、个性化且实用的输出。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);color:var(--coral-d);border-color:var(--coral);">
+      <div class="ctx-layer-title">反馈循环（Feedback Loops）</div>
+      <div class="ctx-layer-sub">运行时持续优化上下文质量</div>
+      <div class="ctx-layer-detail">创建健壮的管道在运行时获取和转换数据，并建立反馈循环来持续改善上下文质量。例如，Google 的 Vertex AI 提示优化器可以通过系统性评估响应来增强模型性能，在不同模型间适配提示和系统指令。</div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;margin-top:16px;">
+    <h3>核心原则</h3>
+    <p>即使是先进的模型，在获得有限或构建不当的运行环境视图时也会表现不佳。上下文工程将任务从"回答问题"重新定义为"为代理构建全面的运行画面"。它将上下文本身视为主要组件，重点关注代理知道什么、何时知道以及如何使用这些信息。最终，上下文工程是将无状态聊天机器人推进为高度能干、情境感知系统的关键方法论。</p>
+  </div>
+</div>
+
+<!-- 8. 一览概要 -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">一览概要</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--red-l);color:var(--red-d);">
+      <h4>问题（What）</h4>
+      <p>复杂任务在单一提示中处理时常常使 LLM 不堪重负，导致指令忽略、上下文丢失和信息错误等严重性能问题。庞大的单体提示难以有效管理多个约束和顺序推理步骤。</p>
+    </div>
+    <div class="glance-card" style="background:var(--teal-l);color:var(--teal-d);">
+      <h4>方案（Why）</h4>
+      <p>提示链将复杂问题分解为一系列更小的、互联的子任务。每一步使用聚焦的提示执行特定操作，显著提高可靠性和控制力。模块化的分而治之策略使过程更易管理、更易调试。</p>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>经验法则</h3>
+    <p>在以下情况使用此模式：任务对单个提示来说过于复杂；涉及多个不同的处理阶段；需要在步骤间与外部工具交互；或者在构建需要执行多步推理和维护状态的代理系统时。</p>
+  </div>
+
+  <div class="diagram-sim">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">交互式链路模拟 — 点击节点查看各阶段说明</p>
+    <div class="diagram-nodes">
+      <div class="dia-node" onclick="simClick(0)" style="background:var(--blue-l);color:var(--blue-d);">用户提示</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--teal-l);color:var(--teal-d);">代理 A</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--purple-l);color:var(--purple-d);">代理 B</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--coral-l);color:var(--coral-d);">代理 C</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(4)" style="background:var(--green-l);color:var(--green-d);">最终输出</div>
+    </div>
+    <div class="dia-output" id="sim-output">点击上方的任意节点，了解提示链中每个阶段的角色和功能。</div>
+  </div>
+</div>
+
+<!-- 9. 知识测验 -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">知识测验</div>
+  <div class="sec-desc">测试你对提示链概念的理解。点击选项作答。</div>
+
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. 核心要点 -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">核心要点</div>
+
+  <ul class="tk-list">
+    <li>提示链（管道模式）将复杂任务分解为一系列更小的、聚焦的步骤，每个步骤承担单一职责。</li>
+    <li>链中的每一步涉及一次 LLM 调用或处理逻辑，使用前一步的输出作为输入，创建渐进式构建解决方案的依赖链。</li>
+    <li>此模式显著提高了复杂 LLM 交互的可靠性、可调试性和可管理性，每一步都更简单、更少歧义。</li>
+    <li>步骤间使用结构化输出格式（JSON、XML）确保干净、无歧义的数据交接，是链条可靠性的关键保障。</li>
+    <li>LangChain、LangGraph、Crew AI 和 Google ADK 等框架提供了定义、管理和执行这些多步骤序列的健壮工具。</li>
+    <li>上下文工程——在提示之外构建丰富的信息环境——是下一步进化，将上下文本身视为首要设计组件，区分基础工具与高级系统。</li>
+  </ul>
+
+  <div class="card card-bordered">
+    <h3>总结</h3>
+    <p>通过将复杂问题解构为一系列更简单、更可管理的子任务，提示链为引导大语言模型提供了健壮的框架。这种"分而治之"策略通过聚焦模型于一次特定操作来显著增强输出的可靠性和控制力。作为基础模式，它使开发具有多步推理、工具集成和状态管理能力的高级 AI 代理成为可能。最终，掌握提示链对于构建能够执行复杂工作流的健壮、上下文感知系统至关重要——远超单一提示的能力范围。</p>
+  </div>
+</div>
+
+<!-- 11. 参考资料 -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">参考资料</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> LangChain LCEL 文档: <a href="https://python.langchain.com/v0.2/docs/core_modules/expression_language/" target="_blank">python.langchain.com</a></li>
+    <li><span class="ref-num">[2]</span> LangGraph 文档: <a href="https://langchain-ai.github.io/langgraph/" target="_blank">langchain-ai.github.io/langgraph</a></li>
+    <li><span class="ref-num">[3]</span> Prompt Engineering Guide - 链式提示: <a href="https://www.promptingguide.ai/techniques/chaining" target="_blank">promptingguide.ai</a></li>
+    <li><span class="ref-num">[4]</span> OpenAI API 文档 (通用提示概念): <a href="https://platform.openai.com/docs/guides/gpt/prompting" target="_blank">platform.openai.com</a></li>
+    <li><span class="ref-num">[5]</span> Crew AI 文档 (任务与流程): <a href="https://docs.crewai.com/" target="_blank">docs.crewai.com</a></li>
+    <li><span class="ref-num">[6]</span> Google AI 开发者 (提示指南): <a href="https://cloud.google.com/discover/what-is-prompt-engineering?hl=en" target="_blank">cloud.google.com</a></li>
+    <li><span class="ref-num">[7]</span> Vertex AI 提示优化器: <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/prompt-optimizer" target="_blank">cloud.google.com/vertex-ai</a></li>
+  </ul>
+</div>
+
+<div class="footer">
+  <p>第一章 · 提示链（Prompt Chaining）· 交互式学习体验</p>
+</div>
+
+</div>
+
+<script>
+// Navigation
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+
+// Chain toggle
+function toggleChain(el) {
+  el.classList.toggle('open');
+}
+
+// Context layer toggle
+function toggleCtx(el) {
+  el.classList.toggle('open');
+}
+
+// Use case tabs
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+
+// Diagram simulation
+const simTexts = [
+  "用户提示：用户向系统发送一个复杂的请求。这个请求可能包含多个子任务，例如分析、提取、总结和撰写。在提示链模式中，这个原始请求不会被直接发送给单一 LLM 处理。",
+  "代理 A（第一步处理）：接收原始请求，执行第一个聚焦任务。例如总结市场报告。此代理被分配特定角色（如'市场分析师'），只关注一个操作，确保高准确性。输出传递给下一个代理。",
+  "代理 B（中间处理）：接收代理 A 的输出作为输入，执行更深入的分析。例如从总结中识别趋势和提取数据点。可以在此步骤集成外部工具（API、数据库）来丰富信息。",
+  "代理 C（最终处理）：接收代理 B 的结构化输出，执行最终转换。例如将趋势数据转化为专业邮件。每个步骤都建立在前一步的验证输出之上，保证质量逐步提升。",
+  "最终输出：经过多个专注步骤的处理，系统产出高质量、准确且格式规范的最终结果。相比单一提示处理，链式方法在可靠性、准确性和可调试性上都有显著提升。"
+];
+
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+
+// Quiz
+const quizData = [
+  {
+    q: "提示链相比单一复杂提示的主要优势是什么？",
+    opts: ["总体使用更少的 token", "将任务分解为聚焦步骤，降低认知负荷，提高可靠性", "总是产生更快的响应", "消除了提示工程的需要"],
+    ans: 1,
+    ok: "正确！链中的每一步都更简单、更少歧义，降低了模型的认知负荷，产生更准确可靠的输出。这种模块化方法使每个步骤都可以独立优化和调试。",
+    no: "提示链实际上可能使用更多 token。关键优势在于模块化——每个聚焦步骤减少了指令忽略和上下文漂移等错误。"
+  },
+  {
+    q: "为什么链步骤之间使用结构化输出（如 JSON）很重要？",
+    opts: ["让输出看起来更专业", "LLM 只能处理 JSON 输入", "确保步骤间机器可读、无歧义的数据交接", "降低 API 调用成本"],
+    ans: 2,
+    ok: "正确！JSON 等结构化格式确保步骤间传递的数据可被精确解析，最大限度减少自然语言解释产生的错误。这是构建健壮多步骤系统的关键组件。",
+    no: "目的不在于美观或成本——而在于可靠性。步骤间模糊或格式不佳的输出会导致整个链条断裂。"
+  },
+  {
+    q: "上下文工程在传统提示工程基础上增加了什么？",
+    opts: ["更长的提示和更多示例", "包含系统提示、检索文档、工具输出和隐式数据的完整信息环境", "更好的提示语法", "更快的模型推理速度"],
+    ans: 1,
+    ok: "正确！上下文工程通过组合系统指令、外部知识、实时工具结果和用户上下文来构建丰富的运行画面——不仅仅是优化查询措辞。",
+    no: "上下文工程远超提示措辞。它关注的是构建模型产出优质输出所需的整个信息环境。"
+  },
+  {
+    q: "哪种失败模式是指 LLM 在长提示中丧失对初始上下文的跟踪？",
+    opts: ["指令忽略", "错误传播", "上下文漂移", "幻觉现象"],
+    ans: 2,
+    ok: "正确！上下文漂移是模型在提示变得复杂时逐渐丧失对原始上下文的跟踪——这是提示链解决的关键问题之一。",
+    no: "上下文漂移特指丢失初始上下文。指令忽略是跳过提示部分，错误传播是错误放大，幻觉是生成不正确信息。"
+  },
+  {
+    q: "在市场分析链示例中，为什么要为每一步分配不同的角色？",
+    opts: ["让代码更易读", "通过约束模型任务来确保每阶段的准确、聚焦输出", "因为 LLM 需要角色分配才能运行", "减少所需 API 调用次数"],
+    ans: 1,
+    ok: "正确！分配'市场分析师'或'贸易分析师'等角色约束了模型在每一步的关注范围，产生更准确、更符合领域要求的输出。",
+    no: "角色在技术上不是必需的——它们是一种设计模式，通过缩小每一步的任务范围来聚焦模型的输出质量。"
+  },
+  {
+    q: "复杂操作中，并行处理和提示链通常如何组合使用？",
+    opts: ["它们不能组合使用", "并行处理用于独立数据收集，提示链用于依赖性的综合和优化步骤", "提示链完全替代并行处理", "并行处理只用于最后一步"],
+    ans: 1,
+    ok: "正确！复杂操作经常将并行处理（同时从多个来源收集数据）与提示链（按顺序执行综合、起草和审查）结合使用，实现效率和质量的平衡。",
+    no: "并行处理和提示链是互补的：独立的子任务（如多篇文章提取）可以并行执行，而依赖性步骤（整理→综合→审查）使用顺序链。"
+  }
+];
+
+let curQ = 0;
+let answered = new Set();
+let scores = [];
+
+function renderQuiz() {
+  // Progress dots
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">第 ' + (curQ+1) + ' 题 / 共 ' + quizData.length + ' 题</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => {
+    html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>';
+  });
+  html += '<div class="quiz-fb" id="qfb"></div>';
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">下一题</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">查看核心要点</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+
+  if (answered.has(curQ)) {
+    // Restore state
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => {
+      btn.classList.add('disabled');
+      if (i === q2.ans) btn.classList.add('correct');
+    });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+
+renderQuiz();
+</script>
+</body>
+</html>

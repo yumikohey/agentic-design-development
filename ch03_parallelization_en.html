@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 3: Parallelization — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'Menlo', 'Consolas', 'Monaco', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  background: var(--teal-l);
+  padding: 4px 14px;
+  border-radius: 99px;
+  margin-bottom: 16px;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  max-width: 640px;
+}
+.nav-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 0.5px solid var(--border2);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+  padding-top: 8px;
+}
+.nav-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 7px 16px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active {
+  background: var(--teal-l);
+  color: var(--teal-d);
+  border-color: var(--teal);
+  font-weight: 500;
+}
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 16px;
+  border: 0.5px solid var(--border);
+}
+.card-bordered {
+  border-left: 3px solid var(--teal);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card {
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+  overflow: hidden;
+}
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node {
+  width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s;
+}
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num {
+  width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0;
+}
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail {
+  max-height: 0; overflow: hidden; transition: max-height .35s ease;
+  font-size: 13px; color: var(--text2); line-height: 1.8;
+}
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after {
+  content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0;
+  border-left: 6px solid transparent; border-right: 6px solid transparent;
+  border-top: 7px solid var(--border2);
+}
+.json-block {
+  background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px;
+  font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto;
+  white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border);
+}
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab {
+  font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px;
+  border: 0.5px solid var(--border2); background: transparent; color: var(--text2);
+  cursor: pointer; transition: all .2s;
+}
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num {
+  width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2);
+  font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px;
+}
+.code-block {
+  background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px;
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto;
+  white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2;
+}
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer {
+  padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer;
+  transition: all .25s; border: 0.5px solid transparent;
+}
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt {
+  display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px;
+  border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2);
+  color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans);
+  transition: all .2s; line-height: 1.6;
+}
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb {
+  padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px;
+  line-height: 1.7; margin: 12px 0; display: none;
+}
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn {
+  font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2);
+  background: transparent; color: var(--text); font-size: 13px; cursor: pointer;
+  transition: all .15s; margin-top: 12px;
+}
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li {
+  counter-increment: tk; display: flex; gap: 14px; align-items: flex-start;
+  margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8;
+}
+.tk-list li::before {
+  content: counter(tk); width: 28px; height: 28px; border-radius: 50%;
+  background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
+}
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim {
+  background: var(--bg2); border-radius: var(--radius); padding: 24px;
+  margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center;
+}
+.diagram-nodes {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; flex-wrap: wrap; margin: 1rem 0;
+}
+.dia-node {
+  padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px;
+  font-weight: 500; cursor: pointer; transition: all .3s; position: relative;
+  min-width: 90px; text-align: center;
+}
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output {
+  margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left;
+  min-height: 60px; transition: all .3s;
+}
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+  <a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+  <div class="chapter-tag">Chapter 3</div>
+  <h1>Parallelization</h1>
+  <p class="subtitle">Parallelization executes multiple independent sub-tasks — LLM calls, tool usages, or entire sub-agents — concurrently, drastically reducing total latency for complex agentic workflows.</p>
+
+  <nav class="nav-bar">
+    <button class="nav-btn active" onclick="go('sec-overview',this)">Overview</button>
+    <button class="nav-btn" onclick="go('sec-problem',this)">Problems</button>
+    <button class="nav-btn" onclick="go('sec-solution',this)">Solution</button>
+    <button class="nav-btn" onclick="go('sec-concepts',this)">Core Concepts</button>
+    <button class="nav-btn" onclick="go('sec-usecases',this)">Use Cases</button>
+    <button class="nav-btn" onclick="go('sec-code',this)">Code</button>
+    <button class="nav-btn" onclick="go('sec-deepdive',this)">Deep Dive</button>
+    <button class="nav-btn" onclick="go('sec-glance',this)">At a Glance</button>
+    <button class="nav-btn" onclick="go('sec-quiz',this)">Quiz</button>
+    <button class="nav-btn" onclick="go('sec-takeaways',this)">Takeaways</button>
+    <button class="nav-btn" onclick="go('sec-refs',this)">References</button>
+  </nav>
+
+  <!-- Overview -->
+  <section id="sec-overview" class="section active">
+    <h2 class="sec-title">Parallelization Pattern Overview</h2>
+    <p class="sec-desc">While Prompt Chaining handles sequential workflows and Routing enables dynamic decision-making, many complex agentic tasks involve multiple sub-tasks that can be executed simultaneously rather than one after another. This is where Parallelization becomes crucial.</p>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Pattern Type</div>
+        <div class="metric-value">Concurrent Exec</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Primary Benefit</div>
+        <div class="metric-value">Reduced Latency</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Key Frameworks</div>
+        <div class="metric-value">LangChain / ADK</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Core Construct</div>
+        <div class="metric-value">RunnableParallel</div>
+      </div>
+    </div>
+    <div class="card card-bordered">
+      <h3>What is Parallelization?</h3>
+      <p>Parallelization involves executing multiple components — such as LLM calls, tool usages, or entire sub-agents — concurrently. Instead of waiting for one step to complete before starting the next, parallel execution allows independent tasks to run at the same time, significantly reducing overall execution time for tasks that can be broken down into independent parts.</p>
+    </div>
+    <div class="card card-bordered">
+      <h3>Sequential vs. Parallel: A Clear Example</h3>
+      <p>An agent researching a topic sequentially must: Search A → Summarize A → Search B → Summarize B → Synthesize. In parallel: Search A and B simultaneously → Summarize A and B simultaneously → Synthesize. The final synthesis step waits for all parallel steps, but the total time is dramatically reduced.</p>
+    </div>
+    <div class="card card-bordered">
+      <h3>Framework Support</h3>
+      <p>Frameworks like LangChain, LangGraph, and Google ADK provide mechanisms for parallel execution. In LangChain LCEL, RunnableParallel bundles multiple chains to execute concurrently. Google ADK provides native ParallelAgent and SequentialAgent primitives for building multi-agent workflows with concurrent execution.</p>
+    </div>
+    <div class="card card-bordered">
+      <h3>Concurrency vs. True Parallelism</h3>
+      <p>In Python, asyncio provides concurrency — not true parallelism. It achieves this on a single thread using an event loop that switches between tasks when one is idle (e.g., waiting for a network request). This is especially effective for I/O-bound tasks like API calls, where most time is spent waiting for responses.</p>
+    </div>
+  </section>
+
+  <!-- Problems -->
+  <section id="sec-problem" class="section">
+    <h2 class="sec-title">The Problem with Sequential Execution</h2>
+    <p class="sec-desc">When every step must wait for the previous one, agentic workflows become unnecessarily slow. Click each card to explore the specific bottlenecks.</p>
+    <div class="fail-grid">
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>Additive Latency</h4>
+        <p>Total time equals the sum of all individual task durations.</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">A purely sequential execution, where each task waits for the previous one to finish, is often inefficient and slow. If querying three APIs each take 2 seconds, a sequential approach takes 6 seconds minimum — yet none of those calls depend on each other's results.</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>External I/O Bottlenecks</h4>
+        <p>API calls and database queries force unnecessary idle time.</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">Latency becomes a significant bottleneck when tasks depend on external I/O operations, such as calling different APIs or querying multiple databases. While waiting for one response, the system is idle — all other independent operations are blocked unnecessarily.</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>Under-utilized Resources</h4>
+        <p>Compute capacity sits idle waiting for network responses.</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">Without a mechanism for concurrent execution, the system's compute resources are under-utilized during I/O wait periods. This is particularly wasteful in multi-agent systems where several specialized agents could be doing meaningful work simultaneously.</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>Poor User Experience</h4>
+        <p>Users wait unnecessarily for results that could come faster.</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">In user-facing applications, slow sequential workflows directly translate to poor UX. A travel planning agent that sequentially checks flights, then hotels, then local events — rather than querying all three simultaneously — makes users wait far longer than necessary for their complete itinerary.</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>Debugging and Complexity Costs</h4>
+        <p>Concurrent architectures introduce new design challenges.</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">While parallelization solves latency issues, adopting a concurrent architecture introduces substantial complexity and cost, impacting key development phases such as design, debugging, and system logging. Race conditions, partial failures, and result aggregation all require careful handling.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Solution -->
+  <section id="sec-solution" class="section">
+    <h2 class="sec-title">Solution: The Parallelization Pattern</h2>
+    <p class="sec-desc">Parallelization identifies independent workflow components and executes them concurrently, collecting all results before proceeding to a synthesis step. Click each node to explore the flow.</p>
+    <div class="chain-container">
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+          <div>
+            <div class="chain-title">Receive Input</div>
+            <div class="chain-role">Single query or task initiates the workflow</div>
+          </div>
+        </div>
+        <div class="chain-detail">A single input — such as a user query or a task request — enters the system. The parallelization layer analyzes this input and fans it out to multiple independent processing branches simultaneously.</div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">2</div>
+          <div>
+            <div class="chain-title">Concurrent Execution</div>
+            <div class="chain-role">RunnableParallel / ParallelAgent — all branches run simultaneously</div>
+          </div>
+        </div>
+        <div class="chain-detail">Independent tasks are dispatched concurrently. In LangChain LCEL, a RunnableParallel block bundles multiple chains (e.g., summarize_chain, questions_chain, terms_chain) and invokes them at the same time. In Google ADK, a ParallelAgent orchestrates multiple LlmAgent sub-agents running in parallel.</div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">3</div>
+          <div>
+            <div class="chain-title">Await Completion</div>
+            <div class="chain-role">Barrier synchronization — wait for all parallel branches</div>
+          </div>
+        </div>
+        <div class="chain-detail">The system waits for all parallel branches to complete before proceeding. This is the synchronization barrier. In asyncio-based systems, this corresponds to awaiting all tasks. The total wait time equals the slowest individual branch, not the sum of all branches.</div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">4</div>
+          <div>
+            <div class="chain-title">Aggregation and Synthesis</div>
+            <div class="chain-role">Merger agent or synthesis chain combines all results</div>
+          </div>
+        </div>
+        <div class="chain-detail">All parallel outputs are collected and passed to a synthesis step — typically a final LLM call that combines the results into a coherent unified response. In ADK, a dedicated MergerAgent (LlmAgent) synthesizes the summaries stored in session state by the parallel researcher agents.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Concepts -->
+  <section id="sec-concepts" class="section">
+    <h2 class="sec-title">Core Concepts</h2>
+    <p class="sec-desc">Understanding the key building blocks that make parallelization work in modern agentic frameworks.</p>
+    <div class="card card-bordered">
+      <h3>RunnableParallel (LangChain LCEL)</h3>
+      <p>The primary LangChain construct for parallel execution. A RunnableParallel block bundles multiple runnable components within a dictionary. When passed as input to a subsequent component in the chain, the LCEL runtime executes all contained runnables concurrently and collects their outputs as a dictionary keyed by name.</p>
+    </div>
+    <div class="card card-bordered">
+      <h3>ParallelAgent and SequentialAgent (Google ADK)</h3>
+      <p>ADK provides first-class primitives for parallel multi-agent workflows. A ParallelAgent orchestrates concurrent execution of its sub-agents, completing once all sub-agents have finished and stored their results in the shared session state. A SequentialAgent then runs subsequent steps (like a MergerAgent) in order.</p>
+    </div>
+    <div class="card card-bordered">
+      <h3>output_key and Session State</h3>
+      <p>In Google ADK parallel workflows, each LlmAgent sub-agent uses an output_key parameter to store its result in the shared session state (e.g., output_key="renewable_energy_result"). The downstream merger agent reads all these keys from state to synthesize a combined report.</p>
+    </div>
+    <div class="card card-bordered">
+      <h3>asyncio and Concurrency Model</h3>
+      <p>Python's asyncio provides concurrency through an event loop that switches between tasks when one is idle (awaiting a network request). This creates the effect of parallel progress while executing on a single thread, constrained by Python's GIL. True CPU parallelism requires multiprocessing.</p>
+    </div>
+    <div class="json-block"><span class="code-comment"># Conceptual structure of a parallel workflow</span>
+{
+  <span class="code-string">"pattern"</span>: <span class="code-string">"parallelization"</span>,
+  <span class="code-string">"parallel_tasks"</span>: [
+    { <span class="code-string">"name"</span>: <span class="code-string">"summarize"</span>, <span class="code-string">"status"</span>: <span class="code-string">"concurrent"</span> },
+    { <span class="code-string">"name"</span>: <span class="code-string">"questions"</span>, <span class="code-string">"status"</span>: <span class="code-string">"concurrent"</span> },
+    { <span class="code-string">"name"</span>: <span class="code-string">"key_terms"</span>, <span class="code-string">"status"</span>: <span class="code-string">"concurrent"</span> }
+  ],
+  <span class="code-string">"synthesis_step"</span>: { <span class="code-string">"waits_for"</span>: <span class="code-string">"all_parallel_tasks"</span>, <span class="code-string">"type"</span>: <span class="code-string">"sequential"</span> }
+}</div>
+  </section>
+
+  <!-- Use Cases -->
+  <section id="sec-usecases" class="section">
+    <h2 class="sec-title">Use Cases</h2>
+    <p class="sec-desc">Parallelization is a powerful optimization pattern across a wide range of agentic applications. Select a use case to explore its parallel structure.</p>
+    <div class="uc-tabs">
+      <button class="uc-tab active" onclick="showUC(0,this)">Information Gathering</button>
+      <button class="uc-tab" onclick="showUC(1,this)">Data Analysis</button>
+      <button class="uc-tab" onclick="showUC(2,this)">Multi-API Calls</button>
+      <button class="uc-tab" onclick="showUC(3,this)">Content Generation</button>
+      <button class="uc-tab" onclick="showUC(4,this)">Validation</button>
+      <button class="uc-tab" onclick="showUC(5,this)">Multi-Modal</button>
+      <button class="uc-tab" onclick="showUC(6,this)">A/B Testing</button>
+    </div>
+    <div id="uc-0" class="uc-panel active">
+      <div class="card">
+        <h3>Information Gathering and Research</h3>
+        <p>Collecting information from multiple sources simultaneously is a classic parallelization use case. An agent researching a company can fire off multiple lookups at once.</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>Receive research topic (e.g., "Research Acme Corp")</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>Fan out: Search news articles, pull stock data, check social media mentions, query company database — all simultaneously</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>Await all lookups to complete</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>Synthesize a comprehensive view — much faster than sequential lookups</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-1" class="uc-panel">
+      <div class="card">
+        <h3>Data Processing and Analysis</h3>
+        <p>Applying different analysis techniques or processing different data segments concurrently. An agent analyzing customer feedback can run multiple analysis passes in parallel.</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>Receive batch of customer feedback entries</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>Run in parallel: sentiment analysis, keyword extraction, feedback categorization, urgent issue identification</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>Collect all analysis results</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>Provide a multi-faceted analysis report quickly</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-2" class="uc-panel">
+      <div class="card">
+        <h3>Multi-API or Tool Interaction</h3>
+        <p>Calling multiple independent APIs or tools simultaneously to gather different types of information. A travel planning agent benefits greatly from this pattern.</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>Receive travel planning request (destination, dates)</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>Concurrently: check flight prices, search hotel availability, look up local events, find restaurant recommendations</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>Await all API responses</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>Present a complete travel plan much faster than sequential API calls</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-3" class="uc-panel">
+      <div class="card">
+        <h3>Content Generation with Multiple Components</h3>
+        <p>Generating different parts of a complex piece of content in parallel. A marketing email agent can produce all components simultaneously.</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>Receive content brief (product, audience, goal)</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>Generate in parallel: subject line, email body draft, relevant image description, CTA button text</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>Collect all generated components</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>Assemble the final email more efficiently than generating each part sequentially</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-4" class="uc-panel">
+      <div class="card">
+        <h3>Validation and Verification</h3>
+        <p>Performing multiple independent checks or validations concurrently. An input validation agent can run all checks at the same time.</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>Receive user-submitted form data</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>Validate concurrently: email format, phone number, address against database, profanity check</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>Collect all validation results</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>Provide faster feedback on input validity than sequential checks</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-5" class="uc-panel">
+      <div class="card">
+        <h3>Multi-Modal Processing</h3>
+        <p>Processing different modalities (text, image, audio) of the same input concurrently. A social media analysis agent can handle all modalities in parallel.</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>Receive social media post with text and embedded image</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>Process simultaneously: text sentiment and keyword analysis AND image object/scene analysis</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>Await both modality analyses</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>Integrate insights from different modalities more quickly</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-6" class="uc-panel">
+      <div class="card">
+        <h3>A/B Testing or Multiple Options Generation</h3>
+        <p>Generating multiple variations of a response or output in parallel to select the best one. An agent generating creative content can produce alternatives simultaneously.</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>Receive creative brief (e.g., "generate article headlines")</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>Generate simultaneously: three different headlines using slightly different prompts or model temperatures</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>Collect all generated options</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>Allow quick comparison and selection of the best option</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Code -->
+  <section id="sec-code" class="section">
+    <h2 class="sec-title">Code Examples</h2>
+    <p class="sec-desc">Concrete implementations demonstrating parallelization in both LangChain and Google ADK.</p>
+
+    <div class="card" style="margin-bottom:12px;">
+      <h3>LangChain: RunnableParallel</h3>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:8px;">Three independent LLM chains (summarize, generate questions, extract key terms) execute concurrently on the same topic input, then their outputs are merged by a synthesis prompt.</p>
+    </div>
+<div class="code-block"><span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> ChatOpenAI
+<span class="code-keyword">from</span> langchain_core.prompts <span class="code-keyword">import</span> ChatPromptTemplate
+<span class="code-keyword">from</span> langchain_core.runnables <span class="code-keyword">import</span> RunnableParallel, RunnablePassthrough
+
+<span class="code-comment"># --- Three independent chains that run concurrently ---</span>
+summarize_chain = (
+    ChatPromptTemplate.from_messages([
+        (<span class="code-string">"system"</span>, <span class="code-string">"Summarize the following topic concisely:"</span>),
+        (<span class="code-string">"user"</span>, <span class="code-string">"{topic}"</span>)
+    ]) | llm | StrOutputParser()
+)
+
+questions_chain = (
+    ChatPromptTemplate.from_messages([
+        (<span class="code-string">"system"</span>, <span class="code-string">"Generate three interesting questions about the following topic:"</span>),
+        (<span class="code-string">"user"</span>, <span class="code-string">"{topic}"</span>)
+    ]) | llm | StrOutputParser()
+)
+
+terms_chain = (
+    ChatPromptTemplate.from_messages([
+        (<span class="code-string">"system"</span>, <span class="code-string">"Identify 5-10 key terms from the following topic, separated by commas:"</span>),
+        (<span class="code-string">"user"</span>, <span class="code-string">"{topic}"</span>)
+    ]) | llm | StrOutputParser()
+)
+
+<span class="code-comment"># --- Bundle into a parallel block ---</span>
+map_chain = RunnableParallel(
+    {
+        <span class="code-string">"summary"</span>: summarize_chain,
+        <span class="code-string">"questions"</span>: questions_chain,
+        <span class="code-string">"key_terms"</span>: terms_chain,
+        <span class="code-string">"topic"</span>: RunnablePassthrough(),  <span class="code-comment"># pass original topic through</span>
+    }
+)
+
+<span class="code-comment"># --- Synthesis step runs after all parallel chains complete ---</span>
+synthesis_prompt = ChatPromptTemplate.from_messages([
+    (<span class="code-string">"system"</span>, <span class="code-string">"""Based on the following information:
+    Summary: {summary}
+    Related Questions: {questions}
+    Key Terms: {key_terms}
+    Synthesize a comprehensive answer."""</span>),
+    (<span class="code-string">"user"</span>, <span class="code-string">"Original topic: {topic}"</span>)
+])
+
+full_parallel_chain = map_chain | synthesis_prompt | llm | StrOutputParser()
+
+<span class="code-comment"># --- Async invocation ---</span>
+<span class="code-keyword">async def</span> run_parallel_example(topic: str) -> None:
+    response = <span class="code-keyword">await</span> full_parallel_chain.ainvoke(topic)
+    print(response)</div>
+
+    <div class="card" style="margin-bottom:12px;margin-top:20px;">
+      <h3>Google ADK: ParallelAgent + SequentialAgent</h3>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:8px;">Three specialist researcher LlmAgents run concurrently inside a ParallelAgent. Once all finish, a MergerAgent synthesizes their stored results. A SequentialAgent orchestrates the entire flow.</p>
+    </div>
+<div class="code-block"><span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> LlmAgent, ParallelAgent, SequentialAgent
+<span class="code-keyword">from</span> google.adk.tools <span class="code-keyword">import</span> google_search
+GEMINI_MODEL = <span class="code-string">"gemini-2.0-flash"</span>
+
+<span class="code-comment"># --- Three researcher sub-agents run in parallel ---</span>
+researcher_agent_1 = LlmAgent(
+    name=<span class="code-string">"RenewableEnergyResearcher"</span>,
+    model=GEMINI_MODEL,
+    instruction=<span class="code-string">"""Research latest advancements in 'renewable energy sources'.
+Use the Google Search tool. Summarize key findings (1-2 sentences).
+Output *only* the summary."""</span>,
+    tools=[google_search],
+    output_key=<span class="code-string">"renewable_energy_result"</span>  <span class="code-comment"># stored in session state</span>
+)
+
+researcher_agent_2 = LlmAgent(
+    name=<span class="code-string">"EVResearcher"</span>, model=GEMINI_MODEL,
+    instruction=<span class="code-string">"Research latest developments in 'electric vehicle technology'. Summarize (1-2 sentences)."</span>,
+    tools=[google_search],
+    output_key=<span class="code-string">"ev_technology_result"</span>
+)
+
+researcher_agent_3 = LlmAgent(
+    name=<span class="code-string">"CarbonCaptureResearcher"</span>, model=GEMINI_MODEL,
+    instruction=<span class="code-string">"Research current state of 'carbon capture methods'. Summarize (1-2 sentences)."</span>,
+    tools=[google_search],
+    output_key=<span class="code-string">"carbon_capture_result"</span>
+)
+
+<span class="code-comment"># --- ParallelAgent runs all researchers concurrently ---</span>
+parallel_research_agent = ParallelAgent(
+    name=<span class="code-string">"ParallelWebResearchAgent"</span>,
+    sub_agents=[researcher_agent_1, researcher_agent_2, researcher_agent_3],
+)
+
+<span class="code-comment"># --- MergerAgent synthesizes results after parallel agents finish ---</span>
+merger_agent = LlmAgent(
+    name=<span class="code-string">"SynthesisAgent"</span>, model=GEMINI_MODEL,
+    instruction=<span class="code-string">"""Synthesize the research findings into a structured report.
+Input Summaries: {renewable_energy_result}, {ev_technology_result}, {carbon_capture_result}
+Ground your report *exclusively* on the provided summaries."""</span>
+)
+
+<span class="code-comment"># --- SequentialAgent orchestrates the overall flow ---</span>
+sequential_pipeline_agent = SequentialAgent(
+    name=<span class="code-string">"ResearchAndSynthesisPipeline"</span>,
+    sub_agents=[parallel_research_agent, merger_agent],
+)
+root_agent = sequential_pipeline_agent</div>
+  </section>
+
+  <!-- Deep Dive -->
+  <section id="sec-deepdive" class="section">
+    <h2 class="sec-title">Deep Dive: Implementation Layers</h2>
+    <p class="sec-desc">Parallelization can be applied at multiple levels of an agentic system. Click each layer to understand the mechanics and trade-offs.</p>
+    <div class="ctx-stack">
+      <div class="ctx-layer" style="background:var(--teal-l);border-color:var(--teal);" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--teal-d);">LangChain LCEL: RunnableParallel</div>
+        <div class="ctx-layer-sub" style="color:var(--teal-d);">Dictionary-based concurrent chain execution</div>
+        <div class="ctx-layer-detail" style="color:var(--teal-d);">The primary LCEL mechanism for parallelism. Structuring multiple runnable components within a dictionary or list construct causes the LCEL runtime to execute them concurrently. The outputs are collected as a dictionary keyed by the names you assign. RunnablePassthrough can be included to forward the original input alongside the parallel results to a downstream synthesis step.</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--blue-l);border-color:var(--blue);" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--blue-d);">LangGraph: Parallel Graph Nodes</div>
+        <div class="ctx-layer-sub" style="color:var(--blue-d);">Multiple nodes initiated from a single state transition</div>
+        <div class="ctx-layer-detail" style="color:var(--blue-d);">LangGraph's graph structure enables parallelism through topology. Parallel workflows are defined by architecting the graph such that multiple nodes, lacking direct sequential dependencies, can be initiated from a single common node. These parallel pathways execute independently before their results are aggregated at a subsequent convergence point — a "fan-out / fan-in" pattern.</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--purple-l);border-color:var(--purple);" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--purple-d);">Google ADK: ParallelAgent Primitive</div>
+        <div class="ctx-layer-sub" style="color:var(--purple-d);">Native multi-agent concurrent execution</div>
+        <div class="ctx-layer-detail" style="color:var(--purple-d);">Google ADK provides first-class ParallelAgent and SequentialAgent constructs. A ParallelAgent orchestrates the concurrent execution of its sub-agents and completes once all have finished. Sub-agents store their results in shared session state using output_key parameters, which downstream agents then read for synthesis. This is particularly powerful for research, validation, and multi-source data gathering scenarios.</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--amber-l);border-color:var(--amber);" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--amber-d);">asyncio: Concurrency Foundation</div>
+        <div class="ctx-layer-sub" style="color:var(--amber-d);">Single-threaded event loop for I/O-bound concurrency</div>
+        <div class="ctx-layer-detail" style="color:var(--amber-d);">Python's asyncio provides concurrency on a single thread using an event loop that intelligently switches between tasks when one is idle (e.g., waiting for a network request). This creates the effect of multiple tasks progressing at once but the code is still executed by one thread, constrained by Python's GIL. For CPU-bound tasks, use multiprocessing. For I/O-bound tasks (API calls, database queries), asyncio is highly effective.</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--coral-l);border-color:var(--coral);" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--coral-d);">Error Handling and Partial Failures</div>
+        <div class="ctx-layer-sub" style="color:var(--coral-d);">Designing resilient parallel workflows</div>
+        <div class="ctx-layer-detail" style="color:var(--coral-d);">A key challenge in parallel execution is handling partial failures — one branch failing should not necessarily kill the entire workflow. Robust implementations include per-branch try/except blocks, timeout management, fallback values for failed branches, and logging that identifies which sub-task failed. The synthesis step must handle cases where some inputs may be missing or error messages rather than valid results.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- At a Glance -->
+  <section id="sec-glance" class="section">
+    <h2 class="sec-title">At a Glance</h2>
+    <div class="glance-grid">
+      <div class="glance-card" style="background:var(--teal-l);">
+        <h4 style="color:var(--teal-d);">WHAT</h4>
+        <p style="color:var(--teal-d);">Many agentic workflows involve multiple sub-tasks that must be completed to achieve a final goal. A purely sequential execution, where each task waits for the previous one to finish, is often inefficient. Latency from external I/O compounds into significant bottlenecks — the total processing time is the sum of all individual durations.</p>
+      </div>
+      <div class="glance-card" style="background:var(--blue-l);">
+        <h4 style="color:var(--blue-d);">WHY</h4>
+        <p style="color:var(--blue-d);">The Parallelization pattern enables simultaneous execution of independent tasks. By identifying components that do not rely on each other's immediate outputs, a main process can invoke several sub-tasks that run in parallel and wait for all of them to complete. Total wait time equals the slowest branch, not the sum — a dramatic improvement.</p>
+      </div>
+      <div class="glance-card" style="background:var(--amber-l);">
+        <h4 style="color:var(--amber-d);">Rule of Thumb</h4>
+        <p style="color:var(--amber-d);">Use this pattern when a workflow contains multiple independent operations that can run simultaneously — fetching data from several APIs, processing different chunks of data, or generating multiple pieces of content for later synthesis. If tasks depend on each other's output, they must remain sequential.</p>
+      </div>
+      <div class="glance-card" style="background:var(--purple-l);">
+        <h4 style="color:var(--purple-d);">Trade-offs</h4>
+        <p style="color:var(--purple-d);">Benefits: dramatically reduced latency for I/O-bound tasks, better resource utilization. Costs: increased design complexity, harder debugging, more complex logging. Race conditions and partial failures require careful handling. Start with the simplest parallelization that solves the problem; add complexity only when needed.</p>
+      </div>
+    </div>
+    <div class="diagram-sim">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:4px;">Parallelization flow simulation — click each node to understand its role</p>
+      <div class="diagram-nodes">
+        <div class="dia-node" style="background:var(--bg3);" onclick="simClick('input')">Input</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick('fan')">Fan-Out</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--blue-l);color:var(--blue-d);" onclick="simClick('agent1')">Agent 1</div>
+        <div class="dia-arrow" style="color:var(--text3);">/</div>
+        <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick('agent2')">Agent 2</div>
+        <div class="dia-arrow" style="color:var(--text3);">/</div>
+        <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d);" onclick="simClick('agent3')">Agent 3</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d);" onclick="simClick('merge')">Merge</div>
+      </div>
+      <div id="sim-output" class="dia-output">Click any node above to learn its role in the parallelization pattern.</div>
+    </div>
+  </section>
+
+  <!-- Quiz -->
+  <section id="sec-quiz" class="section">
+    <h2 class="sec-title">Quiz</h2>
+    <p class="sec-desc">Test your understanding of the Parallelization pattern. 6 questions.</p>
+    <div id="quizProgress"></div>
+    <div id="quizArea"></div>
+  </section>
+
+  <!-- Takeaways -->
+  <section id="sec-takeaways" class="section">
+    <h2 class="sec-title">Key Takeaways</h2>
+    <p class="sec-desc">The essential insights from the Parallelization pattern.</p>
+    <ul class="tk-list">
+      <li>Parallelization is a pattern for executing independent tasks concurrently to improve efficiency — particularly for I/O-bound operations like API calls and database queries.</li>
+      <li>It is especially useful when tasks involve waiting for external resources: the total wait equals the slowest branch, not the sum of all branch times.</li>
+      <li>Adopting a concurrent or parallel architecture introduces substantial complexity and cost, impacting design, debugging, and system logging — weigh this against the latency benefit.</li>
+      <li>Frameworks like LangChain and Google ADK provide built-in support for defining and managing parallel execution, reducing implementation friction.</li>
+      <li>In LangChain LCEL, RunnableParallel is the key construct for running multiple runnables side-by-side and collecting their outputs as a named dictionary.</li>
+      <li>Google ADK can facilitate parallel execution through ParallelAgent, where a coordinator's sub-agents each store results in session state using output_key for downstream synthesis.</li>
+      <li>Parallelization helps reduce overall latency and makes agentic systems more responsive — integrating it with sequential (chaining) and conditional (routing) flows enables sophisticated, high-performance agentic applications.</li>
+      <li>Python's asyncio provides concurrency (not true parallelism) through an event loop — effective for I/O-bound tasks; use multiprocessing for CPU-bound parallelism.</li>
+    </ul>
+  </section>
+
+  <!-- References -->
+  <section id="sec-refs" class="section">
+    <h2 class="sec-title">References</h2>
+    <p class="sec-desc">Further reading on the Parallelization pattern and related concepts.</p>
+    <ul class="ref-list">
+      <li><span class="ref-num">[1]</span> LangChain Expression Language (LCEL) Documentation — Parallelism: <a href="https://python.langchain.com/docs/concepts/lcel/" target="_blank">https://python.langchain.com/docs/concepts/lcel/</a></li>
+      <li><span class="ref-num">[2]</span> Google Agent Developer Kit Documentation — Multi-Agent Systems: <a href="https://google.github.io/adk-docs/agents/multi-agents/" target="_blank">https://google.github.io/adk-docs/agents/multi-agents/</a></li>
+      <li><span class="ref-num">[3]</span> Python asyncio Documentation: <a href="https://docs.python.org/3/library/asyncio.html" target="_blank">https://docs.python.org/3/library/asyncio.html</a></li>
+      <li><span class="ref-num">[4]</span> LangGraph Documentation (Graph-based parallel workflows): <a href="https://www.langchain.com/" target="_blank">https://www.langchain.com/</a></li>
+      <li><span class="ref-num">[5]</span> Source code (Marco Fago, MIT License, 2025): <a href="https://www.linkedin.com/in/marco-fago/" target="_blank">linkedin.com/in/marco-fago</a></li>
+    </ul>
+  </section>
+
+  <div class="footer"><p>Chapter 3: Parallelization · Agentic Systems Design Patterns — Interactive Learning</p></div>
+</div>
+
+<script>
+function go(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleChain(node) { node.classList.toggle('open'); }
+function toggleCtx(layer) { layer.classList.toggle('open'); }
+
+function showUC(idx, btn) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('uc-' + idx).classList.add('active');
+  btn.classList.add('active');
+}
+
+const simTexts = {
+  input: 'Input: A single query or task initiates the parallel workflow. This could be a user request like "research sustainable technology" or a batch of items to process. The same input is fanned out to all parallel branches simultaneously.',
+  fan: 'Fan-Out: The parallelization layer receives the single input and dispatches it to multiple independent processing agents or chains at the same time. This is the RunnableParallel block in LangChain or the ParallelAgent in Google ADK.',
+  agent1: 'Agent 1 (e.g., RenewableEnergyResearcher): One of the parallel branches. This specialist agent executes its task independently — searching for renewable energy news, summarizing findings, and storing the result in session state (output_key="renewable_energy_result").',
+  agent2: 'Agent 2 (e.g., EVResearcher): Another parallel branch executing simultaneously with Agent 1 and Agent 3. Each agent works independently without waiting for the others. They can query different APIs, run different LLM prompts, or process different data segments.',
+  agent3: 'Agent 3 (e.g., CarbonCaptureResearcher): The third parallel branch. All three agents run concurrently — the total wait time equals the slowest agent, not the sum of all three. This is the core latency benefit of parallelization.',
+  merge: 'Merge (SynthesisAgent): The convergence point. After all parallel agents complete, a MergerAgent reads all results from session state and synthesizes a unified, structured report. This sequential synthesis step only begins after all parallel branches finish.'
+};
+
+function simClick(key) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[key];
+}
+
+const quizData = [
+  {
+    q: 'What is the primary latency benefit of the Parallelization pattern compared to sequential execution?',
+    opts: [
+      'Total time equals the sum of all task durations',
+      'Total wait time equals the duration of the slowest branch, not the sum of all branches',
+      'Parallel execution is always twice as fast as sequential',
+      'Parallelization eliminates the need for a synthesis step'
+    ],
+    ans: 1,
+    fb: 'Correct! The core benefit is that when N independent tasks run in parallel, the total wait equals the slowest task duration — not the sum of all N durations. If three API calls take 2s, 3s, and 4s, sequential takes 9s but parallel takes only 4s.'
+  },
+  {
+    q: 'In LangChain LCEL, which construct is the primary mechanism for running multiple chains concurrently?',
+    opts: ['RunnableSequence', 'RunnableBranch', 'RunnableParallel', 'RunnablePassthrough'],
+    ans: 2,
+    fb: 'Correct! RunnableParallel bundles multiple runnable components within a dictionary. When executed, the LCEL runtime invokes all contained runnables concurrently and collects their outputs as a dictionary keyed by the names you assign.'
+  },
+  {
+    q: 'In Google ADK, how do parallel sub-agents share their results with a downstream merger agent?',
+    opts: [
+      'They return values directly in a function call',
+      'They print results to stdout which is captured',
+      'Each sub-agent stores its result in shared session state using the output_key parameter',
+      'Results are passed via the sub_agents list'
+    ],
+    ans: 2,
+    fb: 'Correct! In ADK parallel workflows, each LlmAgent sub-agent uses an output_key parameter (e.g., output_key="renewable_energy_result") to store its result in the shared session state. The downstream MergerAgent then reads all these keys from state to synthesize a combined report.'
+  },
+  {
+    q: 'Python\'s asyncio provides concurrency for parallel agentic workflows. What is the key distinction between asyncio concurrency and true CPU parallelism?',
+    opts: [
+      'asyncio uses multiple processes, true parallelism uses a single thread',
+      'asyncio is single-threaded (event loop switches on I/O idle), true parallelism runs on multiple CPU cores simultaneously',
+      'asyncio only works for CPU-bound tasks',
+      'There is no meaningful difference for agentic workloads'
+    ],
+    ans: 1,
+    fb: 'Correct! asyncio provides concurrency on a single thread via an event loop that intelligently switches between tasks when one is idle (waiting for network I/O). This is highly effective for I/O-bound tasks like API calls. True CPU parallelism requires multiprocessing to bypass Python\'s GIL and run code on multiple CPU cores.'
+  },
+  {
+    q: 'In Google ADK, what is the role of a SequentialAgent in a parallel research pipeline?',
+    opts: [
+      'It runs all sub-agents in random order',
+      'It replaces the need for a ParallelAgent',
+      'It orchestrates the overall flow: first running the ParallelAgent, then running the MergerAgent in sequence',
+      'It converts parallel results into sequential output'
+    ],
+    ans: 2,
+    fb: 'Correct! The SequentialAgent (e.g., ResearchAndSynthesisPipeline) orchestrates the overall workflow. It first executes the ParallelAgent to perform concurrent research, and once that completes, it executes the MergerAgent sequentially to synthesize the collected information. It is the top-level coordinator.'
+  },
+  {
+    q: 'When should you NOT apply the Parallelization pattern to a workflow?',
+    opts: [
+      'When tasks involve calling multiple external APIs',
+      'When tasks depend on each other\'s output — i.e., Task B requires the result of Task A as its input',
+      'When processing multiple independent data records',
+      'When generating multiple variations of content for comparison'
+    ],
+    ans: 1,
+    fb: 'Correct! The Parallelization pattern requires that tasks be independent — their execution order does not matter and they do not depend on each other\'s immediate outputs. If Task B requires Task A\'s output as its input, they must remain sequential. Attempting to parallelize dependent tasks leads to incorrect results or runtime errors.'
+  }
+];
+
+let current = 0;
+const results = new Array(quizData.length).fill(null);
+
+function renderQuiz() {
+  const prog = document.getElementById('quizProgress');
+  prog.innerHTML = '<div class="quiz-progress">' +
+    quizData.map((_, i) => {
+      let cls = 'quiz-dot';
+      if (i === current) cls += ' current';
+      else if (results[i] === true) cls += ' done';
+      else if (results[i] === false) cls += ' wrong-dot';
+      return '<div class="' + cls + '"></div>';
+    }).join('') + '</div>' +
+    '<p style="font-size:12px;color:var(--text3);margin-bottom:1rem;">Question ' + (current+1) + ' of ' + quizData.length + '</p>';
+
+  const q = quizData[current];
+  const answered = results[current] !== null;
+  document.getElementById('quizArea').innerHTML =
+    '<div class="quiz-q">' + q.q + '</div>' +
+    q.opts.map((o, i) => {
+      let cls = 'quiz-opt';
+      if (answered) {
+        cls += ' disabled';
+        if (i === q.ans) cls += ' correct';
+        else if (results[current] === false && i === q._chosen) cls += ' wrong';
+      }
+      return '<button class="' + cls + '" onclick="answer(' + i + ')">' + o + '</button>';
+    }).join('') +
+    '<div class="quiz-fb ' + (answered ? (results[current] ? 'right show' : 'wrng show') : '') + '">' + q.fb + '</div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+    (current > 0 ? '<button class="btn" onclick="prevQ()">Previous</button>' : '') +
+    (current < quizData.length - 1
+      ? '<button class="btn btn-teal" onclick="nextQ()">Next</button>'
+      : '<button class="btn btn-teal" onclick="go(\'sec-takeaways\', document.querySelectorAll(\'.nav-btn\')[9])">View Takeaways</button>') +
+    '</div>';
+}
+
+function answer(i) {
+  if (results[current] !== null) return;
+  const q = quizData[current];
+  q._chosen = i;
+  results[current] = (i === q.ans);
+  renderQuiz();
+}
+
+function nextQ() { if (current < quizData.length - 1) { current++; renderQuiz(); } }
+function prevQ() { if (current > 0) { current--; renderQuiz(); } }
+
+renderQuiz();
+</script>
+</body>
+</html>

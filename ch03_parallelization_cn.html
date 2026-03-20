@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第三章：并行化（Parallelization）— 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+/* Header */
+.chapter-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  background: var(--teal-l);
+  padding: 4px 14px;
+  border-radius: 99px;
+  margin-bottom: 16px;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  max-width: 640px;
+}
+/* Navigation */
+.nav-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 0.5px solid var(--border2);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+  padding-top: 8px;
+}
+.nav-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 7px 16px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active {
+  background: var(--teal-l);
+  color: var(--teal-d);
+  border-color: var(--teal);
+  font-weight: 500;
+}
+/* Sections */
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+/* Cards */
+.card {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 16px;
+  border: 0.5px solid var(--border);
+}
+.card-bordered {
+  border-left: 3px solid var(--teal);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.card h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+/* Section titles */
+.sec-title {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+.sec-desc {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+}
+/* Metrics */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+.metric {
+  background: var(--bg2);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  border: 0.5px solid var(--border);
+}
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+/* Failure grid */
+.fail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card {
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+  overflow: hidden;
+}
+.fail-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+/* Chain */
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all .25s;
+}
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s ease;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow {
+  width: 2px;
+  height: 32px;
+  background: var(--border2);
+  position: relative;
+}
+.chain-arrow::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: -5px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--border2);
+}
+/* JSON block */
+.json-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+}
+/* Use case tabs */
+.uc-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.uc-tab {
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+}
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active {
+  background: var(--purple-l);
+  color: var(--purple-d);
+  border-color: var(--purple);
+  font-weight: 500;
+}
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+.uc-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+.uc-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 11px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+/* Code */
+.code-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+  tab-size: 2;
+}
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+/* Context layers */
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer {
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .25s;
+  border: 0.5px solid transparent;
+}
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+/* Quiz */
+.quiz-progress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 1.5rem;
+}
+.quiz-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg3);
+  transition: all .3s;
+}
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.quiz-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 18px;
+  margin-bottom: 8px;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--bg2);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all .2s;
+  line-height: 1.6;
+}
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb {
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 12px 0;
+  display: none;
+}
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn {
+  font-family: var(--sans);
+  padding: 8px 22px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+  margin-top: 12px;
+}
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+/* Takeaways */
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li {
+  counter-increment: tk;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.tk-list li::before {
+  content: counter(tk);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--teal-l);
+  color: var(--teal-d);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+/* Glance */
+.glance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card {
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+}
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+/* Diagram simulation */
+.diagram-sim {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin: 1.5rem 0;
+  border: 0.5px solid var(--border);
+  text-align: center;
+}
+.diagram-nodes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+.dia-node {
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .3s;
+  position: relative;
+  min-width: 100px;
+  text-align: center;
+}
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow {
+  font-size: 18px;
+  color: var(--text3);
+  padding: 0 6px;
+  flex-shrink: 0;
+}
+.dia-output {
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+  text-align: left;
+  min-height: 60px;
+  transition: all .3s;
+}
+/* Refs */
+.ref-list { list-style: none; padding: 0; }
+.ref-list li {
+  font-size: 13px;
+  color: var(--text2);
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--border);
+  line-height: 1.6;
+}
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+/* Footer */
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+  <a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+
+  <div class="chapter-tag">第三章</div>
+  <h1>并行化模式</h1>
+  <p class="subtitle">在智能体工作流中，许多复杂任务包含可同时执行的独立子任务。并行化模式通过并发运行这些独立组件，显著降低总体延迟，提升系统响应速度。</p>
+
+  <nav class="nav-bar">
+    <button class="nav-btn active" onclick="go('sec-overview')">概览</button>
+    <button class="nav-btn" onclick="go('sec-problem')">问题所在</button>
+    <button class="nav-btn" onclick="go('sec-solution')">解决方案</button>
+    <button class="nav-btn" onclick="go('sec-concepts')">核心概念</button>
+    <button class="nav-btn" onclick="go('sec-usecases')">应用场景</button>
+    <button class="nav-btn" onclick="go('sec-code')">代码实战</button>
+    <button class="nav-btn" onclick="go('sec-deepdive')">深入解析</button>
+    <button class="nav-btn" onclick="go('sec-glance')">一览概要</button>
+    <button class="nav-btn" onclick="go('sec-quiz')">知识测验</button>
+    <button class="nav-btn" onclick="go('sec-takeaways')">核心要点</button>
+    <button class="nav-btn" onclick="go('sec-refs')">参考资料</button>
+  </nav>
+
+  <!-- 概览 -->
+  <section id="sec-overview" class="section active">
+    <h2 class="sec-title">模式概览</h2>
+    <p class="sec-desc">并行化是一种通过同时执行独立任务来优化智能体性能的关键模式。不同于逐步等待每个步骤完成的顺序方式，并行执行允许多个独立任务同时运行，大幅缩短整体执行时间。</p>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">执行方式</div>
+        <div class="metric-value">并发</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">适用场景</div>
+        <div class="metric-value">独立任务</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">性能提升</div>
+        <div class="metric-value">显著</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">框架支持</div>
+        <div class="metric-value">广泛</div>
+      </div>
+    </div>
+
+    <div class="card card-bordered">
+      <h3>什么是并行化？</h3>
+      <p>并行化涉及并发执行多个组件，如 LLM 调用、工具使用，甚至整个子智能体。核心思路是识别工作流中不依赖其他部分输出的步骤，并同时执行它们，而非一个接一个地运行。</p>
+    </div>
+
+    <div class="card card-bordered">
+      <h3>并行 vs. 顺序执行</h3>
+      <p><strong>顺序方式：</strong>搜索来源A → 摘要A → 搜索来源B → 摘要B → 综合答案（5步串行）</p>
+      <p style="margin-top:8px"><strong>并行方式：</strong>同时搜索A和B → 同时摘要A和B → 综合答案（3步，大幅提速）</p>
+    </div>
+
+    <div class="card card-bordered">
+      <h3>框架支持</h3>
+      <p>LangChain（通过 LCEL 和 RunnableParallel）、LangGraph（图拓扑中的并行分支）、Google ADK（原生 ParallelAgent 原语）等现代智能体框架均内置了并行执行支持。</p>
+    </div>
+
+    <div class="card card-bordered">
+      <h3>关键价值</h3>
+      <p>对于涉及外部服务（如 API 或数据库）的任务，并行化尤为有效。在等待网络响应期间，系统可同时发起多个请求，将总延迟从各任务时间之和缩减为最慢单任务的时间。</p>
+    </div>
+  </section>
+
+  <!-- 问题所在 -->
+  <section id="sec-problem" class="section">
+    <h2 class="sec-title">问题所在</h2>
+    <p class="sec-desc">顺序执行在处理包含多个独立子任务的复杂工作流时面临严重的效率瓶颈。点击每张卡片了解具体挑战。</p>
+
+    <div class="fail-grid">
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>⏱ 累积延迟</h4>
+        <p>顺序执行时总耗时是所有步骤时间之和。</p>
+        <div class="detail" style="margin-top:10px;font-size:13px;color:var(--text2)">
+          若每次 API 调用需要 2 秒，顺序执行 5 个独立调用就需要 10 秒。而并行执行只需约 2 秒——节省了 80% 的等待时间。这对实时交互体验至关重要。
+        </div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>🔒 资源闲置浪费</h4>
+        <p>等待一个任务完成时，计算资源处于空闲状态。</p>
+        <div class="detail" style="margin-top:10px;font-size:13px;color:var(--text2)">
+          顺序工作流在等待外部 I/O（网络请求、数据库查询）时，CPU 和内存资源完全闲置。并行化让这些资源在等待期间处理其他独立任务，最大化利用率。
+        </div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>📉 响应性差</h4>
+        <p>用户需要等待所有顺序步骤依次完成。</p>
+        <div class="detail" style="margin-top:10px;font-size:13px;color:var(--text2)">
+          在研究类任务中，顺序方式意味着用户在最终结果出现前需要等待每一步——即使这些步骤完全独立。这严重影响用户体验，尤其在商业场景中难以接受。
+        </div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>🧱 扩展性受限</h4>
+        <p>增加新数据源或分析维度会线性增加总时间。</p>
+        <div class="detail" style="margin-top:10px;font-size:13px;color:var(--text2)">
+          顺序架构下，每新增一个数据源就会线性增加总处理时间。而并行架构中，只要新任务独立于其他任务，增加更多并行分支对整体延迟的影响微乎其微。
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--amber); border-radius: 0 var(--radius) var(--radius) 0;">
+      <h3>典型场景：研究型智能体</h3>
+      <p>一个需要从多个来源搜集信息的研究智能体，若采用顺序方式：搜索新闻→摘要→搜索学术→摘要→搜索社交媒体→摘要→综合，每步平均 2 秒，共需 14 秒。并行化后仅需约 4 秒（搜索并行 + 摘要并行 + 综合），提速超过 3 倍。</p>
+    </div>
+  </section>
+
+  <!-- 解决方案 -->
+  <section id="sec-solution" class="section">
+    <h2 class="sec-title">解决方案：并行化模式</h2>
+    <p class="sec-desc">并行化模式的核心是识别独立任务并同时执行。点击各节点了解执行流程的每个阶段。</p>
+
+    <div class="chain-container">
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d)">1</div>
+          <div>
+            <div class="chain-title">识别独立任务</div>
+            <div class="chain-role">任务分解阶段</div>
+          </div>
+        </div>
+        <div class="chain-detail">
+          分析工作流，找出哪些步骤的输出不依赖于其他步骤的结果。这些独立步骤是并行化的候选对象。例如：同时搜索多个数据源、对不同数据段应用不同分析方法、调用多个独立 API 等。关键原则：任务间无数据依赖，可以同时开始执行。
+        </div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d)">2</div>
+          <div>
+            <div class="chain-title">并发执行独立任务</div>
+            <div class="chain-role">并行执行阶段</div>
+          </div>
+        </div>
+        <div class="chain-detail">
+          使用框架提供的并行原语同时启动所有独立任务。在 LangChain 中使用 RunnableParallel，在 LangGraph 中通过图拓扑定义并行分支，在 Google ADK 中使用 ParallelAgent。所有任务同时运行，系统等待全部任务完成再进入下一阶段。异步编程（asyncio）是实现并发的常用技术手段。
+        </div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d)">3</div>
+          <div>
+            <div class="chain-title">汇聚并综合结果</div>
+            <div class="chain-role">结果整合阶段</div>
+          </div>
+        </div>
+        <div class="chain-detail">
+          当所有并行任务完成后，将各自的输出汇聚到一个综合步骤中。这个综合步骤通常是顺序的——它等待所有并行分支完成，然后将结果合并为统一的最终输出。例如：一个综合 LLM 接收所有研究摘要，生成最终报告。
+        </div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d)">4</div>
+          <div>
+            <div class="chain-title">输出最终结果</div>
+            <div class="chain-role">结果交付阶段</div>
+          </div>
+        </div>
+        <div class="chain-detail">
+          综合后的最终结果返回给用户或下游系统。整个并行工作流的总时间约等于最慢的单个并行任务耗时加上综合步骤耗时，而非所有任务时间之和，实现了显著的性能提升。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 核心概念 -->
+  <section id="sec-concepts" class="section">
+    <h2 class="sec-title">核心概念</h2>
+    <p class="sec-desc">掌握并行化模式所需的关键技术概念与术语。</p>
+
+    <div class="card card-bordered">
+      <h3>异步执行（Async Execution）</h3>
+      <p>Python 的 asyncio 提供并发而非真正的并行。它通过事件循环在单线程中智能地在任务间切换——当一个任务等待 I/O 时，切换到其他任务继续执行。这产生了多个任务同时推进的效果，非常适合 I/O 密集型的 LLM 调用。</p>
+      <div class="json-block"><span class="code-keyword">async def</span> run_parallel():
+    results = <span class="code-keyword">await</span> asyncio.gather(
+        task_a(),  <span class="code-comment"># 同时启动</span>
+        task_b(),  <span class="code-comment"># 同时启动</span>
+        task_c()   <span class="code-comment"># 同时启动</span>
+    )
+    <span class="code-keyword">return</span> results</div>
+    </div>
+
+    <div class="card card-bordered">
+      <h3>RunnableParallel（LangChain）</h3>
+      <p>LCEL 中的核心并行原语。将多个 Runnable 组件打包为字典或列表，当此集合作为输入传递给链中的下一个组件时，LCEL 运行时会并发执行所有包含的 Runnable。</p>
+      <div class="json-block">map_chain = RunnableParallel(
+    {
+        <span class="code-string">"summary"</span>: summarize_chain,
+        <span class="code-string">"questions"</span>: questions_chain,
+        <span class="code-string">"key_terms"</span>: terms_chain,
+        <span class="code-string">"topic"</span>: RunnablePassthrough()
+    }
+)</div>
+    </div>
+
+    <div class="card card-bordered">
+      <h3>ParallelAgent（Google ADK）</h3>
+      <p>Google ADK 提供原生的 ParallelAgent 原语，用于协调多个子智能体的并发执行。各子智能体独立运行，将结果存储在会话状态中，由后续的综合智能体统一读取处理。</p>
+    </div>
+
+    <div class="card card-bordered">
+      <h3>收敛点（Convergence Point）</h3>
+      <p>并行分支汇聚的位置。在此点，系统等待所有并行任务完成，然后将结果传递给综合步骤。这通常是整个工作流中唯一的顺序依赖点，其后的步骤可以利用所有并行结果。</p>
+    </div>
+  </section>
+
+  <!-- 应用场景 -->
+  <section id="sec-usecases" class="section">
+    <h2 class="sec-title">应用场景</h2>
+    <p class="sec-desc">并行化模式在多种实际场景中发挥关键作用。选择场景深入了解。</p>
+
+    <div class="uc-tabs">
+      <button class="uc-tab active" onclick="showUC(0)">信息搜集</button>
+      <button class="uc-tab" onclick="showUC(1)">数据分析</button>
+      <button class="uc-tab" onclick="showUC(2)">多API交互</button>
+      <button class="uc-tab" onclick="showUC(3)">内容生成</button>
+      <button class="uc-tab" onclick="showUC(4)">验证核查</button>
+      <button class="uc-tab" onclick="showUC(5)">多模态处理</button>
+      <button class="uc-tab" onclick="showUC(6)">A/B测试</button>
+    </div>
+
+    <div id="uc-0" class="uc-panel active">
+      <div class="card">
+        <h3>信息搜集与研究</h3>
+        <p>从多个来源同时收集信息是并行化的经典用例。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><div><strong>场景：</strong>研究某家公司的智能体</div></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><div><strong>并行任务：</strong>同时搜索新闻文章、拉取股票数据、检查社交媒体提及、查询公司数据库</div></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><div><strong>收益：</strong>比顺序查找快数倍，获得全面的多维视角</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="uc-1" class="uc-panel">
+      <div class="card">
+        <h3>数据处理与分析</h3>
+        <p>对同一数据集并发应用不同分析技术或处理不同数据分片。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><div><strong>场景：</strong>分析客户反馈的智能体</div></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><div><strong>并行任务：</strong>同时执行情感分析、关键词提取、反馈分类、紧急问题识别</div></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><div><strong>收益：</strong>快速提供多维度分析报告，无需等待每项分析依次完成</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="uc-2" class="uc-panel">
+      <div class="card">
+        <h3>多 API / 工具交互</h3>
+        <p>同时调用多个独立的 API 或工具，收集不同类型的信息。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><div><strong>场景：</strong>旅行规划智能体</div></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><div><strong>并行任务：</strong>同时查询航班价格、酒店可用性、当地活动、餐厅推荐</div></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><div><strong>收益：</strong>更快呈现完整旅行方案，用户无需等待逐一查询</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="uc-3" class="uc-panel">
+      <div class="card">
+        <h3>多组件内容生成</h3>
+        <p>并行生成复杂内容的不同部分，最后汇聚合并。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><div><strong>场景：</strong>营销邮件创作智能体</div></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><div><strong>并行任务：</strong>同时生成邮件主题行、正文草稿、配图建议、行动号召按钮文案</div></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><div><strong>收益：</strong>显著加快完整邮件的组装速度，各部分独立生成无需等待</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="uc-4" class="uc-panel">
+      <div class="card">
+        <h3>验证与核查</h3>
+        <p>同时执行多项独立的检查或验证，快速获得全面的验证结果。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><div><strong>场景：</strong>用户输入验证智能体</div></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><div><strong>并行任务：</strong>同时检查邮件格式、验证手机号、数据库核查地址、内容安全过滤</div></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><div><strong>收益：</strong>更快速地提供输入有效性反馈，提升用户体验</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="uc-5" class="uc-panel">
+      <div class="card">
+        <h3>多模态处理</h3>
+        <p>对同一输入的不同模态（文本、图像、音频）同时进行处理分析。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><div><strong>场景：</strong>分析含图文的社交媒体帖子</div></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><div><strong>并行任务：</strong>同时对文本进行情感与关键词分析，对图像进行物体检测与场景描述</div></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><div><strong>收益：</strong>更快整合不同模态的洞察，获得全面的内容理解</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="uc-6" class="uc-panel">
+      <div class="card">
+        <h3>A/B 测试与多选项生成</h3>
+        <p>并行生成多个响应变体，快速比较选出最优方案。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><div><strong>场景：</strong>生成不同风格创意文案的智能体</div></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><div><strong>并行任务：</strong>使用略微不同的提示词或模型，同时生成三个不同版本的文章标题</div></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><div><strong>收益：</strong>快速完成比较与最优方案筛选，无需顺序等待每个变体生成</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 代码实战 -->
+  <section id="sec-code" class="section">
+    <h2 class="sec-title">代码实战</h2>
+    <p class="sec-desc">以下展示两个框架的并行化实现：LangChain（使用 RunnableParallel）和 Google ADK（使用 ParallelAgent）。</p>
+
+    <div class="card">
+      <h3>LangChain — RunnableParallel 示例</h3>
+      <p style="margin-bottom:12px">三条独立链并行处理同一主题：摘要、问题生成、关键词提取，结果汇聚后由综合链整合。</p>
+    </div>
+    <div class="code-block"><span class="code-keyword">import</span> asyncio
+<span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> ChatOpenAI
+<span class="code-keyword">from</span> langchain_core.prompts <span class="code-keyword">import</span> ChatPromptTemplate
+<span class="code-keyword">from</span> langchain_core.output_parsers <span class="code-keyword">import</span> StrOutputParser
+<span class="code-keyword">from</span> langchain_core.runnables <span class="code-keyword">import</span> RunnableParallel, RunnablePassthrough
+
+llm = ChatOpenAI(model=<span class="code-string">"gpt-4o-mini"</span>, temperature=<span class="code-string">0.7</span>)
+
+<span class="code-comment"># 定义三条独立链</span>
+summarize_chain = (
+    ChatPromptTemplate.from_messages([
+        (<span class="code-string">"system"</span>, <span class="code-string">"请简洁地概括以下主题："</span>),
+        (<span class="code-string">"user"</span>, <span class="code-string">"{topic}"</span>)
+    ]) | llm | StrOutputParser()
+)
+
+questions_chain = (
+    ChatPromptTemplate.from_messages([
+        (<span class="code-string">"system"</span>, <span class="code-string">"围绕以下主题生成三个有趣的问题："</span>),
+        (<span class="code-string">"user"</span>, <span class="code-string">"{topic}"</span>)
+    ]) | llm | StrOutputParser()
+)
+
+terms_chain = (
+    ChatPromptTemplate.from_messages([
+        (<span class="code-string">"system"</span>, <span class="code-string">"从以下主题中识别5-10个关键术语，用逗号分隔："</span>),
+        (<span class="code-string">"user"</span>, <span class="code-string">"{topic}"</span>)
+    ]) | llm | StrOutputParser()
+)
+
+<span class="code-comment"># 并行执行三条链</span>
+map_chain = RunnableParallel(
+    {
+        <span class="code-string">"summary"</span>: summarize_chain,
+        <span class="code-string">"questions"</span>: questions_chain,
+        <span class="code-string">"key_terms"</span>: terms_chain,
+        <span class="code-string">"topic"</span>: RunnablePassthrough()
+    }
+)
+
+<span class="code-comment"># 综合链整合并行结果</span>
+synthesis_prompt = ChatPromptTemplate.from_messages([
+    (<span class="code-string">"system"</span>, <span class="code-string">"""基于以下信息：
+摘要：{summary}
+相关问题：{questions}
+关键术语：{key_terms}
+请综合生成全面的答案。"""</span>),
+    (<span class="code-string">"user"</span>, <span class="code-string">"原始主题：{topic}"</span>)
+])
+
+full_parallel_chain = map_chain | synthesis_prompt | llm | StrOutputParser()
+
+<span class="code-keyword">async def</span> run_parallel_example(topic: str):
+    response = <span class="code-keyword">await</span> full_parallel_chain.ainvoke(topic)
+    print(response)
+
+asyncio.run(run_parallel_example(<span class="code-string">"太空探索的历史"</span>))</div>
+
+    <div class="card" style="margin-top:24px">
+      <h3>Google ADK — ParallelAgent 示例</h3>
+      <p style="margin-bottom:12px">三个专业研究子智能体并行运行，结果存入会话状态，由综合智能体生成最终报告。</p>
+    </div>
+    <div class="code-block"><span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> LlmAgent, ParallelAgent, SequentialAgent
+
+GEMINI_MODEL = <span class="code-string">"gemini-2.0-flash"</span>
+
+<span class="code-comment"># 定义并行子智能体</span>
+researcher_1 = LlmAgent(
+    name=<span class="code-string">"可再生能源研究员"</span>,
+    model=GEMINI_MODEL,
+    instruction=<span class="code-string">"研究最新可再生能源进展，用1-2句话总结发现。"</span>,
+    output_key=<span class="code-string">"renewable_result"</span>
+)
+
+researcher_2 = LlmAgent(
+    name=<span class="code-string">"电动汽车研究员"</span>,
+    model=GEMINI_MODEL,
+    instruction=<span class="code-string">"研究电动汽车技术最新进展，用1-2句话总结发现。"</span>,
+    output_key=<span class="code-string">"ev_result"</span>
+)
+
+<span class="code-comment"># ParallelAgent 并发运行所有子智能体</span>
+parallel_agent = ParallelAgent(
+    name=<span class="code-string">"并行研究智能体"</span>,
+    sub_agents=[researcher_1, researcher_2]
+)
+
+<span class="code-comment"># 综合智能体读取并行结果生成报告</span>
+merger_agent = LlmAgent(
+    name=<span class="code-string">"综合智能体"</span>,
+    model=GEMINI_MODEL,
+    instruction=<span class="code-string">"将研究发现整合为结构化报告。"</span>
+)
+
+<span class="code-comment"># SequentialAgent 协调完整流程</span>
+pipeline = SequentialAgent(
+    name=<span class="code-string">"研究综合流水线"</span>,
+    sub_agents=[parallel_agent, merger_agent]
+)
+root_agent = pipeline</div>
+  </section>
+
+  <!-- 深入解析 -->
+  <section id="sec-deepdive" class="section">
+    <h2 class="sec-title">深入解析</h2>
+    <p class="sec-desc">并行化的实现涉及多个技术层面的考量。点击各层了解详细分析。</p>
+
+    <div class="ctx-stack">
+      <div class="ctx-layer" style="background:var(--teal-l);border-color:var(--teal)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--teal-d)">并发 vs. 真并行</div>
+        <div class="ctx-layer-sub" style="color:var(--teal-d)">asyncio 的工作原理</div>
+        <div class="ctx-layer-detail" style="color:var(--teal-d)">
+          asyncio 提供的是并发而非真正的并行。它在单线程中通过事件循环在任务间智能切换——当一个任务等待网络响应时（如 LLM API 调用），切换到其他就绪任务继续执行。这受 Python GIL（全局解释器锁）的限制，但对 I/O 密集型的 LLM 工作流非常有效。若需 CPU 密集型真并行，可使用 concurrent.futures.ProcessPoolExecutor。
+        </div>
+      </div>
+
+      <div class="ctx-layer" style="background:var(--purple-l);border-color:var(--purple)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--purple-d)">LCEL 中的并行机制</div>
+        <div class="ctx-layer-sub" style="color:var(--purple-d)">LangChain 实现原理</div>
+        <div class="ctx-layer-detail" style="color:var(--purple-d)">
+          LangChain 表达式语言（LCEL）通过 RunnableParallel 实现并行。当字典或列表形式的多个 Runnable 作为链的输入时，LCEL 运行时自动并发执行所有包含的 Runnable。RunnablePassthrough 用于将原始输入透传到下游步骤，确保综合步骤能够访问原始数据。整个并行块的完成时间等于其中最慢的单个 Runnable 的执行时间。
+        </div>
+      </div>
+
+      <div class="ctx-layer" style="background:var(--blue-l);border-color:var(--blue)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--blue-d)">LangGraph 中的并行分支</div>
+        <div class="ctx-layer-sub" style="color:var(--blue-d)">图拓扑实现并行</div>
+        <div class="ctx-layer-detail" style="color:var(--blue-d)">
+          LangGraph 通过图结构的拓扑来实现并行。从单个公共节点触发的多个节点（没有直接顺序依赖关系）可以并行执行。这些并行路径独立运行，直到在图中的后续收敛点汇聚。这种方式允许以声明式的方式定义复杂的并行工作流，而无需手动管理 asyncio 协程。
+        </div>
+      </div>
+
+      <div class="ctx-layer" style="background:var(--amber-l);border-color:var(--amber)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--amber-d)">Google ADK 的并行代理架构</div>
+        <div class="ctx-layer-sub" style="color:var(--amber-d)">原生多智能体并发</div>
+        <div class="ctx-layer-detail" style="color:var(--amber-d)">
+          Google ADK 提供原生 ParallelAgent 原语，专为多智能体并发设计。子智能体通过 output_key 将结果存储在共享的会话状态中，后续的综合智能体读取这些状态。SequentialAgent 作为外层编排器，先等待 ParallelAgent 完成（所有子智能体执行完毕），再运行综合智能体。这种架构非常清晰地分离了并行研究阶段和顺序综合阶段。
+        </div>
+      </div>
+
+      <div class="ctx-layer" style="background:var(--coral-l);border-color:var(--coral)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--coral-d)">成本与复杂性权衡</div>
+        <div class="ctx-layer-sub" style="color:var(--coral-d)">并行化的代价</div>
+        <div class="ctx-layer-detail" style="color:var(--coral-d)">
+          并行化并非没有代价。引入并发或并行架构会显著增加系统复杂性，影响设计、调试和日志记录等关键开发阶段。多个并发 LLM 调用意味着更高的 API 成本（尽管总时间减少）。错误处理更复杂：一个并行分支失败如何影响其他分支？需要仔细设计容错机制。只有当性能收益明显超过这些代价时，才值得采用并行化。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 一览概要 -->
+  <section id="sec-glance" class="section">
+    <h2 class="sec-title">一览概要</h2>
+    <p class="sec-desc">快速掌握并行化模式的核心要素，以及何时、为何、如何使用它。</p>
+
+    <div class="glance-grid">
+      <div class="glance-card" style="background:var(--teal-l)">
+        <h4 style="color:var(--teal-d)">问题（WHAT）</h4>
+        <p style="color:var(--teal-d)">许多智能体工作流包含多个独立子任务，顺序执行时总时间是所有任务时间之和。当任务涉及外部 I/O（API 调用、数据库查询）时，这种延迟尤为显著，严重影响系统性能和响应性。</p>
+      </div>
+      <div class="glance-card" style="background:var(--purple-l)">
+        <h4 style="color:var(--purple-d)">方案（WHY）</h4>
+        <p style="color:var(--purple-d)">并行化模式通过识别工作流中无相互依赖的组件（如工具调用、LLM 请求），同时执行它们。LangChain 和 Google ADK 等框架提供内置构件管理并发操作，将总时间从各任务之和降至最慢任务的时间。</p>
+      </div>
+      <div class="glance-card" style="background:var(--blue-l)">
+        <h4 style="color:var(--blue-d)">适用时机（WHEN）</h4>
+        <p style="color:var(--blue-d)">当工作流包含多个可同时运行的独立操作时使用——如从多个 API 获取数据、处理不同数据分块、并行生成多个内容片段以供后续综合。任务间无数据依赖是关键判断标准。</p>
+      </div>
+      <div class="glance-card" style="background:var(--amber-l)">
+        <h4 style="color:var(--amber-d)">经验法则（HOW）</h4>
+        <p style="color:var(--amber-d)">分析任务依赖关系，识别可并行的独立步骤。使用框架的并行原语（RunnableParallel、ParallelAgent）并发执行，等待全部完成后进行综合。注意权衡：并行化会增加复杂性和调试难度，需确保性能收益值得这些代价。</p>
+      </div>
+    </div>
+
+    <div class="diagram-sim">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:8px">点击节点了解并行化工作流各阶段</p>
+      <div class="diagram-nodes">
+        <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d)" onclick="simClick('input')">输入</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d)" onclick="simClick('parallel')">并行执行层</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--blue-l);color:var(--blue-d)" onclick="simClick('converge')">收敛综合</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d)" onclick="simClick('output')">输出</div>
+      </div>
+      <div id="sim-output" class="dia-output">点击上方节点查看说明</div>
+    </div>
+  </section>
+
+  <!-- 知识测验 -->
+  <section id="sec-quiz" class="section">
+    <h2 class="sec-title">知识测验</h2>
+    <p class="sec-desc">测试你对并行化模式的理解。</p>
+
+    <div id="quizProgress" class="quiz-progress"></div>
+    <div id="quizArea"></div>
+  </section>
+
+  <!-- 核心要点 -->
+  <section id="sec-takeaways" class="section">
+    <h2 class="sec-title">核心要点</h2>
+    <p class="sec-desc">本章关于并行化模式最重要的收获。</p>
+    <ul class="tk-list">
+      <li>并行化是一种通过并发执行独立任务来提升效率的智能体设计模式，将总时间从各任务之和降至最慢任务的时间。</li>
+      <li>关键判断标准是任务独立性：只有当任务的输出不依赖于其他任务的结果时，才能安全地并行化。</li>
+      <li>对于涉及外部 I/O（API 调用、数据库查询）的任务，并行化特别有效，因为这些任务大部分时间都在等待网络响应。</li>
+      <li>LangChain 的 RunnableParallel 和 Google ADK 的 ParallelAgent 是两种主流框架提供的并行化原语，各有其适用场景。</li>
+      <li>asyncio 在 Python 中提供的是并发（单线程事件循环中的任务切换）而非真正的多线程并行，但对 I/O 密集型 LLM 工作流同样有效。</li>
+      <li>并行化会引入额外的系统复杂性，包括更复杂的错误处理、调试困难和日志管理，需要与性能收益仔细权衡。</li>
+      <li>典型应用包括：信息搜集、数据分析、多 API 交互、内容并行生成、输入验证、多模态处理和 A/B 测试。</li>
+      <li>结合顺序（链式）控制流和条件（路由）控制流，并行化使构建复杂、高性能的计算系统成为可能。</li>
+    </ul>
+    <button class="btn btn-teal" onclick="go('sec-quiz')">去做知识测验 →</button>
+  </section>
+
+  <!-- 参考资料 -->
+  <section id="sec-refs" class="section">
+    <h2 class="sec-title">参考资料</h2>
+    <p class="sec-desc">深入学习并行化模式与相关概念的资源。</p>
+    <ul class="ref-list">
+      <li>
+        <span class="ref-num">[1]</span>
+        LangChain 表达式语言（LCEL）文档 — 并行执行：
+        <a href="https://python.langchain.com/docs/concepts/lcel/" target="_blank">python.langchain.com/docs/concepts/lcel/</a>
+      </li>
+      <li>
+        <span class="ref-num">[2]</span>
+        Google Agent Developer Kit（ADK）文档 — 多智能体系统：
+        <a href="https://google.github.io/adk-docs/agents/multi-agents/" target="_blank">google.github.io/adk-docs/agents/multi-agents/</a>
+      </li>
+      <li>
+        <span class="ref-num">[3]</span>
+        Python asyncio 官方文档：
+        <a href="https://docs.python.org/3/library/asyncio.html" target="_blank">docs.python.org/3/library/asyncio.html</a>
+      </li>
+      <li>
+        <span class="ref-num">[4]</span>
+        LangGraph 并行分支文档 — 图拓扑中的并发执行：
+        <a href="https://langchain-ai.github.io/langgraph/" target="_blank">langchain-ai.github.io/langgraph/</a>
+      </li>
+      <li>
+        <span class="ref-num">[5]</span>
+        Anthropic 智能体系统构建指南 — 并行化模式：
+        <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank">anthropic.com/research/building-effective-agents</a>
+      </li>
+    </ul>
+  </section>
+
+  <div class="footer">
+    <p>第三章：并行化 · 智能体设计模式系列 · 交互式学习模块</p>
+  </div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = ['sec-overview','sec-problem','sec-solution','sec-concepts','sec-usecases','sec-code','sec-deepdive','sec-glance','sec-quiz','sec-takeaways','sec-refs'].indexOf(id);
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleChain(el) {
+  el.classList.toggle('open');
+}
+
+function toggleCtx(el) {
+  el.classList.toggle('open');
+}
+
+function showUC(n) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + n).classList.add('active');
+  document.querySelectorAll('.uc-tab')[n].classList.add('active');
+}
+
+function simClick(node) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  event.target.classList.add('active');
+  const msgs = {
+    input: '输入阶段：接收用户请求或任务描述。系统分析任务结构，识别哪些子任务相互独立、可以并行化。这是整个并行工作流的起点。',
+    parallel: '并行执行层：所有独立任务同时启动。在 LangChain 中通过 RunnableParallel 实现，在 ADK 中通过 ParallelAgent 实现。各任务独立运行，互不干扰，总时间等于最慢任务的耗时。',
+    converge: '收敛综合阶段：等待所有并行任务完成后，将各自输出汇聚到综合步骤。通常是一个 LLM 调用，将多路并行结果整合为连贯的最终答案。这是唯一的顺序等待点。',
+    output: '输出阶段：将综合后的最终结果返回给用户或下游系统。整个工作流的总耗时远小于顺序执行，用户获得更快速、更全面的响应。'
+  };
+  document.getElementById('sim-output').textContent = msgs[node] || '';
+}
+
+// Quiz
+const quizData = [
+  {
+    q: '并行化模式的核心优势是什么？',
+    opts: ['减少代码行数', '将总执行时间从各任务之和降至最慢任务的时间', '避免使用 API 密钥', '简化错误处理逻辑'],
+    ans: 1,
+    fb: '正确！并行化的核心价值在于时间优化：通过同时执行独立任务，将总耗时从所有任务时间之和缩减为最慢单任务的时间，实现显著加速。'
+  },
+  {
+    q: '哪种任务最适合使用并行化模式？',
+    opts: ['任务 B 必须使用任务 A 的输出结果', '多个任务彼此独立，无数据依赖关系', '只有单个 LLM 调用的简单查询', '需要严格顺序执行的事务性操作'],
+    ans: 1,
+    fb: '正确！并行化的关键前提是任务独立性——只有当任务的输出不依赖于其他任务的结果时，才能安全地并行化。任务间有依赖则必须顺序执行。'
+  },
+  {
+    q: 'Python asyncio 的并发本质是什么？',
+    opts: ['多进程真并行，绕过 GIL 限制', '多线程并行，每个任务独立线程', '单线程事件循环中的协作式任务切换', '分布式计算跨多台机器'],
+    ans: 2,
+    fb: '正确！asyncio 提供的是并发而非真并行。它在单线程中通过事件循环实现任务切换——当一个任务等待 I/O 时，切换执行其他就绪任务。这受 Python GIL 限制，但对 I/O 密集型 LLM 调用非常有效。'
+  },
+  {
+    q: 'LangChain 中实现并行化的核心组件是什么？',
+    opts: ['SequentialChain', 'RunnableParallel', 'ChatPromptTemplate', 'StrOutputParser'],
+    ans: 1,
+    fb: '正确！RunnableParallel 是 LangChain 表达式语言（LCEL）中实现并行化的核心原语。将多个 Runnable 打包为字典传入时，LCEL 运行时会自动并发执行所有包含的组件。'
+  },
+  {
+    q: '在 Google ADK 的并行研究示例中，子智能体如何共享结果给综合智能体？',
+    opts: ['通过直接函数调用传递返回值', '通过 output_key 将结果存储在共享会话状态中', '通过 HTTP API 端点发送结果', '通过全局变量直接写入'],
+    ans: 1,
+    fb: '正确！在 Google ADK 中，并行子智能体通过 output_key 参数将各自的执行结果存储在共享的会话状态（session state）中。后续的综合智能体从这个共享状态中读取所有并行结果，生成最终报告。'
+  },
+  {
+    q: '采用并行化架构的主要代价是什么？',
+    opts: ['无法使用 GPU 加速', '增加系统复杂性，影响调试、设计和日志管理', '只能处理文本，无法处理其他模态', '必须使用特定编程语言'],
+    ans: 1,
+    fb: '正确！并行化虽能显著提升性能，但引入并发架构会大幅增加系统复杂性。错误处理更复杂（一个分支失败如何影响其他分支？），调试更困难（并发执行顺序不确定），日志管理也更具挑战性。需权衡性能收益与这些代价。'
+  }
+];
+
+let currentQ = 0;
+const userAnswers = new Array(quizData.length).fill(null);
+
+function renderQuiz() {
+  const prog = document.getElementById('quizProgress');
+  prog.innerHTML = quizData.map((_, i) => {
+    let cls = 'quiz-dot';
+    if (i === currentQ) cls += ' current';
+    else if (userAnswers[i] !== null) cls += userAnswers[i] ? ' done' : ' wrong-dot';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  const q = quizData[currentQ];
+  const answered = userAnswers[currentQ] !== null;
+  document.getElementById('quizArea').innerHTML = `
+    <p style="font-size:12px;color:var(--text3);margin-bottom:12px">第 ${currentQ+1} 题 / 共 ${quizData.length} 题</p>
+    <div class="quiz-q">${q.q}</div>
+    ${q.opts.map((o, i) => {
+      let cls = 'quiz-opt';
+      if (answered) {
+        cls += ' disabled';
+        if (i === q.ans) cls += ' correct';
+        else if (i === userAnswers[currentQ] && userAnswers[currentQ] !== q.ans) cls += ' wrong';
+      }
+      return `<button class="${cls}" onclick="answer(${i})">${o}</button>`;
+    }).join('')}
+    <div class="quiz-fb ${answered ? 'show ' + (userAnswers[currentQ] === q.ans ? 'right' : 'wrng') : ''}">${q.fb}</div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      ${currentQ > 0 ? `<button class="btn" onclick="prevQ()">上一题</button>` : ''}
+      ${currentQ < quizData.length - 1 ? `<button class="btn btn-teal" onclick="nextQ()">下一题</button>` : `<button class="btn btn-teal" onclick="go('sec-takeaways')">查看核心要点</button>`}
+    </div>
+  `;
+}
+
+function answer(i) {
+  if (userAnswers[currentQ] !== null) return;
+  userAnswers[currentQ] = i === quizData[currentQ].ans ? i : i;
+  userAnswers[currentQ] = i;
+  renderQuiz();
+}
+
+function nextQ() { if (currentQ < quizData.length - 1) { currentQ++; renderQuiz(); } }
+function prevQ() { if (currentQ > 0) { currentQ--; renderQuiz(); } }
+
+renderQuiz();
+</script>
+</body>
+</html>

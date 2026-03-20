@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第五章：工具使用（函数调用）— 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1; --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; background: var(--bg2); }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 80px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+
+<div class="chapter-tag">第五章</div>
+<h1>工具使用（函数调用）</h1>
+<p class="subtitle">突破大语言模型训练数据限制的关键模式——让智能体能够调用外部 API、数据库、代码解释器等服务，在真实世界中采取行动。</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">概览</button>
+  <button class="nav-btn" onclick="go('problem')">问题所在</button>
+  <button class="nav-btn" onclick="go('solution')">解决方案</button>
+  <button class="nav-btn" onclick="go('concepts')">核心概念</button>
+  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
+  <button class="nav-btn" onclick="go('code')">代码实战</button>
+  <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
+  <button class="nav-btn" onclick="go('glance')">一览概要</button>
+  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
+  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
+  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+</nav>
+
+<!-- 1. 概览 -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">模式概览</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">模式名称</div><div class="metric-value">工具使用</div></div>
+    <div class="metric"><div class="metric-label">核心策略</div><div class="metric-value">函数调用</div></div>
+    <div class="metric"><div class="metric-label">关键优势</div><div class="metric-value">现实世界交互</div></div>
+    <div class="metric"><div class="metric-label">最终目标</div><div class="metric-value">外部行动能力</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>什么是工具使用模式？</h3>
+    <p>工具使用模式（Tool Use Pattern），通常通过函数调用（Function Calling）机制实现，它使智能体能够与外部 API、数据库、服务交互，甚至执行代码。它让智能体核心的大语言模型能够根据用户请求或当前任务状态，决定何时以及如何使用特定的外部函数。这正是将语言模型从文本生成器转变为能够在数字世界中感知、推理和行动的智能体的关键所在。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>超越"函数调用"的概念</h3>
+    <p>虽然"函数调用"准确描述了调用预定义代码函数的过程，但更宽泛的"工具调用"概念承认，智能体的能力可以远超简单的函数执行。"工具"可以是传统函数、复杂的 API 端点、数据库请求，甚至是向另一个专门智能体发出的指令——使主智能体能够将任务委托给"分析智能体"或通过 API 查询外部知识库。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>为何这是基础性模式</h3>
+    <p>这一模式之所以是基础性的，是因为它突破了大语言模型训练数据截止日期的限制，使其能够访问最新信息、执行内部无法完成的计算、与用户特定数据交互，或触发真实世界的行动。没有工具，智能体只能局限于训练时冻结的知识。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>框架支持</h3>
+    <p>LangChain、LangGraph 和 Google Agent Developer Kit（ADK）为定义工具并将其集成到智能体工作流中提供了强大支持，充分利用了 Gemini 或 OpenAI 系列等现代大语言模型的原生函数调用能力。@tool 装饰器、create_tool_calling_agent 和 AgentExecutor 模式使工具集成变得简单直接。</p>
+  </div>
+</div>
+
+<!-- 2. 问题所在 -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">工具使用模式解决的问题</div>
+  <div class="sec-desc">大语言模型是强大的文本生成器，但从根本上与外部世界隔绝。点击卡片探索这一模式所应对的具体局限性：</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>静态训练数据</h4>
+      <p>大语言模型的知识在训练截止时被冻结</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">大语言模型无法了解训练截止日期之后发生的事情。没有工具，智能体无法回答关于当前股票价格、今日天气、近期新闻或任何其他实时信息的问题。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>无法访问私有数据</h4>
+      <p>智能体无法查询用户特定或公司数据</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">大语言模型对用户的账户余额、订单历史、日历或公司内部数据库一无所知。工具使智能体能够查询这些私有系统，按需检索个性化、准确的信息。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>算术不可靠</h4>
+      <p>大语言模型无法进行精确计算</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">语言模型在算术上出错是众所周知的，尤其是大数字、复杂公式或多步骤计算。代码解释器或计算器函数等工具提供了大语言模型无法保证的确定性、精确结果。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>无法触发真实世界行动</h4>
+      <p>仅靠文本生成无法发送邮件或控制设备</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">只能生成文本的智能体无法真正发送电子邮件、创建日历事件、下单或控制智能家居设备。工具在大语言模型的推理与真实世界效果之间提供了桥梁。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>无法执行代码</h4>
+      <p>大语言模型能写代码但无法运行</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">大语言模型可以生成 Python 代码片段，但无法执行它们来验证正确性、处理数据或产生计算输出。代码解释器工具提供沙盒执行环境，使智能体能够编写、运行并分析代码结果。</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. 解决方案 -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">工具使用的工作原理</div>
+  <div class="sec-desc">工具使用模式遵循结构化的顺序。大语言模型决定何时需要工具并生成结构化的函数调用请求，框架负责执行。点击每个步骤：</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">工具定义</div>
+          <div class="chain-role">开发者向大语言模型描述工具</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        外部函数或能力被定义并描述给大语言模型。描述包括函数的用途、名称以及它接受的参数（含类型和描述）。这些元数据使大语言模型能够理解每个工具的功能以及何时使用它。<br><br>
+        <strong>在 LangChain 中：</strong>在 Python 函数上使用 @langchain_tool 装饰器<br>
+        <strong>在 ADK 中：</strong>内置工具如 google_search，或自定义 LlmAgent 工具
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">大语言模型决策</div>
+          <div class="chain-role">大语言模型决定是否调用工具</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        大语言模型接收用户请求和可用工具定义。根据对请求和工具的理解，它决定是否需要调用一个或多个工具来满足请求。如果不需要工具，它也可以直接从训练知识中回答。<br><br>
+        <strong>示例：</strong>"伦敦今天天气怎么样？"→ 大语言模型判断需要天气工具
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div>
+          <div class="chain-title">函数调用生成</div>
+          <div class="chain-role">大语言模型输出结构化调用请求</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        如果大语言模型决定使用工具，它会生成一个结构化输出（通常是 JSON 对象），指定要调用的工具名称以及从用户请求中提取的参数。这不是由大语言模型直接执行的——它是对编排层的请求。<br><br>
+        <strong>输出示例：</strong>{"tool": "get_weather", "args": {"location": "伦敦"}}
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--amber);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">4</div>
+        <div>
+          <div class="chain-title">工具执行与结果返回</div>
+          <div class="chain-role">框架运行工具，将结果返回给大语言模型</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        智能体框架（AgentExecutor、ADK Runner）拦截结构化输出，识别请求的工具，并使用提供的参数执行实际的外部函数。工具执行的输出或结果随后被返回给智能体。大语言模型使用该结果作为上下文，制定最终响应或决定下一步行动。<br><br>
+        <strong>结果流：</strong>工具结果 → 大语言模型上下文 → 最终自然语言响应
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. 核心概念 -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">核心概念</div>
+
+  <div class="card card-bordered">
+    <h3>工具定义的剖析</h3>
+    <p>一个定义良好的工具有三个关键组成部分：(1) 大语言模型用来引用它的<strong>名称</strong>，(2) 清晰的<strong>描述</strong>，解释工具的功能以及何时使用它（这是最重要的部分——大语言模型读取此内容来决定何时调用工具），以及 (3) 描述输入参数及其类型和描述的<strong>参数模式</strong>。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>将智能体作为工具（工具链）</h3>
+    <p>一个强大的概念是将专门智能体用作主编排者智能体的工具。"主智能体"可以将复杂的数据分析任务委托给专门的"分析智能体"，或通过 API 查询外部知识库。这使得构建复杂的多智能体系统成为可能，其中工具使用模式实现了丰富的智能体间通信。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Vertex AI 扩展 vs. 函数调用</h3>
+    <p>Google 的 Vertex AI 扩展是结构化 API 包装器，使模型能够与外部 API 连接以进行实时数据处理和行动执行。关键区别在于：Vertex AI 自动执行扩展，而函数调用需要用户或客户端手动执行。扩展提供企业级安全性、数据隐私和性能保证。</p>
+  </div>
+
+  <p style="font-size:13px;color:var(--text3);margin:1rem 0 0.5rem;">LangChain 工具定义结构</p>
+  <div class="json-block">@langchain_tool
+def search_information(query: str) -> str:
+    """
+    提供关于特定主题的事实信息。
+    使用此工具查找以下类型问题的答案：
+    '法国的首都' 或 '伦敦的天气？'。
+    """
+    # 工具实现代码...
+    return result
+
+# 工具现在可以绑定到大语言模型了：
+# llm_with_tools = llm.bind_tools([search_information])</div>
+</div>
+
+<!-- 5. 应用场景 -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">实际应用场景</div>
+  <div class="sec-desc">在几乎任何智能体需要超越文本生成来执行操作或检索特定动态信息的场景中，工具使用模式都适用。选择一个应用场景：</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">信息检索</button>
+    <button class="uc-tab" onclick="showUC(1)">数据库与API</button>
+    <button class="uc-tab" onclick="showUC(2)">精确计算</button>
+    <button class="uc-tab" onclick="showUC(3)">通信发送</button>
+    <button class="uc-tab" onclick="showUC(4)">代码执行</button>
+    <button class="uc-tab" onclick="showUC(5)">智能家居/IoT</button>
+    <button class="uc-tab" onclick="showUC(6)">企业搜索</button>
+  </div>
+
+  <div id="uc-0" class="uc-panel active">
+    <div class="card card-bordered">
+      <h3>从外部来源检索信息</h3>
+      <p>访问大语言模型训练数据中不存在的实时数据或信息。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>应用场景：</strong>天气查询智能体。</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>工具：</strong>接受位置参数并返回当前天气状况的天气 API。</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>智能体流程：</strong>用户询问"伦敦天气怎么样？"→ 大语言模型识别需要天气工具 → 以"伦敦"调用工具 → 工具返回数据 → 大语言模型格式化为友好响应。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-1" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>与数据库和 API 交互</h3>
+      <p>对结构化数据执行查询、更新或其他操作。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>应用场景：</strong>电商智能体。</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>工具：</strong>检查产品库存、获取订单状态或处理付款的 API 调用。</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>智能体流程：</strong>用户询问"X 产品有货吗？"→ 大语言模型调用库存 API → 工具返回库存数量 → 大语言模型告知用户库存状态。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-2" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>执行计算和数据分析</h3>
+      <p>使用外部计算器、数据分析库或统计工具获得精确结果。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>应用场景：</strong>金融分析智能体。</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>工具：</strong>计算器函数、股票市场数据 API、电子表格工具。</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>智能体流程：</strong>"苹果股价是多少？如果我以150美元买了100股，利润是多少？"→ 调用股票 API → 调用计算器 → 格式化回复。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-3" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>发送通信</h3>
+      <p>发送电子邮件、消息，或调用外部通信服务 API。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>应用场景：</strong>个人助理智能体。</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>工具：</strong>邮件发送 API。</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>智能体流程：</strong>"给张三发邮件告知明天的会议"→ 大语言模型提取收件人、主题、正文 → 调用邮件工具 → 确认发送。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-4" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>执行代码</h3>
+      <p>在安全环境中运行代码片段以执行特定任务或验证输出。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>应用场景：</strong>编程助理智能体。</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>工具：</strong>沙盒代码解释器（ADK 的 built_in_code_execution）。</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>智能体流程：</strong>用户提供代码问"这段代码输出什么？"→ 大语言模型使用代码解释器运行它 → 分析输出 → 提供解释。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-5" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>控制智能家居 / IoT 设备</h3>
+      <p>与智能家居设备、IoT 平台或其他互联系统交互。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>应用场景：</strong>智能家居控制智能体。</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>工具：</strong>控制智能灯、温控器或家电的 API。</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>智能体流程：</strong>"关掉客厅的灯"→ 大语言模型调用智能家居工具，附带命令和目标设备 → 确认操作完成。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-6" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>使用 Vertex AI 进行企业搜索</h3>
+      <p>使用 Vertex AI Search 数据存储搜索私有企业知识库。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>应用场景：</strong>公司内部知识助理。</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>工具：</strong>配置了包含公司文档的 Vertex AI Search 数据存储的 VSearchAgent。</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>智能体流程：</strong>"总结第二季度策略"→ ADK VSearchAgent 搜索数据存储 → 检索相关文档 → 综合带有来源归因的有根据的响应。</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. 代码实战 -->
+<div id="sec-code" class="section">
+  <div class="sec-title">代码实战</div>
+  <div class="sec-desc">工具使用在 LangChain（搜索工具智能体）和 CrewAI（股票价格智能体）中的实现示例。</div>
+
+  <p style="font-size:13px;font-weight:500;margin-bottom:8px;">LangChain：带搜索工具的函数调用智能体</p>
+  <div class="code-block"><span class="code-keyword">from</span> langchain_google_genai <span class="code-keyword">import</span> ChatGoogleGenerativeAI
+<span class="code-keyword">from</span> langchain_core.tools <span class="code-keyword">import</span> tool <span class="code-keyword">as</span> langchain_tool
+<span class="code-keyword">from</span> langchain.agents <span class="code-keyword">import</span> create_tool_calling_agent, AgentExecutor
+<span class="code-keyword">from</span> langchain_core.prompts <span class="code-keyword">import</span> ChatPromptTemplate
+
+llm = ChatGoogleGenerativeAI(model=<span class="code-string">"gemini-2.0-flash"</span>, temperature=<span class="code-string">0</span>)
+
+<span class="code-comment"># --- 定义工具 ---</span>
+@langchain_tool
+<span class="code-keyword">def</span> search_information(query: str) -> str:
+    <span class="code-string">"""提供关于特定主题的事实信息。
+    使用此工具查找以下类型问题的答案：
+    '法国的首都' 或 '伦敦的天气？'。"""</span>
+    simulated_results = {
+        <span class="code-string">"伦敦的天气"</span>: <span class="code-string">"目前多云，15°C。"</span>,
+        <span class="code-string">"法国的首都"</span>: <span class="code-string">"法国的首都是巴黎。"</span>,
+    }
+    <span class="code-keyword">return</span> simulated_results.get(query.lower(),
+        f<span class="code-string">"未找到关于'{query}'的具体信息。"</span>)
+
+<span class="code-comment"># --- 创建工具调用智能体 ---</span>
+agent_prompt = ChatPromptTemplate.from_messages([
+    (<span class="code-string">"system"</span>, <span class="code-string">"你是一个有帮助的助手。"</span>),
+    (<span class="code-string">"human"</span>, <span class="code-string">"{input}"</span>),
+    (<span class="code-string">"placeholder"</span>, <span class="code-string">"{agent_scratchpad}"</span>),
+])
+
+agent = create_tool_calling_agent(llm, [search_information], agent_prompt)
+agent_executor = AgentExecutor(agent=agent, tools=[search_information], verbose=<span class="code-string">True</span>)
+
+<span class="code-comment"># --- 运行智能体 ---</span>
+result = agent_executor.invoke({<span class="code-string">"input"</span>: <span class="code-string">"伦敦天气怎么样？"</span>})
+print(result[<span class="code-string">"output"</span>])</div>
+
+  <p style="font-size:13px;font-weight:500;margin:16px 0 8px;">CrewAI：股票价格查询工具</p>
+  <div class="code-block"><span class="code-keyword">from</span> crewai <span class="code-keyword">import</span> Agent, Task, Crew
+<span class="code-keyword">from</span> crewai.tools <span class="code-keyword">import</span> tool
+
+<span class="code-comment"># --- 定义工具：返回干净数据或抛出错误 ---</span>
+@tool(<span class="code-string">"股票价格查询工具"</span>)
+<span class="code-keyword">def</span> get_stock_price(ticker: str) -> float:
+    <span class="code-string">"""获取给定股票代码的最新模拟股票价格。
+    以浮点数形式返回价格。如果未找到代码则抛出 ValueError。"""</span>
+    simulated_prices = {<span class="code-string">"AAPL"</span>: <span class="code-string">178.15</span>, <span class="code-string">"GOOGL"</span>: <span class="code-string">1750.30</span>, <span class="code-string">"MSFT"</span>: <span class="code-string">425.50</span>}
+    price = simulated_prices.get(ticker.upper())
+    <span class="code-keyword">if</span> price <span class="code-keyword">is not</span> None:
+        <span class="code-keyword">return</span> price
+    <span class="code-keyword">raise</span> ValueError(f<span class="code-string">"未找到'{ticker.upper()}'的模拟价格。"</span>)
+
+<span class="code-comment"># --- 定义配备工具的智能体 ---</span>
+financial_analyst = Agent(
+    role=<span class="code-string">'高级金融分析师'</span>,
+    goal=<span class="code-string">'使用提供的工具分析股票数据并报告关键价格。'</span>,
+    backstory=<span class="code-string">'擅长使用数据源获取股票信息的经验丰富的分析师。'</span>,
+    tools=[get_stock_price],
+    allow_delegation=<span class="code-string">False</span>,
+)
+
+<span class="code-comment"># --- 定义任务并运行团队 ---</span>
+task = Task(
+    description=<span class="code-string">"苹果公司（AAPL）目前的模拟股票价格是多少？"</span>,
+    expected_output=<span class="code-string">"一句话说明 AAPL 的模拟股票价格。"</span>,
+    agent=financial_analyst,
+)
+crew = Crew(agents=[financial_analyst], tasks=[task], verbose=<span class="code-string">True</span>)
+result = crew.kickoff()
+print(result)</div>
+</div>
+
+<!-- 7. 深入解析 -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">深入解析：设计考量</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--teal-l);color:var(--teal-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">编写有效的工具描述</div>
+      <div class="ctx-layer-sub">描述是大语言模型决定何时调用工具所读取的内容</div>
+      <div class="ctx-layer-detail">工具描述是工具定义中最关键的部分。大语言模型读取的是这些描述——而非代码——来决定何时以及如何调用工具。有效的描述应清晰说明：工具的功能、何时使用它（包括示例查询）、期望的输入以及返回的内容。模糊或含混的描述会导致遗漏工具调用或错误的参数提取。将描述视为专门为大语言模型编写的文档。</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--purple-l);color:var(--purple-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">工具中的错误处理</div>
+      <div class="ctx-layer-sub">工具应返回干净数据或抛出有信息量的错误</div>
+      <div class="ctx-layer-detail">如 CrewAI 示例所示，最佳实践是工具在成功时返回干净数据（浮点数、字典、字符串），在失败时抛出特定 Python 异常（ValueError、TypeError），而不是返回错误字符串。这使智能体能够区分成功结果和错误，并决定如何反应——重试、使用备用方案，或向用户报告失败。</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--amber-l);color:var(--amber-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">多步工具调用</div>
+      <div class="ctx-layer-sub">智能体可以按顺序调用多个工具来回答复杂问题</div>
+      <div class="ctx-layer-detail">智能体不限于每次查询只进行一次工具调用。大语言模型可以决定按顺序调用多个工具：例如，先调用股票价格 API 获取当前价格，再调用计算器工具计算盈亏，最后将组合结果格式化为自然语言响应。AgentExecutor 管理此循环，反复调用大语言模型并执行工具，直到大语言模型生成最终答案。</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--coral-l);color:var(--coral-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">ADK 内置工具</div>
+      <div class="ctx-layer-sub">Google ADK 提供原生集成的工具如 google_search 和代码执行</div>
+      <div class="ctx-layer-detail">Google ADK 包含原生集成工具库：google_search（直接接口到 Google 搜索引擎）、built_in_code_execution（用于数学和数据处理任务的沙盒 Python 解释器）以及 VSearchAgent（用于企业数据的 Vertex AI 搜索）。这些内置工具与 ADK 智能体无缝集成，无需为常见功能自定义实现。</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--blue-l);color:var(--blue-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">安全考量</div>
+      <div class="ctx-layer-sub">触发真实世界行动的工具需要谨慎的授权控制</div>
+      <div class="ctx-layer-detail">触发真实世界行动的工具（发送电子邮件、执行付款、控制设备）需要严格的安全控制。最佳实践包括：在传递给外部系统之前验证所有输入，实施速率限制以防止滥用，对破坏性或不可逆的操作要求明确的用户确认，使用存储在环境变量中的 API 密钥（绝不硬编码），以及对代码执行工具进行沙盒处理以防止未经授权的系统访问。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. 一览概要 -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">一览概要</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4>问题所在</h4>
+      <p>大语言模型功能强大，但从根本上与外部世界隔绝。它们的知识是静态的，无法执行行动或检索实时信息。没有与外部系统的桥梁，它们解决现实问题的能力受到严重限制。</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4>解决方案</h4>
+      <p>工具使用提供了标准化解决方案：向大语言模型描述可用的外部函数（"工具"），使其能够在需要时请求调用。编排层执行这些请求并将结果反馈回来，赋予大语言模型基于最新外部信息采取行动的能力。</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);">
+      <h4>使用时机</h4>
+      <p>每当智能体需要突破大语言模型内部知识并与外部世界交互时：实时数据（天气、股票价格）、私有信息（用户数据库）、精确计算、执行代码，或触发行动（发送邮件、控制设备）。</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);">
+      <h4>核心洞见</h4>
+      <p>以"工具调用"而非"函数调用"的思维来看待这一模式，更能体现其全部潜力：工具可以是 API、数据库、代码解释器，甚至是其他专门智能体——使主智能体能够在多元化的数字资源生态系统中进行编排。</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">交互式流程：点击每个节点查看其角色</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" style="background:var(--blue-l);color:var(--blue-d);" onclick="simClick(0)">用户</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(1)">大语言模型</div>
+      <div class="dia-arrow">↕</div>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(2)">工具调用</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d);" onclick="simClick(3)">工具</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--green-l);color:var(--green-d);" onclick="simClick(4)">输出</div>
+    </div>
+    <div class="dia-output" id="sim-output">点击上方节点，查看工具使用模式各阶段的详细描述。</div>
+  </div>
+</div>
+
+<!-- 9. 知识测验 -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">知识测验</div>
+  <div id="quizProgress" class="quiz-progress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. 核心要点 -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">核心要点</div>
+  <ul class="tk-list">
+    <li>工具使用（函数调用）允许智能体与外部系统交互并访问动态信息，突破了静态大语言模型训练数据的根本限制。</li>
+    <li>大语言模型决定何时使用工具并生成结构化函数调用请求；编排框架（AgentExecutor、ADK Runner）执行实际工具并返回结果。</li>
+    <li>工具必须使用清晰、描述性的元数据定义——尤其是描述部分——因为大语言模型读取此内容来了解何时以及如何调用每个工具。</li>
+    <li>以"工具调用"而非"函数调用"的思维来看待这一模式更为强大：工具可以是 API、数据库、代码解释器，甚至是专门的子智能体。</li>
+    <li>LangChain 使用 @tool 装饰器简化工具定义，并提供 create_tool_calling_agent 和 AgentExecutor 来构建使用工具的智能体。</li>
+    <li>Google ADK 包含原生集成的内置工具：google_search 用于网络搜索，built_in_code_execution 用于运行代码，VSearchAgent 用于企业数据访问。</li>
+    <li>触发真实世界行动的工具需要严格的安全控制：输入验证、速率限制、API 密钥管理，以及对破坏性操作要求用户确认。</li>
+    <li>工具使用是构建强大、交互式、能感知外部世界的智能体——使其能够在真实世界中感知、推理和行动——的基石模式。</li>
+  </ul>
+</div>
+
+<!-- 11. 参考资料 -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">参考资料</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>LangChain 工具文档 — <a href="https://python.langchain.com/docs/concepts/tools/" target="_blank">python.langchain.com/docs/concepts/tools/</a></li>
+    <li><span class="ref-num">2</span>Google ADK 内置工具 — <a href="https://google.github.io/adk-docs/tools/" target="_blank">google.github.io/adk-docs/tools/</a></li>
+    <li><span class="ref-num">3</span>CrewAI 工具文档 — <a href="https://docs.crewai.com/concepts/tools" target="_blank">docs.crewai.com/concepts/tools</a></li>
+    <li><span class="ref-num">4</span>OpenAI 函数调用文档 — <a href="https://platform.openai.com/docs/guides/function-calling" target="_blank">platform.openai.com/docs/guides/function-calling</a></li>
+    <li><span class="ref-num">5</span>Vertex AI 扩展概述 — <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/extensions/overview" target="_blank">cloud.google.com/vertex-ai/generative-ai/docs/extensions/</a></li>
+    <li><span class="ref-num">6</span>Toolformer：语言模型可以自学使用工具 — <a href="https://arxiv.org/abs/2302.04761" target="_blank">arxiv.org/abs/2302.04761</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>智能体设计模式 — 第五章：工具使用（函数调用）</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  "用户：发送一个需要大语言模型内部知识之外的信息或行动的自然语言请求——例如"伦敦今天天气怎么样？"或"给张三发邮件告知明天的会议。"这触发了工具使用流程。",
+  "大语言模型智能体：接收用户请求以及所有工具定义。它决定是否需要调用工具。如果是，它生成一个结构化的工具调用请求（包含工具名称和参数的 JSON 对象）。如果不需要工具，它直接从训练知识中回答。",
+  "工具调用请求：大语言模型生成的结构化 JSON 对象，指定要调用哪个工具以及使用什么参数——例如 {\"tool\": \"get_weather\", \"args\": {\"location\": \"伦敦\"}}。这不是由大语言模型执行的；它是发送给编排框架的请求。",
+  "工具执行：AgentExecutor 或 ADK Runner 拦截结构化工具调用，识别对应的函数，并使用提供的参数执行它。工具与外部 API、数据库、代码解释器或其他系统交互并返回结果。",
+  "最终输出：工具的结果作为额外上下文传递回大语言模型。大语言模型使用这些真实世界数据为用户制定准确的自然语言响应。对于复杂任务，大语言模型可能在生成最终答案之前调用多个工具。"
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: "拥有工具使用能力的大语言模型与没有工具的大语言模型之间的根本区别是什么？",
+    opts: [
+      "工具使用使大语言模型生成响应更快",
+      "工具使用允许大语言模型与外部系统交互、访问实时数据并触发超越静态训练知识的真实世界行动",
+      "工具使用增加了大语言模型的上下文窗口大小",
+      "工具使用允许大语言模型使用更大的训练数据集"
+    ],
+    ans: 1,
+    ok: "正确！没有工具，大语言模型只能依赖训练截止时的静态知识。工具使用从根本上扩展了智能体的能力，通过实现实时数据访问、私有数据库查询、精确计算、代码执行以及触发真实世界行动。",
+    no: "不对。根本区别在于工具使用将大语言模型连接到了外部世界——实时数据、外部 API、代码执行以及触发行动的能力。没有工具，大语言模型只能从冻结的训练数据中获取知识。"
+  },
+  {
+    q: "在工具使用模式中，谁负责实际执行工具函数？",
+    opts: [
+      "大语言模型直接执行函数作为响应生成的一部分",
+      "用户必须手动运行函数并将结果提供回大语言模型",
+      "智能体框架（AgentExecutor、ADK Runner）拦截结构化工具调用请求并执行实际函数",
+      "单独的云服务自动检测并运行所有工具调用"
+    ],
+    ans: 2,
+    ok: "正确！大语言模型生成结构化工具调用请求（JSON 对象），但不直接执行函数。编排框架（LangChain 中的 AgentExecutor，ADK 中的 Runner）拦截此请求，执行实际的外部函数，并将结果作为上下文返回给大语言模型。",
+    no: "不对。大语言模型生成结构化调用请求，但不执行函数。编排框架（AgentExecutor、ADK Runner）拦截请求、运行实际函数，并将结果返回给大语言模型作为其最终响应的上下文。"
+  },
+  {
+    q: "为什么工具的描述是工具定义中最关键的组成部分（比实际代码更重要）？",
+    opts: [
+      "更长的描述降低了 API 成本",
+      "大语言模型读取描述来决定何时以及如何调用工具——而非代码。模糊的描述会导致遗漏或不正确的工具调用",
+      "描述是 OpenAI API 规范所要求的",
+      "描述提高了工具的执行速度"
+    ],
+    ans: 1,
+    ok: "正确！大语言模型从不查看工具的实现代码——只查看描述、名称和参数模式。描述是大语言模型用来了解工具功能以及何时调用它的依据。模糊或不完整的描述直接导致遗漏工具调用或错误的参数提取。",
+    no: "大语言模型读取描述，而非代码。描述告诉大语言模型工具的功能以及何时使用它。这就是为什么"提供关于特定主题的事实信息。使用此工具查找以下类型问题的答案：法国的首都或伦敦的天气"比仅仅"搜索工具"效果要好得多。"
+  },
+  {
+    q: "Vertex AI 扩展与标准函数调用的关键区别是什么？",
+    opts: [
+      "扩展只适用于 Gemini 模型",
+      "扩展使用 JavaScript 而函数调用使用 Python",
+      "Vertex AI 自动执行扩展，而函数调用需要用户或客户端手动执行",
+      "扩展只能访问公共数据而函数调用可以访问私有数据"
+    ],
+    ans: 2,
+    ok: "正确！关键区别在于执行：Vertex AI 扩展由 Vertex AI 平台自动执行（无需客户端执行代码），而函数调用生成结构化请求，客户端代码必须执行。扩展还提供企业级安全性和 Google 产品集成。",
+    no: "关键区别在于执行责任：使用标准函数调用时，客户端代码必须拦截结构化调用请求并执行函数。使用 Vertex AI 扩展时，Vertex AI 平台代表模型自动执行扩展。"
+  },
+  {
+    q: "根据本章，以"工具调用"（而非"函数调用"）的思维来看待这一模式使什么成为可能？",
+    opts: [
+      "更快的响应生成",
+      "更好的错误消息",
+      "更宽广的视角——工具可以是 API、数据库、代码解释器，甚至是其他专门智能体——实现复杂的多智能体编排",
+      "通过批处理降低 API 成本"
+    ],
+    ans: 2,
+    ok: "正确！"工具调用"是一个更宽泛的概念——工具可以是传统函数、复杂 API 端点、数据库，甚至是另一个专门智能体。这种更宽广的视角使主智能体能够在多元化的数字资源生态系统中进行编排，并将任务委托给专门的子智能体。",
+    no: "这一区别在于概念广度。"函数调用"意味着调用预定义代码。"工具调用"涵盖任何外部能力——API、数据库、代码解释器或其他智能体。这种更宽广的视角使主智能体能够在多元化系统中进行编排并委托给专门的子智能体。"
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">第 ' + (curQ+1) + ' 题 / 共 ' + quizData.length + ' 题</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div>';
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">下一题</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">查看核心要点</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    const fb = document.getElementById('qfb');
+    fb.textContent = scores[curQ] ? q2.ok : q2.no;
+    fb.className = 'quiz-fb show ' + (scores[curQ] ? 'right' : 'wrng');
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

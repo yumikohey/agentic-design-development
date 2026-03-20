@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>智能体设计模式 — 中文版</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0f;
+      --surface: #16161a;
+      --border: #2a2a32;
+      --accent: #7c6af7;
+      --accent-dim: #3d3580;
+      --text: #e8e8f0;
+      --text-muted: #7a7a8c;
+      --radius: 12px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 40px 40px 0;
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 24px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--text); }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: clamp(24px, 4vw, 40px);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, #7c6af7, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    main {
+      padding: 48px 40px;
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      flex: 1;
+    }
+
+    .section-group { margin-bottom: 48px; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at top left, rgba(124, 106, 247, 0.06), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(124, 106, 247, 0.14);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .card-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(124, 106, 247, 0.12);
+      border: 1px solid rgba(124, 106, 247, 0.2);
+      border-radius: 4px;
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
+
+    .card h2 {
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    .card-arrow {
+      align-self: flex-end;
+      color: var(--accent);
+      font-size: 16px;
+      transition: transform 0.2s;
+    }
+
+    .card:hover .card-arrow { transform: translateX(3px); }
+
+    .back-to-top {
+      display: block;
+      text-align: center;
+      padding: 12px;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .back-to-top:hover { color: var(--text); border-color: var(--accent); }
+
+    footer {
+      padding: 24px 40px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+      header, main { padding-left: 20px; padding-right: 20px; }
+      footer { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="back-link" href="./index.html">← 返回首页</a>
+    <p class="eyebrow">中文版</p>
+    <h1>智能体设计<span>模式</span></h1>
+    <p class="subtitle">32 个交互式章节——每章均配有图解、代码示例、应用场景与测验。</p>
+  </header>
+
+  <main>
+
+    <!-- Chapters Section -->
+    <div class="section-group" id="chapters">
+      <p class="section-label">第 01 – 21 章</p>
+      <div class="grid">
+        <a class="card" href="./prompt_chaining_cn.html">
+          <div class="card-header"><span class="card-badge">第 01 章</span></div>
+          <h2>提示链</h2>
+          <p>将复杂任务拆分为可组合的顺序提示管道。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch02_routing_cn.html">
+          <div class="card-header"><span class="card-badge">第 02 章</span></div>
+          <h2>路由</h2>
+          <p>根据意图分类将输入定向到专用处理器。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch03_parallelization_cn.html">
+          <div class="card-header"><span class="card-badge">第 03 章</span></div>
+          <h2>并行化</h2>
+          <p>并发运行独立子任务以最大化吞吐量。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch04_reflection_cn.html">
+          <div class="card-header"><span class="card-badge">第 04 章</span></div>
+          <h2>反思</h2>
+          <p>使智能体能够迭代地批评和改进自身输出。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch05_tool_use_cn.html">
+          <div class="card-header"><span class="card-badge">第 05 章</span></div>
+          <h2>工具使用</h2>
+          <p>通过调用外部 API、数据库和函数扩展 LLM 能力。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch06_planning_cn.html">
+          <div class="card-header"><span class="card-badge">第 06 章</span></div>
+          <h2>规划</h2>
+          <p>为智能体工作流构建目标分解和任务调度结构。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch07_multi_agent_cn.html">
+          <div class="card-header"><span class="card-badge">第 07 章</span></div>
+          <h2>多智能体协作</h2>
+          <p>协调专业化智能体以应对超出单个智能体能力范围的问题。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch08_memory_management_cn.html">
+          <div class="card-header"><span class="card-badge">第 08 章</span></div>
+          <h2>记忆管理</h2>
+          <p>在长时间运行的智能体会话中持久化、检索和管理上下文。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch09_learning_adaptation_cn.html">
+          <div class="card-header"><span class="card-badge">第 09 章</span></div>
+          <h2>学习与适应</h2>
+          <p>允许智能体从经验和反馈中提升性能。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch10_mcp_cn.html">
+          <div class="card-header"><span class="card-badge">第 10 章</span></div>
+          <h2>模型上下文协议</h2>
+          <p>标准化模型在系统间交换上下文和能力的方式。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch11_goal_setting_cn.html">
+          <div class="card-header"><span class="card-badge">第 11 章</span></div>
+          <h2>目标设定与监控</h2>
+          <p>实时定义、跟踪和调整智能体目标。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch12_exception_handling_cn.html">
+          <div class="card-header"><span class="card-badge">第 12 章</span></div>
+          <h2>异常处理</h2>
+          <p>优雅地管理智能体中的失败、重试和意外状态。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch13_hitl_cn.html">
+          <div class="card-header"><span class="card-badge">第 13 章</span></div>
+          <h2>人机协作</h2>
+          <p>在关键决策点整合人工监督以确保安全性和准确性。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch14_rag_cn.html">
+          <div class="card-header"><span class="card-badge">第 14 章</span></div>
+          <h2>知识检索（RAG）</h2>
+          <p>通过检索增强生成将智能体植根于外部知识。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch15_inter_agent_comm_cn.html">
+          <div class="card-header"><span class="card-badge">第 15 章</span></div>
+          <h2>智能体间通信</h2>
+          <p>设计智能体间的消息传递协议以实现协调。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch16_resource_optimization_cn.html">
+          <div class="card-header"><span class="card-badge">第 16 章</span></div>
+          <h2>资源感知优化</h2>
+          <p>在计算约束下平衡成本、延迟和质量。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch17_reasoning_cn.html">
+          <div class="card-header"><span class="card-badge">第 17 章</span></div>
+          <h2>推理技术</h2>
+          <p>应用思维链、思维树和高级推理策略。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch18_guardrails_cn.html">
+          <div class="card-header"><span class="card-badge">第 18 章</span></div>
+          <h2>护栏与安全模式</h2>
+          <p>在智能体行为中强制执行约束、内容策略和对齐。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch19_evaluation_cn.html">
+          <div class="card-header"><span class="card-badge">第 19 章</span></div>
+          <h2>评估与监控</h2>
+          <p>通过系统评估衡量智能体性能并检测漂移。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch20_prioritization_cn.html">
+          <div class="card-header"><span class="card-badge">第 20 章</span></div>
+          <h2>优先级排序</h2>
+          <p>根据紧迫性和影响力对任务排序并分配智能体资源。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./ch21_exploration_cn.html">
+          <div class="card-header"><span class="card-badge">第 21 章</span></div>
+          <h2>探索与发现</h2>
+          <p>在利用已知策略与探索新方法之间保持平衡。</p>
+          <span class="card-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Appendices Section -->
+    <div class="section-group" id="appendices">
+      <p class="section-label">附录</p>
+      <div class="grid">
+        <a class="card" href="./appa_advanced_prompting_cn.html">
+          <div class="card-header"><span class="card-badge">附录 A</span></div>
+          <h2>高级提示技术</h2>
+          <p>大规模构建高性能提示的系统化方法。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./appb_agentic_interactions_cn.html">
+          <div class="card-header"><span class="card-badge">附录 B</span></div>
+          <h2>AI 智能体交互</h2>
+          <p>构建对话式和任务型智能体交互的模式。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./appc_frameworks_cn.html">
+          <div class="card-header"><span class="card-badge">附录 C</span></div>
+          <h2>智能体框架概览</h2>
+          <p>LangChain、LangGraph、AutoGen、CrewAI 等框架综述。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./appd_agentspace_cn.html">
+          <div class="card-header"><span class="card-badge">附录 D</span></div>
+          <h2>构建 AgentSpace</h2>
+          <p>在 Google AgentSpace 平台部署智能体用于企业场景。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./appe_cli_agents_cn.html">
+          <div class="card-header"><span class="card-badge">附录 E</span></div>
+          <h2>CLI 上的 AI 智能体</h2>
+          <p>为开发者工具和自动化构建命令行驱动的智能体。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./appg_coding_agents_cn.html">
+          <div class="card-header"><span class="card-badge">附录 G</span></div>
+          <h2>编码智能体</h2>
+          <p>设计专用于代码生成、审查和调试的智能体。</p>
+          <span class="card-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Reference Section -->
+    <div class="section-group" id="reference">
+      <p class="section-label">参考资料</p>
+      <div class="grid">
+        <a class="card" href="./front_matter_cn.html">
+          <div class="card-header"><span class="card-badge">前言</span></div>
+          <h2>前言与导读</h2>
+          <p>简介、序言和全书概览。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./conclusion_cn.html">
+          <div class="card-header"><span class="card-badge">结语</span></div>
+          <h2>结论</h2>
+          <p>核心综合与智能体 AI 系统的未来。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./faq_cn.html">
+          <div class="card-header"><span class="card-badge">FAQ</span></div>
+          <h2>常见问题</h2>
+          <p>关于智能体设计模式的常见问题解答。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./glossary_cn.html">
+          <div class="card-header"><span class="card-badge">词汇</span></div>
+          <h2>术语表</h2>
+          <p>智能体 AI 中关键术语和概念的定义。</p>
+          <span class="card-arrow">→</span>
+        </a>
+        <a class="card" href="./index_of_terms_cn.html">
+          <div class="card-header"><span class="card-badge">索引</span></div>
+          <h2>术语索引</h2>
+          <p>所有主要概念的字母顺序索引及页面引用。</p>
+          <span class="card-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <a class="back-to-top" href="#top">↑ 回到顶部</a>
+  </main>
+
+  <footer>
+    智能体设计模式 — 中文版 &mdash; 2026
+  </footer>
+</body>
+</html>

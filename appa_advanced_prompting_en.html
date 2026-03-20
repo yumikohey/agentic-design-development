@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appendix A: Advanced Prompting Techniques — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: system-ui, -apple-system, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Appendix A</div>
+<h1>Advanced Prompting Techniques</h1>
+<p class="subtitle">Mastering the full spectrum of prompting — from zero-shot basics to Chain of Thought, ReAct, RAG, and context engineering — to build reliable agentic systems.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Appendix Overview</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Techniques</div><div class="metric-value">12+</div></div>
+    <div class="metric"><div class="metric-label">Skill Level</div><div class="metric-value">All</div></div>
+    <div class="metric"><div class="metric-label">Key Goal</div><div class="metric-value">Reliability</div></div>
+    <div class="metric"><div class="metric-label">Target</div><div class="metric-value">Agents</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>What is Prompt Engineering?</h3>
+    <p>Prompting is the primary interface for interacting with language models — the process of crafting inputs to guide the model toward a desired output. This involves structuring requests, providing relevant context, specifying output format, and demonstrating expected response types. Well-designed prompts maximize the potential of language models, producing accurate, relevant, and creative responses.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>The Engineering Mindset</h3>
+    <p>Prompt engineering is a disciplined practice, not a simple act of asking questions. Its central purpose is to transform general-purpose language models into specialized, reliable, and highly capable tools for specific tasks. The journey begins with non-negotiable core principles like clarity, conciseness, and iterative experimentation — the bedrock of effective AI communication.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>From Basics to Advanced</h3>
+    <p>This appendix covers the full spectrum: from zero-shot and few-shot basics, through structural techniques like system prompts and delimiters, to reasoning patterns like Chain of Thought and Tree of Thoughts, and finally to action-oriented patterns like ReAct and RAG that power agentic systems.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Foundation for Agentic Systems</h3>
+    <p>Agentic patterns — the architectural structures for building intelligent systems — define how agents plan, utilize tools, manage memory, and collaborate. The efficacy of these systems is contingent upon their ability to interact meaningfully with language models. Mastering prompting is therefore the definitive skill that elevates a language model from a text generator into a sophisticated cognitive engine.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">What Goes Wrong with Poor Prompts</div>
+  <div class="sec-desc">Poorly designed prompts lead to ambiguous, irrelevant, or erroneous outputs. Click each card to explore the failure modes that advanced techniques solve:</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Vague Instructions</h4>
+      <p>Model interprets ambiguously</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Without clarity and specificity, language models may produce multiple valid but unintended interpretations. "Summarize this" with no format guidance yields unpredictable output lengths, styles, and focus areas.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>No Reasoning Trace</h4>
+      <p>Model skips complex logic</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">For multi-step math or logical deduction, a model asked for a direct answer often shortcuts reasoning and produces incorrect results. Chain of Thought solves this by requiring intermediate steps.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Unstructured Output</h4>
+      <p>Cannot be parsed downstream</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">When output format is not specified, the model returns free-form prose that cannot be reliably parsed by the next step in an automated pipeline. This breaks agentic workflows that depend on machine-readable data.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Knowledge Cutoff Gaps</h4>
+      <p>Outdated or hallucinated facts</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Models limited to their training data produce hallucinated facts for time-sensitive queries. Without RAG or tool use prompting, an agent has no mechanism to access current, accurate external information.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Context Blindness</h4>
+      <p>Stateless per-call behavior</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Without context engineering, each model call is stateless. Agents that need to maintain goals, recall history, or integrate tool outputs across a session fail because the model lacks the operational picture required for coherent multi-step reasoning.</p></div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--red); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>The Core Problem</h3>
+    <p>The quality of a model's output depends more on the richness of the provided context and the structure of the prompt than on the model's architecture alone. Even advanced models underperform with a limited or poorly constructed view of their operational environment. Prompt engineering is the solution.</p>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">The Prompting Framework</div>
+  <div class="sec-desc">Effective prompting is built in layers — from foundational principles, through structural techniques, to advanced reasoning and action patterns. Click each layer to explore:</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Core Principles</div>
+          <div class="chain-role">Clarity · Conciseness · Iteration</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The foundation: instructions must be unambiguous and precise. Use action verbs (Summarize, Extract, Classify) rather than vague phrasing. Prefer positive instructions over constraints. Treat every prompt as a first draft — iterate, test, and document.<br><br>
+        <strong>Key insight:</strong> What is confusing to the user is likely confusing to the model. Simple, direct phrasing consistently outperforms elaborate instructions.
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Structural Techniques</div>
+          <div class="chain-role">System Prompts · Role · Delimiters · Format</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        Structure prompts using sections for different information types. System prompts set context and behavior. Role prompting assigns expertise personas. Delimiters (XML tags, backticks) visually separate instructions from data. Requesting structured output (JSON, XML) ensures machine-readable results essential for pipelines.<br><br>
+        <strong>Key insight:</strong> Structure reduces ambiguity and gives the model a clear map of what each piece of text represents.
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div>
+          <div class="chain-title">Reasoning Techniques</div>
+          <div class="chain-role">CoT · Self-Consistency · ToT · Step-Back</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        For complex tasks, prompt the model to externalize its reasoning. Chain of Thought ("think step by step") dramatically improves multi-step logic. Self-Consistency generates multiple reasoning paths and selects the most consistent answer. Tree of Thoughts explores branching reasoning for exploratory problems. Step-Back prompting primes general principles before specifics.<br><br>
+        <strong>Key insight:</strong> Generating intermediate steps keeps the model on track and enables interpretability of its reasoning.
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--blue);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">4</div>
+        <div>
+          <div class="chain-title">Action &amp; Context Techniques</div>
+          <div class="chain-role">ReAct · Tool Use · RAG · Context Engineering</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        Enable agents to interact with external systems. ReAct interleaves Thought → Action → Observation loops. Tool Use / Function Calling prompts the model to output structured JSON invocations for external APIs. RAG retrieves relevant documents before generation. Context Engineering dynamically builds the full operational picture — system prompts, retrieved docs, tool outputs, and implicit session state.<br><br>
+        <strong>Key insight:</strong> These techniques are what grant an agent its ability to perceive and act upon its environment beyond its training data.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts in Detail</div>
+  <div class="sec-desc">Key techniques that power advanced prompting — from shot-based learning to reasoning patterns and structured output.</div>
+
+  <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Shot-Based Prompting</h3>
+    <p><strong>Zero-Shot:</strong> No examples — relies entirely on pre-training. Best for tasks the model has seen extensively (simple Q&A, basic summarization). Quickest to write.<br><br>
+    <strong>One-Shot:</strong> One input-output example. Guides the model on a specific format or style uncommon in training data.<br><br>
+    <strong>Few-Shot:</strong> 3–5 examples demonstrating the pattern. Most effective for classification, structured extraction, and domain-specific style. Quality and diversity of examples are critical. Evolving into "many-shot" as context windows grow.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Chain of Thought (CoT)</h3>
+    <p>Prompting the model to generate intermediate reasoning steps before the final answer. "Let's think step by step" triggers internal reasoning traces that dramatically improve accuracy on logic and math tasks.<br><br>
+    <strong>Zero-Shot CoT:</strong> Simply append "Let's think step by step."<br>
+    <strong>Few-Shot CoT:</strong> Provide examples with full reasoning traces shown.<br><br>
+    Best practice: set temperature=0 for deterministic tasks; place the final answer after the reasoning steps.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>ReAct Pattern</h3>
+    <p>ReAct (Reason + Act) interleaves reasoning with tool actions in a loop:<br><br>
+    1. <strong>Thought:</strong> Model explains current understanding and plan<br>
+    2. <strong>Action:</strong> Model outputs a tool call (e.g., Search, Calculator)<br>
+    3. <strong>Observation:</strong> System executes tool and returns result<br>
+    4. Loop continues until Final Answer<br><br>
+    This pattern is what gives agents the ability to gather information dynamically and react to real-world tool outputs.</p>
+  </div>
+
+  <p style="font-size:14px;color:var(--text2);margin:16px 0 8px;">Example: Structured output schema for tool calling</p>
+  <div class="json-block">{
+  "tool_code": "get_current_weather",
+  "tool_name": "get_current_weather",
+  "parameters": {
+    "city": "London"
+  }
+}</div>
+
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Retrieval Augmented Generation (RAG)</h3>
+    <p>RAG enhances models by giving them access to external, up-to-date, or domain-specific information during generation. The system retrieves relevant documents from a knowledge base, injects them as context, and the model generates a response grounded in that retrieved knowledge — mitigating hallucination and enabling access to post-training information.</p>
+  </div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Use Cases by Technique</div>
+  <div class="sec-desc">Each prompting technique shines in specific scenarios. Explore seven practical application contexts:</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Code Tasks</button>
+    <button class="uc-tab" onclick="showUC(1)">Reasoning</button>
+    <button class="uc-tab" onclick="showUC(2)">Data Extraction</button>
+    <button class="uc-tab" onclick="showUC(3)">RAG Pipelines</button>
+    <button class="uc-tab" onclick="showUC(4)">Tool Use</button>
+    <button class="uc-tab" onclick="showUC(5)">Content Gen</button>
+    <button class="uc-tab" onclick="showUC(6)">Meta-Prompting</button>
+  </div>
+
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Code Prompting</h3>
+      <p>LLMs are powerful coding assistants when prompted correctly. Specify the language, version, and context clearly.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Generate:</strong> "Write a Python function that takes a list of numbers and returns the average." — provide language and functionality.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Explain:</strong> "Explain the following JavaScript code snippet line by line: [insert code]."</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Debug:</strong> "The following Python code gives a 'NameError'. What is wrong and how can I fix it? [insert code and traceback]."</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div><strong>Translate:</strong> "Translate the following Java code to C++: [insert code]."</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Complex Reasoning (CoT / ToT)</h3>
+      <p>Chain of Thought is ideal for multi-step math, logical deduction, and planning tasks where a direct answer shortcuts correct reasoning.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Append "Let's think step by step" or provide CoT examples for math word problems, scheduling, causal analysis.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Use Self-Consistency for high-stakes reasoning: run the prompt 5x at high temperature and take the majority answer.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Use Step-Back prompting for creative tasks: first ask for general principles, then apply them to the specific problem.</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Use Tree of Thoughts for exploratory problems requiring backtracking and evaluation of multiple candidate solutions.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Structured Data Extraction</h3>
+      <p>Requesting structured output (JSON, XML) is essential for automated pipelines where the LLM output feeds into downstream processing.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Specify the exact schema: "Extract name, address, and phone_number as a JSON object."</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Use Pydantic models to validate and parse the JSON output — combine parsing and validation in one step.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Provide a schema example in the prompt to demonstrate the exact structure expected.</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Handle ValidationError gracefully — retry with a corrective prompt if the output does not match the schema.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>RAG Pipelines</h3>
+      <p>RAG is the key pattern for agentic systems that need to work with dynamic or proprietary information.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>User asks: "What are the new features in Python library X version 3.2?"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>System retrieves relevant documentation snippets from a vector knowledge base.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Retrieved text is injected as context: "Based on the following documentation: [retrieved text], explain the new features."</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Model generates a grounded response — no hallucination risk on outdated knowledge.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Tool Use / Function Calling</h3>
+      <p>Agents use tool descriptions in the prompt to decide when and how to invoke external capabilities.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Describe available tools: name, purpose, and parameters in the system prompt.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Model outputs a structured JSON tool invocation instead of a text answer.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Agentic system executes the tool and returns the Observation.</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Model integrates the result in its next Thought and produces a final answer.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-5">
+    <div class="card" style="border-left:3px solid var(--pink);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Content Generation</h3>
+      <p>Role prompting and few-shot examples significantly improve content generation quality for specific domains, styles, and audiences.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Assign a role: "Act as a seasoned travel blogger. Write a short, engaging paragraph about the best hidden gem in Rome."</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Use Persona Pattern to tailor output: "The target audience is a high school student. Explain simply using analogies."</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Use Factored Cognition: decompose a research paper into outline → section drafts → final revision prompts.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-6">
+    <div class="card" style="border-left:3px solid var(--green);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Meta-Prompting (APE)</h3>
+      <p>Use the LLM itself to critique and improve prompts — Automatic Prompt Engineering (APE) turns AI into a collaborative prompt engineering partner.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Provide the model with an existing prompt and its failing outputs.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>"Analyze this prompt and suggest ways to improve it to consistently extract the main topic and key entities."</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Model identifies ambiguities, suggests delimiters, format clarifications, or better examples.</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Apply suggestions, test on goldset, measure improvement — iterate programmatically with DSPy-style optimization.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Code Examples</div>
+  <div class="sec-desc">Practical implementations of key prompting techniques — structured output extraction with Pydantic and a full ReAct trace.</div>
+
+  <p style="font-size:14px;font-weight:500;margin-bottom:8px;color:var(--text);">Structured Output with Pydantic Validation</p>
+  <div class="code-block"><span class="code-keyword">from</span> pydantic <span class="code-keyword">import</span> BaseModel, EmailStr, Field, ValidationError
+<span class="code-keyword">from</span> typing <span class="code-keyword">import</span> List, Optional
+<span class="code-keyword">from</span> datetime <span class="code-keyword">import</span> date
+
+<span class="code-comment"># Define the schema the LLM must conform to</span>
+<span class="code-keyword">class</span> User(BaseModel):
+    name: str = Field(..., description=<span class="code-string">"The full name of the user."</span>)
+    email: str = Field(..., description=<span class="code-string">"The user's email address."</span>)
+    date_of_birth: Optional[date] = Field(None)
+    interests: List[str] = Field(default_factory=list)
+
+<span class="code-comment"># Hypothetical LLM JSON output</span>
+llm_output_json = <span class="code-string">"""
+{
+  "name": "Alice Wonderland",
+  "email": "alice.w@example.com",
+  "date_of_birth": "1995-07-21",
+  "interests": ["NLP", "Python", "Gardening"]
+}
+"""</span>
+
+<span class="code-comment"># Parse and validate in one step</span>
+<span class="code-keyword">try</span>:
+    user_object = User.model_validate_json(llm_output_json)
+    print(f<span class="code-string">"Name: {user_object.name}"</span>)
+    print(f<span class="code-string">"Email: {user_object.email}"</span>)
+<span class="code-keyword">except</span> ValidationError <span class="code-keyword">as</span> e:
+    print(<span class="code-string">"Failed to validate JSON from LLM."</span>)
+    print(e)</div>
+
+  <p style="font-size:14px;font-weight:500;margin:20px 0 8px;color:var(--text);">ReAct Trace — Illustrative Example</p>
+  <div class="code-block"><span class="code-comment"># User query: "What is the capital of France and its current population?"</span>
+
+<span class="code-comment"># --- ReAct Loop ---</span>
+Thought: The user needs two pieces of information. I'll use
+         search to confirm the capital, then find its population.
+Action: Search({<span class="code-string">"query"</span>: <span class="code-string">"capital of France"</span>})
+Observation: Paris
+
+Thought: Capital is Paris. Now I need the population.
+Action: Search({<span class="code-string">"query"</span>: <span class="code-string">"current population of Paris 2024"</span>})
+Observation: ~2.1 million (city proper), ~12 million (metro area)
+
+Thought: I have both pieces of information. Ready to answer.
+Final Answer: The capital of France is Paris.
+             Its city population is approximately 2.1 million people.</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: Context Engineering</div>
+  <div class="sec-desc">Context engineering is the evolution beyond static prompting — dynamically constructing the full operational picture an agent needs. Click each layer to expand:</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);border-color:var(--teal);">
+      <div class="ctx-layer-title" style="color:var(--teal-d);">Layer 1: System Prompts</div>
+      <div class="ctx-layer-sub" style="color:var(--teal-d);">Foundational operational parameters</div>
+      <div class="ctx-layer-detail" style="color:var(--teal-d);">System prompts set the AI's designated purpose, response style, and knowledge domain. They persist across a session and define the agent's identity. Example: "You are a technical writer; your tone must be formal and precise." They can be automatically optimized using tools like Google's Vertex AI Prompt Optimizer — systematically improving them against user-defined metrics.</div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);border-color:var(--purple);">
+      <div class="ctx-layer-title" style="color:var(--purple-d);">Layer 2: Retrieved Documents</div>
+      <div class="ctx-layer-sub" style="color:var(--purple-d);">Information actively fetched from knowledge bases</div>
+      <div class="ctx-layer-detail" style="color:var(--purple-d);">RAG pipelines pull relevant documents, specifications, or previous conversation summaries into the prompt at runtime. This grounds the model in current, factual reality — preventing it from relying on potentially outdated training data. The quality and relevance of retrieved documents directly determine response accuracy.</div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);border-color:var(--amber);">
+      <div class="ctx-layer-title" style="color:var(--amber-d);">Layer 3: Tool Outputs</div>
+      <div class="ctx-layer-sub" style="color:var(--amber-d);">Results from external API calls and computations</div>
+      <div class="ctx-layer-detail" style="color:var(--amber-d);">When an agent executes a tool (calculator, calendar API, database query), the result is injected back into context as an Observation. This creates a feedback loop where the model's next Thought is grounded in real, computed data rather than a probabilistic estimate. Tool outputs are the "senses" of an agentic system.</div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);border-color:var(--blue);">
+      <div class="ctx-layer-title" style="color:var(--blue-d);">Layer 4: Implicit Data</div>
+      <div class="ctx-layer-sub" style="color:var(--blue-d);">User identity, session history, environmental state</div>
+      <div class="ctx-layer-detail" style="color:var(--blue-d);">Critical information such as user identity, interaction history, and session state. Including implicit context requires careful governance for privacy and ethical data management — especially in enterprise, healthcare, and finance contexts. This layer enables personalization and continuity across sessions.</div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);border-color:var(--coral);">
+      <div class="ctx-layer-title" style="color:var(--coral-d);">Layer 5: Advanced Optimization</div>
+      <div class="ctx-layer-sub" style="color:var(--coral-d);">Automated prompt refinement with DSPy and APE</div>
+      <div class="ctx-layer-detail" style="color:var(--coral-d);">DSPy treats prompts as programmatic modules optimized against a goldset of input-output pairs. A Bayesian optimizer systematically refines both few-shot examples and instructional text. Google Gems pre-configure persistent contextual parameters for specialized, repeatable tasks. Meta-prompting uses the LLM itself to critique and suggest improvements — accelerating iteration cycles dramatically.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+  <div class="sec-desc">Quick reference for all major prompting techniques covered in this appendix.</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4 style="color:var(--teal-d);">ZERO / ONE / FEW-SHOT</h4>
+      <p style="color:var(--teal-d);">Provide 0, 1, or 3–5 examples of input→output pairs. More examples improve format and style adherence. Many-shot scales with context window.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4 style="color:var(--purple-d);">CHAIN OF THOUGHT (CoT)</h4>
+      <p style="color:var(--purple-d);">"Think step by step" unlocks intermediate reasoning traces. Use Self-Consistency (majority vote across runs) for high-accuracy needs.</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);">
+      <h4 style="color:var(--coral-d);">TREE OF THOUGHTS (ToT)</h4>
+      <p style="color:var(--coral-d);">Explore multiple reasoning branches concurrently. Best for creative or exploratory tasks requiring backtracking and evaluation.</p>
+    </div>
+    <div class="glance-card" style="background:var(--blue-l);">
+      <h4 style="color:var(--blue-d);">ReAct</h4>
+      <p style="color:var(--blue-d);">Interleave Thought → Action → Observation loops. Enables real-time tool use and dynamic information gathering during reasoning.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);">
+      <h4 style="color:var(--amber-d);">RAG</h4>
+      <p style="color:var(--amber-d);">Retrieve relevant documents from a knowledge base before generation. Grounds responses in current facts, eliminates hallucination on dynamic data.</p>
+    </div>
+    <div class="glance-card" style="background:var(--pink-l);">
+      <h4 style="color:var(--pink-d);">CONTEXT ENGINEERING</h4>
+      <p style="color:var(--pink-d);">Dynamically build the agent's full operational picture: system prompt + retrieved docs + tool outputs + session state. Quality of context = quality of output.</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;font-weight:500;margin-bottom:8px;">Click a technique to see when to use it:</div>
+    <div class="diagram-nodes">
+      <div class="dia-node active" onclick="simClick(0)" style="background:var(--teal-l);color:var(--teal-d);">Zero-Shot</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--purple-l);color:var(--purple-d);">Few-Shot</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--coral-l);color:var(--coral-d);">CoT</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--blue-l);color:var(--blue-d);">ReAct+RAG</div>
+    </div>
+    <div class="dia-output" id="sim-output">Zero-Shot: Use for simple, well-understood tasks the model has seen extensively in training — basic translation, simple Q&amp;A, text completion. No examples needed; fastest to prototype.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Quiz</div>
+  <div class="sec-desc">Test your understanding of advanced prompting techniques from Appendix A.</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <div class="sec-desc">The essential lessons from Appendix A on Advanced Prompting Techniques.</div>
+  <ul class="tk-list">
+    <li>Prompting is a disciplined engineering practice — clarity, conciseness, and iterative experimentation are non-negotiable foundations. Action verbs and positive instructions consistently outperform vague or constraint-heavy prompts.</li>
+    <li>Shot-based techniques (zero-, one-, few-shot) provide the model with behavioral examples. Quality and diversity of examples matter more than quantity; few-shot is evolving into many-shot as context windows grow.</li>
+    <li>Chain of Thought prompting ("think step by step") dramatically improves accuracy on reasoning, math, and logic tasks by externalizing intermediate steps — and improves interpretability as a bonus.</li>
+    <li>Structured output (JSON, XML validated with Pydantic) is not a convenience — it is an absolute necessity for robust agentic pipelines where one step's output feeds the next. It prevents catastrophic parsing failures.</li>
+    <li>ReAct interleaves reasoning and action in a Thought→Action→Observation loop, enabling agents to use tools, gather live information, and refine their approach dynamically rather than relying solely on training data.</li>
+    <li>RAG and Context Engineering together form the agent's senses: RAG retrieves external knowledge, while context engineering builds a comprehensive operational picture from system prompts, tool outputs, and session state.</li>
+    <li>Automatic Prompt Engineering (APE) and meta-prompting leverage LLMs themselves to critique and optimize prompts — accelerating iteration and enabling scalable, data-driven prompt tuning with frameworks like DSPy.</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <div class="sec-desc">Resources for further reading on advanced prompting techniques.</div>
+  <ol class="ref-list">
+    <li><span class="ref-num">1</span>Prompt Engineering — Google / Kaggle Whitepaper, <a href="https://www.kaggle.com/whitepaper-prompt-engineering" target="_blank">kaggle.com/whitepaper-prompt-engineering</a></li>
+    <li><span class="ref-num">2</span>Chain-of-Thought Prompting Elicits Reasoning in Large Language Models, <a href="https://arxiv.org/abs/2201.11903" target="_blank">arxiv.org/abs/2201.11903</a></li>
+    <li><span class="ref-num">3</span>Self-Consistency Improves Chain of Thought Reasoning in Language Models, <a href="https://arxiv.org/pdf/2203.11171" target="_blank">arxiv.org/pdf/2203.11171</a></li>
+    <li><span class="ref-num">4</span>ReAct: Synergizing Reasoning and Acting in Language Models, <a href="https://arxiv.org/abs/2210.03629" target="_blank">arxiv.org/abs/2210.03629</a></li>
+    <li><span class="ref-num">5</span>Tree of Thoughts: Deliberate Problem Solving with Large Language Models, <a href="https://arxiv.org/pdf/2305.10601" target="_blank">arxiv.org/pdf/2305.10601</a></li>
+    <li><span class="ref-num">6</span>Take a Step Back: Evoking Reasoning via Abstraction in LLMs, <a href="https://arxiv.org/abs/2310.06117" target="_blank">arxiv.org/abs/2310.06117</a></li>
+    <li><span class="ref-num">7</span>DSPy: Programming — not prompting — Foundation Models, <a href="https://github.com/stanfordnlp/dspy" target="_blank">github.com/stanfordnlp/dspy</a></li>
+  </ol>
+</div>
+
+<div class="footer"><p>Agentic Design Patterns — Appendix A: Advanced Prompting Techniques</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  'Zero-Shot: Use for simple, well-understood tasks the model has seen extensively in training — basic translation, simple Q&A, text completion. No examples needed; fastest to prototype.',
+  'Few-Shot: Use when the desired output has a specific format, style, or requires nuanced classification. Provide 3–5 high-quality, diverse examples. Essential when zero-shot yields inconsistent results.',
+  'Chain of Thought: Use for multi-step reasoning, math problems, logical deduction, and planning. Add "Let\'s think step by step" or provide reasoning trace examples. Set temperature=0 for deterministic tasks.',
+  'ReAct + RAG: Use for agentic tasks requiring real-time information, tool use, and dynamic decision-making. ReAct interleaves reasoning with tool actions; RAG grounds responses in retrieved factual knowledge.'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: 'What is the key difference between Zero-Shot and Few-Shot prompting?',
+    opts: [
+      'Zero-shot uses larger models; few-shot uses smaller models',
+      'Zero-shot provides no examples; few-shot provides 3–5 input-output examples to demonstrate the pattern',
+      'Zero-shot is for classification only; few-shot is for generation only',
+      'Zero-shot requires fine-tuning; few-shot does not'
+    ],
+    ans: 1,
+    ok: 'Correct! Zero-shot relies entirely on pre-training, while few-shot provides concrete examples to guide format and style.',
+    no: 'Incorrect. The distinction is about examples: zero-shot has none, few-shot has 3–5 demonstrations of the expected pattern.'
+  },
+  {
+    q: 'Chain of Thought prompting improves model performance primarily on which type of task?',
+    opts: [
+      'Simple text completion and translation',
+      'Image classification and vision tasks',
+      'Multi-step reasoning, math problems, and logical deduction',
+      'Real-time web search and retrieval'
+    ],
+    ans: 2,
+    ok: 'Correct! CoT dramatically improves accuracy on tasks requiring multi-step logic by externalizing intermediate reasoning steps.',
+    no: 'Incorrect. CoT is specifically designed for tasks requiring sequential reasoning — math, logic, planning — where shortcuts lead to errors.'
+  },
+  {
+    q: 'In the ReAct pattern, what does an "Observation" represent?',
+    opts: [
+      'The model\'s initial understanding of the user query',
+      'The result returned by a tool after the model\'s Action is executed',
+      'The final answer provided to the user',
+      'A system-level safety check on the model\'s output'
+    ],
+    ans: 1,
+    ok: 'Correct! An Observation is the result fed back from the executed tool — grounding the next Thought in real, computed data.',
+    no: 'Incorrect. In ReAct, the loop is Thought → Action → Observation, where Observation is the tool\'s return value passed back to the model.'
+  },
+  {
+    q: 'Why is requesting structured output (JSON) considered essential for agentic systems?',
+    opts: [
+      'It makes prompts shorter and cheaper to run',
+      'It allows the model to reason faster internally',
+      'It enables machine-readable output that can be reliably parsed and used by downstream pipeline steps',
+      'It prevents the model from generating harmful content'
+    ],
+    ans: 2,
+    ok: 'Correct! Structured output ensures each step\'s output can be precisely parsed and passed to the next step without ambiguity — the foundation of reliable pipelines.',
+    no: 'Incorrect. The critical reason is downstream parsability: unstructured prose cannot be reliably consumed by automated pipeline steps.'
+  },
+  {
+    q: 'What is Retrieval Augmented Generation (RAG) primarily designed to solve?',
+    opts: [
+      'Making models run faster at inference time',
+      'Training models on proprietary data',
+      'Enabling models to access current, external, or domain-specific information beyond their training data cutoff',
+      'Reducing the number of tokens in a prompt'
+    ],
+    ans: 2,
+    ok: 'Correct! RAG mitigates hallucination and knowledge cutoff issues by retrieving relevant documents before generation, grounding responses in current facts.',
+    no: 'Incorrect. RAG addresses the knowledge limitation problem — it injects retrieved external context so models can answer questions about information they were never trained on.'
+  },
+  {
+    q: 'Self-Consistency as a prompting technique works by:',
+    opts: [
+      'Having the model check its own output for errors once',
+      'Generating multiple diverse reasoning paths and selecting the most common answer by majority vote',
+      'Using a second model to verify the first model\'s output',
+      'Providing the model with its previous response as input for refinement'
+    ],
+    ans: 1,
+    ok: 'Correct! Self-Consistency runs the same CoT prompt multiple times at high temperature and takes the majority vote — reducing variance and increasing reliability.',
+    no: 'Incorrect. Self-Consistency leverages the probabilistic nature of LLMs: run the prompt multiple times, extract each answer, and select the most frequently occurring one.'
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    if (scores[curQ] === false) { document.getElementById('qo' + q2.ans).classList.add('correct'); }
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

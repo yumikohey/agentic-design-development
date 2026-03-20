@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 17: Reasoning Techniques — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: system-ui, -apple-system, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1; --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; background: var(--bg2); }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card:nth-child(6)::before { background: var(--blue); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 500px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 400px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Chapter 17</div>
+<h1>Reasoning Techniques</h1>
+<p class="subtitle">Advanced methodologies — Chain-of-Thought, Tree-of-Thought, ReAct, RLVR, and beyond — that make an agent's internal reasoning explicit, enabling multi-step problem-solving and robust conclusions.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Core Idea</div><div class="metric-value">Think Aloud</div></div>
+    <div class="metric"><div class="metric-label">Key Technique</div><div class="metric-value">CoT / ToT</div></div>
+    <div class="metric"><div class="metric-label">Action Loop</div><div class="metric-value">ReAct</div></div>
+    <div class="metric"><div class="metric-label">Training Method</div><div class="metric-value">RLVR</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>What are Reasoning Techniques?</h3>
+    <p>This chapter delves into advanced reasoning methodologies for intelligent agents, focusing on multi-step logical inferences and problem-solving. These techniques go beyond simple sequential operations, making the agent's internal reasoning explicit. This allows agents to break down problems, consider intermediate steps, and reach more robust and accurate conclusions.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Compute at Inference Time</h3>
+    <p>A core principle among these advanced methods is the allocation of increased computational resources during inference. This means granting the agent, or the underlying LLM, more processing time or steps to process a query and generate a response. Rather than a quick, single pass, the agent can engage in iterative refinement, explore multiple solution paths, or utilize external tools. This extended processing time during inference often significantly enhances accuracy, coherence, and robustness — especially for complex problems requiring deeper analysis.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>The Thought-Action-Observation Loop</h3>
+    <p>At its core, an agent's "thinking" is facilitated by a powerful LLM generating a series of thoughts that guide subsequent actions. The process follows a thought-action-observation loop: (1) The agent generates a textual thought that breaks down the problem; (2) Based on the thought, the agent selects an action; (3) The agent receives feedback from its environment. This cycle repeats until the agent determines it has reached a final solution.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">The Problem: Single-Pass Reasoning Fails</div>
+  <div class="sec-desc">Without explicit reasoning techniques, LLMs produce shallow outputs for complex tasks. Click cards to explore failure modes:</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Missing Intermediate Steps</h4>
+      <p>Complex math and logic collapse without step-by-step breakdown</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">A model asked "If a store sells apples for $0.50 each and oranges for $0.75, and I buy 3 apples and 4 oranges, how much do I spend?" often gives the wrong answer when it tries to solve it in one step. Breaking it into sub-computations dramatically improves accuracy.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>No Backtracking</h4>
+      <p>Models commit to the first reasoning path without exploring alternatives</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Standard CoT generates a single linear path. If the first reasoning direction is flawed, the model cannot backtrack and try another approach. Tree-of-Thought was designed specifically to address this limitation.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Static Knowledge Cutoff</h4>
+      <p>Models cannot access current information without external tools</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">A purely generative model is frozen at its training cutoff. For questions about current events, live data, or real-time calculations, the model needs to act — query a database, call an API, or perform a web search. ReAct enables this interaction.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Opaque Decision-Making</h4>
+      <p>Without visible reasoning, errors are hard to diagnose</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">When a model produces an incorrect answer in one step, there is no chain of reasoning to inspect. Explicit reasoning techniques like CoT make the model's thought process visible, enabling debugging and trust-building.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Imprecise Computation</h4>
+      <p>LLMs hallucinate in arithmetic and symbolic tasks</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Language models are not calculators. PALMs (Program-Aided Language Models) solve this by having the model generate code that performs the computation deterministically, then interpreting the result in natural language.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Single-Agent Bias</h4>
+      <p>One model's reasoning trajectory may be biased or incomplete</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">A single AI producing an answer may have systematic biases from its training. Chain of Debates (CoD) and Graph of Debates (GoD) use multiple diverse models that argue, critique, and counterargue — reducing bias through collective intelligence.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">The Solution: Structured Reasoning Frameworks</div>
+  <div class="sec-desc">Reasoning techniques provide structured frameworks that make thinking explicit and robust. Click each step to explore:</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Chain-of-Thought (CoT)</div>
+          <div class="chain-role">Make reasoning explicit via intermediate steps</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        CoT prompting guides the model to generate a sequence of intermediate reasoning steps before producing a final answer. Instead of "What is 2+2?" → "4", CoT produces: "I need to add 2 and 2. Two plus two equals four."<br><br>
+        <strong>Implementation:</strong> Few-shot examples demonstrating step-by-step reasoning, or simply instructing the model to "think step by step."<br><br>
+        <strong>Why it works:</strong> Forces the model to explicitly consider sub-problems, reducing the chance of skipping key logical transitions. Makes reasoning auditable.
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Self-Correction / Self-Refinement</div>
+          <div class="chain-role">Iteratively review and improve generated content</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The agent evaluates its own generated content and intermediate thought processes. This critical review identifies ambiguities, information gaps, or inaccuracies. The iterative cycle of reviewing and refining allows the agent to adjust its approach, improve response quality, and ensure accuracy before delivering a final output.<br><br>
+        <strong>Example:</strong> A Self-Correction Agent reviews a draft social media post, identifies weaknesses (generic phrasing, weak call to action), proposes improvements, and rewrites: "Discover GreenTech Gadgets! Eco-friendly innovation. Go green! #EcoFriendly"
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div>
+          <div class="chain-title">ReAct (Reasoning + Acting)</div>
+          <div class="chain-role">Interleave reasoning with tool use</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        ReAct integrates CoT prompting with the agent's ability to interact with external environments through tools. Unlike purely generative models, a ReAct agent reasons about which actions to take, acts by executing tool calls (database queries, calculations, web searches), observes the result, and incorporates this observation into subsequent reasoning.<br><br>
+        <strong>Loop:</strong> Thought → Action → Observation → Thought → …<br><br>
+        This iterative loop allows the agent to dynamically adapt its plan, correct errors, and achieve goals requiring multiple environment interactions.
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--amber);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">4</div>
+        <div>
+          <div class="chain-title">Tree-of-Thought (ToT)</div>
+          <div class="chain-role">Explore multiple reasoning paths with backtracking</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        ToT builds upon CoT by allowing LLMs to explore multiple reasoning paths by branching into different intermediate steps, forming a tree structure. This supports complex problem-solving by enabling backtracking, self-correction, and exploration of alternative solutions.<br><br>
+        <strong>How:</strong> At each step, the model generates multiple candidate next steps, evaluates them, and expands the most promising ones. Less promising branches are pruned.<br><br>
+        Maintaining a tree of possibilities allows the model to evaluate various reasoning trajectories before finalizing an answer — particularly powerful for strategic planning and multi-step optimization.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Reasoning Techniques</div>
+  <div class="sec-desc">Seven key techniques form the landscape of advanced agent reasoning. Click each to expand:</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);border-color:var(--teal);">
+      <div class="ctx-layer-title" style="color:var(--teal-d);">Chain-of-Thought (CoT)</div>
+      <div class="ctx-layer-sub" style="color:var(--teal-d);">Step-by-step explicit reasoning</div>
+      <div class="ctx-layer-detail" style="color:var(--teal-d);">CoT prompting significantly enhances LLMs' complex reasoning abilities by mimicking a step-by-step thought process. Instead of a direct answer, CoT prompts guide the model to generate a sequence of intermediate reasoning steps. This transforms a difficult single-step problem into a series of simpler steps, increasing transparency. CoT is implemented via few-shot examples or the simple instruction "think step by step." It has become a cornerstone technique for enabling advanced reasoning in contemporary LLMs.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);border-color:var(--purple);">
+      <div class="ctx-layer-title" style="color:var(--purple-d);">Tree-of-Thought (ToT)</div>
+      <div class="ctx-layer-sub" style="color:var(--purple-d);">Multiple paths with backtracking</div>
+      <div class="ctx-layer-detail" style="color:var(--purple-d);">ToT extends CoT by branching into different intermediate steps, forming a tree structure. The model evaluates various reasoning trajectories before finalizing an answer. This iterative process enhances the model's ability to handle challenging tasks requiring strategic planning. It supports backtracking, self-correction, and exploration of alternative solutions — capabilities not available in linear CoT.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);border-color:var(--amber);">
+      <div class="ctx-layer-title" style="color:var(--amber-d);">PALMs (Program-Aided Language Models)</div>
+      <div class="ctx-layer-sub" style="color:var(--amber-d);">LLMs + code execution for precise computation</div>
+      <div class="ctx-layer-detail" style="color:var(--amber-d);">PALMs integrate LLMs with symbolic reasoning by having the model generate and execute code (Python) as part of its problem-solving. They offload complex calculations, logical operations, and data manipulation to a deterministic programming environment. This hybrid approach uses traditional programming strengths where LLMs exhibit limitations in accuracy or consistency. When faced with symbolic challenges, the model produces code, executes it, and converts results into natural language.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);border-color:var(--coral);">
+      <div class="ctx-layer-title" style="color:var(--coral-d);">RLVR (Reinforcement Learning with Verifiable Rewards)</div>
+      <div class="ctx-layer-sub" style="color:var(--coral-d);">Train models to reason through trial and error</div>
+      <div class="ctx-layer-detail" style="color:var(--coral-d);">RLVR is the training strategy enabling "reasoning models." By training on problems with known correct answers (math, code), the model learns to generate effective, long-form reasoning through trial and error. These models dedicate a variable amount of "thinking" time — producing a dynamic Chain-of-Thought that can be thousands of tokens long. The result: reasoning trajectories demonstrating advanced skills like planning, monitoring, and evaluation. This is how models like o1, o3, and DeepSeek-R1 were trained.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);border-color:var(--blue);">
+      <div class="ctx-layer-title" style="color:var(--blue-d);">ReAct (Reasoning and Acting)</div>
+      <div class="ctx-layer-sub" style="color:var(--blue-d);">Interleave thought, action, and observation</div>
+      <div class="ctx-layer-detail" style="color:var(--blue-d);">ReAct integrates CoT with tool interaction. The agent reasons about which action to take, executes it (database query, API call, web search), observes the result, and incorporates the observation into the next thought. This Thought→Action→Observation loop enables dynamic plan adaptation, error correction, and goals requiring multiple environment interactions. It is crucial for agents that must not only reason but practically execute steps and interact with dynamic environments.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--pink-l);border-color:var(--pink);">
+      <div class="ctx-layer-title" style="color:var(--pink-d);">Chain of Debates (CoD)</div>
+      <div class="ctx-layer-sub" style="color:var(--pink-d);">Multiple models argue toward consensus</div>
+      <div class="ctx-layer-detail" style="color:var(--pink-d);">A formal AI framework proposed by Microsoft where multiple, diverse models collaborate and argue to solve a problem. This system operates like an AI council meeting: different models present initial ideas, critique each other's reasoning, and exchange counterarguments. The primary goal is to enhance accuracy, reduce bias, and improve overall quality by leveraging collective intelligence. It represents a shift from a solitary agent to a collaborative team of agents.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--green-l);border-color:var(--green);">
+      <div class="ctx-layer-title" style="color:var(--green-d);">Scaling Inference Law</div>
+      <div class="ctx-layer-sub" style="color:var(--green-d);">More compute at inference time = better results</div>
+      <div class="ctx-layer-detail" style="color:var(--green-d);">This critical principle dictates that a model's performance predictably improves as the computational resources allocated during inference increase. Crucially, a smaller LLM given a more substantial "thinking budget" (via multiple candidates, iterative refinement, or extended CoT) can occasionally surpass a much larger model using simple generation. This challenges the "bigger is always better" paradigm and enables more economically viable AI deployments.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Practical Applications</div>
+  <div class="sec-desc">Reasoning techniques apply across many domains requiring deep, multi-step analysis:</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Math &amp; Code</button>
+    <button class="uc-tab" onclick="showUC(1)">Research</button>
+    <button class="uc-tab" onclick="showUC(2)">Medical Diagnosis</button>
+    <button class="uc-tab" onclick="showUC(3)">Legal Analysis</button>
+    <button class="uc-tab" onclick="showUC(4)">Strategic Planning</button>
+  </div>
+
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Mathematical Problem Solving &amp; Code Generation</h3>
+      <p>Enabling division of mathematical problems into smaller, solvable components, illustrating the step-by-step process, and employing code execution for precise computations.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>CoT breaks the math problem into sub-computations, making each step explicit</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>PALMs generate Python code to perform arithmetic precisely, avoiding hallucination</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Self-correction iteratively refines code based on test results</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Extended inference time enables more intricate code generation and validation</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Deep Research with DeepSearch</h3>
+      <p>"Deep Research" tools (Perplexity, Google Gemini, OpenAI ChatGPT) act as tireless research assistants, performing iterative searching and synthesis.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Initial Exploration: Run multiple targeted searches based on the initial prompt</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Reasoning &amp; Refinement: Analyze results, identify gaps, contradictions, or areas needing detail</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Follow-up Inquiry: Conduct new, more nuanced searches to fill knowledge gaps</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Final Synthesis: Compile validated information into a cohesive, structured summary with citations</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Medical Diagnosis Support</h3>
+      <p>Aiding an agent in systematically assessing symptoms, test outcomes, and patient histories to reach a diagnosis, articulating reasoning at each phase.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>CoT: Systematically list symptoms and rule out conditions step by step</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>ReAct: Query medical databases for relevant case studies and drug interactions</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>ToT: Explore multiple differential diagnosis paths, pruning unlikely ones</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Extended inference allows more comprehensive differential diagnosis</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Legal Analysis</h3>
+      <p>Supporting analysis of legal documents and precedents to formulate arguments, detailing logical steps taken, and ensuring logical consistency through self-correction.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>CoT: Walk through applicable statutes and precedents step by step</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>ReAct: Retrieve specific case law from legal databases</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Self-correction: Review argument for logical consistency and completeness</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Increased inference time allows in-depth legal research and argument construction</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Strategic Planning</h3>
+      <p>Assisting in developing comprehensive plans through reasoning across various options, consequences, and preconditions.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>ToT: Branch planning tree across multiple strategic options</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Evaluate each branch for feasibility, risk, and expected outcome</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>ReAct: Adjust plans based on real-time feedback and new information</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Extended deliberation can lead to more effective and reliable plans</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Hands-On Code</div>
+  <div class="sec-desc">Concrete examples of reasoning techniques in practice.</div>
+
+  <div class="card card-bordered">
+    <h3>Chain-of-Thought Prompt: Information Retrieval Agent</h3>
+    <p style="margin-bottom:12px;">This 5-step CoT prompt instructs the agent how to think before answering:</p>
+  </div>
+<div class="code-block"><span class="code-comment"># Chain-of-Thought system prompt</span>
+COT_PROMPT = <span class="code-string">"""
+You are an Information Retrieval Agent. Your goal is to answer
+the user's question comprehensively and accurately by thinking
+step-by-step.
+
+Here's the process you must follow:
+
+1. **Analyze the Query:** Understand the core subject and specific
+   requirements. Identify key entities, keywords, and the type
+   of information being sought.
+
+2. **Formulate Search Queries:** Generate a list of precise
+   search queries to retrieve relevant information.
+
+3. **Simulate Information Retrieval:** For each search query,
+   consider what information you expect to find. Think about
+   potential ambiguities or missing pieces.
+
+4. **Synthesize Information:** Based on your analysis, synthesize
+   the gathered information into a coherent and complete answer.
+
+5. **Review and Refine:** Critically evaluate your answer.
+   Is it accurate? Is it comprehensive? Is it concise?
+"""</span></div>
+
+  <div class="card card-bordered" style="margin-top:16px;">
+    <h3>PALMs: Agent with Code Executor (Google ADK)</h3>
+    <p style="margin-bottom:12px;">Separate agents for search and code execution, orchestrated by a root agent:</p>
+  </div>
+<div class="code-block"><span class="code-keyword">from</span> google.adk.tools <span class="code-keyword">import</span> agent_tool
+<span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> Agent
+<span class="code-keyword">from</span> google.adk.tools <span class="code-keyword">import</span> google_search
+<span class="code-keyword">from</span> google.adk.code_executors <span class="code-keyword">import</span> BuiltInCodeExecutor
+
+search_agent = Agent(
+    model=<span class="code-string">'gemini-2.0-flash'</span>,
+    name=<span class="code-string">'SearchAgent'</span>,
+    instruction=<span class="code-string">"You're a specialist in Google Search"</span>,
+    tools=[google_search],
+)
+coding_agent = Agent(
+    model=<span class="code-string">'gemini-2.0-flash'</span>,
+    name=<span class="code-string">'CodeAgent'</span>,
+    instruction=<span class="code-string">"You're a specialist in Code Execution"</span>,
+    code_executor=[BuiltInCodeExecutor],
+)
+root_agent = Agent(
+    name=<span class="code-string">"RootAgent"</span>,
+    model=<span class="code-string">"gemini-2.0-flash"</span>,
+    description=<span class="code-string">"Root Agent"</span>,
+    tools=[
+        agent_tool.AgentTool(agent=search_agent),
+        agent_tool.AgentTool(agent=coding_agent)
+    ],
+)</div>
+
+  <div class="card card-bordered" style="margin-top:16px;">
+    <h3>DeepSearch with LangGraph: Iterative Research Loop</h3>
+    <p style="margin-bottom:12px;">A ReAct-style agent graph that searches, reflects, and refines until context is sufficient:</p>
+  </div>
+<div class="code-block"><span class="code-keyword">from</span> langgraph.graph <span class="code-keyword">import</span> StateGraph, START, END
+
+<span class="code-comment"># Build the agent graph</span>
+builder = StateGraph(OverallState, config_schema=Configuration)
+
+<span class="code-comment"># Define nodes: generate query → web search → reflection → finalize</span>
+builder.add_node(<span class="code-string">"generate_query"</span>, generate_query)
+builder.add_node(<span class="code-string">"web_research"</span>, web_research)
+builder.add_node(<span class="code-string">"reflection"</span>, reflection)
+builder.add_node(<span class="code-string">"finalize_answer"</span>, finalize_answer)
+
+builder.add_edge(START, <span class="code-string">"generate_query"</span>)
+builder.add_conditional_edges(
+    <span class="code-string">"generate_query"</span>, continue_to_web_research, [<span class="code-string">"web_research"</span>]
+)
+builder.add_edge(<span class="code-string">"web_research"</span>, <span class="code-string">"reflection"</span>)
+<span class="code-comment"># Reflection decides: more research needed or finalize?</span>
+builder.add_conditional_edges(
+    <span class="code-string">"reflection"</span>, evaluate_research,
+    [<span class="code-string">"web_research"</span>, <span class="code-string">"finalize_answer"</span>]
+)
+builder.add_edge(<span class="code-string">"finalize_answer"</span>, END)
+
+graph = builder.compile(name=<span class="code-string">"pro-search-agent"</span>)</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: MASS &amp; Advanced Frameworks</div>
+  <div class="sec-desc">Click nodes to explore the most advanced reasoning architectures:</div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Click a node to learn about each framework:</div>
+    <div class="diagram-nodes">
+      <div class="dia-node active" onclick="simClick(0)" style="background:var(--teal-l);color:var(--teal-d);">CoD</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--purple-l);color:var(--purple-d);">GoD</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--amber-l);color:var(--amber-d);">MASS</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--coral-l);color:var(--coral-d);">Deep Research</div>
+    </div>
+    <div class="dia-output" id="sim-output">Chain of Debates (CoD): A formal AI framework by Microsoft where multiple diverse models collaborate and argue to solve a problem. Different models present initial ideas, critique each other's reasoning, and exchange counterarguments. The primary goal is to enhance accuracy, reduce bias, and improve quality via collective intelligence. Functions as an AI peer review — creating a transparent and trustworthy record of the reasoning process.</div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>MASS: Multi-Agent System Search</h3>
+    <p>MASS automates the design of multi-agent systems via a 3-stage optimization process: (1) Block-Level Prompt Optimization — locally optimize prompts for individual agent types before integration; (2) Workflow Topology Optimization — select and arrange agent interactions from a design space using influence-weighted search; (3) Workflow-Level Prompt Optimization — globally fine-tune prompts for the entire system after the best topology is found. Key finding: MAS optimized by MASS significantly outperform manually designed systems.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Scaling Inference Law in Practice</h3>
+    <p>This law states performance predictably improves as inference-time compute increases. A smaller model given a larger "thinking budget" — via diverse beam search, self-consistency methods, or extended CoT — can occasionally surpass a much larger model using simple generation. This is fundamental to constructing efficient agentic systems: it provides a methodology for balancing model size, response latency, and operational cost.</p>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);border-color:var(--teal);">
+      <h4 style="color:var(--teal-d);">WHAT</h4>
+      <p style="color:var(--teal-d);">Advanced reasoning methodologies — CoT, ToT, ReAct, PALMs, RLVR, CoD, GoD — that go beyond simple sequential operations, making the agent's internal reasoning explicit for multi-step problem-solving.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);border-color:var(--purple);">
+      <h4 style="color:var(--purple-d);">WHY</h4>
+      <p style="color:var(--purple-d);">LLMs using single-pass generation fail on complex tasks: missing intermediate steps, no backtracking, static knowledge cutoff, opaque decisions. Explicit reasoning techniques make thinking auditable and robust.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);border-color:var(--amber);">
+      <h4 style="color:var(--amber-d);">THOUGHT-ACTION-OBS</h4>
+      <p style="color:var(--amber-d);">The core ReAct loop: agent generates a thought, selects an action, executes it via tools, observes the result, and loops. This enables dynamic, environment-responsive problem solving.</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);border-color:var(--coral);">
+      <h4 style="color:var(--coral-d);">SCALING INFERENCE</h4>
+      <p style="color:var(--coral-d);">More inference-time compute can beat a larger model using simple generation. A smaller model with extended thinking budget (CoT, multiple candidates) often outperforms a larger model on hard tasks.</p>
+    </div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>Technique Selection Guide</h3>
+    <ul>
+      <li><strong>Use CoT</strong> when you need to improve accuracy on multi-step reasoning tasks with no tool access</li>
+      <li><strong>Use ToT</strong> when multiple solution paths exist and backtracking is needed (e.g., puzzles, strategy)</li>
+      <li><strong>Use ReAct</strong> when the agent must interact with external environments (search, APIs, databases)</li>
+      <li><strong>Use PALMs</strong> when precise arithmetic or symbolic computation is required</li>
+      <li><strong>Use RLVR models</strong> (o1, o3, DeepSeek-R1) when the task is inherently hard and demands deep deliberation</li>
+      <li><strong>Use CoD/GoD</strong> when consensus from multiple perspectives reduces bias risk</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Quiz</div>
+  <div class="sec-desc">Test your understanding of Reasoning Techniques.</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ol class="tk-list">
+    <li>Chain-of-Thought (CoT) is the cornerstone technique — it makes reasoning explicit by guiding the model to produce intermediate reasoning steps, dramatically improving accuracy on arithmetic, commonsense reasoning, and symbolic manipulation tasks.</li>
+    <li>Tree-of-Thought (ToT) extends CoT by branching into multiple reasoning paths, enabling backtracking and exploration of alternatives — essential for strategic planning, puzzles, and complex optimization.</li>
+    <li>Self-Correction / Self-Refinement builds quality control directly into the agent's content generation cycle — reviewing outputs against original requirements and iteratively improving them before delivery.</li>
+    <li>ReAct (Reasoning and Acting) is fundamental for agents that must interact with dynamic environments — interleaving thought, action, and observation in a loop enables real-time adaptation and error correction.</li>
+    <li>RLVR (Reinforcement Learning with Verifiable Rewards) is the training paradigm behind modern reasoning models (o1, o3, DeepSeek-R1) — enabling extended dynamic Chain-of-Thought with thousands of tokens, supporting self-correction and backtracking.</li>
+    <li>The Scaling Inference Law challenges "bigger is always better" — a smaller model with a generous inference-time compute budget can outperform a larger model using simple generation, enabling more economically viable AI deployments.</li>
+  </ol>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>Google DeepSearch (gemini-fullstack-langgraph-quickstart): <a href="https://github.com/google-gemini/gemini-fullstack-langgraph-quickstart" target="_blank">GitHub Repository</a></li>
+    <li><span class="ref-num">2</span>Google ADK Code Executors: <a href="https://google.github.io/adk-docs/" target="_blank">https://google.github.io/adk-docs/</a></li>
+    <li><span class="ref-num">3</span>MASS (Multi-Agent System Search): Arxiv research paper on automated MAS design optimization</li>
+    <li><span class="ref-num">4</span>Chain of Debates (CoD): Microsoft Research proposal for multi-model debate frameworks</li>
+    <li><span class="ref-num">5</span>Google Deep Research: <a href="https://gemini.google.com/" target="_blank">https://gemini.google.com/</a></li>
+    <li><span class="ref-num">6</span>OpenAI o-series reasoning models: <a href="https://openai.com/research/learning-to-reason-with-llms" target="_blank">Learning to Reason with LLMs</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>Agentic Design Patterns — Chapter 17 | Interactive Learning Module</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  "Chain of Debates (CoD): A formal AI framework by Microsoft where multiple diverse models collaborate and argue to solve a problem. Different models present initial ideas, critique each other's reasoning, and exchange counterarguments. The primary goal is to enhance accuracy, reduce bias, and improve quality via collective intelligence. Functions as AI peer review — creating a transparent and trustworthy record of the reasoning process.",
+  "Graph of Debates (GoD): An advanced agentic framework that reimagines discussion as a dynamic, non-linear network rather than a simple chain. Arguments are individual nodes connected by edges that signify 'supports' or 'refutes' relationships. The structure allows new lines of inquiry to branch off, evolve independently, and even merge over time. A conclusion is reached by identifying the most robust and well-supported cluster of arguments within the entire graph.",
+  "MASS (Multi-Agent System Search): A framework to automate and optimize the design of multi-agent systems via 3 stages: (1) Block-Level Prompt Optimization — locally optimize individual agent prompts; (2) Workflow Topology Optimization — search for best agent interaction topology using influence-weighted scoring; (3) Workflow-Level Prompt Optimization — globally fine-tune after best topology is found. MAS optimized by MASS significantly outperform manually designed systems.",
+  "Deep Research: AI agentic tools (Perplexity, Google Gemini, OpenAI ChatGPT) that autonomously research complex topics. You grant the AI a 'time budget' — usually a few minutes. It runs multiple targeted searches, reads and analyzes results, identifies gaps, conducts follow-up searches, and synthesizes findings into a detailed, cited report. This approach significantly enhances depth and quality of information gathering."
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: "What is the key advantage of Chain-of-Thought (CoT) prompting over standard single-pass generation?",
+    opts: [
+      "It uses a larger model with more parameters",
+      "It guides the model to produce intermediate reasoning steps, making complex multi-step problems tractable",
+      "It always searches the internet for facts",
+      "It eliminates the need for any external tools"
+    ],
+    ans: 1,
+    ok: "Correct! CoT prompting guides the model to explicitly generate intermediate reasoning steps, transforming a difficult single-step problem into a series of simpler steps and dramatically improving accuracy.",
+    no: "Incorrect. CoT is about making the reasoning process explicit through intermediate steps — not model size or internet access."
+  },
+  {
+    q: "How does Tree-of-Thought (ToT) extend Chain-of-Thought?",
+    opts: [
+      "It uses a tree-shaped neural network architecture",
+      "It branches into multiple intermediate steps, allowing backtracking and exploration of alternative reasoning paths",
+      "It only works for mathematical problems",
+      "It chains multiple separate LLMs together"
+    ],
+    ans: 1,
+    ok: "Correct! ToT builds upon CoT by branching into different intermediate steps, forming a tree structure. This enables backtracking, self-correction, and exploration of alternatives — capabilities not available in linear CoT.",
+    no: "Incorrect. ToT is about exploring multiple reasoning paths (forming a tree structure) and backtracking, not a neural network architecture."
+  },
+  {
+    q: "In the ReAct framework, what is the correct order of the agent's core loop?",
+    opts: [
+      "Action → Thought → Observation",
+      "Observation → Action → Thought",
+      "Thought → Action → Observation",
+      "Thought → Observation → Action"
+    ],
+    ans: 2,
+    ok: "Correct! ReAct follows: Thought (the agent reasons about what to do) → Action (execute a tool call or query) → Observation (receive feedback from the environment). This loop repeats until a final answer is reached.",
+    no: "Incorrect. The ReAct loop is Thought → Action → Observation. The agent thinks first, then acts, then observes the result."
+  },
+  {
+    q: "What makes PALMs (Program-Aided Language Models) particularly useful for mathematical tasks?",
+    opts: [
+      "They use larger training datasets with more math problems",
+      "They have built-in calculators",
+      "They generate and execute code to perform computations deterministically, avoiding LLM hallucination in arithmetic",
+      "They always use chain-of-thought for all calculations"
+    ],
+    ans: 2,
+    ok: "Correct! PALMs offload complex calculations to a deterministic programming environment by generating and executing code (e.g., Python). This avoids the hallucination that occurs when LLMs try to perform arithmetic directly.",
+    no: "Incorrect. PALMs work by generating and executing code to get deterministic results, not by having built-in calculators or larger datasets."
+  },
+  {
+    q: "What training strategy enables 'reasoning models' like OpenAI's o1 and DeepSeek-R1?",
+    opts: [
+      "Supervised fine-tuning on chain-of-thought examples",
+      "Reinforcement Learning with Verifiable Rewards (RLVR)",
+      "Constitutional AI with human feedback",
+      "Few-shot prompting with domain experts"
+    ],
+    ans: 1,
+    ok: "Correct! RLVR (Reinforcement Learning with Verifiable Rewards) trains models on problems with known correct answers (math, code), allowing the model to learn through trial and error to generate effective, long-form reasoning trajectories.",
+    no: "Incorrect. The key innovation behind reasoning models is RLVR — training via reinforcement learning on tasks with verifiable correct answers, not supervised fine-tuning."
+  },
+  {
+    q: "According to the Scaling Inference Law, what is the key insight about smaller models vs. larger models?",
+    opts: [
+      "Smaller models are always inferior regardless of compute budget",
+      "Larger models should always be preferred for production systems",
+      "A smaller model with more inference-time compute (extended thinking budget) can sometimes outperform a larger model using simple generation",
+      "The law only applies to vision models, not language models"
+    ],
+    ans: 2,
+    ok: "Correct! The Scaling Inference Law posits that a smaller model, when granted a more substantial 'thinking budget' during inference, can occasionally surpass a much larger model that relies on simple generation — challenging the 'bigger is always better' paradigm.",
+    no: "Incorrect. The Scaling Inference Law specifically challenges 'bigger is always better' — inference-time compute budget can compensate for model size."
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    const fb = document.getElementById('qfb');
+    fb.textContent = scores[curQ] ? q2.ok : q2.no;
+    fb.className = 'quiz-fb show ' + (scores[curQ] ? 'right' : 'wrng');
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第六章：规划（Planning）— 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  background: var(--teal-l);
+  padding: 4px 14px;
+  border-radius: 99px;
+  margin-bottom: 16px;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  max-width: 640px;
+}
+.nav-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 0.5px solid var(--border2);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+  padding-top: 8px;
+}
+.nav-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 7px 16px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active {
+  background: var(--teal-l);
+  color: var(--teal-d);
+  border-color: var(--teal);
+  font-weight: 500;
+}
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 16px;
+  border: 0.5px solid var(--border);
+}
+.card-bordered {
+  border-left: 3px solid var(--teal);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+.sec-desc {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+.metric {
+  background: var(--bg2);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  border: 0.5px solid var(--border);
+}
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card {
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+  overflow: hidden;
+}
+.fail-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all .25s;
+}
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s ease;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow {
+  width: 2px;
+  height: 32px;
+  background: var(--border2);
+  position: relative;
+}
+.chain-arrow::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: -5px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--border2);
+}
+.json-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+}
+.uc-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.uc-tab {
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+}
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active {
+  background: var(--purple-l);
+  color: var(--purple-d);
+  border-color: var(--purple);
+  font-weight: 500;
+}
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+.uc-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+.uc-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 11px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.code-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+  tab-size: 2;
+}
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer {
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .25s;
+  border: 0.5px solid transparent;
+}
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 1.5rem;
+}
+.quiz-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg3);
+  transition: all .3s;
+}
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.quiz-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 18px;
+  margin-bottom: 8px;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--bg2);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all .2s;
+  line-height: 1.6;
+}
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb {
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 12px 0;
+  display: none;
+}
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn {
+  font-family: var(--sans);
+  padding: 8px 22px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+  margin-top: 12px;
+}
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li {
+  counter-increment: tk;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.tk-list li::before {
+  content: counter(tk);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--teal-l);
+  color: var(--teal-d);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.glance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card {
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+}
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin: 1.5rem 0;
+  border: 0.5px solid var(--border);
+  text-align: center;
+}
+.diagram-nodes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+.dia-node {
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .3s;
+  position: relative;
+  min-width: 100px;
+  text-align: center;
+}
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow {
+  font-size: 18px;
+  color: var(--text3);
+  padding: 0 6px;
+  flex-shrink: 0;
+}
+.dia-output {
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+  text-align: left;
+  min-height: 60px;
+  transition: all .3s;
+}
+.ref-list { list-style: none; padding: 0; }
+.ref-list li {
+  font-size: 13px;
+  color: var(--text2);
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--border);
+  line-height: 1.6;
+}
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+  <a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+
+  <div class="chapter-tag">第六章</div>
+  <h1>规划模式</h1>
+  <p class="subtitle">智能行为不仅仅是对当前输入的被动响应，更需要预见性——将复杂任务分解为可管理的步骤，并制定策略以实现目标状态。规划模式赋予智能体这种目标导向的能力。</p>
+
+  <nav class="nav-bar">
+    <button class="nav-btn active" onclick="go('sec-overview')">概览</button>
+    <button class="nav-btn" onclick="go('sec-problem')">问题所在</button>
+    <button class="nav-btn" onclick="go('sec-solution')">解决方案</button>
+    <button class="nav-btn" onclick="go('sec-concepts')">核心概念</button>
+    <button class="nav-btn" onclick="go('sec-usecases')">应用场景</button>
+    <button class="nav-btn" onclick="go('sec-code')">代码实战</button>
+    <button class="nav-btn" onclick="go('sec-deepdive')">深入解析</button>
+    <button class="nav-btn" onclick="go('sec-glance')">一览概要</button>
+    <button class="nav-btn" onclick="go('sec-quiz')">知识测验</button>
+    <button class="nav-btn" onclick="go('sec-takeaways')">核心要点</button>
+    <button class="nav-btn" onclick="go('sec-refs')">参考资料</button>
+  </nav>
+
+  <!-- 概览 -->
+  <section id="sec-overview" class="section active">
+    <h2 class="sec-title">模式概览</h2>
+    <p class="sec-desc">规划模式的核心是让智能体具备将高层目标转化为可执行行动序列的能力。与简单的任务执行智能体不同，规划智能体首先理解初始状态与目标状态，然后自主发现连接二者的最优行动路径。</p>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">核心能力</div>
+        <div class="metric-value">目标分解</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">适应性</div>
+        <div class="metric-value">动态调整</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">任务类型</div>
+        <div class="metric-value">多步骤</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">代表系统</div>
+        <div class="metric-value">DeepResearch</div>
+      </div>
+    </div>
+
+    <div class="card card-bordered">
+      <h3>什么是规划模式？</h3>
+      <p>规划是智能体将复杂目标转化为一系列可执行步骤的能力。就像委托一位专家完成复杂任务时，你定义的是"做什么"（目标及约束），而非"怎么做"。智能体自主理解初始状态，发现达成目标的最优行动序列，并在遇到障碍时灵活调整。</p>
+    </div>
+
+    <div class="card card-bordered">
+      <h3>规划的标志性特征：适应性</h3>
+      <p>初始计划只是起点，而非刚性脚本。有能力的智能体能够整合新信息并绕开障碍。例如：如果首选场地不可用，智能体不会简单失败，而是重新评估选项，制定新计划。这种动态适应能力是规划模式的核心价值所在。</p>
+    </div>
+
+    <div class="card card-bordered">
+      <h3>规划 vs. 固定工作流</h3>
+      <p>关键决策问题是：解决方案的"如何做"是否需要被发现，还是已经明确已知？当问题已被充分理解且可重复时，将智能体限定在预定固定工作流中更为有效——这能限制不确定性，保证可靠一致的结果。规划适用于高度复杂、需要动态应对的场景。</p>
+    </div>
+
+    <div class="card card-bordered">
+      <h3>现实案例：Google DeepResearch</h3>
+      <p>Google Gemini DeepResearch 是规划模式的典型应用。它将用户的查询分解为多步研究计划，动态执行搜索、评估信息缺口，并迭代优化查询策略，最终生成带引用的结构化多页报告——全程自主规划，无需人工干预每个步骤。</p>
+    </div>
+  </section>
+
+  <!-- 问题所在 -->
+  <section id="sec-problem" class="section">
+    <h2 class="sec-title">问题所在</h2>
+    <p class="sec-desc">单纯的反应式智能体在面对复杂多步骤任务时严重受限。点击每张卡片了解具体挑战。</p>
+
+    <div class="fail-grid">
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>🎯 无法处理多步依赖</h4>
+        <p>复杂任务的各步骤之间存在复杂的依赖关系。</p>
+        <div class="detail" style="margin-top:10px;font-size:13px;color:var(--text2)">
+          例如入职新员工：必须先创建系统账户，才能分配培训模块；必须先协调不同部门，才能安排具体工作。反应式智能体无法理解并管理这种步骤间的依赖逻辑，导致执行顺序混乱或关键步骤遗漏。
+        </div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>🧱 遇到障碍直接失败</h4>
+        <p>当预期路径不可行时，简单智能体无法自适应调整。</p>
+        <div class="detail" style="margin-top:10px;font-size:13px;color:var(--text2)">
+          如果首选的酒店已满、API 调用失败或数据源不可用，没有规划能力的智能体只会报错或返回不完整结果。缺乏"遇到障碍重新规划"的能力，使其无法应对真实世界的动态不确定性。
+        </div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>📊 无法综合复杂信息</h4>
+        <p>生成复杂输出需要结构化的多阶段信息处理流程。</p>
+        <div class="detail" style="margin-top:10px;font-size:13px;color:var(--text2)">
+          生成一份研究报告需要：信息搜集阶段、数据摘要阶段、内容结构化阶段和迭代优化阶段。简单的单次响应智能体无法管理这种多阶段流程，导致输出质量低下或内容不完整。
+        </div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>🔄 策略缺失，结果不可靠</h4>
+        <p>没有策略框架的智能体会产生不一致的低质量结果。</p>
+        <div class="detail" style="margin-top:10px;font-size:13px;color:var(--text2)">
+          面对"分析市场竞争态势"这类复杂请求，没有规划能力的智能体要么无从下手，要么随机执行部分操作，最终交付不完整的分析。缺乏从高层目标到具体行动的映射能力，导致输出质量无法保证。
+        </div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>🔍 信息缺口无法识别</h4>
+        <p>简单智能体不知道自己不知道什么，无法主动补全信息缺口。</p>
+        <div class="detail" style="margin-top:10px;font-size:13px;color:var(--text2)">
+          Google DeepResearch 的核心能力之一是在研究过程中主动识别知识缺口，并动态生成新的搜索查询来填补这些缺口。没有规划能力的智能体无法进行这种元认知，导致研究不充分、结论片面。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 解决方案 -->
+  <section id="sec-solution" class="section">
+    <h2 class="sec-title">解决方案：规划模式</h2>
+    <p class="sec-desc">规划模式通过让智能体先制定计划再执行，赋予其处理复杂任务的能力。点击各节点了解规划流程的每个阶段。</p>
+
+    <div class="chain-container">
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d)">1</div>
+          <div>
+            <div class="chain-title">理解目标与约束</div>
+            <div class="chain-role">状态评估阶段</div>
+          </div>
+        </div>
+        <div class="chain-detail">
+          智能体首先理解初始状态（现有资源、已知信息、当前条件）和目标状态（期望的最终结果）。同时识别约束条件——预算、时间限制、可用工具等。这是规划的基础：清楚地知道"从哪里来"和"要到哪里去"。例如：组织团队外出活动——初始状态是预算、人数、日期偏好；目标状态是成功预订的活动安排。
+        </div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d)">2</div>
+          <div>
+            <div class="chain-title">生成行动计划</div>
+            <div class="chain-role">计划制定阶段</div>
+          </div>
+        </div>
+        <div class="chain-detail">
+          基于对目标和约束的理解，智能体生成一个具体的多步骤行动计划。这个计划将高层目标分解为一系列有序的、可执行的子任务，并考虑步骤间的依赖关系。LLM 特别擅长这个阶段：基于海量训练数据，它们能生成合理有效的行动序列。计划通常呈现为有序列表或树状结构，如 DeepResearch 生成的研究计划。
+        </div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d)">3</div>
+          <div>
+            <div class="chain-title">执行计划步骤</div>
+            <div class="chain-role">计划执行阶段</div>
+          </div>
+        </div>
+        <div class="chain-detail">
+          智能体按计划顺序执行各步骤，调用必要的工具或与各类系统交互。在执行过程中，智能体持续监控执行状态，收集新信息，并评估每步的结果是否符合预期。执行不是机械地遵循脚本，而是在结构化框架内保持对新信息的响应能力。
+        </div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d)">4</div>
+          <div>
+            <div class="chain-title">动态适应与重新规划</div>
+            <div class="chain-role">自适应调整阶段</div>
+          </div>
+        </div>
+        <div class="chain-detail">
+          当遇到障碍（首选资源不可用、步骤失败、发现新信息）时，智能体不会简单失败，而是重新评估情况，调整计划，寻找替代路径。这是规划模式相较于固定工作流最关键的优势——对不可预见情况的适应能力。DeepResearch 在搜索过程中识别信息缺口并动态调整搜索策略，就是这种能力的体现。
+        </div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d)">5</div>
+          <div>
+            <div class="chain-title">综合输出最终结果</div>
+            <div class="chain-role">结果交付阶段</div>
+          </div>
+        </div>
+        <div class="chain-detail">
+          完成所有计划步骤后，智能体将各阶段的执行结果综合为连贯的最终输出。这可能是一份结构化报告、一系列完成的操作，或一个综合性的答案。综合阶段确保最终输出不只是碎片化的步骤结果之和，而是有机整合的完整解决方案。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 核心概念 -->
+  <section id="sec-concepts" class="section">
+    <h2 class="sec-title">核心概念</h2>
+    <p class="sec-desc">掌握规划模式所需的关键技术概念与术语。</p>
+
+    <div class="card card-bordered">
+      <h3>目标导向行为（Goal-Directed Behavior）</h3>
+      <p>规划模式使智能体从被动反应转变为主动的目标导向行为。智能体不只是响应当前输入，而是始终朝着明确定义的目标状态推进。这要求智能体能够维护"距离目标还有多远"的内部状态表示，并据此选择下一步行动。</p>
+    </div>
+
+    <div class="card card-bordered">
+      <h3>任务分解（Task Decomposition）</h3>
+      <p>将高层目标拆解为可管理的子任务序列是规划的核心操作。有效的分解需要识别步骤间的依赖关系（哪些步骤必须先完成），以及可以并行的步骤。LLM 的优势在于能够基于训练数据中积累的大量问题解决模式，生成合理的分解方案。</p>
+      <div class="json-block"><span class="code-comment"># CrewAI 中的任务分解示例</span>
+task = Task(
+    description=(
+        <span class="code-string">f"1. 为主题 '{topic}' 创建大纲\n"</span>
+        <span class="code-string">f"2. 按大纲撰写约200字的摘要"</span>
+    ),
+    expected_output=<span class="code-string">"包含计划和摘要的最终报告"</span>,
+    agent=planner_writer_agent
+)</div>
+    </div>
+
+    <div class="card card-bordered">
+      <h3>迭代细化（Iterative Refinement）</h3>
+      <p>规划并非一次性静态生成，而是迭代细化的过程。随着执行推进，智能体获取新信息，据此评估和修正计划。Google DeepResearch 在每轮搜索后识别信息缺口，生成新查询，这种搜索-评估-优化循环就是迭代细化的典型体现。</p>
+    </div>
+
+    <div class="card card-bordered">
+      <h3>灵活性与可预测性的权衡</h3>
+      <p>动态规划提供了处理未知情况的灵活性，但也引入了不可预测性。当问题的解决路径已知且可重复时，固定工作流更可靠——它限制自主性以保证一致性。关键判断：任务的"如何做"是否需要被实时发现？答案是则使用规划，否则使用固定工作流。</p>
+    </div>
+  </section>
+
+  <!-- 应用场景 -->
+  <section id="sec-usecases" class="section">
+    <h2 class="sec-title">应用场景</h2>
+    <p class="sec-desc">规划模式在需要多步骤推理和动态适应的复杂场景中发挥关键作用。选择场景深入了解。</p>
+
+    <div class="uc-tabs">
+      <button class="uc-tab active" onclick="showUC(0)">深度研究</button>
+      <button class="uc-tab" onclick="showUC(1)">流程自动化</button>
+      <button class="uc-tab" onclick="showUC(2)">自主导航</button>
+      <button class="uc-tab" onclick="showUC(3)">客户支持</button>
+      <button class="uc-tab" onclick="showUC(4)">竞争分析</button>
+      <button class="uc-tab" onclick="showUC(5)">学术研究</button>
+    </div>
+
+    <div id="uc-0" class="uc-panel active">
+      <div class="card">
+        <h3>深度研究与信息综合</h3>
+        <p>Google DeepResearch 是规划模式在信息综合领域的代表性应用。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><div><strong>计划生成：</strong>将用户查询分解为多步研究计划，呈现给用户审阅和修改，实现协作式研究方向塑造</div></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><div><strong>迭代搜索：</strong>动态执行搜索，基于已获取的信息主动识别知识缺口，调整后续搜索策略</div></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><div><strong>信息评估：</strong>对收集到的数据进行相关性和知识缺口评估，进行后续搜索以弥补缺口</div></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><div><strong>综合报告：</strong>将经过验证的信息整合为带引用的结构化多页报告，支持音频概述、图表等交互功能</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="uc-1" class="uc-panel">
+      <div class="card">
+        <h3>程序性任务自动化</h3>
+        <p>将复杂业务流程（如入职新员工）分解为有序的可执行步骤序列。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><div><strong>流程分析：</strong>智能体分解业务流程，识别步骤依赖关系（如：先创建账户，才能分配权限）</div></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><div><strong>有序执行：</strong>按依赖关系有序调用各系统 API，管理跨部门协调</div></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><div><strong>异常处理：</strong>遇到步骤失败时，重新规划替代路径，确保整体目标达成</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="uc-2" class="uc-panel">
+      <div class="card">
+        <h3>机器人与自主导航</h3>
+        <p>规划在机器人学中是状态空间遍历的基础——从初始状态到目标状态的最优路径发现。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><div><strong>状态定义：</strong>定义初始位置、目标位置及环境约束（障碍物、交通规则）</div></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><div><strong>路径规划：</strong>生成满足约束的最优行动序列，优化时间或能耗等指标</div></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><div><strong>动态重规划：</strong>遇到新障碍时实时调整路径，保持向目标推进</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="uc-3" class="uc-panel">
+      <div class="card">
+        <h3>多步骤客户支持</h3>
+        <p>复杂客户问题的诊断与解决往往需要系统性的多步骤规划。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><div><strong>问题诊断：</strong>制定系统性诊断计划，逐步排查潜在原因</div></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><div><strong>解决方案执行：</strong>按计划实施解决方案，必要时调用工具或升级处理</div></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><div><strong>结果验证：</strong>验证解决效果，若未解决则执行升级处理流程</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="uc-4" class="uc-panel">
+      <div class="card">
+        <h3>竞争态势分析</h3>
+        <p>DeepResearch 风格的规划特别适合需要系统性多源数据收集的竞争分析。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><div><strong>分析框架制定：</strong>生成覆盖市场趋势、竞品规格、用户情感、营销策略的多维分析计划</div></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><div><strong>系统性数据收集：</strong>自动化执行各维度数据收集，替代人工跟踪多个竞争对手的繁琐工作</div></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><div><strong>战略性综合：</strong>将数据整合为支持战略决策的综合分析报告</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="uc-5" class="uc-panel">
+      <div class="card">
+        <h3>学术文献综述</h3>
+        <p>在学术探索中，规划型智能体能够系统性地进行大规模文献综述。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><div><strong>研究框架规划：</strong>制定涵盖关键文献识别、概念发展追踪、研究前沿映射的综述计划</div></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><div><strong>文献系统检索：</strong>跨多个数据库系统性检索，处理数量远超人工能力的文献来源</div></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><div><strong>知识综合：</strong>将文献发现综合为结构化综述，减少选择性偏误，揭示不易察觉的关键信息</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 代码实战 -->
+  <section id="sec-code" class="section">
+    <h2 class="sec-title">代码实战</h2>
+    <p class="sec-desc">以下展示两种规划模式实现：CrewAI 框架的规划型智能体，以及 OpenAI Deep Research API 的调用示例。</p>
+
+    <div class="card">
+      <h3>CrewAI — 规划写作智能体</h3>
+      <p style="margin-bottom:12px">使用 CrewAI 创建一个先制定计划再撰写摘要的智能体，演示显式规划步骤如何提升输出质量。</p>
+    </div>
+    <div class="code-block"><span class="code-keyword">import</span> os
+<span class="code-keyword">from</span> dotenv <span class="code-keyword">import</span> load_dotenv
+<span class="code-keyword">from</span> crewai <span class="code-keyword">import</span> Agent, Task, Crew, Process
+<span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> ChatOpenAI
+
+load_dotenv()
+
+llm = ChatOpenAI(model=<span class="code-string">"gpt-4-turbo"</span>)
+
+<span class="code-comment"># 定义具有规划能力的智能体</span>
+planner_writer_agent = Agent(
+    role=<span class="code-string">'文章规划师与撰写者'</span>,
+    goal=<span class="code-string">'针对指定主题先制定计划，再撰写简洁有力的摘要'</span>,
+    backstory=(
+        <span class="code-string">'您是一位专业的技术写作者和内容策略师。'</span>
+        <span class="code-string">'您的优势在于先制定清晰可操作的计划，'</span>
+        <span class="code-string">'确保最终摘要既信息丰富又易于理解。'</span>
+    ),
+    verbose=<span class="code-keyword">True</span>,
+    allow_delegation=<span class="code-keyword">False</span>,
+    llm=llm
+)
+
+<span class="code-comment"># 定义包含显式规划步骤的任务</span>
+topic = <span class="code-string">"强化学习在人工智能中的重要性"</span>
+high_level_task = Task(
+    description=(
+        <span class="code-string">f"1. 为主题 '{topic}' 创建要点大纲计划\n"</span>
+        <span class="code-string">f"2. 按照计划撰写约200字的摘要"</span>
+    ),
+    expected_output=(
+        <span class="code-string">"包含两个独立部分的最终报告：\n\n"</span>
+        <span class="code-string">"### 计划\n"</span>
+        <span class="code-string">"- 摘要主要观点的要点列表\n\n"</span>
+        <span class="code-string">"### 摘要\n"</span>
+        <span class="code-string">"- 结构清晰、内容完整的主题摘要"</span>
+    ),
+    agent=planner_writer_agent,
+)
+
+crew = Crew(
+    agents=[planner_writer_agent],
+    tasks=[high_level_task],
+    process=Process.sequential,
+)
+
+result = crew.kickoff()
+print(result)</div>
+
+    <div class="card" style="margin-top:24px">
+      <h3>OpenAI Deep Research API</h3>
+      <p style="margin-bottom:12px">OpenAI 的深度研究 API 内置了完整的规划-搜索-综合流水线，可编程访问自主研究能力。</p>
+    </div>
+    <div class="code-block"><span class="code-keyword">from</span> openai <span class="code-keyword">import</span> OpenAI
+
+client = OpenAI(api_key=<span class="code-string">"YOUR_OPENAI_API_KEY"</span>)
+
+system_message = <span class="code-string">"""您是一位专业研究员，负责撰写结构化的数据驱动报告。
+请聚焦于数据丰富的洞察，使用可靠来源，并包含行内引用。"""</span>
+
+user_query = <span class="code-string">"研究司美格鲁肽对全球医疗体系的经济影响"</span>
+
+<span class="code-comment"># 调用 Deep Research API</span>
+response = client.responses.create(
+    model=<span class="code-string">"o3-deep-research-2025-06-26"</span>,
+    input=[
+        {
+            <span class="code-string">"role"</span>: <span class="code-string">"developer"</span>,
+            <span class="code-string">"content"</span>: [{<span class="code-string">"type"</span>: <span class="code-string">"input_text"</span>, <span class="code-string">"text"</span>: system_message}]
+        },
+        {
+            <span class="code-string">"role"</span>: <span class="code-string">"user"</span>,
+            <span class="code-string">"content"</span>: [{<span class="code-string">"type"</span>: <span class="code-string">"input_text"</span>, <span class="code-string">"text"</span>: user_query}]
+        }
+    ],
+    reasoning={<span class="code-string">"summary"</span>: <span class="code-string">"auto"</span>},
+    tools=[{<span class="code-string">"type"</span>: <span class="code-string">"web_search_preview"</span>}]
+)
+
+<span class="code-comment"># 获取最终报告</span>
+final_report = response.output[-<span class="code-string">1</span>].content[<span class="code-string">0</span>].text
+print(final_report)
+
+<span class="code-comment"># 获取引用注释</span>
+annotations = response.output[-<span class="code-string">1</span>].content[<span class="code-string">0</span>].annotations
+<span class="code-keyword">for</span> i, citation <span class="code-keyword">in</span> enumerate(annotations):
+    cited_text = final_report[citation.start_index:citation.end_index]
+    print(<span class="code-string">f"引用 {i+1}: {citation.title} - {citation.url}"</span>)</div>
+  </section>
+
+  <!-- 深入解析 -->
+  <section id="sec-deepdive" class="section">
+    <h2 class="sec-title">深入解析</h2>
+    <p class="sec-desc">规划模式在实际应用中涉及多个深层技术考量。点击各层了解详细分析。</p>
+
+    <div class="ctx-stack">
+      <div class="ctx-layer" style="background:var(--teal-l);border-color:var(--teal)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--teal-d)">Google DeepResearch 架构</div>
+        <div class="ctx-layer-sub" style="color:var(--teal-d)">规划模式的工业级实现</div>
+        <div class="ctx-layer-detail" style="color:var(--teal-d)">
+          Google Gemini DeepResearch 将用户查询分解为多点研究计划，呈现给用户审阅修改（协作塑造研究方向），获批后启动迭代搜索分析循环。系统动态制定并优化搜索查询，主动识别知识缺口并填补，处理数百个来源后生成带引用的结构化报告。关键设计是异步处理——调查过程可能涉及分析数百个来源，系统对单点故障具有弹性，用户可断开连接并在完成时收到通知。
+        </div>
+      </div>
+
+      <div class="ctx-layer" style="background:var(--purple-l);border-color:var(--purple)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--purple-d)">OpenAI Deep Research API 特性</div>
+        <div class="ctx-layer-sub" style="color:var(--purple-d)">透明度与可扩展性</div>
+        <div class="ctx-layer-detail" style="color:var(--purple-d)">
+          与 ChatGPT 抽象化的流程不同，OpenAI Deep Research API 暴露所有中间步骤：智能体的推理过程、执行的具体搜索查询，以及运行的任何代码。这允许详细调试、分析和深度理解最终答案的构建过程。API 支持 Model Context Protocol（MCP），允许开发者将智能体连接到私有知识库和内部数据源，将公开网络研究与专有信息融合。
+        </div>
+      </div>
+
+      <div class="ctx-layer" style="background:var(--blue-l);border-color:var(--blue)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--blue-d)">LLM 的规划能力来源</div>
+        <div class="ctx-layer-sub" style="color:var(--blue-d)">为何 LLM 擅长规划？</div>
+        <div class="ctx-layer-detail" style="color:var(--blue-d)">
+          LLM 特别适合规划任务，因为它们在训练数据中接触了海量的问题解决模式、项目计划、流程文档和方法论指南。这使它们能够基于任务描述生成合理的行动计划，而无需手动编码每种场景的处理逻辑。通过明确提示要求规划步骤（如 CrewAI 任务描述中的"先创建计划，再撰写"），开发者可以有意识地激活这种规划行为，显著提升复杂任务的输出质量。
+        </div>
+      </div>
+
+      <div class="ctx-layer" style="background:var(--amber-l);border-color:var(--amber)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--amber-d)">规划深度与任务复杂性</div>
+        <div class="ctx-layer-sub" style="color:var(--amber-d)">从简单规划到复杂迭代规划</div>
+        <div class="ctx-layer-detail" style="color:var(--amber-d)">
+          规划的深度应与任务复杂性匹配。CrewAI 示例展示了简单的两步规划（制定大纲→写作），适合中等复杂任务。DeepResearch 则代表高级迭代规划：计划在执行过程中动态演化，每轮搜索结果都会影响后续计划。对于最简单的任务（单步操作），规划开销可能超过其带来的收益。判断标准：任务是否有多个相互依赖的步骤，且每步结果会影响后续决策？若是，则规划是有价值的。
+        </div>
+      </div>
+
+      <div class="ctx-layer" style="background:var(--coral-l);border-color:var(--coral)" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--coral-d)">引用与透明度</div>
+        <div class="ctx-layer-sub" style="color:var(--coral-d)">可验证性对规划输出的重要性</div>
+        <div class="ctx-layer-detail" style="color:var(--coral-d)">
+          高质量的规划型研究系统必须提供可验证的引用。DeepResearch 明确返回所搜索和参考的完整来源列表，OpenAI API 通过注释（annotations）提供行内引用，包含被引文本的精确位置（start_index、end_index）、标题和 URL。这种透明度对于商业决策、学术研究或政策建议等高风险应用场景至关重要——用户需要能够验证 AI 生成结论的来源依据。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 一览概要 -->
+  <section id="sec-glance" class="section">
+    <h2 class="sec-title">一览概要</h2>
+    <p class="sec-desc">快速掌握规划模式的核心要素，以及何时、为何、如何使用它。</p>
+
+    <div class="glance-grid">
+      <div class="glance-card" style="background:var(--teal-l)">
+        <h4 style="color:var(--teal-d)">问题（WHAT）</h4>
+        <p style="color:var(--teal-d)">复杂问题往往无法通过单次操作解决，需要预见性来实现期望结果。没有结构化方法，智能体难以将高层目标分解为可执行步骤，无法处理多步骤依赖关系，面对障碍时也无法有效重规划，导致复杂任务的结果不完整或错误。</p>
+      </div>
+      <div class="glance-card" style="background:var(--purple-l)">
+        <h4 style="color:var(--purple-d)">方案（WHY）</h4>
+        <p style="color:var(--purple-d)">规划模式通过让智能体首先制定连贯计划来应对目标，将高层目标分解为有序的可操作步骤或子目标。LLM 尤其擅长此类任务：基于海量训练数据生成合理计划，管理复杂工作流，协调各类工具，并按逻辑顺序处理依赖关系。</p>
+      </div>
+      <div class="glance-card" style="background:var(--blue-l)">
+        <h4 style="color:var(--blue-d)">适用时机（WHEN）</h4>
+        <p style="color:var(--blue-d)">当用户请求过于复杂、无法通过单次操作或工具调用处理时使用。适用于自动化多步流程（如生成详细研究报告、入职新员工、执行竞争分析），以及任何需要一系列相互依赖操作才能达成最终综合结果的场景。</p>
+      </div>
+      <div class="glance-card" style="background:var(--amber-l)">
+        <h4 style="color:var(--amber-d)">经验法则（HOW）</h4>
+        <p style="color:var(--amber-d)">关键问题：解决方案的"如何做"是否需要被发现，还是已经明确已知？若需被发现（高度复杂动态任务），使用规划。若已知（可重复可预测流程），使用固定工作流——它更可靠、更可预测。规划牺牲部分可预测性以换取灵活性。</p>
+      </div>
+    </div>
+
+    <div class="diagram-sim">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:8px">点击节点了解规划工作流各阶段</p>
+      <div class="diagram-nodes">
+        <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d)" onclick="simClick('prompt')">用户提示</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d)" onclick="simClick('plan')">生成计划</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--blue-l);color:var(--blue-d)" onclick="simClick('execute')">执行步骤</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d)" onclick="simClick('result')">综合输出</div>
+      </div>
+      <div id="sim-output" class="dia-output">点击上方节点查看说明</div>
+    </div>
+  </section>
+
+  <!-- 知识测验 -->
+  <section id="sec-quiz" class="section">
+    <h2 class="sec-title">知识测验</h2>
+    <p class="sec-desc">测试你对规划模式的理解。</p>
+
+    <div id="quizProgress" class="quiz-progress"></div>
+    <div id="quizArea"></div>
+  </section>
+
+  <!-- 核心要点 -->
+  <section id="sec-takeaways" class="section">
+    <h2 class="sec-title">核心要点</h2>
+    <p class="sec-desc">本章关于规划模式最重要的收获。</p>
+    <ul class="tk-list">
+      <li>规划模式是将智能体从简单反应式响应者提升为战略性目标导向执行者的基础性组件，使其能够处理需要多步骤推理的复杂任务。</li>
+      <li>规划的核心是任务分解：将高层目标分解为有序的、可执行的子任务序列，同时识别步骤间的依赖关系。</li>
+      <li>LLM 特别擅长规划，因为它们在训练数据中接触了海量的问题解决模式、项目计划和方法论指南，能够生成合理的行动序列。</li>
+      <li>规划模式的标志性优势是适应性：当遇到障碍时，智能体重新评估情况并调整计划，而非直接失败——这是固定工作流无法提供的能力。</li>
+      <li>关键决策标准是：解决方案的"如何做"是否需要被实时发现？若是，选择规划；若已明确，选择固定工作流（更可靠、更可预测）。</li>
+      <li>Google DeepResearch 代表规划模式的高级应用：迭代计划生成、动态搜索策略调整、知识缺口识别，以及带引用的结构化报告综合。</li>
+      <li>OpenAI Deep Research API 将这种能力程序化，提供透明的中间步骤（推理、搜索查询、代码执行）和可验证的行内引用，支持高风险应用场景。</li>
+      <li>规划扩展了智能体的行动边界——从简单 CrewAI 双步规划（制定大纲→撰写）到复杂的 DeepResearch 式多轮迭代研究，均体现了这一模式的核心价值。</li>
+    </ul>
+    <button class="btn btn-teal" onclick="go('sec-quiz')">去做知识测验 →</button>
+  </section>
+
+  <!-- 参考资料 -->
+  <section id="sec-refs" class="section">
+    <h2 class="sec-title">参考资料</h2>
+    <p class="sec-desc">深入学习规划模式与相关系统的资源。</p>
+    <ul class="ref-list">
+      <li>
+        <span class="ref-num">[1]</span>
+        Google DeepResearch（Gemini 功能）：
+        <a href="https://gemini.google.com" target="_blank">gemini.google.com</a>
+      </li>
+      <li>
+        <span class="ref-num">[2]</span>
+        OpenAI，介绍深度研究（Introducing deep research）：
+        <a href="https://openai.com/index/introducing-deep-research/" target="_blank">openai.com/index/introducing-deep-research/</a>
+      </li>
+      <li>
+        <span class="ref-num">[3]</span>
+        Perplexity，介绍 Perplexity Deep Research：
+        <a href="https://www.perplexity.ai/hub/blog/introducing-perplexity-deep-research" target="_blank">perplexity.ai/hub/blog/introducing-perplexity-deep-research</a>
+      </li>
+      <li>
+        <span class="ref-num">[4]</span>
+        CrewAI 框架文档 — 智能体与任务定义：
+        <a href="https://docs.crewai.com" target="_blank">docs.crewai.com</a>
+      </li>
+      <li>
+        <span class="ref-num">[5]</span>
+        OpenAI Deep Research API 参考文档：
+        <a href="https://platform.openai.com/docs/guides/deep-research" target="_blank">platform.openai.com/docs/guides/deep-research</a>
+      </li>
+    </ul>
+  </section>
+
+  <div class="footer">
+    <p>第六章：规划 · 智能体设计模式系列 · 交互式学习模块</p>
+  </div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = ['sec-overview','sec-problem','sec-solution','sec-concepts','sec-usecases','sec-code','sec-deepdive','sec-glance','sec-quiz','sec-takeaways','sec-refs'].indexOf(id);
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleChain(el) {
+  el.classList.toggle('open');
+}
+
+function toggleCtx(el) {
+  el.classList.toggle('open');
+}
+
+function showUC(n) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + n).classList.add('active');
+  document.querySelectorAll('.uc-tab')[n].classList.add('active');
+}
+
+function simClick(node) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  event.target.classList.add('active');
+  const msgs = {
+    prompt: '用户提示阶段：智能体接收高层目标或复杂请求。与简单问答不同，这里的请求通常包含多个相互依赖的子目标，需要系统性的策略才能有效解决。智能体首先分析目标和约束条件。',
+    plan: '计划生成阶段：智能体将高层目标分解为有序的可执行步骤序列。LLM 基于训练数据中的问题解决模式生成合理计划。计划可以展示给用户审阅修改（如 DeepResearch），实现协作式规划。',
+    execute: '执行步骤阶段：按照计划顺序执行各步骤，调用工具、搜索信息或与系统交互。关键：遇到障碍时不直接失败，而是重新评估并调整计划。这种动态适应能力是规划模式优于固定工作流的核心。',
+    result: '综合输出阶段：将所有执行步骤的结果整合为连贯的最终输出。高质量的规划系统还会提供可验证的引用（如 DeepResearch 的来源列表，OpenAI API 的行内注释），确保输出的透明度和可信度。'
+  };
+  document.getElementById('sim-output').textContent = msgs[node] || '';
+}
+
+// Quiz
+const quizData = [
+  {
+    q: '规划模式的核心判断标准是什么？',
+    opts: [
+      '任务是否需要使用外部 API',
+      '解决方案的"如何做"是否需要被实时发现，还是已经明确已知',
+      '任务是否需要多于一个 LLM 调用',
+      '是否需要处理用户上传的文件'
+    ],
+    ans: 1,
+    fb: '正确！规划模式的核心判断标准是：解决方案的"如何做"是否需要被发现？若需要（任务复杂动态，解决路径未知），使用规划。若已明确（可重复可预测的流程），使用固定工作流——它更可靠、更可预测。'
+  },
+  {
+    q: 'Google DeepResearch 相较于普通搜索的核心优势是什么？',
+    opts: [
+      '搜索速度更快',
+      '只搜索学术数据库',
+      '动态识别知识缺口并迭代调整搜索策略，生成综合报告',
+      '搜索结果会自动翻译为多种语言'
+    ],
+    ans: 2,
+    fb: '正确！DeepResearch 的核心优势在于迭代规划能力：它不只是执行一次搜索，而是动态制定多步研究计划，在每轮搜索后识别信息缺口，调整后续查询策略，最终将大量来源整合为带引用的结构化报告。'
+  },
+  {
+    q: '在 CrewAI 示例中，显式要求智能体"先制定计划再撰写"的主要目的是什么？',
+    opts: [
+      '减少 API 调用次数以降低成本',
+      '让输出格式更美观',
+      '有意识地激活 LLM 的规划行为，提升复杂任务的输出质量',
+      '绕过内容安全过滤器'
+    ],
+    ans: 2,
+    fb: '正确！通过在任务描述中明确要求规划步骤，开发者有意识地激活 LLM 的规划能力。LLM 在训练数据中接触了大量的问题解决模式，通过提示可以引导其先生成结构化计划，再基于计划执行，显著提升输出的质量和连贯性。'
+  },
+  {
+    q: 'OpenAI Deep Research API 相较于 ChatGPT 界面的独特优势是什么？',
+    opts: [
+      '响应速度更快',
+      '支持更多语言',
+      '暴露中间推理步骤、搜索查询和代码执行记录，以及带位置信息的行内引用',
+      '可以生成图像和视频'
+    ],
+    ans: 2,
+    fb: '正确！OpenAI Deep Research API 的关键优势是透明度：它暴露所有中间步骤（推理过程、具体搜索查询、代码执行），并通过注释（annotations）提供带精确位置的行内引用（start_index、end_index、URL）。这使得对高风险决策场景中 AI 输出的详细验证成为可能。'
+  },
+  {
+    q: '规划模式相较于固定工作流最显著的优势是什么？',
+    opts: [
+      '执行速度更快',
+      '消耗更少的计算资源',
+      '遇到障碍时能动态重规划，而非直接失败',
+      '生成的代码质量更高'
+    ],
+    ans: 2,
+    fb: '正确！规划模式的标志性优势是适应性。当遇到障碍（首选资源不可用、步骤失败、发现新信息）时，规划智能体重新评估情况并调整计划——固定工作流在此情境下会直接失败。这种动态重规划能力使智能体能够应对真实世界的不确定性。'
+  },
+  {
+    q: '以下哪个场景最适合使用规划模式而非固定工作流？',
+    opts: [
+      '每天定时将数据库记录导出为 CSV 文件',
+      '验证用户注册表单的邮件格式和手机号格式',
+      '为一家公司进行全面竞争态势分析，需要动态收集和综合多源信息',
+      '将上传的图片转换为缩略图'
+    ],
+    ans: 2,
+    fb: '正确！竞争态势分析是规划模式的典型适用场景：任务复杂、信息来源多样、分析维度动态变化，且每步的发现都可能影响后续分析方向。相反，定时导出、表单验证、图片处理等任务解决路径明确固定，更适合使用固定工作流。'
+  }
+];
+
+let currentQ = 0;
+const userAnswers = new Array(quizData.length).fill(null);
+
+function renderQuiz() {
+  const prog = document.getElementById('quizProgress');
+  prog.innerHTML = quizData.map((_, i) => {
+    let cls = 'quiz-dot';
+    if (i === currentQ) cls += ' current';
+    else if (userAnswers[i] !== null) cls += userAnswers[i] === quizData[i].ans ? ' done' : ' wrong-dot';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  const q = quizData[currentQ];
+  const answered = userAnswers[currentQ] !== null;
+  document.getElementById('quizArea').innerHTML = `
+    <p style="font-size:12px;color:var(--text3);margin-bottom:12px">第 ${currentQ+1} 题 / 共 ${quizData.length} 题</p>
+    <div class="quiz-q">${q.q}</div>
+    ${q.opts.map((o, i) => {
+      let cls = 'quiz-opt';
+      if (answered) {
+        cls += ' disabled';
+        if (i === q.ans) cls += ' correct';
+        else if (i === userAnswers[currentQ] && userAnswers[currentQ] !== q.ans) cls += ' wrong';
+      }
+      return `<button class="${cls}" onclick="answer(${i})">${o}</button>`;
+    }).join('')}
+    <div class="quiz-fb ${answered ? 'show ' + (userAnswers[currentQ] === q.ans ? 'right' : 'wrng') : ''}">${q.fb}</div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      ${currentQ > 0 ? `<button class="btn" onclick="prevQ()">上一题</button>` : ''}
+      ${currentQ < quizData.length - 1 ? `<button class="btn btn-teal" onclick="nextQ()">下一题</button>` : `<button class="btn btn-teal" onclick="go('sec-takeaways')">查看核心要点</button>`}
+    </div>
+  `;
+}
+
+function answer(i) {
+  if (userAnswers[currentQ] !== null) return;
+  userAnswers[currentQ] = i;
+  renderQuiz();
+}
+
+function nextQ() { if (currentQ < quizData.length - 1) { currentQ++; renderQuiz(); } }
+function prevQ() { if (currentQ > 0) { currentQ--; renderQuiz(); } }
+
+renderQuiz();
+</script>
+</body>
+</html>

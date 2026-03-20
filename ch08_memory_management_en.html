@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 8: Memory Management — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1; --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Chapter 08</div>
+<h1>Memory Management</h1>
+<p class="subtitle">Effective memory management is crucial for intelligent agents — providing both short-term contextual memory within the LLM window and long-term persistent memory across sessions, enabling agents to learn, personalize, and maintain coherent conversations over time.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <p class="sec-desc">Agents require different types of memory — much like humans — to operate efficiently. Memory refers to an agent's ability to retain and utilize information from past interactions, observations, and learning experiences, enabling informed decisions, conversational context, and improvement over time.</p>
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Memory Types</div>
+      <div class="metric-value">2</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">LT Memory Kinds</div>
+      <div class="metric-value">3</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">ADK Services</div>
+      <div class="metric-value">2</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Storage Backends</div>
+      <div class="metric-value">3+</div>
+    </div>
+  </div>
+  <div class="card card-bordered">
+    <h3>Short-Term Memory (Contextual)</h3>
+    <p>Similar to working memory, this holds information currently being processed or recently accessed. For LLM-based agents, short-term memory lives within the context window — recent messages, replies, tool results, and reflections. It is ephemeral: lost when the session concludes.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Long-Term Memory (Persistent)</h3>
+    <p>Acts as a repository for information agents need to retain across interactions, tasks, or extended periods. Data is stored externally — in databases, knowledge graphs, or vector databases — and retrieved via semantic search when needed.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Session and State (ADK)</h3>
+    <p>In Google ADK, a Session tracks an individual chat thread with its event history and temporary State data. The SessionService manages lifecycle: creation, recording activity, and termination. State acts as the session's scratchpad for dynamic, turn-specific data.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>MemoryService (ADK)</h3>
+    <p>The MemoryService provides a searchable long-term knowledge repository sourced from multiple past sessions or external data. It uses add_session_to_memory to ingest sessions and search_memory to retrieve relevant past knowledge for the current context.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Problems Addressed</div>
+  <p class="sec-desc">Without effective memory management, agents are fundamentally stateless — unable to provide coherent or personalized experiences. Click to expand each problem.</p>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Stateless Agents</h4>
+      <p>Without memory, agents cannot maintain context between interactions, treating every exchange as brand new.</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">A stateless agent cannot remember that a user just said their name, completed step 1 of a workflow, or expressed a preference. This makes complex, multi-turn tasks impossible and creates a frustrating user experience.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Context Window Limits</h4>
+      <p>The LLM context window has finite capacity — long conversations eventually overflow and lose critical earlier information.</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">Even with large context windows, processing every token on every call is expensive. Critical earlier information gets truncated, causing the agent to "forget" key constraints, user preferences, or prior decisions mid-conversation.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>No Cross-Session Learning</h4>
+      <p>Agents cannot retain knowledge from one session to apply in future sessions without persistent memory.</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">Every new conversation starts from scratch. The agent cannot recall that a user prefers Python over JavaScript, previously struggled with topic X, or completed onboarding last week. This prevents meaningful personalization.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>No Personalization</h4>
+      <p>Without user-specific persistent memory, every interaction is generic and fails to adapt to individual needs.</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">Generic responses frustrate users who expect the system to "know" them. Personalization requires remembering user preferences, past behaviors, and context from previous sessions — all requiring persistent memory.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Expensive Re-Processing</h4>
+      <p>Without summarization or selective retrieval, agents must re-process all prior context on every turn — costly and slow.</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">Passing the entire conversation history on every API call increases latency and token costs dramatically. Efficient memory management uses summarization and vector search to inject only the most relevant context.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">The Dual-Memory Solution</div>
+  <p class="sec-desc">The standardized solution implements a dual-component memory system distinguishing between short-term and long-term storage.</p>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Short-Term Context Window</div>
+          <div class="chain-role">Recent interaction data within the LLM's context</div>
+        </div>
+      </div>
+      <div class="chain-detail">Recent messages, agent replies, tool call results, and reflections are maintained within the context window. This enables conversational coherence within a single session. Summarization techniques can compress older segments to preserve space for new information.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Long-Term External Storage</div>
+          <div class="chain-role">Persistent knowledge in vector stores or databases</div>
+        </div>
+      </div>
+      <div class="chain-detail">Information that must persist beyond a single session is stored in external databases — typically vector stores for semantic search. On subsequent sessions, the agent queries this store to retrieve relevant past knowledge and integrates it into the current context window.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">3</div>
+        <div>
+          <div class="chain-title">Session State Management</div>
+          <div class="chain-role">Dynamic key-value scratchpad for the active conversation</div>
+        </div>
+      </div>
+      <div class="chain-detail">Session state stores dynamic data points relevant to the active conversation: user preferences, task progress, incremental data collection, and conditional flags. Keys can be scoped: session-specific (no prefix), user-wide (user:), app-wide (app:), or turn-only (temp:).</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">4</div>
+        <div>
+          <div class="chain-title">Memory Retrieval and Injection</div>
+          <div class="chain-role">Semantic search brings relevant past context into the present</div>
+        </div>
+      </div>
+      <div class="chain-detail">When starting a new session, the agent queries long-term memory using semantic similarity search. The most relevant past knowledge is retrieved and injected into the current context window — bridging multiple interactions into a coherent, continuous experience.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+  <p class="sec-desc">The technical building blocks of agent memory systems in Google ADK and LangChain.</p>
+
+  <div class="card card-bordered">
+    <h3>ADK Session Object</h3>
+    <p>A Session encapsulates a unique conversation thread: identifiers (id, app_name, user_id), a chronological event log, the session state dictionary, and a last_update_time timestamp. Managed by the SessionService — not manipulated directly.</p>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>State Key Prefixes</h3>
+    <p>State keys use prefixes to define data scope and persistence. Keys without prefixes are session-specific. <code>user:</code> associates data with a user across all sessions. <code>app:</code> designates data shared among all users. <code>temp:</code> is valid only for the current processing turn and is never persisted.</p>
+  </div>
+
+  <div class="card">
+    <h3>ADK Memory Architecture</h3>
+    <div class="json-block">{
+  "Session":  "Individual chat thread — events + state",
+  "State":    "Turn-scoped scratchpad within a session",
+  "Memory":   "Searchable cross-session knowledge repository",
+  "Services": {
+    "SessionService": "Manages Session lifecycle",
+    "MemoryService":  "Manages long-term Memory storage"
+  },
+  "Backends": {
+    "InMemory":     "Testing — not persistent",
+    "Database":     "SQLite/PostgreSQL via SQLAlchemy",
+    "VertexAI":     "Scalable GCP production"
+  }
+}</div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>Long-Term Memory Types (LangChain)</h3>
+    <p>Three types analogous to human memory: <strong>Semantic</strong> (remembering facts — user profiles, domain knowledge); <strong>Episodic</strong> (remembering experiences — past task sequences, few-shot examples); <strong>Procedural</strong> (remembering rules — agent instructions, system prompts that can self-update via reflection).</p>
+  </div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Practical Use Cases</div>
+  <p class="sec-desc">Memory is essential for agents that must do more than answer a single question.</p>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Chatbots</button>
+    <button class="uc-tab" onclick="showUC(1)">Task Agents</button>
+    <button class="uc-tab" onclick="showUC(2)">Personalization</button>
+    <button class="uc-tab" onclick="showUC(3)">RAG Systems</button>
+    <button class="uc-tab" onclick="showUC(4)">Learning Agents</button>
+    <button class="uc-tab" onclick="showUC(5)">Autonomous Systems</button>
+  </div>
+  <div id="uc-0" class="uc-panel active">
+    <div class="card"><h3>Chatbots and Conversational AI</h3><p>Conversational flow relies on short-term memory to track the ongoing dialogue. Long-term memory enables chatbots to recall user preferences, past issues, and prior discussions — offering personalized, continuous interactions across sessions without the user having to repeat themselves.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Short-term memory maintains the current conversation thread</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>At session start, relevant long-term memories are retrieved</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Agent personalizes responses based on recalled preferences</div></div>
+      <div class="uc-step"><div class="uc-step-num">4</div><div>Session is saved to long-term memory on conclusion</div></div>
+    </div>
+  </div>
+  <div id="uc-1" class="uc-panel">
+    <div class="card"><h3>Task-Oriented Agents</h3><p>Agents managing multi-step tasks need short-term memory to track previous steps, current progress, and overall goals — maintained in session state. Long-term memory is crucial for accessing specific user-related data not in the immediate context: past configurations, previous decisions, domain expertise built up over time.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Session state tracks task progress and intermediate results</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Long-term memory provides historical context and user preferences</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Task completion updates both state and long-term knowledge</div></div>
+    </div>
+  </div>
+  <div id="uc-2" class="uc-panel">
+    <div class="card"><h3>Personalized Experiences</h3><p>Agents offering tailored interactions utilize long-term memory to store and retrieve user preferences, past behaviors, and personal information. This allows agents to adapt responses and suggestions to each individual — transforming generic assistants into truly personal ones.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>User profile stored in long-term memory with user: prefix keys</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Retrieved at session start and injected into context</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Preferences updated incrementally as user behavior evolves</div></div>
+    </div>
+  </div>
+  <div id="uc-3" class="uc-panel">
+    <div class="card"><h3>Retrieval-Augmented Generation (RAG)</h3><p>Agents designed for knowledge-intensive question answering access a knowledge base as their long-term memory. The agent retrieves relevant documents or data using semantic similarity search and integrates retrieved context to produce accurate, grounded responses.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Query is embedded and used for semantic similarity search</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Top-K relevant documents retrieved from vector store</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Retrieved context injected into prompt for grounded generation</div></div>
+    </div>
+  </div>
+  <div id="uc-4" class="uc-panel">
+    <div class="card"><h3>Learning and Self-Improvement</h3><p>Agents can refine performance by storing successful strategies, mistakes, and new information in long-term memory. Reinforcement learning agents store learned strategies this way. The Reflection technique prompts agents to update their own procedural memory (system prompt) based on past performance.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Outcome of each interaction is evaluated</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Successful and failed strategies stored in long-term memory</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Agent reflects and updates its own instructions based on history</div></div>
+    </div>
+  </div>
+  <div id="uc-5" class="uc-panel">
+    <div class="card"><h3>Autonomous Systems</h3><p>Robots and self-driving vehicles require memory for maps, routes, object locations, and learned behaviors. Short-term memory handles the immediate surroundings and current navigation state; long-term memory provides general environmental knowledge and learned safe behaviors.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Sensor data populates short-term situational awareness</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Long-term memory provides maps and learned environment models</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>New experiences update the persistent environmental knowledge base</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Code Examples</div>
+  <p class="sec-desc">Practical memory implementations using Google ADK and LangChain.</p>
+
+  <div class="card"><h3>ADK: Session State via output_key</h3></div>
+<div class="code-block"><span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> LlmAgent
+<span class="code-keyword">from</span> google.adk.sessions <span class="code-keyword">import</span> InMemorySessionService, Session
+<span class="code-keyword">from</span> google.adk.runners <span class="code-keyword">import</span> Runner
+<span class="code-keyword">from</span> google.genai.types <span class="code-keyword">import</span> Content, Part
+
+<span class="code-comment"># Agent saves its final text response to session state automatically</span>
+greeting_agent = LlmAgent(
+    name=<span class="code-string">"Greeter"</span>,
+    model=<span class="code-string">"gemini-2.0-flash"</span>,
+    instruction=<span class="code-string">"Generate a short, friendly greeting."</span>,
+    output_key=<span class="code-string">"last_greeting"</span>  <span class="code-comment"># saved to session.state</span>
+)
+
+app_name, user_id, session_id = <span class="code-string">"state_app"</span>, <span class="code-string">"user1"</span>, <span class="code-string">"session1"</span>
+session_service = InMemorySessionService()
+runner = Runner(
+    agent=greeting_agent,
+    app_name=app_name,
+    session_service=session_service
+)
+session = session_service.create_session(
+    app_name=app_name, user_id=user_id, session_id=session_id
+)
+
+<span class="code-comment"># Run the agent</span>
+user_message = Content(parts=[Part(text=<span class="code-string">"Hello"</span>)])
+<span class="code-keyword">for</span> event <span class="code-keyword">in</span> runner.run(
+    user_id=user_id, session_id=session_id, new_message=user_message
+):
+    <span class="code-keyword">if</span> event.is_final_response():
+        <span class="code-keyword">print</span>(<span class="code-string">"Agent responded."</span>)
+
+<span class="code-comment"># Check state after run — state correctly updated</span>
+updated_session = session_service.get_session(app_name, user_id, session_id)
+<span class="code-keyword">print</span>(f<span class="code-string">"State after run: {updated_session.state}"</span>)</div>
+
+  <div class="card"><h3>LangChain: ConversationBufferMemory with LLMChain</h3></div>
+<div class="code-block"><span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> OpenAI
+<span class="code-keyword">from</span> langchain.chains <span class="code-keyword">import</span> LLMChain
+<span class="code-keyword">from</span> langchain.prompts <span class="code-keyword">import</span> PromptTemplate
+<span class="code-keyword">from</span> langchain.memory <span class="code-keyword">import</span> ConversationBufferMemory
+
+<span class="code-comment"># 1. Define LLM and prompt with {history} placeholder</span>
+llm = OpenAI(temperature=0)
+template = <span class="code-string">"""You are a helpful travel agent.
+
+Previous conversation:
+{history}
+
+New question: {question}
+Response:"""</span>
+prompt = PromptTemplate.from_template(template)
+
+<span class="code-comment"># 2. Configure memory — memory_key matches {history} in prompt</span>
+memory = ConversationBufferMemory(memory_key=<span class="code-string">"history"</span>)
+
+<span class="code-comment"># 3. Build the chain with memory</span>
+conversation = LLMChain(llm=llm, prompt=prompt, memory=memory)
+
+<span class="code-comment"># 4. Multi-turn conversation — history accumulates automatically</span>
+r1 = conversation.predict(question=<span class="code-string">"I want to book a flight."</span>)
+r2 = conversation.predict(question=<span class="code-string">"My name is Sam, by the way."</span>)
+r3 = conversation.predict(question=<span class="code-string">"What was my name again?"</span>)
+<span class="code-keyword">print</span>(r3)  <span class="code-comment"># Agent recalls "Sam" from memory</span></div>
+
+  <div class="card"><h3>ADK: VertexAI RAG Memory Service</h3></div>
+<div class="code-block"><span class="code-keyword">from</span> google.adk.memory <span class="code-keyword">import</span> VertexAiRagMemoryService
+
+<span class="code-comment"># Production-grade persistent semantic memory on GCP</span>
+RAG_CORPUS = <span class="code-string">"projects/my-project/locations/us-central1/ragCorpora/my-corpus"</span>
+SIMILARITY_TOP_K = 5
+VECTOR_DISTANCE_THRESHOLD = 0.7
+
+memory_service = VertexAiRagMemoryService(
+    rag_corpus=RAG_CORPUS,
+    similarity_top_k=SIMILARITY_TOP_K,
+    vector_distance_threshold=VECTOR_DISTANCE_THRESHOLD
+)
+<span class="code-comment"># memory_service.add_session_to_memory(session) → stores session</span>
+<span class="code-comment"># memory_service.search_memory(query) → retrieves relevant memories</span></div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Memory Architecture Deep Dive</div>
+  <p class="sec-desc">From ephemeral context to persistent knowledge — the layers of agent memory. Click each layer to explore.</p>
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--teal-l);color:var(--teal-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Context Window (Working Memory)</div>
+      <div class="ctx-layer-sub">Ephemeral — lost when session ends</div>
+      <div class="ctx-layer-detail">The LLM's context window is the agent's working memory. It holds the current conversation, tool outputs, and agent reflections. With large context models, this can be substantial — but it is always ephemeral. Processing it repeatedly is expensive, making summarization strategies essential for long conversations.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--purple-l);color:var(--purple-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Session State (Scratchpad)</div>
+      <div class="ctx-layer-sub">Turn-scoped key-value store within a session</div>
+      <div class="ctx-layer-detail">Session state is a dictionary of key-value pairs that tracks dynamic data relevant to the active conversation: task progress, conditional flags, intermediate results. It persists across turns within a session but is scoped to that session. Key prefixes (user:, app:, temp:) extend the scope. Always update via append_event — not direct mutation.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--amber-l);color:var(--amber-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Semantic Memory (Facts)</div>
+      <div class="ctx-layer-sub">User profiles, preferences, domain knowledge</div>
+      <div class="ctx-layer-detail">Semantic memory retains specific facts and concepts — user preferences, domain knowledge, entity information. Stored as continuously updated user profiles (JSON documents) or collections of factual documents in a vector store. Retrieved by semantic similarity to inject relevant facts into the context window.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--blue-l);color:var(--blue-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Episodic Memory (Experiences)</div>
+      <div class="ctx-layer-sub">Past interaction sequences and task trajectories</div>
+      <div class="ctx-layer-detail">Episodic memory recalls past events or actions — sequences of interactions that accomplished a task, or failed attempts to avoid. In practice, implemented through few-shot example prompting where an agent learns from past successful interaction sequences. The LangGraph BaseStore enables cross-session episodic memory storage.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--coral-l);color:var(--coral-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Procedural Memory (Rules &amp; Instructions)</div>
+      <div class="ctx-layer-sub">System prompt, behavioral rules — can self-update</div>
+      <div class="ctx-layer-detail">Procedural memory is the agent's core instructions and behavioral rules — often contained in the system prompt. Agents can modify their own prompts to adapt and improve. The Reflection technique prompts an agent with its current instructions and recent interactions, then asks it to generate refined instructions that are stored back to the BaseStore.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4>WHAT</h4>
+      <p>Without a memory mechanism, agents are stateless — unable to maintain conversational context, learn from experience, or personalize responses. This limits them to simple, one-shot interactions.</p>
+    </div>
+    <div class="glance-card" style="background:var(--blue-l);">
+      <h4>WHY</h4>
+      <p>A dual-component memory system distinguishes short-term (context window) from long-term (external vector stores). ADK provides Session + State for short-term and MemoryService for long-term. Together they enable coherent, personalized, and learning agents.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4>WHEN TO USE</h4>
+      <p>Use whenever an agent must do more than answer a single question: multi-turn conversations, multi-step tasks, personalization, learning from feedback, or any scenario where context must persist across turns or sessions.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);">
+      <h4>RULE OF THUMB</h4>
+      <p>Implement memory management when the agent is expected to learn or adapt based on past successes, failures, or newly acquired information — or when user satisfaction depends on remembering who they are.</p>
+    </div>
+  </div>
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">Click each component to see its role in the memory system</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" style="background:var(--blue-l);color:var(--blue-d);" onclick="simClick(0)">Prompt</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(1)">Agent</div>
+      <div class="dia-arrow">↔</div>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(2)">Memory</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d);" onclick="simClick(3)">Output</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d);" onclick="simClick(4)">User</div>
+    </div>
+    <div class="dia-output" id="sim-output">Select a component above to see its role description.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Check</div>
+  <p class="sec-desc">Test your understanding of agent memory management.</p>
+  <div id="quizProgress" class="quiz-progress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>Memory enables agents to maintain history, learn from experience, personalize interactions, and manage complex time-dependent tasks.</li>
+    <li>Short-term memory (the context window) is ephemeral, limited by LLM capacity, and lost when the session ends — but is immediately accessible.</li>
+    <li>Long-term memory persists across sessions using external databases, especially vector stores accessed via semantic search.</li>
+    <li>In Google ADK, the three core memory abstractions are Session (chat thread), State (session scratchpad), and Memory (searchable cross-session repository).</li>
+    <li>State key prefixes define scope: no prefix = session, user: = user-wide, app: = application-wide, temp: = current turn only.</li>
+    <li>Direct mutation of session.state is discouraged — always update via the append_event mechanism to ensure proper persistence and event tracking.</li>
+    <li>Long-term memory has three human-analogous types: Semantic (facts), Episodic (experiences), and Procedural (rules/instructions that can self-update).</li>
+    <li>The Vertex AI Memory Bank and VertexAiRagMemoryService provide production-grade, scalable persistent memory with semantic search capabilities.</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>Google ADK Sessions, State &amp; Memory Documentation — <a href="https://google.github.io/adk-docs/sessions/session/" target="_blank">google.github.io/adk-docs/sessions/</a></li>
+    <li><span class="ref-num">2</span>LangChain Memory Documentation — <a href="https://python.langchain.com/docs/modules/memory/" target="_blank">python.langchain.com/docs/modules/memory/</a></li>
+    <li><span class="ref-num">3</span>LangGraph Memory (Long-Term) — <a href="https://langchain-ai.github.io/langgraph/concepts/memory/" target="_blank">langchain-ai.github.io/langgraph/concepts/memory/</a></li>
+    <li><span class="ref-num">4</span>Vertex AI Memory Bank — <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/memory-bank" target="_blank">cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/memory-bank</a></li>
+    <li><span class="ref-num">5</span>Retrieval Augmented Generation Overview — <a href="https://cloud.google.com/use-cases/retrieval-augmented-generation" target="_blank">cloud.google.com/use-cases/retrieval-augmented-generation</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>Agentic Design Patterns — Chapter 8: Memory Management</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  'Prompt: The user\'s input enters the system and is combined with retrieved long-term memories. The combined context — current prompt + relevant past knowledge — is passed to the agent for processing.',
+  'Agent: Processes the enriched context using the LLM. During processing, it can read from and write to memory: storing new information, updating state, and using retrieved facts to ground its response.',
+  'Memory: The persistent storage layer. Bidirectional: the agent reads relevant past knowledge via semantic search before responding, and writes new information back after each interaction for future retrieval.',
+  'Output: The agent\'s response, generated using both the current prompt and recalled long-term context. Richer than a stateless response because it incorporates personalized, persistent knowledge.',
+  'User: Receives a response that feels continuous, personalized, and context-aware — as if the agent genuinely remembers them. This creates a fundamentally better user experience than stateless interactions.'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: 'What is the key difference between short-term and long-term memory in agent systems?',
+    opts: [
+      'Short-term is stored in a database; long-term lives in the context window',
+      'Short-term is ephemeral within the context window; long-term persists in external storage across sessions',
+      'Short-term is for facts; long-term is for conversation history',
+      'They are functionally identical — just different naming conventions'
+    ],
+    ans: 1,
+    ok: 'Correct! Short-term memory is the ephemeral context window — it\'s lost when the session ends. Long-term memory persists in external storage (vector databases etc.) across multiple sessions.',
+    no: 'Short-term (context window) is ephemeral and lost when the session ends. Long-term memory persists in external databases across sessions.'
+  },
+  {
+    q: 'In Google ADK, what does the "temp:" key prefix in session state signify?',
+    opts: [
+      'Data is compressed to save space',
+      'Data is shared across all users of the application',
+      'Data is only valid for the current processing turn and is never persisted',
+      'Data is encrypted for security'
+    ],
+    ans: 2,
+    ok: 'Correct! The "temp:" prefix indicates data that is only valid for the current processing turn and is not persisted by the SessionService — it\'s purely transient.',
+    no: 'The "temp:" prefix means the data is only valid for the current processing turn and is never persisted by the SessionService.'
+  },
+  {
+    q: 'Which type of long-term memory stores the agent\'s behavioral rules and system prompt, and can self-update through reflection?',
+    opts: [
+      'Semantic memory',
+      'Episodic memory',
+      'Declarative memory',
+      'Procedural memory'
+    ],
+    ans: 3,
+    ok: 'Correct! Procedural memory is the memory of how to perform tasks — the agent\'s core instructions in its system prompt. The Reflection technique allows agents to update their own procedural memory based on experience.',
+    no: 'Procedural memory contains the agent\'s behavioral rules and system instructions. The Reflection technique enables agents to update their procedural memory by analyzing recent performance.'
+  },
+  {
+    q: 'Why is direct mutation of session.state strongly discouraged in Google ADK?',
+    opts: [
+      'It makes the code longer',
+      'It bypasses event processing, won\'t be recorded in history, may not persist, and can cause concurrency issues',
+      'The ADK framework blocks direct mutation with exceptions',
+      'It only works with InMemorySessionService'
+    ],
+    ans: 1,
+    ok: 'Correct! Direct mutation bypasses the standard event processing mechanism — changes won\'t be in the event history, may not persist, could cause concurrency issues, and won\'t update essential metadata like timestamps.',
+    no: 'Direct mutation of session.state bypasses event processing: changes are not recorded in session history, may not be persisted, can cause concurrency issues, and won\'t update timestamps.'
+  },
+  {
+    q: 'What is the primary purpose of the MemoryService in Google ADK?',
+    opts: [
+      'Managing the LLM\'s context window size',
+      'Providing a searchable cross-session knowledge repository for long-term memory',
+      'Handling user authentication and session security',
+      'Compressing conversation history to reduce token count'
+    ],
+    ans: 1,
+    ok: 'Correct! The MemoryService manages long-term knowledge storage: add_session_to_memory ingests sessions, and search_memory retrieves relevant past knowledge for the current context — enabling cross-session continuity.',
+    no: 'The MemoryService provides a searchable repository of long-term knowledge sourced from past sessions. It supports add_session_to_memory (store) and search_memory (retrieve) operations.'
+  },
+  {
+    q: 'In LangChain, which class enables automated conversation history management within a chain by holding a buffer of the conversation?',
+    opts: [
+      'ChatMessageHistory',
+      'ConversationBufferMemory',
+      'VectorStoreRetriever',
+      'SessionStateManager'
+    ],
+    ans: 1,
+    ok: 'Correct! ConversationBufferMemory integrates directly into LangChain chains and automatically manages the conversation buffer, making history available to the prompt through the specified memory_key variable.',
+    no: 'ConversationBufferMemory holds a buffer of conversation history and makes it available to chains through the memory_key variable in the prompt template.'
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

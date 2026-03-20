@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>术语表 — 智能体设计模式</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.term-card { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 10px; border: 0.5px solid var(--border); border-left: 3px solid var(--teal); }
+.term-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.term-def { font-size: 13px; color: var(--text2); line-height: 1.8; }
+.term-meta { font-size: 11px; color: var(--text3); margin-top: 6px; letter-spacing: 0.5px; }
+.cat-header { font-size: 12px; font-weight: 500; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 0.5px solid var(--border2); }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+.qr-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 1rem 0; }
+.qr-table th { text-align: left; padding: 10px 14px; background: var(--bg3); font-weight: 500; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); }
+.qr-table td { padding: 10px 14px; border-bottom: 0.5px solid var(--border); vertical-align: top; color: var(--text2); line-height: 1.6; }
+.qr-table td:first-child { font-weight: 500; color: var(--text); white-space: nowrap; }
+.qr-table tr:last-child td { border-bottom: none; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+
+<div class="chapter-tag">术语表</div>
+<h1>术语表</h1>
+<p class="subtitle">《智能体设计模式》全书涉及的关键概念、架构和技术定义。按类别组织，便于导航查阅。</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">概览</button>
+  <button class="nav-btn" onclick="go('problem')">术语的重要性</button>
+  <button class="nav-btn" onclick="go('solution')">使用说明</button>
+  <button class="nav-btn" onclick="go('concepts')">核心术语（A–F）</button>
+  <button class="nav-btn" onclick="go('usecases')">情境术语（G–L）</button>
+  <button class="nav-btn" onclick="go('code')">技术术语（M–R）</button>
+  <button class="nav-btn" onclick="go('deepdive')">进阶术语（S–Z）</button>
+  <button class="nav-btn" onclick="go('glance')">快速参考</button>
+  <button class="nav-btn" onclick="go('quiz')">术语测验</button>
+  <button class="nav-btn" onclick="go('takeaways')">关键定义</button>
+  <button class="nav-btn" onclick="go('refs')">延伸阅读</button>
+</nav>
+
+<!-- 1. 概览 -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">术语类别概览</div>
+  <div class="sec-desc">本术语表涵盖理解和构建智能体 AI 系统所必需的五大术语领域。</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">术语总数</div><div class="metric-value">35+</div></div>
+    <div class="metric"><div class="metric-label">类别数量</div><div class="metric-value">5</div></div>
+    <div class="metric"><div class="metric-label">架构类型</div><div class="metric-value">6</div></div>
+    <div class="metric"><div class="metric-label">训练技术</div><div class="metric-value">8</div></div>
+  </div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="border-top:3px solid var(--teal);">
+      <h4>基础概念</h4>
+      <p>提示（Prompt）、上下文窗口、情境学习、零/一/少样本提示、多模态、接地（Grounding）</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--blue);">
+      <h4>核心 AI 架构</h4>
+      <p>Transformer、循环神经网络（RNN）、专家混合（MoE）、扩散模型、Mamba（SSM）</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--coral);">
+      <h4>LLM 开发生命周期</h4>
+      <p>预训练、微调、对齐（RLHF、DPO、KTO）、参数高效微调（PEFT）、LoRA、QLoRA、SFT</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--purple);">
+      <h4>AI 智能体能力</h4>
+      <p>思维链（CoT）、思维树（ToT）、ReAct、规划、深度研究、评论模型（Critique Model）、RAG</p>
+    </div>
+  </div>
+</div>
+
+<!-- 2. 术语的重要性 -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">为什么术语很重要</div>
+  <div class="sec-desc">精确的术语是智能体 AI 中有效沟通和系统设计的基础。</div>
+
+  <div class="card card-bordered">
+    <h3>词汇问题</h3>
+    <p>智能体 AI 涉及多个学科：机器学习、软件架构、认知科学和分布式系统。没有精确的共同词汇，团队在需求上会产生误解，工程师会实现错误的模式，研究人员会各说各话。本术语表建立了全书使用的共同语言。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>含义重叠的术语</h3>
+    <p>AI 中的许多术语根据上下文有多种含义。"智能体"（Agent）可以指强化学习中的行动者、软件智能体，或基于 LLM 的自主系统。"记忆"（Memory）可以指 GPU 内存、上下文窗口容量，或对话历史的持久存储。本术语表在智能体设计模式的上下文中精确定义每个术语。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>快速演变的语言</h3>
+    <p>该领域发展迅速。新术语每月涌现（MCP、A2A、SICA、RLVR）。扎根于稳定的基础词汇使你更容易理解新术语——因为新概念几乎总是建立在已有概念之上。</p>
+  </div>
+</div>
+
+<!-- 3. 使用说明 -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">如何使用本术语表</div>
+  <div class="sec-desc">本术语表设计为主要章节的参考伴侣，而非独立阅读材料。</div>
+
+  <div class="card card-bordered">
+    <h3>按章节导航</h3>
+    <p>术语在五个章节内按字母顺序组织：核心术语（A–F）、情境术语（G–L）、技术术语（M–R）和进阶术语（S–Z）。使用上方导航栏直接跳到相关章节。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>章节交叉参考</h3>
+    <p>每个术语都包含"参见"注释，指向该概念在实践中应用的章节。例如，"RAG → 第 14 章：知识检索"表示检索增强生成在第 14 章中通过代码示例进行了深入探讨。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>术语表与索引的区别</h3>
+    <p>本术语表提供概念的定义。术语索引（单独章节）将每个术语映射到其在书中的章节位置，以便快速查找。使用术语表了解术语的含义；使用索引查找它在书中出现的位置。</p>
+  </div>
+</div>
+
+<!-- 4. 核心术语 A-F -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">核心术语：A–F</div>
+  <div class="sec-desc">支撑整个智能体 AI 领域的基础概念。</div>
+
+  <div class="cat-header">基础概念</div>
+
+  <div class="term-card">
+    <div class="term-name">提示（Prompt）</div>
+    <div class="term-def">用户向 AI 模型提供的输入，通常以问题、指令或陈述的形式呈现，用于引发响应。提示的质量和结构对模型的输出有深远影响，使提示工程成为有效使用 AI 的关键技能。</div>
+    <div class="term-meta">参见：附录 A（高级提示技术）· 术语表</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--blue);">
+    <div class="term-name">上下文窗口（Context Window）</div>
+    <div class="term-def">AI 模型一次可以处理的最大令牌（token）数量，包括输入和生成的输出。这个固定大小是一个关键限制——窗口外的信息会被忽略——而更大的窗口则支持更复杂的对话和文档分析。</div>
+    <div class="term-meta">参见：第 1 章（提示链）· 第 8 章（记忆管理）· 术语表</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--purple);">
+    <div class="term-name">情境学习（In-Context Learning）</div>
+    <div class="term-def">AI 从直接在提示中提供的示例中学习新任务的能力，无需任何重新训练。这一强大功能允许单个通用模型即时适应无数特定任务。</div>
+    <div class="term-meta">参见：附录 A · 术语表</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--coral);">
+    <div class="term-name">零样本、单样本和少样本提示（Zero/One/Few-Shot Prompting）</div>
+    <div class="term-def">给模型提供零个、一个或几个任务示例以引导其响应的提示技术。通常提供更多示例有助于模型更好地理解用户意图，并提高特定任务的准确性。</div>
+    <div class="term-meta">参见：附录 A · 第 9 章（学习与适应）· 术语表</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--amber);">
+    <div class="term-name">微调（Fine-tuning）</div>
+    <div class="term-def">使用较小的专业数据集将通用预训练模型适配到特定任务的过程。最常见的方法是监督式微调（SFT），其中模型在正确输入-输出对的标注示例上进行训练。指令调优专门关注训练模型更好地遵循用户命令。</div>
+    <div class="term-meta">参见：第 9 章（学习与适应）· 术语表</div>
+  </div>
+
+  <div class="cat-header" style="margin-top:24px;">智能体专用术语（A–F）</div>
+
+  <div class="term-card">
+    <div class="term-name">智能体轨迹（Agent Trajectory）</div>
+    <div class="term-def">智能体执行任务时所有步骤的完整日志——包括其所有思考、行动（工具调用）和观察。分析轨迹是调试和理解智能体行为的关键部分，是第 19 章中的主要评估工件。</div>
+    <div class="term-meta">参见：第 19 章（评估与监控）</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--coral);">
+    <div class="term-name">评论模型（Critique Model）</div>
+    <div class="term-def">专门训练用于审查、评估另一个 AI 模型输出并提供反馈的 AI 模型。它充当自动化评论家，帮助识别错误、改进推理，并确保最终输出达到所需质量标准。是反思模式的核心。</div>
+    <div class="term-meta">参见：第 4 章（反思）· 术语表</div>
+  </div>
+</div>
+
+<!-- 5. 情境术语 G-L -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">情境术语：G–L</div>
+  <div class="sec-desc">与智能体如何与数据、知识和环境交互相关的术语。</div>
+
+  <div class="term-card">
+    <div class="term-name">接地（Grounding）</div>
+    <div class="term-def">将模型输出连接到可验证的真实世界信息来源以确保事实准确性并减少幻觉的过程。通常通过 RAG 等技术实现，使 AI 系统更值得信赖。</div>
+    <div class="term-meta">参见：第 14 章（知识检索）· 术语表</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--blue);">
+    <div class="term-name">幻觉（Hallucination）</div>
+    <div class="term-def">当 AI 模型以高度自信生成事实上不正确、捏造或其输入上下文不支持的信息时。幻觉是接地（RAG）、反思和自我修正模式旨在缓解的主要失败模式之一。</div>
+    <div class="term-meta">参见：第 4 章（反思）· 第 14 章（RAG）</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--purple);">
+    <div class="term-name">人机协同（Human-in-the-Loop, HITL）</div>
+    <div class="term-def">将人工监督和交互集成到智能体工作流中的设计模式。智能体在关键节点暂停以寻求人类反馈、审批、澄清或指导——而不是完全自主运行。</div>
+    <div class="term-meta">参见：第 13 章（人机协同）</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--amber);">
+    <div class="term-name">知识检索 / RAG（检索增强生成）</div>
+    <div class="term-def">在推理时将 LLM 连接到外部知识源来增强其能力的技术。智能体嵌入查询，从向量数据库中检索相关文档块，并将它们包含在提示上下文中。这将响应扎根于权威的当前信息中。</div>
+    <div class="term-meta">参见：第 14 章（知识检索）· 第 8 章（记忆管理）· 术语表</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--green);">
+    <div class="term-name">LangChain / LangGraph</div>
+    <div class="term-def">LangChain 是提供工具和抽象以链接 LLM、提示、工具和数据源的框架。LangGraph 是其用于构建有状态、基于图的智能体工作流的扩展，其中节点代表智能体步骤，边代表步骤间的条件转换。</div>
+    <div class="term-meta">参见：第 1–8 章（代码示例主要框架）· 附录 C</div>
+  </div>
+</div>
+
+<!-- 6. 技术术语 M-R -->
+<div id="sec-code" class="section">
+  <div class="sec-title">技术术语：M–R</div>
+  <div class="sec-desc">涵盖模型架构、训练方法和智能体框架的技术概念。</div>
+
+  <div class="cat-header">模型架构</div>
+
+  <div class="term-card">
+    <div class="term-name">Transformer（变换器）</div>
+    <div class="term-def">大多数现代 LLM 的基础神经网络架构。其关键创新是自注意力机制，能够高效处理长文本序列并捕捉词语间的复杂关系。几乎所有最先进的语言模型（GPT、Gemini、Claude、Llama）都基于 Transformer。</div>
+    <div class="term-meta">参见：术语表 · 附录 F（内部机制）</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--purple);">
+    <div class="term-name">专家混合模型（Mixture of Experts, MoE）</div>
+    <div class="term-def">一种高效模型架构，其中"路由器"网络动态选择一小部分"专家"网络来处理任意给定输入。这使模型能够拥有大量参数，同时保持可管理的计算成本——实现规模化而不需要相应比例的成本增加。</div>
+    <div class="term-meta">参见：术语表 · 附录 F</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--coral);">
+    <div class="term-name">Mamba（选择性状态空间模型）</div>
+    <div class="term-def">使用选择性状态空间模型（SSM）高效处理序列的近期 AI 架构，尤其适合非常长的上下文。其选择性机制能够关注相关信息同时过滤噪声，使其成为某些任务中 Transformer 架构的潜在替代方案。</div>
+    <div class="term-meta">参见：术语表</div>
+  </div>
+
+  <div class="cat-header" style="margin-top:24px;">训练与微调技术</div>
+
+  <div class="term-card">
+    <div class="term-name">参数高效微调（PEFT）</div>
+    <div class="term-def">在只更新少量参数的情况下将预训练模型适配到特定任务的方法。与全量微调相比，这极大降低了计算成本。关键的 PEFT 技术包括 LoRA（低秩自适应）、QLoRA（内存高效 LoRA）和前缀调优。</div>
+    <div class="term-meta">参见：术语表 · 第 9 章（学习与适应）</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--blue);">
+    <div class="term-name">基于人类反馈的强化学习（RLHF）</div>
+    <div class="term-def">最突出的对齐技术。在人类偏好数据上训练的"奖励模型"指导 AI 的学习过程，通常使用近端策略优化（PPO）算法。更简单的替代方案包括 DPO（直接偏好优化，绕过单独奖励模型）和 KTO（卡尼曼-特沃斯基优化，进一步简化数据收集）。</div>
+    <div class="term-meta">参见：术语表 · 第 9 章（学习与适应）</div>
+  </div>
+
+  <div class="cat-header" style="margin-top:24px;">智能体框架与协议</div>
+
+  <div class="term-card">
+    <div class="term-name">模型上下文协议（MCP）</div>
+    <div class="term-def">由 Anthropic 开发的新兴标准，规范智能体和工具之间的信息交换方式。MCP 定义了标准化的工具发现、调用和响应格式——使智能体能够使用未明确编程的工具，并支持"智能体生态系统"愿景。</div>
+    <div class="term-meta">参见：第 10 章（模型上下文协议）· 索引</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--purple);">
+    <div class="term-name">ReAct（推理与行动）</div>
+    <div class="term-def">在循环中结合推理和行动的智能体框架：<strong>思考</strong>（推理应该做什么）→ <strong>行动</strong>（使用工具）→ <strong>观察</strong>（查看结果）→ 重复直到完成。ReAct 是全书工具使用和规划模式的基础。</div>
+    <div class="term-meta">参见：第 5 章（工具使用）· 第 17 章（推理技术）· 附录 A · 术语表</div>
+  </div>
+</div>
+
+<!-- 7. 进阶术语 S-Z -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">进阶术语：S–Z</div>
+  <div class="sec-desc">用于生产级智能体系统和前沿研究领域的高级概念。</div>
+
+  <div class="term-card">
+    <div class="term-name">自我一致性（Self-Consistency）</div>
+    <div class="term-def">一种提示技术，模型为同一问题生成多条独立推理路径，并通过多数投票选择最一致的答案。通过利用模型输出的多样性提高复杂推理任务的准确性。</div>
+    <div class="term-meta">参见：附录 A · 第 17 章（推理技术）</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--blue);">
+    <div class="term-name">自改进编码智能体（SICA）</div>
+    <div class="term-def">智能体自主编写、执行和评估代码，并使用结果迭代改进自身代码库或生成代码的智能体架构。代表了应用于软件开发的学习与适应模式。</div>
+    <div class="term-meta">参见：第 9 章（学习与适应）</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--purple);">
+    <div class="term-name">思维树（Tree of Thoughts, ToT）</div>
+    <div class="term-def">智能体同时探索多条推理路径（如树枝般）的高级推理框架。智能体自我评估不同的思维路线并选择最有前途的一条，使其在复杂问题解决方面比线性思维链更有效。</div>
+    <div class="term-meta">参见：第 17 章（推理技术）· 附录 A · 术语表</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--coral);">
+    <div class="term-name">思维链（Chain of Thought, CoT）</div>
+    <div class="term-def">鼓励模型在给出最终答案前逐步解释其推理过程的提示技术。这种"大声思考"的过程通过使中间推理明确且可检验，通常在复杂推理任务上产生更准确的结果。</div>
+    <div class="term-meta">参见：第 17 章（推理技术）· 附录 A · 术语表</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--amber);">
+    <div class="term-name">深度研究（Deep Research）</div>
+    <div class="term-def">智能体通过迭代搜索信息、综合发现并识别新问题来自主深入探索主题的能力。使智能体能够建立远超单次搜索查询所能提供的全面理解。</div>
+    <div class="term-meta">参见：第 6 章（规划）· 第 17 章（推理技术）· 术语表</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--green);">
+    <div class="term-name">具有可验证奖励的强化学习（RLVR）</div>
+    <div class="term-def">奖励信号来自可验证的真实反馈而非人类偏好的训练方法。对于数学推理、编程和其他可自动验证正确性的领域尤为强大——在智能体训练中实现规模律。</div>
+    <div class="term-meta">参见：第 17 章（推理技术）</div>
+  </div>
+</div>
+
+<!-- 8. 快速参考 -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">快速参考表</div>
+  <div class="sec-desc">最常用术语及其单行定义的简洁参考。</div>
+
+  <table class="qr-table">
+    <tr><th>术语</th><th>单行定义</th><th>章节</th></tr>
+    <tr><td>提示（Prompt）</td><td>向 AI 模型提供用于引发响应的输入</td><td>附录 A</td></tr>
+    <tr><td>上下文窗口</td><td>LLM 一次可处理的最大令牌数</td><td>第1、8章</td></tr>
+    <tr><td>RAG</td><td>通过外部知识检索增强 LLM</td><td>第14章</td></tr>
+    <tr><td>ReAct</td><td>思考→行动→观察的智能体循环</td><td>第5章</td></tr>
+    <tr><td>思维链（CoT）</td><td>提示模型逐步推理</td><td>第17章</td></tr>
+    <tr><td>思维树（ToT）</td><td>像树形结构一样探索多条推理路径</td><td>第17章</td></tr>
+    <tr><td>人机协同（HITL）</td><td>将人工监督集成到智能体工作流</td><td>第13章</td></tr>
+    <tr><td>MCP</td><td>智能体工具通信的标准化协议</td><td>第10章</td></tr>
+    <tr><td>A2A</td><td>智能体间通信协议</td><td>第15章</td></tr>
+    <tr><td>RLHF</td><td>通过人类偏好奖励模型进行对齐</td><td>术语表</td></tr>
+    <tr><td>LoRA</td><td>通过低秩矩阵进行参数高效微调</td><td>术语表</td></tr>
+    <tr><td>轨迹（Trajectory）</td><td>智能体思考、行动、观察的完整日志</td><td>第19章</td></tr>
+    <tr><td>接地（Grounding）</td><td>将模型输出连接到可验证的真实信息源</td><td>第14章</td></tr>
+    <tr><td>规划（Planning）</td><td>将目标分解为可行步骤序列</td><td>第6章</td></tr>
+    <tr><td>深度研究</td><td>迭代自主深入探索一个主题</td><td>第6、17章</td></tr>
+  </table>
+</div>
+
+<!-- 9. 术语测验 -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">术语测验</div>
+  <div class="sec-desc">将正确定义与每个术语匹配。</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. 关键定义 -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">需要记住的关键定义</div>
+  <div class="sec-desc">贯穿全书反复出现的最重要术语。</div>
+  <ul class="tk-list">
+    <li><strong>上下文窗口</strong> — LLM 一次能"看到"的硬性限制。超出范围的内容对模型是不可见的。这一单一约束驱动了记忆管理和 RAG 模式的设计。</li>
+    <li><strong>接地（Grounding）</strong> — 将 AI 输出连接到可验证的事实。没有接地，智能体就会产生幻觉。RAG、工具使用和反思都以不同方式为接地做出贡献。</li>
+    <li><strong>ReAct（推理与行动）</strong> — 现代智能体的基础循环：思考→行动→观察→重复。大多数工具使用和规划实现都明确遵循这一模式。</li>
+    <li><strong>RLHF</strong> — 大多数生产级 LLM 与人类价值观对齐的方式。理解这一点可以解释为什么模型会拒绝某些请求，具有某些默认行为，以及针对特定智能体角色的微调是如何工作的。</li>
+    <li><strong>轨迹（Trajectory）</strong> — 智能体所做一切的审计追踪。对于调试、评估和建立对自主系统的信任至关重要。在生产智能体中始终记录轨迹。</li>
+    <li><strong>MCP（模型上下文协议）</strong> — 智能体发现和使用工具方式的新兴标准。理解 MCP 对于构建能够与不断扩展的服务生态系统集成的智能体至关重要。</li>
+  </ul>
+</div>
+
+<!-- 11. 延伸阅读 -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">延伸阅读</div>
+  <div class="sec-desc">深入理解本术语表所定义概念的推荐资源。</div>
+  <ul class="ref-list">
+    <li><span style="font-weight:500;color:var(--text3);margin-right:8px;">[1]</span> Vaswani 等（2017年）《Attention Is All You Need》——原始 Transformer 论文，是理解所有现代 LLM 底层架构的基础。</li>
+    <li><span style="font-weight:500;color:var(--text3);margin-right:8px;">[2]</span> Yao 等（2022年）《ReAct: 在语言模型中协同推理与行动》——定义了思考-行动-观察循环。</li>
+    <li><span style="font-weight:500;color:var(--text3);margin-right:8px;">[3]</span> Wei 等（2022年）《思维链提示引发大语言模型中的推理》——CoT 提示的奠基性论文。</li>
+    <li><span style="font-weight:500;color:var(--text3);margin-right:8px;">[4]</span> Yao 等（2023年）《思维树：使用大语言模型进行深思熟虑的问题解决》——ToT 框架。</li>
+    <li><span style="font-weight:500;color:var(--text3);margin-right:8px;">[5]</span> 模型上下文协议规范 — Anthropic（2024年）。官方 MCP 规范和文档。</li>
+    <li><span style="font-weight:500;color:var(--text3);margin-right:8px;">[6]</span> 本书附录 F：《深入了解智能体的推理引擎》——对驱动智能体的 Transformer 架构的深度剖析。</li>
+  </ul>
+</div>
+
+<div class="footer"><p>智能体设计模式 — 术语表</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [];
+function simClick(i) {}
+const quizData = [
+  { q: '哪个术语描述了 LLM 一次可处理的最大令牌数量（包括输入和输出）？', opts: ['嵌入维度', '上下文窗口', '注意力范围', '令牌限制'], ans: 1, ok: '正确！上下文窗口是 LLM 一次能"看到"的固定大小限制。超出此限制的信息对模型不可见，使其成为驱动记忆管理和 RAG 模式设计的关键约束。', no: '不对。上下文窗口是描述 LLM 一次可处理的最大令牌数（输入和输出合计）的正确术语。' },
+  { q: 'RAG 代表什么，它解决什么问题？', opts: ['循环智能体图（Recurrent Agent Graph）——实现多步骤工作流', '检索增强生成（Retrieval-Augmented Generation）——将 LLM 扎根于外部当前知识以减少幻觉', '推理与生成（Reasoning and Generation）——结合思考与输出产生', '角色分配指导（Role-Assigned Guidance）——给智能体分配特定角色'], ans: 1, ok: '正确！检索增强生成在推理时将 LLM 连接到外部知识源，使其能够提供超越训练数据的准确、当前和可验证的答案。', no: '不对。RAG 代表检索增强生成——它将 LLM 扎根于外部当前知识源以减少幻觉并提供最新信息。' },
+  { q: '在 ReAct 框架中，智能体循环的三个步骤是什么？', opts: ['读取、分析、得出结论', '推理、调整、完成', '思考、行动、观察', '规划、执行、审查'], ans: 2, ok: '正确！ReAct（推理与行动）使用思考→行动→观察循环。智能体思考应该做什么，采取行动（通常是工具调用），观察结果，然后重复直到任务完成。', no: '不对。ReAct 循环是：思考（推理应该做什么）→ 行动（使用工具）→ 观察（查看结果）。这个循环重复直到任务完成。' },
+  { q: '什么是 RLHF，它解决什么问题？', opts: ['循环语言混合框架（Recurrent Language Hybrid Framework）——一种模型架构类型', '基于人类反馈的强化学习（Reinforcement Learning from Human Feedback）——使 AI 行为与人类价值观和偏好对齐', '基于历史事实的检索学习——将模型扎根于历史数据', '高频率快速学习——加速训练速度'], ans: 1, ok: '正确！RLHF（基于人类反馈的强化学习）是使 LLM 与人类价值观对齐的主要技术。在人类偏好数据上训练的奖励模型指导 AI 的学习，使输出更有帮助且更安全。', no: '不对。RLHF 代表基于人类反馈的强化学习——通过在人类偏好数据上训练奖励模型来指导 LLM 的学习，使 AI 行为与人类价值观对齐。' },
+  { q: '思维树（ToT）与标准思维链（CoT）提示有何区别？', opts: ['CoT 更旧；ToT 更新——它们在其他方面是等效的', 'ToT 同时探索多条推理路径（如树枝），而 CoT 遵循单一线性推理路径', 'CoT 使用代码；ToT 使用自然语言', 'ToT 需要多个模型；CoT 使用一个'], ans: 1, ok: '正确！思维链遵循单一线性逐步推理路径。思维树并行探索多条候选推理路径，评估它们并选择最有前途的分支——比线性思维链更有效地解决复杂问题。', no: '不对。ToT 同时探索多条推理分支并自我评估以选择最佳路径，而 CoT 遵循单一线性推理链。' }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">第 ' + (curQ+1) + ' 题 / 共 ' + quizData.length + ' 题</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">下一题</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">查看核心要点</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

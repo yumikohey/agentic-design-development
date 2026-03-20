@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appendix D: Building an Agent with AgentSpace — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: system-ui, -apple-system, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--teal); }
+.fail-card:nth-child(2)::before { background: var(--purple); }
+.fail-card:nth-child(3)::before { background: var(--coral); }
+.fail-card:nth-child(4)::before { background: var(--amber); }
+.fail-card:nth-child(5)::before { background: var(--blue); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Appendix D</div>
+<h1>Building an Agent with AgentSpace</h1>
+<p class="subtitle">AgentSpace is Google's enterprise AI platform that unifies search, knowledge graphs, and no-code agent creation — enabling organizations to deploy autonomous AI agents without deep programming expertise.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Platform Overview</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Platform</div><div class="metric-value">AgentSpace</div></div>
+    <div class="metric"><div class="metric-label">AI Model</div><div class="metric-value">Gemini</div></div>
+    <div class="metric"><div class="metric-label">Interface</div><div class="metric-value">No-Code</div></div>
+    <div class="metric"><div class="metric-label">Protocol</div><div class="metric-value">A2A</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>What is AgentSpace?</h3>
+    <p>AgentSpace is a platform designed to facilitate an "agent-driven enterprise" by integrating artificial intelligence into daily workflows. At its core, it provides unified search across an organization's entire digital footprint — documents, emails, and databases — using Google's Gemini models to comprehend and synthesize information from varied sources.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Beyond Simple Chatbots</h3>
+    <p>The platform enables the creation and deployment of specialized AI agents that can perform complex tasks and automate processes. These agents are not merely chatbots — they can reason, plan, and execute multi-step actions autonomously. For instance, an agent could research a topic, compile a report with citations, and even generate an audio summary.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Enterprise Knowledge Graph</h3>
+    <p>AgentSpace constructs an enterprise knowledge graph, mapping the relationships between people, documents, and data. This allows the AI to understand context and deliver more relevant and personalized results. The platform also includes a no-code interface called Agent Designer for creating custom agents without requiring deep technical expertise.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Multi-Agent Collaboration via A2A</h3>
+    <p>AgentSpace supports a multi-agent system where different AI agents can communicate and collaborate through an open protocol known as the Agent2Agent (A2A) Protocol. This interoperability allows for more complex and orchestrated workflows. Security is foundational, with role-based access controls and data encryption to protect sensitive enterprise information.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">The Enterprise AI Problem</div>
+  <div class="sec-desc">Before platforms like AgentSpace, enterprises faced significant barriers to deploying AI agents at scale. Click each card to explore the challenges:</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Fragmented Information</h4>
+      <p>Data siloed across systems</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Enterprise data lives in email, docs, databases, and SaaS tools with no unified access layer. AI models could not search across these sources coherently, limiting the quality of automated workflows.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>High Technical Barrier</h4>
+      <p>Requires deep engineering expertise</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Building AI agents historically required significant programming knowledge. Most business users and domain experts were excluded from creating the agents they needed, slowing adoption.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>No Context Awareness</h4>
+      <p>Agents lack organizational knowledge</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Generic AI models have no understanding of an organization's specific people, projects, relationships, or history. Without a knowledge graph, outputs were generic rather than contextually precise.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Agent Isolation</h4>
+      <p>Agents cannot collaborate</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Individual AI tools operated in isolation. Without a standard protocol for agent-to-agent communication, complex multi-step tasks requiring multiple specialized agents were impossible to orchestrate.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Security Concerns</h4>
+      <p>Enterprise data exposure risks</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Connecting AI systems to sensitive enterprise data raised concerns about access control, data leakage, and compliance. Without role-based permissions baked in, widespread deployment was risky.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">AgentSpace as the Solution</div>
+  <div class="sec-desc">AgentSpace addresses enterprise AI challenges through a layered architecture. Click each step to explore how it works:</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Access via Google Cloud Console</div>
+          <div class="chain-role">Entry Point: AI Applications</div>
+        </div>
+      </div>
+      <div class="chain-detail">Navigate to the Google Cloud Console and select "AI Applications" to access AgentSpace. You'll choose between creating an Agentspace app (enterprise search + assistant) or a Custom search app. The Agentspace option is powered by Gemini and allows employees to find answers across vast company data and execute tasks with connected apps.</div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Connect Services</div>
+          <div class="chain-role">Integrations: Google + Third-Party</div>
+        </div>
+      </div>
+      <div class="chain-detail">Connect your agent to a wide range of services. Google-native sources include Calendar and Gmail. Third-party sources include Workday, Jira, Outlook, and ServiceNow. These connections give your agent real-time access to the tools your organization already uses, enabling it to take actions like creating tickets, drafting emails, or booking time off.</div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div>
+          <div class="chain-title">Configure Prompts</div>
+          <div class="chain-role">Prompt Gallery or Custom Prompts</div>
+        </div>
+      </div>
+      <div class="chain-detail">Choose from Google's gallery of pre-assembled prompts (e.g., goog_deep_research, goog_create_jira_ticket, goog_generate_code) or create your own custom prompt. Custom prompts include a Name, Display Name, Title, Description, Prompt Type, User Query text, and Activation Behavior. This defines how your agent interprets and responds to user requests.</div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--blue);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">4</div>
+        <div>
+          <div class="chain-title">Enable Advanced Features</div>
+          <div class="chain-role">Knowledge Graph, Analytics, Web UI</div>
+        </div>
+      </div>
+      <div class="chain-detail">Configure advanced capabilities: enable the Google Cloud Knowledge Graph to expand search results with external data sources; enable a Private Knowledge Graph that leverages internal organizational data for contextually accurate query annotations (may take up to 24 hours to regenerate). Add connected datastores, enable the web-facing interface, and set up analytics to monitor usage.</div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--green);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--green-l);color:var(--green-d);">5</div>
+        <div>
+          <div class="chain-title">Deploy and Chat</div>
+          <div class="chain-role">Live Agent Interface</div>
+        </div>
+      </div>
+      <div class="chain-detail">Upon completion, the AgentSpace chat interface becomes accessible. Users can search data, ask questions, and interact with the agent through a clean conversational UI branded as "Google Agentspace." The agent can reference multiple sources in responses and users can attach sources directly in the chat input.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+  <div class="sec-desc">AgentSpace is built on several foundational concepts that distinguish it from simpler AI tools. Click each layer to explore:</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);color:var(--teal-d);border-color:var(--teal);">
+      <div class="ctx-layer-title">Enterprise Knowledge Graph</div>
+      <div class="ctx-layer-sub">Maps relationships between people, documents, and data</div>
+      <div class="ctx-layer-detail">The knowledge graph is the intelligence layer that gives AgentSpace its contextual awareness. It maps relationships across an organization's digital assets — who knows whom, which documents relate to which projects, which data belongs to which business unit. This allows the AI to deliver precise, personalized results rather than generic answers.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);color:var(--purple-d);border-color:var(--purple);">
+      <div class="ctx-layer-title">Agent Designer (No-Code Interface)</div>
+      <div class="ctx-layer-sub">Build agents without programming expertise</div>
+      <div class="ctx-layer-detail">Agent Designer is AgentSpace's no-code interface for creating custom agents. It abstracts the underlying technical complexity, letting domain experts and business users configure agents by selecting services, writing prompts, and setting behavior — without any code. This democratizes AI agent creation across the organization.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);color:var(--blue-d);border-color:var(--blue);">
+      <div class="ctx-layer-title">Agent2Agent (A2A) Protocol</div>
+      <div class="ctx-layer-sub">Open protocol for multi-agent communication</div>
+      <div class="ctx-layer-detail">The A2A Protocol is an open standard that enables different AI agents to communicate, coordinate, and collaborate. This interoperability is critical for orchestrating complex enterprise workflows where multiple specialized agents (e.g., a research agent, a writing agent, a scheduling agent) need to hand off tasks and share results.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);color:var(--amber-d);border-color:var(--amber);">
+      <div class="ctx-layer-title">Connected Data Stores</div>
+      <div class="ctx-layer-sub">Store and retrieve your organization's proprietary data</div>
+      <div class="ctx-layer-detail">AgentSpace allows you to connect custom data stores containing proprietary company data. This means agents can search and reason over internal documents, databases, and knowledge bases that are not available in any public training dataset — giving them access to truly organization-specific information.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);color:var(--coral-d);border-color:var(--coral);">
+      <div class="ctx-layer-title">Role-Based Security</div>
+      <div class="ctx-layer-sub">Access controls and data encryption by default</div>
+      <div class="ctx-layer-detail">Security is foundational in AgentSpace. Role-based access controls ensure agents only surface information that a user is authorized to see. Data encryption protects sensitive enterprise information at rest and in transit. This makes it viable to connect AI agents to sensitive HR, financial, or customer data.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Enterprise Use Cases</div>
+  <div class="sec-desc">AgentSpace enables a wide range of enterprise workflows. Click a tab to explore each scenario:</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Deep Research</button>
+    <button class="uc-tab" onclick="showUC(1)">HR Workflows</button>
+    <button class="uc-tab" onclick="showUC(2)">IT Support</button>
+    <button class="uc-tab" onclick="showUC(3)">Content Creation</button>
+    <button class="uc-tab" onclick="showUC(4)">Data Analysis</button>
+  </div>
+
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Deep Research Agent</h3>
+      <p>An agent configured with the <code>goog_deep_research</code> prompt can autonomously research any topic by searching across internal documents, connected data stores, and optionally the web.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>User asks: "What are our competitors doing in the APAC market?"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Agent searches internal sales reports, emails, and research documents</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Agent cross-references with knowledge graph relationships</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Produces a synthesized report with citations from internal sources</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>HR Workflow Agent</h3>
+      <p>Connected to Workday and Google Calendar, an HR agent can handle employee requests autonomously — from time-off requests to onboarding assistance.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Employee asks: "Book me 3 days off next month"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Agent checks Calendar availability and Workday leave balance</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Agent creates the leave request in Workday</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Confirms and blocks the calendar automatically</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>IT Support Agent</h3>
+      <p>Connected to Jira and ServiceNow, an IT agent can interpret technical documentation, diagnose issues, and create support tickets — all from a natural language conversation.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>User reports: "My VPN keeps disconnecting after 10 minutes"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Agent searches technical documentation and past similar tickets</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Suggests resolution steps based on internal knowledge base</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Creates a ServiceNow ticket if issue requires escalation</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Content Creation Agent</h3>
+      <p>Using prompts like <code>goog_generate_marketing_copy</code> or a custom writing assistant prompt, agents can draft emails, marketing materials, and documentation grounded in company knowledge.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>User asks: "Draft a product launch email for Q3"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Agent retrieves product specs from internal documents</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Drafts email consistent with brand voice guidelines</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>User reviews and sends via connected Gmail</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Data Analysis Agent</h3>
+      <p>Using <code>goog_analyze_data</code> prompts and connected data stores, agents can query, visualize, and interpret business data without SQL expertise.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Manager asks: "Show me Q2 sales trends by region"</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Agent queries connected sales database</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Identifies trends using Gemini's analytical capabilities</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Returns a summary with key insights and data points</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Building Programmatically</div>
+  <div class="sec-desc">While AgentSpace offers a no-code UI, developers can also interact with it programmatically using the Google Cloud APIs. Here is how to create and configure an AgentSpace agent using the Discovery Engine API:</div>
+
+  <div class="card" style="border-left:3px solid var(--text3);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Prerequisites</h3>
+    <ul>
+      <li>Google Cloud project with AgentSpace enabled</li>
+      <li>Billing enabled on the project</li>
+      <li>Discovery Engine API enabled</li>
+      <li>Application Default Credentials configured</li>
+    </ul>
+  </div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0;">Install the required SDK:</p>
+  <div class="json-block">pip install google-cloud-discoveryengine</div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0;">Create an AgentSpace data store and connect it to a corpus:</p>
+  <div class="code-block"><span class="code-keyword">from</span> google.cloud <span class="code-keyword">import</span> discoveryengine_v1 <span class="code-keyword">as</span> discoveryengine
+
+<span class="code-comment"># Initialize the DataStoreService client</span>
+client = discoveryengine.DataStoreServiceClient()
+
+<span class="code-comment"># Configure the data store</span>
+data_store = discoveryengine.DataStore(
+    display_name=<span class="code-string">"Enterprise Knowledge Base"</span>,
+    industry_vertical=discoveryengine.IndustryVertical.GENERIC,
+    content_config=discoveryengine.DataStore.ContentConfig.CONTENT_REQUIRED,
+)
+
+<span class="code-comment"># Create the data store in your project</span>
+parent = <span class="code-string">f"projects/{PROJECT_ID}/locations/global/collections/default_collection"</span>
+
+operation = client.create_data_store(
+    parent=parent,
+    data_store=data_store,
+    data_store_id=<span class="code-string">"my-enterprise-kb"</span>,
+)
+
+<span class="code-comment"># Wait for the operation to complete</span>
+result = operation.result()
+<span class="code-keyword">print</span>(<span class="code-string">f"Created data store: {result.name}"</span>)</div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0;">Configure an AgentSpace app with the data store:</p>
+  <div class="code-block"><span class="code-comment"># Create an AgentSpace application</span>
+engine_client = discoveryengine.EngineServiceClient()
+
+engine = discoveryengine.Engine(
+    display_name=<span class="code-string">"My Enterprise Agent"</span>,
+    solution_type=discoveryengine.SolutionType.SOLUTION_TYPE_CHAT,
+    chat_engine_config=discoveryengine.Engine.ChatEngineConfig(
+        agent_creation_config=discoveryengine.Engine.ChatEngineConfig.AgentCreationConfig(
+            business=<span class="code-string">"My Organization"</span>,
+            default_language_code=<span class="code-string">"en"</span>,
+            time_zone=<span class="code-string">"America/Los_Angeles"</span>,
+        )
+    ),
+    data_store_ids=[<span class="code-string">"my-enterprise-kb"</span>],
+)
+
+operation = engine_client.create_engine(
+    parent=parent,
+    engine=engine,
+    engine_id=<span class="code-string">"my-enterprise-agent"</span>,
+)
+result = operation.result()
+<span class="code-keyword">print</span>(<span class="code-string">f"Created engine: {result.name}"</span>)</div>
+
+  <div class="card card-bordered" style="margin-top:16px;">
+    <h3>UI vs. API Trade-offs</h3>
+    <p>The no-code Agent Designer UI is ideal for rapid prototyping and business user empowerment. The API approach is better for CI/CD pipelines, infrastructure-as-code setups, and programmatic management of many agents. Both approaches result in the same underlying AgentSpace deployment.</p>
+  </div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: Architecture & A2A</div>
+  <div class="sec-desc">Understanding how AgentSpace orchestrates complex workflows under the hood reveals why it is more than just a chatbot platform.</div>
+
+  <div class="card card-bordered">
+    <h3>The AgentSpace Architecture Stack</h3>
+    <p>AgentSpace operates on three layers: (1) the <strong>Presentation Layer</strong> — the chat UI and API endpoints; (2) the <strong>Orchestration Layer</strong> — the Agent Designer logic, prompt management, and A2A routing; (3) the <strong>Knowledge Layer</strong> — the enterprise knowledge graph, connected data stores, and Gemini inference. Each layer is independently configurable.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Agent2Agent (A2A) Protocol in Practice</h3>
+    <p>The A2A Protocol allows a "manager" agent to delegate sub-tasks to specialized "worker" agents. For example, a research agent might delegate document retrieval to a search agent, and summarization to a writing agent. The protocol defines how agents advertise their capabilities, how they receive and acknowledge tasks, and how they return structured results — enabling genuine agent collaboration rather than simple chaining.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Prompt Gallery Deep Dive</h3>
+    <p>Google's pre-built prompt gallery includes enterprise-hardened prompts like <strong>goog_deep_research</strong> (uses search_check_spark icon), <strong>goog_explain_technical_documentation</strong> (menu_book_spark), <strong>goog_generate_code</strong> (data_object), and <strong>goog_help_me_analyze</strong> (text_analysis). These are production-tested and follow Google's safety and quality guidelines — a strong starting point before customizing.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--amber); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Private vs. Public Knowledge Graph</h3>
+    <p>AgentSpace offers two knowledge graph modes. The <strong>Google Cloud Knowledge Graph</strong> expands search with external data sources, broadening scope with additional insights. The <strong>Private Knowledge Graph</strong> leverages your internal organizational data for contextually accurate query annotations — highly personalized but requires up to 24 hours to regenerate after updates. Most enterprises use both in combination.</p>
+  </div>
+
+  <div class="diagram-sim">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Interactive Agent Flow — click each node to understand the request lifecycle</p>
+    <div class="diagram-nodes">
+      <div class="dia-node" onclick="simClick(0)" style="background:var(--blue-l);color:var(--blue-d);">User Query</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--teal-l);color:var(--teal-d);">Orchestrator</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--purple-l);color:var(--purple-d);">Knowledge Graph</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--coral-l);color:var(--coral-d);">Gemini</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(4)" style="background:var(--green-l);color:var(--green-d);">Response</div>
+    </div>
+    <div class="dia-output" id="sim-output">Click any node above to trace the lifecycle of a request through AgentSpace.</div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--red-l);color:var(--red-d);">
+      <h4>PROBLEM</h4>
+      <p>Enterprises struggle to deploy AI agents due to fragmented data, high technical barriers, lack of organizational context awareness, and agent isolation — preventing AI from being embedded in real workflows.</p>
+    </div>
+    <div class="glance-card" style="background:var(--teal-l);color:var(--teal-d);">
+      <h4>SOLUTION</h4>
+      <p>AgentSpace unifies enterprise data via a knowledge graph, provides a no-code Agent Designer, integrates with Google and third-party services, and uses the A2A Protocol for multi-agent collaboration — all with enterprise-grade security.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);color:var(--purple-d);">
+      <h4>KEY MECHANISM</h4>
+      <p>The Private Knowledge Graph maps organizational relationships. Prompt gallery provides pre-hardened agent behaviors. A2A Protocol enables orchestrated multi-agent workflows. Role-based access controls enforce data governance.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);color:var(--amber-d);">
+      <h4>WHEN TO USE</h4>
+      <p>Use AgentSpace when you need enterprise-wide AI search, want to deploy agents without deep engineering, require integration with Google Workspace or enterprise SaaS tools, or need a compliant, secure AI deployment on Google Cloud.</p>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Key Insight</h3>
+    <p>AgentSpace abstracts the underlying technical complexity of AI agent deployment, enabling the construction of specialized multi-agent systems without requiring deep programming expertise. The primary objective is to embed automated analytical and operational capabilities directly into workflows, thereby increasing process efficiency and enhancing data-driven analysis.</p>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Quiz</div>
+  <div class="sec-desc">Test your understanding of AgentSpace concepts.</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+
+  <ul class="tk-list">
+    <li>AgentSpace is Google's enterprise AI platform that provides unified search, knowledge graph construction, and no-code agent creation powered by Gemini models.</li>
+    <li>The Enterprise Knowledge Graph maps relationships between people, documents, and data — giving agents the organizational context needed for precise, personalized responses.</li>
+    <li>Agent Designer is a no-code interface that lets business users create custom agents by selecting services, choosing or creating prompts, and configuring behavior without programming.</li>
+    <li>The Agent2Agent (A2A) Protocol is an open standard enabling different AI agents to communicate and collaborate, making complex orchestrated multi-agent workflows possible.</li>
+    <li>AgentSpace integrates with a broad ecosystem including Google Calendar, Gmail, Workday, Jira, Outlook, and ServiceNow — enabling agents to take real actions across enterprise systems.</li>
+    <li>Security is foundational: role-based access controls ensure agents only surface information a user is authorized to see, making it safe to connect agents to sensitive enterprise data.</li>
+    <li>For hands-on learning, the "Build a Gen AI Agent with Agentspace" lab on Google Cloud Skills Boost provides a structured environment for skill acquisition.</li>
+  </ul>
+
+  <div class="card card-bordered">
+    <h3>Summary</h3>
+    <p>AgentSpace provides a functional framework for developing and deploying AI agents within an organization's existing digital infrastructure. By linking complex backend processes — autonomous reasoning and enterprise knowledge graph mapping — to a graphical user interface for agent construction, it enables the creation of specialized multi-agent systems without deep programming expertise. The goal is to embed automated, intelligent capabilities directly into workflows, increasing efficiency and enabling data-driven decision-making at scale.</p>
+  </div>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> Create a no-code agent with Agent Designer: <a href="https://cloud.google.com/agentspace/agentspace-enterprise/docs/agent-designer" target="_blank">cloud.google.com/agentspace</a></li>
+    <li><span class="ref-num">[2]</span> Google Cloud Skills Boost: <a href="https://www.cloudskillsboost.google/" target="_blank">cloudskillsboost.google</a></li>
+    <li><span class="ref-num">[3]</span> AgentSpace Enterprise Documentation: <a href="https://cloud.google.com/agentspace/agentspace-enterprise/docs" target="_blank">cloud.google.com</a></li>
+    <li><span class="ref-num">[4]</span> Agent2Agent Protocol Specification: <a href="https://google.github.io/A2A/" target="_blank">google.github.io/A2A</a></li>
+    <li><span class="ref-num">[5]</span> Discovery Engine API Reference: <a href="https://cloud.google.com/discovery-engine/docs/reference/rest" target="_blank">cloud.google.com/discovery-engine</a></li>
+  </ul>
+</div>
+
+<div class="footer">
+  <p>Appendix D · Building an Agent with AgentSpace · Interactive Learning</p>
+</div>
+
+</div>
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  "User Query: The user enters a natural language request such as 'What are our Q3 sales trends in APAC?' The query is received by the AgentSpace interface and passed to the orchestration layer for routing and context enrichment.",
+  "Orchestrator (Agent Designer Logic): The orchestration layer determines which agents, prompts, and data sources to invoke. It may decompose the query into sub-tasks, route them to specialist agents via A2A, and manages the assembly of the final response. This is where prompt configuration and service connections are activated.",
+  "Knowledge Graph: The private and/or public knowledge graph is queried to find relevant organizational entities — documents, people, projects — related to the query. Relationships are traversed to surface contextually appropriate data and enrich the prompt sent to Gemini with grounding information.",
+  "Gemini Inference: The enriched prompt — containing the user query, retrieved knowledge graph context, and any tool outputs — is sent to the Gemini model for inference. Gemini synthesizes all available information to produce a coherent, grounded, and accurate response.",
+  "Response: The final, synthesized response is returned to the user with citations, source links, and any action confirmations (e.g., 'Jira ticket #1234 created'). The response is grounded in organizational data and formatted for the AgentSpace chat interface."
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: "What is the primary purpose of the Enterprise Knowledge Graph in AgentSpace?",
+    opts: ["To store raw documents in a database", "To map relationships between people, documents, and data for contextual awareness", "To provide a no-code interface for building agents", "To encrypt sensitive enterprise data"],
+    ans: 1,
+    ok: "Correct! The knowledge graph maps organizational relationships, giving agents the context needed to deliver precise, personalized responses rather than generic answers.",
+    no: "The knowledge graph is about contextual relationships, not just storage or interfaces. It maps the connections between organizational entities to enable truly informed AI responses."
+  },
+  {
+    q: "What is the Agent2Agent (A2A) Protocol?",
+    opts: ["A security encryption standard for enterprise data", "An open protocol enabling different AI agents to communicate and collaborate", "A way to connect AgentSpace to third-party services like Jira", "A benchmark for measuring agent performance"],
+    ans: 1,
+    ok: "Correct! A2A is an open standard that lets agents advertise capabilities, delegate tasks, and share results — enabling orchestrated multi-agent workflows.",
+    no: "A2A is about agent-to-agent communication and collaboration, not about security or third-party integrations specifically."
+  },
+  {
+    q: "What is Agent Designer in AgentSpace?",
+    opts: ["A Python SDK for programmatic agent creation", "A monitoring dashboard for tracking agent performance", "A no-code interface for creating custom agents without programming expertise", "A benchmark for comparing different AI models"],
+    ans: 2,
+    ok: "Correct! Agent Designer is AgentSpace's no-code interface that lets business users and domain experts create agents by selecting services and configuring prompts without writing code.",
+    no: "Agent Designer is specifically a no-code UI, not a code SDK or monitoring tool."
+  },
+  {
+    q: "Which of the following is NOT a service that AgentSpace can connect to?",
+    opts: ["Google Calendar", "Workday", "Jira", "AWS Lambda"],
+    ans: 3,
+    ok: "Correct! AgentSpace's listed integrations include Calendar, Gmail, Workday, Jira, Outlook, and ServiceNow — AWS Lambda is not part of the native service connector catalog.",
+    no: "AgentSpace connects to Calendar, Gmail (Google), and Workday, Jira, Outlook, ServiceNow (third-party). AWS Lambda is not a listed native integration."
+  },
+  {
+    q: "What is the key difference between the Google Cloud Knowledge Graph and the Private Knowledge Graph in AgentSpace?",
+    opts: ["The Google Cloud KG is free; the Private KG costs extra", "The Google Cloud KG expands results with external sources; the Private KG uses internal organizational data", "The Private KG is faster than the Google Cloud KG", "There is no difference — they are the same feature"],
+    ans: 1,
+    ok: "Correct! The Google Cloud KG broadens results with external data sources, while the Private KG leverages internal organizational data for precise, context-specific annotations — taking up to 24h to regenerate.",
+    no: "The difference is about data source scope: external (Google Cloud KG) vs. internal (Private KG), not about cost or speed."
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

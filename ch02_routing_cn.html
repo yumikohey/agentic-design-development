@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第二章：路由（Routing）— 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  background: var(--teal-l);
+  padding: 4px 14px;
+  border-radius: 99px;
+  margin-bottom: 16px;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  max-width: 640px;
+}
+.nav-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 0.5px solid var(--border2);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+  padding-top: 8px;
+}
+.nav-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 7px 16px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active {
+  background: var(--teal-l);
+  color: var(--teal-d);
+  border-color: var(--teal);
+  font-weight: 500;
+}
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 16px;
+  border: 0.5px solid var(--border);
+}
+.card-bordered {
+  border-left: 3px solid var(--teal);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.card h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+.sec-desc {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+.metric {
+  background: var(--bg2);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  border: 0.5px solid var(--border);
+}
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card {
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+  overflow: hidden;
+}
+.fail-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all .25s;
+}
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s ease;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow {
+  width: 2px;
+  height: 32px;
+  background: var(--border2);
+  position: relative;
+}
+.chain-arrow::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: -5px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--border2);
+}
+.json-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+}
+.uc-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.uc-tab {
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+}
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active {
+  background: var(--purple-l);
+  color: var(--purple-d);
+  border-color: var(--purple);
+  font-weight: 500;
+}
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+.uc-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+.uc-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 11px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.code-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+  tab-size: 2;
+}
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer {
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .25s;
+  border: 0.5px solid transparent;
+}
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 1.5rem;
+}
+.quiz-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg3);
+  transition: all .3s;
+}
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.quiz-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 18px;
+  margin-bottom: 8px;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--bg2);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all .2s;
+  line-height: 1.6;
+}
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb {
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 12px 0;
+  display: none;
+}
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn {
+  font-family: var(--sans);
+  padding: 8px 22px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+  margin-top: 12px;
+}
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li {
+  counter-increment: tk;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.tk-list li::before {
+  content: counter(tk);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--teal-l);
+  color: var(--teal-d);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.glance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card {
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+}
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin: 1.5rem 0;
+  border: 0.5px solid var(--border);
+  text-align: center;
+}
+.diagram-nodes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+.dia-node {
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .3s;
+  position: relative;
+  min-width: 100px;
+  text-align: center;
+}
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow {
+  font-size: 18px;
+  color: var(--text3);
+  padding: 0 6px;
+  flex-shrink: 0;
+}
+.dia-output {
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+  text-align: left;
+  min-height: 60px;
+  transition: all .3s;
+}
+.ref-list { list-style: none; padding: 0; }
+.ref-list li {
+  font-size: 13px;
+  color: var(--text2);
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--border);
+  line-height: 1.6;
+}
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+  <a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+  <div class="chapter-tag">第二章</div>
+  <h1>路由（Routing）</h1>
+  <p class="subtitle">路由模式为智能体引入条件逻辑，使其能够根据输入内容、系统状态或前序操作的结果，动态地将请求分发至最合适的子流程、工具或子智能体。</p>
+
+  <nav class="nav-bar">
+    <button class="nav-btn active" onclick="go('sec-overview',this)">概览</button>
+    <button class="nav-btn" onclick="go('sec-problem',this)">问题所在</button>
+    <button class="nav-btn" onclick="go('sec-solution',this)">解决方案</button>
+    <button class="nav-btn" onclick="go('sec-concepts',this)">核心概念</button>
+    <button class="nav-btn" onclick="go('sec-usecases',this)">应用场景</button>
+    <button class="nav-btn" onclick="go('sec-code',this)">代码实战</button>
+    <button class="nav-btn" onclick="go('sec-deepdive',this)">深入解析</button>
+    <button class="nav-btn" onclick="go('sec-glance',this)">一览概要</button>
+    <button class="nav-btn" onclick="go('sec-quiz',this)">知识测验</button>
+    <button class="nav-btn" onclick="go('sec-takeaways',this)">核心要点</button>
+    <button class="nav-btn" onclick="go('sec-refs',this)">参考资料</button>
+  </nav>
+
+  <!-- 概览 -->
+  <section id="sec-overview" class="section active">
+    <h2 class="sec-title">路由模式概览</h2>
+    <p class="sec-desc">提示链提供了确定性的线性工作流，但现实世界的智能体系统往往需要根据情境做出自适应决策。路由正是那个让智能体具备动态分叉能力的机制。</p>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">模式类型</div>
+        <div class="metric-value">条件路由</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">核心能力</div>
+        <div class="metric-value">动态分叉</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">主要框架</div>
+        <div class="metric-value">LangChain / ADK</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">决策方式</div>
+        <div class="metric-value">3 种机制</div>
+      </div>
+    </div>
+    <div class="card card-bordered">
+      <h3>什么是路由？</h3>
+      <p>路由在智能体的操作框架中引入条件逻辑，使其从固定执行路径转变为动态评估特定标准、从一组可能的后续动作中进行选择的模型。这赋予系统更灵活、更具上下文感知能力的行为。</p>
+    </div>
+    <div class="card card-bordered">
+      <h3>经典示例：客户服务智能体</h3>
+      <p>一个配备路由功能的客服智能体，可先对用户查询意图进行分类，然后将其定向至：用于直接问答的专用子智能体、用于账户信息的数据库检索工具，或用于复杂问题的人工升级流程——而非使用单一固定的响应路径。</p>
+    </div>
+    <div class="card card-bordered">
+      <h3>框架支持</h3>
+      <p>LangChain、LangGraph 和 Google ADK 均提供了定义和管理条件逻辑的专用构件。LangGraph 的状态图架构尤其适合需要根据系统整体状态做出决策的复杂路由场景。</p>
+    </div>
+    <div class="card card-bordered">
+      <h3>与提示链的区别</h3>
+      <p>提示链是固定的线性序列；路由则在节点之间引入条件分支。二者往往结合使用——路由决定走哪条链，每条链各自完成其线性子任务。</p>
+    </div>
+  </section>
+
+  <!-- 问题所在 -->
+  <section id="sec-problem" class="section">
+    <h2 class="sec-title">问题所在</h2>
+    <p class="sec-desc">当智能体只能按照单一预设路径执行时，它在面对多样化的真实用户需求时将无能为力。点击每张卡片查看具体痛点。</p>
+    <div class="fail-grid">
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>线性流程的局限</h4>
+        <p>顺序处理在需要自适应响应的场景中能力有限。</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">真实世界的智能体系统必须在多个潜在动作之间进行仲裁，考量因素包括环境状态、用户输入或前序操作的结果。固定的线性流程根本无法应对这种多样性。</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>单一响应路径</h4>
+        <p>所有请求走同一条路，忽视了意图的差异性。</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">如果系统只有一个响应路径，"查询订单状态"和"请求技术支持"会得到相同的处理流程，这既低效又不准确——不同的意图本应触发截然不同的工具和子流程。</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>缺乏上下文感知</h4>
+        <p>系统无法根据输入内容或状态动态调整行为。</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">没有路由机制，智能体就不具备"读懂"用户意图的能力。它无法区分"产品咨询"与"投诉升级"，更无法针对不清晰的请求触发澄清子流程。</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>工具选择的困境</h4>
+        <p>面对多个专用工具时，系统不知该调用哪一个。</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">复杂系统中往往有针对不同任务的多个专用工具或子智能体。没有路由机制，系统无法充当高层级的调度器，将任务分配给最合适的处理单元。</p></div>
+      </div>
+      <div class="fail-card" onclick="this.classList.toggle('open')">
+        <h4>静态而非动态</h4>
+        <p>无法应对状态变化带来的新需求。</p>
+        <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">路由机制可以在智能体操作周期的多个节点介入：在开始时对主任务分类，在处理链中间确定后续动作，或在子程序中从给定工具集选择最合适的工具。缺乏这一能力，系统就只能静态运行。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 解决方案 -->
+  <section id="sec-solution" class="section">
+    <h2 class="sec-title">解决方案：路由模式</h2>
+    <p class="sec-desc">路由通过引入一个评估机制来解决上述问题，该机制分析输入并将控制流导向最合适的处理路径。点击每个节点了解详情。</p>
+    <div class="chain-container">
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+          <div>
+            <div class="chain-title">接收输入</div>
+            <div class="chain-role">用户查询 / 系统状态</div>
+          </div>
+        </div>
+        <div class="chain-detail">智能体接收来自用户的查询或来自系统的状态信号。这可以是自然语言文本、结构化数据，或是前序操作的输出结果。</div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">2</div>
+          <div>
+            <div class="chain-title">路由评估</div>
+            <div class="chain-role">LLM / 规则 / 嵌入向量</div>
+          </div>
+        </div>
+        <div class="chain-detail">核心路由组件对输入进行分析，通过 LLM 推断意图、基于关键词的规则匹配，或向量嵌入相似度计算，输出一个路由决策标识符（如 "booker"、"info"、"unclear"）。</div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">3</div>
+          <div>
+            <div class="chain-title">分支分发</div>
+            <div class="chain-role">RunnableBranch / ADK Auto-Flow</div>
+          </div>
+        </div>
+        <div class="chain-detail">根据路由决策，系统将请求分发至对应的处理分支。在 LangChain 中使用 RunnableBranch；在 Google ADK 中，定义了 sub_agents 的协调者智能体会自动触发 LLM 驱动的委派（Auto-Flow）。</div>
+      </div>
+      <div class="chain-arrow"></div>
+      <div class="chain-node" onclick="toggleChain(this)">
+        <div class="chain-head">
+          <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">4</div>
+          <div>
+            <div class="chain-title">专用处理器执行</div>
+            <div class="chain-role">子智能体 / 工具链 / 人工升级</div>
+          </div>
+        </div>
+        <div class="chain-detail">被选中的专用处理器（如预订处理器、信息检索器或澄清子流程）执行其专属逻辑，产生最终结果并返回给用户或上层流程。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 核心概念 -->
+  <section id="sec-concepts" class="section">
+    <h2 class="sec-title">核心概念</h2>
+    <p class="sec-desc">路由的核心组件是执行评估并引导控制流的机制。该机制可以通过多种方式实现。</p>
+    <div class="card card-bordered">
+      <h3>基于 LLM 的路由</h3>
+      <p>语言模型本身被提示分析输入并输出一个特定标识符或指令，以指示下一步骤或目标。例如，提示可要求 LLM 分析用户查询并仅输出类别：'订单状态'、'产品信息'、'技术支持' 或 '其他'。智能体系统读取此输出后相应地调度工作流。</p>
+    </div>
+    <div class="card card-bordered">
+      <h3>基于嵌入向量的路由</h3>
+      <p>输入查询被转换为向量嵌入（参见第14章 RAG），然后与代表不同路由或功能的嵌入向量进行比较，将查询路由至嵌入最相似的目标。这对于语义路由非常有用——决策基于输入的语义含义，而非仅仅是关键词。</p>
+    </div>
+    <div class="card card-bordered">
+      <h3>基于规则的路由</h3>
+      <p>使用基于从输入中提取的关键词、模式或结构化数据的预定义规则或逻辑（例如 if-else 语句、switch 分支）。这比基于 LLM 的路由更快、更具确定性，但在处理细微差别或新颖输入时灵活性较低。</p>
+    </div>
+    <div class="card card-bordered">
+      <h3>基于机器学习模型的路由</h3>
+      <p>使用专门在小型标注数据集上训练的判别模型（如分类器）来执行路由任务。与基于嵌入的方法共享概念相似性，但其关键特征是监督微调过程，将路由逻辑编码到模型权重中，而非在推理时执行提示。</p>
+    </div>
+    <div class="json-block"><span class="code-comment"># 路由决策的结构示意</span>
+{
+  <span class="code-string">"input"</span>: <span class="code-string">"我想预订一张去伦敦的机票"</span>,
+  <span class="code-string">"routing_decision"</span>: <span class="code-string">"booker"</span>,
+  <span class="code-string">"confidence"</span>: 0.97,
+  <span class="code-string">"handler"</span>: <span class="code-string">"booking_handler"</span>,
+  <span class="code-string">"method"</span>: <span class="code-string">"llm_based"</span>
+}</div>
+  </section>
+
+  <!-- 应用场景 -->
+  <section id="sec-usecases" class="section">
+    <h2 class="sec-title">应用场景</h2>
+    <p class="sec-desc">路由模式是设计自适应智能体系统的关键控制机制，其实用性横跨多个领域。选择场景查看详情。</p>
+    <div class="uc-tabs">
+      <button class="uc-tab active" onclick="showUC(0,this)">客户服务</button>
+      <button class="uc-tab" onclick="showUC(1,this)">文档处理</button>
+      <button class="uc-tab" onclick="showUC(2,this)">研究系统</button>
+      <button class="uc-tab" onclick="showUC(3,this)">代码助手</button>
+      <button class="uc-tab" onclick="showUC(4,this)">智能教学</button>
+    </div>
+    <div id="uc-0" class="uc-panel active">
+      <div class="card">
+        <h3>虚拟助手 / AI 客服</h3>
+        <p>在人机交互中，路由用于解析用户意图。对自然语言查询的初步分析决定了最适当的后续动作。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>接收用户自然语言查询（如"我的订单到哪了？"）</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>LLM 路由器对意图进行分类：订单查询 / 产品咨询 / 投诉升级</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>将请求转发至对应子智能体或工具链</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>专用处理器返回个性化、情境化的响应</span></div>
+        </div>
+        <p style="font-size:13px;color:var(--text3);margin-top:8px;">允许系统超越线性对话流，实现真正的上下文感知响应。</p>
+      </div>
+    </div>
+    <div id="uc-1" class="uc-panel">
+      <div class="card">
+        <h3>自动化数据与文档处理</h3>
+        <p>路由充当分类与分发功能。收到的数据（电子邮件、工单、API 载荷）根据内容、元数据或格式进行分析，然后被引导至对应的处理工作流。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>接收传入数据（邮件、支持工单、API 载荷）</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>分析内容、元数据或格式，确定类别</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>路由至：销售线索流程 / JSON 数据转换 / 紧急问题升级路径</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>对应工作流处理并生成输出</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-2" class="uc-panel">
+      <div class="card">
+        <h3>多专用工具的研究系统</h3>
+        <p>路由充当高层级调度器。由搜索、摘要和分析等不同专用子智能体组成的研究系统，使用路由器根据当前目标将任务分配给最合适的智能体。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>接收研究任务或查询</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>分析当前目标：需要搜索新信息？摘要已有内容？还是数据分析？</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>调度至：搜索子智能体 / 摘要子智能体 / 分析子智能体</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>聚合各子智能体结果，输出综合报告</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-3" class="uc-panel">
+      <div class="card">
+        <h3>AI 编程助手</h3>
+        <p>AI 编程助手通过路由识别编程语言和用户意图（调试、解释或翻译），再将代码片段传递给正确的专用工具。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>接收用户代码请求（如"帮我调试这段 Python 代码"）</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>识别编程语言 + 意图：调试 / 解释 / 翻译</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>路由至对应专用处理器，附带代码上下文</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>返回针对性的代码建议或解释</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="uc-4" class="uc-panel">
+      <div class="card">
+        <h3>AI 驱动的智能教学系统</h3>
+        <p>在 AI 辅导系统中，路由根据学生表现选择课程中的下一个模块，允许系统超越线性对话流，实现真正的个性化学习路径。</p>
+        <div class="uc-steps">
+          <div class="uc-step"><div class="uc-step-num">1</div><span>评估学生当前表现和理解程度</span></div>
+          <div class="uc-step"><div class="uc-step-num">2</div><span>路由决策：需要复习？进入下一模块？还是补充练习？</span></div>
+          <div class="uc-step"><div class="uc-step-num">3</div><span>选取最合适的学习内容或练习</span></div>
+          <div class="uc-step"><div class="uc-step-num">4</div><span>提供个性化的下一步学习体验</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 代码实战 -->
+  <section id="sec-code" class="section">
+    <h2 class="sec-title">代码实战</h2>
+    <p class="sec-desc">以下代码展示了使用 LangChain 和 Google ADK 实现路由模式的核心逻辑。</p>
+
+    <div class="card" style="margin-bottom:12px;">
+      <h3>LangChain 实现：RunnableBranch</h3>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:8px;">使用 LangChain 构建协调者路由链，通过 RunnableBranch 将请求委派至对应的处理函数。</p>
+    </div>
+<div class="code-block"><span class="code-keyword">from</span> langchain_google_genai <span class="code-keyword">import</span> ChatGoogleGenerativeAI
+<span class="code-keyword">from</span> langchain_core.prompts <span class="code-keyword">import</span> ChatPromptTemplate
+<span class="code-keyword">from</span> langchain_core.output_parsers <span class="code-keyword">import</span> StrOutputParser
+<span class="code-keyword">from</span> langchain_core.runnables <span class="code-keyword">import</span> RunnablePassthrough, RunnableBranch
+
+<span class="code-comment"># --- 定义模拟子智能体处理函数 ---</span>
+<span class="code-keyword">def</span> booking_handler(request: str) -> str:
+    <span class="code-string">"""模拟预订智能体处理请求。"""</span>
+    <span class="code-keyword">return</span> f<span class="code-string">"预订处理器已处理请求：'{request}'。结果：模拟预订操作。"</span>
+
+<span class="code-keyword">def</span> info_handler(request: str) -> str:
+    <span class="code-string">"""模拟信息智能体处理请求。"""</span>
+    <span class="code-keyword">return</span> f<span class="code-string">"信息处理器已处理请求：'{request}'。结果：模拟信息检索。"</span>
+
+<span class="code-comment"># --- 定义协调者路由链 ---</span>
+coordinator_router_prompt = ChatPromptTemplate.from_messages([
+    (<span class="code-string">"system"</span>, <span class="code-string">"""分析用户请求，判断应由哪个专用处理器处理。
+    - 如果请求与预订航班或酒店相关，输出 'booker'。
+    - 对于其他通用信息问题，输出 'info'。
+    - 如果请求不明确，输出 'unclear'。
+    只输出一个词：'booker'、'info' 或 'unclear'。"""</span>),
+    (<span class="code-string">"user"</span>, <span class="code-string">"{request}"</span>)
+])
+
+coordinator_router_chain = coordinator_router_prompt | llm | StrOutputParser()
+
+<span class="code-comment"># --- 定义委派逻辑（使用 RunnableBranch）---</span>
+branches = {
+    <span class="code-string">"booker"</span>: RunnablePassthrough.assign(
+        output=<span class="code-keyword">lambda</span> x: booking_handler(x[<span class="code-string">'request'</span>][<span class="code-string">'request'</span>])),
+    <span class="code-string">"info"</span>: RunnablePassthrough.assign(
+        output=<span class="code-keyword">lambda</span> x: info_handler(x[<span class="code-string">'request'</span>][<span class="code-string">'request'</span>])),
+}
+
+delegation_branch = RunnableBranch(
+    (<span class="code-keyword">lambda</span> x: x[<span class="code-string">'decision'</span>].strip() == <span class="code-string">'booker'</span>, branches[<span class="code-string">"booker"</span>]),
+    (<span class="code-keyword">lambda</span> x: x[<span class="code-string">'decision'</span>].strip() == <span class="code-string">'info'</span>, branches[<span class="code-string">"info"</span>]),
+    branches[<span class="code-string">"unclear"</span>]  <span class="code-comment"># 默认分支</span>
+)
+
+coordinator_agent = {
+    <span class="code-string">"decision"</span>: coordinator_router_chain,
+    <span class="code-string">"request"</span>: RunnablePassthrough()
+} | delegation_branch | (<span class="code-keyword">lambda</span> x: x[<span class="code-string">'output'</span>])</div>
+
+    <div class="card" style="margin-bottom:12px;margin-top:20px;">
+      <h3>Google ADK 实现：Auto-Flow 自动委派</h3>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:8px;">在 ADK 范式中，路由通过定义离散的工具集来实现。框架的内部逻辑（Auto-Flow）自动根据用户查询将请求路由至正确的功能处理器。</p>
+    </div>
+<div class="code-block"><span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> Agent
+<span class="code-keyword">from</span> google.adk.runners <span class="code-keyword">import</span> InMemoryRunner
+<span class="code-keyword">from</span> google.adk.tools <span class="code-keyword">import</span> FunctionTool
+
+<span class="code-comment"># --- 定义专用子智能体 ---</span>
+booking_agent = Agent(
+    name=<span class="code-string">"Booker"</span>,
+    model=<span class="code-string">"gemini-2.0-flash"</span>,
+    description=<span class="code-string">"处理所有航班和酒店预订请求的专用智能体。"</span>,
+    tools=[booking_tool]
+)
+
+info_agent = Agent(
+    name=<span class="code-string">"Info"</span>,
+    model=<span class="code-string">"gemini-2.0-flash"</span>,
+    description=<span class="code-string">"提供通用信息并回答用户问题的专用智能体。"</span>,
+    tools=[info_tool]
+)
+
+<span class="code-comment"># --- 定义带有明确委派指令的协调者智能体 ---</span>
+coordinator = Agent(
+    name=<span class="code-string">"Coordinator"</span>,
+    model=<span class="code-string">"gemini-2.0-flash"</span>,
+    instruction=<span class="code-string">"""你是主协调者。你唯一的任务是分析
+    传入的用户请求并将其委派给适当的专用智能体。
+    不要直接回答用户。
+    - 对于任何与预订航班或酒店相关的请求，委派给 'Booker' 智能体。
+    - 对于所有其他通用信息问题，委派给 'Info' 智能体。"""</span>,
+    description=<span class="code-string">"将用户请求路由到正确专用智能体的协调者。"</span>,
+    <span class="code-comment"># sub_agents 的存在默认启用 LLM 驱动委派（Auto-Flow）</span>
+    sub_agents=[booking_agent, info_agent]
+)</div>
+  </section>
+
+  <!-- 深入解析 -->
+  <section id="sec-deepdive" class="section">
+    <h2 class="sec-title">深入解析：路由实现层次</h2>
+    <p class="sec-desc">路由机制可以在智能体操作周期的多个节点介入。点击每一层深入了解其工作原理与适用场景。</p>
+    <div class="ctx-stack">
+      <div class="ctx-layer" style="background:var(--teal-l);border-color:var(--teal);" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--teal-d);">任务初始分类层</div>
+        <div class="ctx-layer-sub" style="color:var(--teal-d);">在起点对主任务进行路由</div>
+        <div class="ctx-layer-detail" style="color:var(--teal-d);">在智能体操作周期的起始阶段，路由机制对传入的主任务进行分类。这是最常见的路由场景：分析用户的初始请求，将其整体分派至最合适的处理流程。例如客户服务系统在接收到查询时，首先判断是售前咨询、售后支持还是投诉处理。</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--blue-l);border-color:var(--blue);" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--blue-d);">处理链中间节点层</div>
+        <div class="ctx-layer-sub" style="color:var(--blue-d);">在链式处理流程中动态决定下一步</div>
+        <div class="ctx-layer-detail" style="color:var(--blue-d);">路由可以在处理链的中间节点介入，根据前序步骤的输出结果动态决定后续动作。例如在文档处理流程中，初步分析完成后，路由器根据文档类型（合同、报告、邮件）决定调用哪种专用解析器。LangGraph 的状态图架构特别适合这种场景。</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--purple-l);border-color:var(--purple);" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--purple-d);">工具选择子程序层</div>
+        <div class="ctx-layer-sub" style="color:var(--purple-d);">从工具集中选择最合适的工具</div>
+        <div class="ctx-layer-detail" style="color:var(--purple-d);">在子程序级别，路由机制从给定的工具集中为特定子任务选择最合适的工具。Google ADK 中每个工具都有描述，框架通过 LLM 理解工具描述来匹配用户意图，自动调用最恰当的工具函数——这本质上是一种内置的工具级路由。</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--amber-l);border-color:var(--amber);" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--amber-d);">LangGraph 状态图层</div>
+        <div class="ctx-layer-sub" style="color:var(--amber-d);">基于累积状态的复杂条件路由</div>
+        <div class="ctx-layer-detail" style="color:var(--amber-d);">LangGraph 的状态图架构特别适合复杂路由场景——决策依赖于整个系统的累积状态。开发者在图中定义可能的操作路径和节点间的转换条件（函数或模型评估），从而构建能够根据动态状态做出精确决策的智能体工作流。</div>
+      </div>
+      <div class="ctx-layer" style="background:var(--coral-l);border-color:var(--coral);" onclick="toggleCtx(this)">
+        <div class="ctx-layer-title" style="color:var(--coral-d);">ADK Auto-Flow 委派层</div>
+        <div class="ctx-layer-sub" style="color:var(--coral-d);">LLM 驱动的自动子智能体委派</div>
+        <div class="ctx-layer-detail" style="color:var(--coral-d);">Google ADK 的 Auto-Flow 机制通过让 LLM 理解各子智能体的描述来实现自动路由委派。协调者智能体配置了 sub_agents 列表后，其 LLM 会自动分析传入请求的意图，并将任务委派给描述最匹配的子智能体——无需显式编写路由规则。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 一览概要 -->
+  <section id="sec-glance" class="section">
+    <h2 class="sec-title">一览概要</h2>
+    <div class="glance-grid">
+      <div class="glance-card" style="background:var(--teal-l);">
+        <h4 style="color:var(--teal-d);">是什么（WHAT）</h4>
+        <p style="color:var(--teal-d);">智能体系统必须能够响应多种多样的输入和情况，而这些无法由单一线性流程处理。没有选择正确工具或子流程的机制，系统将保持僵化且缺乏自适应能力。</p>
+      </div>
+      <div class="glance-card" style="background:var(--blue-l);">
+        <h4 style="color:var(--blue-d);">为什么（WHY）</h4>
+        <p style="color:var(--blue-d);">路由模式通过将条件逻辑引入智能体的操作框架，提供了标准化解决方案。它将静态的预定义执行路径转变为灵活的、能够选择最佳可能动作的上下文感知工作流。</p>
+      </div>
+      <div class="glance-card" style="background:var(--amber-l);">
+        <h4 style="color:var(--amber-d);">经验法则</h4>
+        <p style="color:var(--amber-d);">当智能体必须根据用户输入或当前状态在多个不同工作流、工具或子智能体之间做出选择时，使用路由模式。对于需要对传入请求进行分诊或分类以处理不同类型任务的应用，路由必不可少。</p>
+      </div>
+      <div class="glance-card" style="background:var(--purple-l);">
+        <h4 style="color:var(--purple-d);">三种路由机制对比</h4>
+        <p style="color:var(--purple-d);">LLM 路由：灵活、语义理解强，但有延迟。规则路由：快速确定，但无法处理新颖输入。嵌入路由：基于语义相似度，适合意图匹配。ML 模型路由：经过专项训练，决策逻辑固化在权重中。</p>
+      </div>
+    </div>
+    <div class="diagram-sim">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:4px;">路由模式可视化模拟 — 点击节点了解每个组件的作用</p>
+      <div class="diagram-nodes">
+        <div class="dia-node" style="background:var(--bg3);" onclick="simClick('user')">用户输入</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick('router')">路由器（LLM）</div>
+        <div class="dia-arrow">→</div>
+        <div class="dia-node" style="background:var(--blue-l);color:var(--blue-d);" onclick="simClick('booker')">预订处理器</div>
+        <div class="dia-arrow" style="color:var(--text3);">/</div>
+        <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick('info')">信息处理器</div>
+        <div class="dia-arrow" style="color:var(--text3);">/</div>
+        <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d);" onclick="simClick('unclear')">澄清流程</div>
+      </div>
+      <div id="sim-output" class="dia-output">点击上方任意节点，了解其在路由模式中的职责。</div>
+    </div>
+  </section>
+
+  <!-- 知识测验 -->
+  <section id="sec-quiz" class="section">
+    <h2 class="sec-title">知识测验</h2>
+    <p class="sec-desc">测验你对路由模式的理解。共 5 题。</p>
+    <div id="quizProgress"></div>
+    <div id="quizArea"></div>
+  </section>
+
+  <!-- 核心要点 -->
+  <section id="sec-takeaways" class="section">
+    <h2 class="sec-title">核心要点</h2>
+    <p class="sec-desc">掌握路由模式的关键洞见。</p>
+    <ul class="tk-list">
+      <li>路由使智能体能够根据条件对工作流中的下一步骤做出动态决策，而不仅仅是线性执行。</li>
+      <li>它允许智能体处理多样化的输入并自适应其行为，从而超越线性执行的局限。</li>
+      <li>路由逻辑可以使用 LLM（语义理解）、基于规则的系统（确定快速）或嵌入相似度（语义匹配）来实现——各有其适用场景。</li>
+      <li>LangGraph 和 Google ADK 等框架提供了在智能体工作流中定义和管理路由的结构化方式，尽管架构方法不同。</li>
+      <li>LangGraph 的图结构提供了定义状态和转换的可视化和显式方式，非常适合具有复杂路由逻辑的多步骤工作流。</li>
+      <li>Google ADK 中，定义了 sub_agents 的协调者智能体自动启用 LLM 驱动的委派（Auto-Flow），无需显式编写路由规则。</li>
+      <li>路由机制可在智能体操作周期的多个节点介入：初始任务分类、处理链中间节点，或工具选择子程序。</li>
+      <li>掌握路由模式是构建能够智能导航不同场景并基于上下文提供定制化响应的多功能、强健智能体应用的关键。</li>
+    </ul>
+  </section>
+
+  <!-- 参考资料 -->
+  <section id="sec-refs" class="section">
+    <h2 class="sec-title">参考资料</h2>
+    <p class="sec-desc">关于路由模式的延伸阅读资源。</p>
+    <ul class="ref-list">
+      <li><span class="ref-num">[1]</span> LangGraph 官方文档：<a href="https://www.langchain.com/" target="_blank">https://www.langchain.com/</a></li>
+      <li><span class="ref-num">[2]</span> Google Agent Developer Kit 文档：<a href="https://google.github.io/adk-docs/" target="_blank">https://google.github.io/adk-docs/</a></li>
+      <li><span class="ref-num">[3]</span> LangChain Expression Language（LCEL）并行执行：<a href="https://python.langchain.com/docs/concepts/lcel/" target="_blank">https://python.langchain.com/docs/concepts/lcel/</a></li>
+      <li><span class="ref-num">[4]</span> Google ADK 多智能体系统文档：<a href="https://google.github.io/adk-docs/agents/multi-agents/" target="_blank">https://google.github.io/adk-docs/agents/multi-agents/</a></li>
+      <li><span class="ref-num">[5]</span> 本书配套代码（Marco Fago，MIT 许可证，2025）：<a href="https://www.linkedin.com/in/marco-fago/" target="_blank">linkedin.com/in/marco-fago</a></li>
+    </ul>
+  </section>
+
+  <div class="footer"><p>第二章：路由（Routing）· 智能体系统设计模式交互式学习</p></div>
+</div>
+
+<script>
+function go(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleChain(node) {
+  node.classList.toggle('open');
+}
+
+function toggleCtx(layer) {
+  layer.classList.toggle('open');
+}
+
+function showUC(idx, btn) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('uc-' + idx).classList.add('active');
+  btn.classList.add('active');
+}
+
+const simTexts = {
+  user: '用户输入：路由模式的起点。用户发送自然语言查询（如"帮我预订一张飞往东京的机票"）。这个输入将被传递给路由器进行意图分析。',
+  router: '路由器（LLM）：核心组件。LLM 分析用户输入并输出路由决策标识符，如 "booker"（预订意图）、"info"（信息查询）或 "unclear"（意图不明）。这是整个路由模式的决策核心。',
+  booker: '预订处理器：专用处理器之一。当路由器识别出预订意图（航班、酒店等）时，请求被转发至此处理器，执行专属的预订逻辑并返回结果。',
+  info: '信息处理器：专用处理器之一。当路由器识别出通用信息查询意图时，请求被转发至此处理器，检索相关信息并生成响应。',
+  unclear: '澄清流程：兜底处理器。当路由器无法确定用户意图时，请求被路由至澄清子流程，向用户请求更多信息以明确其真实需求。'
+};
+
+function simClick(key) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[key];
+}
+
+const quizData = [
+  {
+    q: '路由模式与提示链（Prompt Chaining）的核心区别是什么？',
+    opts: ['路由比提示链速度更快', '路由在节点之间引入条件分支，而提示链是固定的线性序列', '路由不使用语言模型', '路由只能用于客户服务场景'],
+    ans: 1,
+    fb: '正确！提示链是确定性的线性序列，每一步按固定顺序执行；而路由引入了条件逻辑，根据输入内容或系统状态动态决定执行哪个分支。两者往往结合使用。'
+  },
+  {
+    q: '以下哪种路由机制最适合处理语义丰富但关键词不明确的用户查询？',
+    opts: ['基于规则的路由（if-else 语句）', '基于嵌入向量的路由', '随机路由', '轮询路由'],
+    ans: 1,
+    fb: '正确！基于嵌入向量的路由将查询转换为向量表示，与各路由目标的向量进行相似度比较，因此能够捕捉语义含义而不依赖关键词匹配，非常适合语义丰富的查询。'
+  },
+  {
+    q: 'Google ADK 中，协调者智能体（Coordinator）如何自动将请求路由至子智能体？',
+    opts: ['通过手动编写 if-else 规则', '通过定义 sub_agents 列表启用 Auto-Flow，LLM 自动匹配子智能体描述与用户意图', '通过随机选择子智能体', '需要用户手动指定目标智能体'],
+    ans: 1,
+    fb: '正确！当协调者智能体配置了 sub_agents 列表后，ADK 的 Auto-Flow 机制会默认启用。协调者的 LLM 通过理解各子智能体的描述（description 字段），自动将请求委派给最匹配的子智能体。'
+  },
+  {
+    q: 'LangChain 中的 RunnableBranch 在路由模式中扮演什么角色？',
+    opts: ['它是一个数据库连接组件', '它根据路由器的输出决策，将原始请求分发至对应的处理分支', '它用于生成最终响应文本', '它负责管理智能体的记忆'],
+    ans: 1,
+    fb: '正确！RunnableBranch 接收路由器链的输出（决策标识符），通过 lambda 条件判断将请求导向对应的处理函数（如 booking_handler 或 info_handler），是 LangChain 中实现路由分发的核心组件。'
+  },
+  {
+    q: '下列哪种场景最能体现路由模式的核心价值？',
+    opts: ['将一篇长文章分段翻译成中文', 'AI 客服系统需要区分售前咨询、技术支持和投诉升级三类请求并分别处理', '用 LLM 生成一首诗', '将图片转换为文本描述'],
+    ans: 1,
+    fb: '正确！AI 客服系统需要根据用户意图动态选择不同的处理路径（售前咨询→产品知识库、技术支持→故障排查流程、投诉升级→人工坐席），这正是路由模式解决的核心问题：基于条件的动态分叉。'
+  }
+];
+
+let current = 0;
+const results = new Array(quizData.length).fill(null);
+
+function renderQuiz() {
+  const prog = document.getElementById('quizProgress');
+  prog.innerHTML = '<div class="quiz-progress">' +
+    quizData.map((_, i) => {
+      let cls = 'quiz-dot';
+      if (i === current) cls += ' current';
+      else if (results[i] === true) cls += ' done';
+      else if (results[i] === false) cls += ' wrong-dot';
+      return '<div class="' + cls + '"></div>';
+    }).join('') + '</div>' +
+    '<p style="font-size:12px;color:var(--text3);margin-bottom:1rem;">第 ' + (current+1) + ' 题 / 共 ' + quizData.length + ' 题</p>';
+
+  const q = quizData[current];
+  const answered = results[current] !== null;
+  document.getElementById('quizArea').innerHTML =
+    '<div class="quiz-q">' + q.q + '</div>' +
+    q.opts.map((o, i) => {
+      let cls = 'quiz-opt';
+      if (answered) {
+        cls += ' disabled';
+        if (i === q.ans) cls += ' correct';
+        else if (results[current] === false && i === q._chosen) cls += ' wrong';
+      }
+      return '<button class="' + cls + '" onclick="answer(' + i + ')">' + o + '</button>';
+    }).join('') +
+    '<div class="quiz-fb ' + (answered ? (results[current] ? 'right show' : 'wrng show') : '') + '">' + q.fb + '</div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+    (current > 0 ? '<button class="btn" onclick="prevQ()">上一题</button>' : '') +
+    (current < quizData.length - 1
+      ? '<button class="btn btn-teal" onclick="nextQ()">下一题</button>'
+      : '<button class="btn btn-teal" onclick="go(\'sec-takeaways\', document.querySelectorAll(\'.nav-btn\')[9])">查看核心要点</button>') +
+    '</div>';
+}
+
+function answer(i) {
+  if (results[current] !== null) return;
+  const q = quizData[current];
+  q._chosen = i;
+  results[current] = (i === q.ans);
+  renderQuiz();
+}
+
+function nextQ() { if (current < quizData.length - 1) { current++; renderQuiz(); } }
+function prevQ() { if (current > 0) { current--; renderQuiz(); } }
+
+renderQuiz();
+</script>
+</body>
+</html>

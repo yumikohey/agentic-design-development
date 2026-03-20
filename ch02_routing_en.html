@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Routing — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --serif: Georgia, "Times New Roman", serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB;
+    --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6;
+    --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775;
+    --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 90px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Chapter 2</div>
+<h1>Routing</h1>
+<p class="subtitle">Introduce conditional logic into your agent's workflow — dynamically evaluate criteria to direct inputs to the most appropriate specialized handler, tool, or sub-process.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Pattern Name</div><div class="metric-value">Routing</div></div>
+    <div class="metric"><div class="metric-label">Key Strategy</div><div class="metric-value">Conditional Logic</div></div>
+    <div class="metric"><div class="metric-label">Key Benefit</div><div class="metric-value">Adaptability</div></div>
+    <div class="metric"><div class="metric-label">Primary Goal</div><div class="metric-value">Dynamic Flow</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>What is the Routing Pattern?</h3>
+    <p>While sequential processing via prompt chaining is foundational for deterministic, linear workflows, its applicability is limited in scenarios requiring adaptive responses. Real-world agentic systems must often arbitrate between multiple potential actions based on contingent factors — the state of the environment, user input, or the outcome of a preceding operation. This capacity for dynamic decision-making is achieved through <strong>routing</strong>.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Conditional Logic in Agents</h3>
+    <p>Routing introduces conditional logic into an agent's operational framework, enabling a shift from a fixed execution path to a model where the agent dynamically evaluates specific criteria to select from a set of possible subsequent actions. This allows for more flexible and context-aware system behavior — transforming a static executor of pre-defined sequences into a dynamic system.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>A Customer Service Example</h3>
+    <p>An agent designed for customer inquiries, when equipped with a routing function, can first classify an incoming query to determine the user's intent. Based on this classification, it can direct the query to: a specialized agent for direct question-answering, a database retrieval tool for account information, or an escalation procedure for complex issues — rather than defaulting to a single, predetermined response pathway.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Framework Support</h3>
+    <p>LangChain, LangGraph, and Google's Agent Development Kit (ADK) provide explicit constructs for defining and managing routing logic. LangGraph's state-based graph architecture is particularly well-suited for complex routing where decisions are contingent on the accumulated state of the entire system. Google's ADK provides foundational components for structuring an agent's capabilities and interaction models.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Problems That Routing Solves</div>
+  <div class="sec-desc">Without routing, agents are limited to fixed, linear execution paths. Click each card to see the specific problem addressed:</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>One-Size-Fits-All Processing</h4>
+      <p>Every request processed the same way regardless of type</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Without routing, all inputs are funneled through the same pipeline regardless of their nature. A "check order status" request and a "technical support" request receive identical treatment, producing suboptimal results for both.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Inability to Specialize</h4>
+      <p>No way to delegate to specialist handlers</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Complex systems benefit from specialist sub-agents: a booking agent for travel, an info agent for FAQs, a technical agent for debugging. Without routing, a single generalist agent must handle all domains — degrading quality across the board.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Rigid Sequential Execution</h4>
+      <p>Cannot adapt flow based on runtime conditions</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Prompt chains are linear. If the outcome of one step should change which next step runs (e.g., if sentiment is negative, escalate; otherwise, resolve automatically), pure chaining cannot accommodate this without routing logic.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Tool Selection Failure</h4>
+      <p>Calls the wrong tool for the job</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">A coding assistant that uses a web search tool for a "debug this code" request and a code analysis tool for "what's the capital of France?" is wasting resources and producing poor results. Routing maps intent to the correct tool.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Escalation Blindness</h4>
+      <p>No mechanism to identify and escalate complex cases</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Some requests require human intervention or a more capable model. Without routing, there's no mechanism to detect "this is beyond my capability" and redirect to a human operator or escalation pathway, leading to poor resolutions.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">The Routing Architecture</div>
+  <div class="sec-desc">The core of routing is a mechanism that evaluates the input and directs the flow. Click each node to explore the architecture:</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--blue);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">1</div>
+        <div>
+          <div class="chain-title">Input Reception</div>
+          <div class="chain-role">Receive and normalize the incoming request</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The system receives the raw input — a user query, an API payload, a document, or a state change event. This input is the trigger for the routing decision. The input may be preprocessed or normalized before being analyzed.<br><br>
+        <strong>Input:</strong> Raw user request, document, or event<br>
+        <strong>Output:</strong> Normalized input ready for classification
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Router / Classifier</div>
+          <div class="chain-role">Evaluate criteria and determine the destination</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The router is the decision-making core. It analyzes the input and outputs a routing decision. This can be implemented as:<br><br>
+        • <strong>LLM-based:</strong> Prompt the LLM to classify and output a category label<br>
+        • <strong>Embedding-based:</strong> Convert input to a vector and compare to route embeddings<br>
+        • <strong>Rule-based:</strong> If-else logic on keywords or structured data<br>
+        • <strong>ML Classifier:</strong> A fine-tuned discriminative model<br><br>
+        <strong>Input:</strong> Normalized request<br>
+        <strong>Output:</strong> Routing decision (e.g., "booker", "info", "escalate")
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">3</div>
+        <div>
+          <div class="chain-title">Dispatch to Handler</div>
+          <div class="chain-role">Direct the request to the appropriate specialized sub-process</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        Based on the routing decision, the system dispatches the original input to the appropriate handler. Handlers can be: specialized sub-agents, tool chains, database retrieval pipelines, or escalation procedures. Each handler is optimized for its specific domain.<br><br>
+        <strong>Input:</strong> Routing decision + original request<br>
+        <strong>Output:</strong> Response from the specialized handler
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">4</div>
+        <div>
+          <div class="chain-title">Response Consolidation</div>
+          <div class="chain-role">Return the handler's result to the user</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The handler's output is returned to the user or to the next stage in a larger workflow. In some architectures, a post-processing step standardizes the format of responses from different handlers before delivery.<br><br>
+        <strong>Input:</strong> Handler output<br>
+        <strong>Output:</strong> Final response delivered to user or downstream process
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Routing Mechanisms</div>
+  <div class="sec-desc">The core component of the Routing pattern is the mechanism that performs evaluation and directs the flow. There are four primary approaches, each with different trade-offs.</div>
+
+  <div class="card" style="border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>LLM-Based Routing</h3>
+    <p>The language model itself is prompted to analyze the input and output a specific identifier or instruction indicating the next step or destination. For example, a prompt might ask the LLM to "Analyze the following user query and output only the category: 'Order Status', 'Product Info', 'Technical Support', or 'Other'." The agentic system reads this output and directs the workflow accordingly.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Embedding-Based Routing</h3>
+    <p>The input query is converted into a vector embedding. This embedding is then compared to embeddings representing different routes or capabilities. The query is routed to the destination whose embedding is most similar. This is useful for semantic routing, where the decision is based on the meaning of the input rather than just keywords.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--amber); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Rule-Based Routing</h3>
+    <p>Predefined rules or logic (e.g., if-else statements, switch cases) based on keywords, patterns, or structured data extracted from the input. This can be faster and more deterministic than LLM-based routing, but is less flexible for handling nuanced or novel inputs. Best used when categories are well-defined and stable.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>ML Model-Based Routing</h3>
+    <p>Employs a discriminative model (such as a classifier) that has been specifically trained on a small corpus of labeled data to perform the routing task. Unlike LLM-based routing, the routing logic is encoded within the fine-tuned model's learned weights — the decision-making component is not a generative model executing a prompt at inference time. This provides high speed and consistency for high-volume routing scenarios.</p>
+  </div>
+
+  <p style="font-size:14px;color:var(--text2);margin-bottom:12px;">LangChain's <code>RunnableBranch</code> is a key primitive for implementing routing:</p>
+  <div class="json-block">delegation_branch = RunnableBranch(
+  (lambda x: x['decision'].strip() == 'booker', branches["booker"]),
+  (lambda x: x['decision'].strip() == 'info',   branches["info"]),
+  branches["unclear"]  # default fallback branch
+)</div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Practical Applications &amp; Use Cases</div>
+  <div class="sec-desc">The routing pattern is a critical control mechanism in adaptive agentic systems. Click the tabs to explore key application domains:</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Customer Service</button>
+    <button class="uc-tab" onclick="showUC(1)">Document Processing</button>
+    <button class="uc-tab" onclick="showUC(2)">Multi-Agent Systems</button>
+    <button class="uc-tab" onclick="showUC(3)">AI Tutoring</button>
+    <button class="uc-tab" onclick="showUC(4)">Coding Assistants</button>
+    <button class="uc-tab" onclick="showUC(5)">Triage &amp; Escalation</button>
+  </div>
+
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Customer Service Agent</h3>
+      <p>A sophisticated agent designed for customer inquiries can classify incoming queries and route them to specialized handlers, moving beyond linear dialogue flows.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Receive customer query</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Classify intent: "check order status" / "product information" / "technical support" / "unclear"</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>Order status → route to database retrieval tool chain</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>Product info → route to product catalog search sub-agent</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>Technical support → route to troubleshooting guide chain or escalate to human</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>Unclear → route to clarification sub-agent</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Automated Document Processing</h3>
+      <p>Incoming data (emails, support tickets, API payloads) is analyzed based on content, metadata, or format, then routed to corresponding workflows.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Receive incoming document or API payload</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Classify by content type and urgency level</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>Sales lead email → route to sales lead ingestion process</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>JSON data → route to JSON transformation function</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>Urgent issue → route to escalation path with human notification</div></div>
+      </div>
+      <p style="margin-top:8px;font-size:13px;color:var(--text3);">This routing serves as a classification and distribution function for automated data pipelines.</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Multi-Agent Research System</h3>
+      <p>Routing acts as a high-level dispatcher in systems with multiple specialized agents for searching, summarizing, and analyzing information.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Receive high-level research objective</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Router agent analyzes the objective and determines which specialist is best suited</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>"Find recent papers" → route to search agent</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>"Summarize findings" → route to summarization agent</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>"Analyze data" → route to analysis agent</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Adaptive AI Tutoring</h3>
+      <p>In educational applications, routing enables personalized learning paths based on user performance and intent analysis.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Receive student query or interaction</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Analyze intent and performance level</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>Conceptual question → route to explanation module</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>Practice request → route to exercise generator, selecting difficulty based on performance</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>Struggling student → route to remedial content module</div></div>
+      </div>
+      <p style="margin-top:8px;font-size:13px;color:var(--text3);">This allows the system to move beyond linear curriculum flows and respond contextually to each student's needs.</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>AI Coding Assistant</h3>
+      <p>Routing identifies the programming language and user intent before passing the code snippet to the correct specialized tool.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Receive user query with code snippet</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Identify programming language and intent (debug / explain / translate / optimize)</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>Debug → route to error analysis tool with language-specific linter</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>Explain → route to documentation-focused LLM chain</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>Translate → route to language translation sub-agent</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-5">
+    <div class="card" style="border-left:3px solid var(--pink);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Triage &amp; Escalation Systems</h3>
+      <p>Routing enables intelligent triage — automatically identifying which cases require human intervention or a more powerful model.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Receive support ticket or complaint</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Classify severity and complexity</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>Low complexity → route to automated resolution chain</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>Medium complexity → route to powerful LLM with extended context</div></div>
+        <div class="uc-step"><div class="uc-step-num">→</div><div>High complexity / VIP → route to human agent with full context summary</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Hands-On Code</div>
+  <div class="sec-desc">Two implementations are shown: one with LangChain's RunnableBranch, and one with Google's ADK demonstrating coordinator-based routing.</div>
+
+  <div class="card" style="border-left:3px solid var(--text3);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>LangChain: RunnableBranch Router</h3>
+    <p>This code constructs a "coordinator" that routes user requests to different simulated sub-agent handlers based on the request's intent (booking, information, or unclear). An LLM classifies the intent and a RunnableBranch dispatches accordingly.</p>
+  </div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0;">Install dependencies:</p>
+  <div class="json-block">pip install langchain langgraph google-cloud-aiplatform langchain-google-genai google-adk pydantic</div>
+
+  <div class="code-block"><span class="code-keyword">from</span> langchain_google_genai <span class="code-keyword">import</span> ChatGoogleGenerativeAI
+<span class="code-keyword">from</span> langchain_core.prompts <span class="code-keyword">import</span> ChatPromptTemplate
+<span class="code-keyword">from</span> langchain_core.output_parsers <span class="code-keyword">import</span> StrOutputParser
+<span class="code-keyword">from</span> langchain_core.runnables <span class="code-keyword">import</span> RunnablePassthrough, RunnableBranch
+
+<span class="code-comment"># --- Initialize LLM ---</span>
+llm = ChatGoogleGenerativeAI(model=<span class="code-string">"gemini-2.5-flash"</span>, temperature=<span class="code-string">0</span>)
+
+<span class="code-comment"># --- Specialist Handler Functions ---</span>
+<span class="code-keyword">def</span> booking_handler(request: str) -> str:
+    <span class="code-keyword">return</span> <span class="code-string">f"Booking Agent handled: '{request}'. Simulated booking action."</span>
+
+<span class="code-keyword">def</span> info_handler(request: str) -> str:
+    <span class="code-keyword">return</span> <span class="code-string">f"Info Agent handled: '{request}'. Simulated info retrieval."</span>
+
+<span class="code-keyword">def</span> unclear_handler(request: str) -> str:
+    <span class="code-keyword">return</span> <span class="code-string">f"Could not delegate: '{request}'. Please clarify."</span>
+
+<span class="code-comment"># --- Coordinator Router Chain ---</span>
+coordinator_router_prompt = ChatPromptTemplate.from_messages([
+    (<span class="code-string">"system"</span>, <span class="code-string">"""Analyze the user's request and determine which specialist handler should process it.
+    - If related to booking flights or hotels, output 'booker'.
+    - For all other general information questions, output 'info'.
+    - If the request is unclear, output 'unclear'.
+    ONLY output one word: 'booker', 'info', or 'unclear'."""</span>),
+    (<span class="code-string">"user"</span>, <span class="code-string">"{request}"</span>)
+])
+
+coordinator_router_chain = coordinator_router_prompt | llm | StrOutputParser()
+
+<span class="code-comment"># --- Define Branches (RunnableBranch) ---</span>
+branches = {
+    <span class="code-string">"booker"</span>: RunnablePassthrough.assign(
+        output=<span class="code-keyword">lambda</span> x: booking_handler(x[<span class="code-string">'request'</span>][<span class="code-string">'request'</span>])),
+    <span class="code-string">"info"</span>: RunnablePassthrough.assign(
+        output=<span class="code-keyword">lambda</span> x: info_handler(x[<span class="code-string">'request'</span>][<span class="code-string">'request'</span>])),
+    <span class="code-string">"unclear"</span>: RunnablePassthrough.assign(
+        output=<span class="code-keyword">lambda</span> x: unclear_handler(x[<span class="code-string">'request'</span>][<span class="code-string">'request'</span>])),
+}
+
+delegation_branch = RunnableBranch(
+    (<span class="code-keyword">lambda</span> x: x[<span class="code-string">'decision'</span>].strip() == <span class="code-string">'booker'</span>, branches[<span class="code-string">"booker"</span>]),
+    (<span class="code-keyword">lambda</span> x: x[<span class="code-string">'decision'</span>].strip() == <span class="code-string">'info'</span>,   branches[<span class="code-string">"info"</span>]),
+    branches[<span class="code-string">"unclear"</span>]  <span class="code-comment"># Default fallback</span>
+)
+
+<span class="code-comment"># --- Combine into coordinator agent ---</span>
+coordinator_agent = {
+    <span class="code-string">"decision"</span>: coordinator_router_chain,
+    <span class="code-string">"request"</span>: RunnablePassthrough()
+} | delegation_branch | (<span class="code-keyword">lambda</span> x: x[<span class="code-string">'output'</span>])
+
+<span class="code-comment"># --- Run ---</span>
+result = coordinator_agent.invoke({<span class="code-string">"request"</span>: <span class="code-string">"Book me a flight to London."</span>})
+<span class="code-keyword">print</span>(result)</div>
+
+  <div class="card card-bordered" style="margin-top:16px;">
+    <h3>Google ADK: Coordinator with Sub-Agents</h3>
+    <p>In the ADK paradigm, routing is implemented by defining a discrete set of "tools" or sub-agents that represent the agent's functions. A coordinator agent holds sub-agents and uses its LLM to match user intent to the correct specialist via Auto-Flow delegation.</p>
+  </div>
+
+  <div class="code-block"><span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> Agent
+<span class="code-keyword">from</span> google.adk.tools <span class="code-keyword">import</span> FunctionTool
+
+<span class="code-comment"># --- Tool functions for specialist agents ---</span>
+<span class="code-keyword">def</span> booking_handler(request: str) -> str:
+    <span class="code-string">"""Handles booking requests for flights and hotels."""</span>
+    <span class="code-keyword">return</span> <span class="code-string">f"Booking action for '{request}' has been simulated."</span>
+
+<span class="code-keyword">def</span> info_handler(request: str) -> str:
+    <span class="code-string">"""Handles general information requests."""</span>
+    <span class="code-keyword">return</span> <span class="code-string">f"Information request for '{request}'. Simulated retrieval."</span>
+
+<span class="code-comment"># --- Create ADK Agents ---</span>
+booking_agent = Agent(
+    name=<span class="code-string">"Booker"</span>,
+    model=<span class="code-string">"gemini-2.0-flash"</span>,
+    description=<span class="code-string">"A specialist agent for flight and hotel booking requests."</span>,
+    tools=[FunctionTool(booking_handler)]
+)
+
+info_agent = Agent(
+    name=<span class="code-string">"Info"</span>,
+    model=<span class="code-string">"gemini-2.0-flash"</span>,
+    description=<span class="code-string">"A specialist agent for general information requests."</span>,
+    tools=[FunctionTool(info_handler)]
+)
+
+<span class="code-comment"># --- Coordinator with explicit routing instructions ---</span>
+coordinator = Agent(
+    name=<span class="code-string">"Coordinator"</span>,
+    model=<span class="code-string">"gemini-2.0-flash"</span>,
+    instruction=<span class="code-string">"""You are the main coordinator. Analyze incoming user requests
+    and delegate them to the appropriate specialist agent.
+    Do NOT answer the user directly.
+    - For booking flights or hotels, delegate to the 'Booker' agent.
+    - For all other information questions, delegate to the 'Info' agent."""</span>,
+    description=<span class="code-string">"A coordinator that routes user requests to specialist agents."</span>,
+    sub_agents=[booking_agent, info_agent]  <span class="code-comment"># Enables LLM-driven Auto-Flow</span>
+)</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: Routing Mechanisms Compared</div>
+  <div class="sec-desc">Each routing mechanism has distinct characteristics that make it suitable for different scenarios. Click each layer to explore the trade-offs:</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);color:var(--teal-d);border-color:var(--teal);">
+      <div class="ctx-layer-title">LLM-Based Routing</div>
+      <div class="ctx-layer-sub">Flexible, semantic understanding of intent</div>
+      <div class="ctx-layer-detail">Prompts the LLM to output a routing decision. High flexibility — handles novel, nuanced inputs well and understands semantic meaning. The downside: adds latency (one LLM call per routing decision), can be non-deterministic, and costs tokens. Best for: open-ended queries with many possible intents, when nuance matters more than speed.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);color:var(--purple-d);border-color:var(--purple);">
+      <div class="ctx-layer-title">Embedding-Based Routing</div>
+      <div class="ctx-layer-sub">Semantic similarity matching via vector space</div>
+      <div class="ctx-layer-detail">Converts the input query to a vector embedding and compares it to pre-computed embeddings for each route. Routes to the most semantically similar destination. Faster than LLM routing (no generation step), robust to paraphrasing and synonyms. Requires maintaining an embedding index. Best for: semantic routing with a defined set of categories, when speed and semantic flexibility are both important.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);color:var(--amber-d);border-color:var(--amber);">
+      <div class="ctx-layer-title">Rule-Based Routing</div>
+      <div class="ctx-layer-sub">Deterministic, fast, fully predictable</div>
+      <div class="ctx-layer-detail">Uses predefined if-else logic, keyword matching, or pattern recognition. Completely deterministic and very fast — no model inference required. Fully auditable and debuggable. The limitation: brittle for novel inputs, requires manual maintenance as categories evolve, and fails on paraphrasing. Best for: well-defined, stable categories where speed and predictability are paramount.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);color:var(--coral-d);border-color:var(--coral);">
+      <div class="ctx-layer-title">ML Model-Based Routing</div>
+      <div class="ctx-layer-sub">Trained discriminative classifier, optimized for routing</div>
+      <div class="ctx-layer-detail">A small, fine-tuned classifier trained specifically for the routing task. The routing logic is encoded in the model's weights — not executed as a generative prompt. Very fast (far faster than LLM routing), highly consistent, and optimized for the specific routing task. LLMs may be used offline to generate synthetic training data. Best for: high-volume routing pipelines where latency and consistency are critical.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);color:var(--blue-d);border-color:var(--blue);">
+      <div class="ctx-layer-title">LangGraph State-Based Routing</div>
+      <div class="ctx-layer-sub">Graph topology with conditional state transitions</div>
+      <div class="ctx-layer-detail">LangGraph's graph architecture defines nodes and edges where transitions between nodes are governed by conditional functions or model-based evaluations. Routing decisions can be contingent on the entire accumulated state of the system — not just the immediate input. This is ideal for complex multi-step workflows where routing depends on what has already happened in the conversation or workflow.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--red-l);color:var(--red-d);">
+      <h4>THE PROBLEM</h4>
+      <p>Sequential prompt chains have fixed execution paths. Real-world systems need to respond differently to different inputs — routing different request types to different specialized handlers, tools, or escalation paths.</p>
+    </div>
+    <div class="glance-card" style="background:var(--teal-l);color:var(--teal-d);">
+      <h4>THE SOLUTION</h4>
+      <p>Routing introduces conditional logic: a router evaluates each input and directs it to the most appropriate specialized handler. This transforms agents from static executors into dynamic, context-aware systems.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);color:var(--purple-d);">
+      <h4>THE MECHANISMS</h4>
+      <p>Four approaches: LLM-based (flexible, semantic), Embedding-based (semantic similarity), Rule-based (deterministic, fast), and ML Classifier (trained, optimized). Choice depends on trade-offs between speed, flexibility, and consistency.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);color:var(--amber-d);">
+      <h4>WHEN TO USE</h4>
+      <p>Use when: different input types need different processing paths; you have specialized sub-agents or tools; you need to escalate complex cases; or the system must adapt its behavior based on input classification or system state.</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Interactive routing simulation — click a node to see its role</p>
+    <div class="diagram-nodes">
+      <div class="dia-node" onclick="simClick(0)" style="background:var(--blue-l);color:var(--blue-d);">Input</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--purple-l);color:var(--purple-d);">Router</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--teal-l);color:var(--teal-d);">Handler A</div>
+      <div class="dia-arrow">/</div>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--coral-l);color:var(--coral-d);">Handler B</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(4)" style="background:var(--green-l);color:var(--green-d);">Response</div>
+    </div>
+    <div class="dia-output" id="sim-output">Click any node above to see its role in the routing architecture.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Quiz</div>
+  <div class="sec-desc">Test your understanding of the Routing pattern. Click an option to answer.</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>Routing introduces conditional logic into an agent's operational framework, enabling dynamic selection of execution paths rather than fixed sequential processing.</li>
+    <li>The core component of any routing implementation is a mechanism that evaluates input criteria and directs the flow to the appropriate handler, sub-agent, or tool.</li>
+    <li>There are four primary routing mechanisms: LLM-based (flexible, semantic), Embedding-based (similarity-driven), Rule-based (deterministic, fast), and ML Classifier-based (trained, optimized for high volume).</li>
+    <li>Routing can be applied at multiple points in an agent's lifecycle: at the outset to classify a primary task, at intermediate points within a processing chain, or during a subroutine to select the most appropriate tool.</li>
+    <li>LangChain's <code>RunnableBranch</code> is the key primitive for implementing routing in LCEL-based workflows. LangGraph's graph structure enables routing based on accumulated system state.</li>
+    <li>Google ADK implements routing through coordinator agents with sub-agents — the presence of sub-agents enables LLM-driven Auto-Flow delegation.</li>
+    <li>Routing transforms agents from static executors of pre-defined sequences into dynamic systems capable of making intelligent decisions about the most effective method for accomplishing a task under changing conditions.</li>
+    <li>Routing is often combined with prompt chaining: the router decides which chain to execute, and prompt chaining handles the sequential steps within each branch.</li>
+  </ul>
+
+  <div class="card card-bordered">
+    <h3>Summary</h3>
+    <p>Routing provides the capacity for logical arbitration that is essential for creating functionally diverse and context-aware systems. It facilitates the development of more adaptive execution flows that can respond dynamically and appropriately to a wider range of inputs and state changes — the critical capability that separates simple chatbots from truly intelligent agentic systems.</p>
+  </div>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> LangChain RunnableBranch Documentation: <a href="https://python.langchain.com/docs/expression_language/primitives/branch/" target="_blank">python.langchain.com</a></li>
+    <li><span class="ref-num">[2]</span> LangGraph Conditional Edges: <a href="https://langchain-ai.github.io/langgraph/concepts/low_level/#conditional-edges" target="_blank">langchain-ai.github.io/langgraph</a></li>
+    <li><span class="ref-num">[3]</span> Google ADK Multi-Agent Documentation: <a href="https://google.github.io/adk-docs/agents/multi-agents/" target="_blank">google.github.io/adk-docs</a></li>
+    <li><span class="ref-num">[4]</span> Anthropic — Building Effective Agents: <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank">anthropic.com</a></li>
+    <li><span class="ref-num">[5]</span> Prompt Engineering Guide — Routing: <a href="https://www.promptingguide.ai/techniques/routing" target="_blank">promptingguide.ai</a></li>
+    <li><span class="ref-num">[6]</span> LangChain LCEL How-To Guides: <a href="https://python.langchain.com/docs/expression_language/how_to/" target="_blank">python.langchain.com</a></li>
+    <li><span class="ref-num">[7]</span> Google Gemini API Documentation: <a href="https://ai.google.dev/gemini-api/docs" target="_blank">ai.google.dev</a></li>
+  </ul>
+</div>
+
+<div class="footer">
+  <p>Chapter 2 · Routing · Interactive Learning Experience</p>
+</div>
+
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+
+const simTexts = [
+  "Input: The raw user request, document, or event enters the system. This could be a natural language query ('Book me a flight to Paris'), a structured API payload, or an event from another system. The input is the trigger for the routing decision.",
+  "Router / Classifier: The heart of the routing pattern. This component evaluates the input — using an LLM, embeddings, rules, or a trained classifier — and outputs a routing decision. For example, it classifies the input as 'booker', 'info', or 'unclear'. This decision determines which handler receives the request.",
+  "Handler A (e.g., Booking Agent): A specialized handler that is optimized for a specific domain. It receives the original request along with the routing decision and processes it using domain-specific tools, prompts, and logic. Only activated when the router classifies the input as matching its specialty.",
+  "Handler B (e.g., Info Agent): An alternative specialized handler for a different category of requests. The routing pattern means only one handler is invoked per request — the one that best matches the classified intent. This specialization produces higher quality outputs than a generalist approach.",
+  "Response: The selected handler's output is returned to the user or to the next stage in the workflow. The routing pattern ensures that every request is processed by the most appropriate, specialized handler available — producing better outcomes than any single generalist could achieve."
+];
+
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+
+const quizData = [
+  {
+    q: "What does the Routing pattern fundamentally add to an agent's operational framework?",
+    opts: ["More efficient token usage", "Conditional logic that enables dynamic selection of execution paths", "Faster model inference", "Better prompt formatting"],
+    ans: 1,
+    ok: "Correct! Routing introduces conditional logic, enabling the agent to dynamically evaluate criteria and select from multiple possible subsequent actions — moving beyond fixed, linear execution paths.",
+    no: "Routing is about control flow, not efficiency. It fundamentally adds the ability to make conditional decisions about which path to take based on the input or system state."
+  },
+  {
+    q: "Which routing mechanism is best suited for high-volume pipelines where latency and consistency are critical?",
+    opts: ["LLM-based routing", "Embedding-based routing", "Rule-based routing", "ML Model-based routing"],
+    ans: 3,
+    ok: "Correct! ML Model-based routing uses a fine-tuned classifier with routing logic encoded in its weights — no LLM generation at inference time — making it the fastest and most consistent option for high-volume scenarios.",
+    no: "For high-volume, low-latency scenarios, a trained ML classifier is superior. LLM-based routing adds generation latency; embedding-based requires similarity computation; rule-based is fast but brittle."
+  },
+  {
+    q: "In Google's ADK, what enables LLM-driven routing (Auto-Flow) in a coordinator agent?",
+    opts: ["Calling a special routing API endpoint", "The presence of sub_agents in the coordinator agent definition", "Using a ChatPromptTemplate with routing instructions", "A separate RunnableBranch component"],
+    ans: 1,
+    ok: "Correct! In ADK, the presence of sub_agents in the coordinator's definition enables LLM-driven Auto-Flow delegation. The coordinator's LLM automatically decides which sub-agent to route to based on user intent.",
+    no: "ADK's Auto-Flow is triggered by the presence of sub_agents. The coordinator's LLM then uses its understanding of each sub-agent's description to determine which one should handle the request."
+  },
+  {
+    q: "At which points in an agent's operational cycle can routing be applied?",
+    opts: ["Only at the beginning of a workflow", "Only at tool selection time", "At the outset, at intermediate points within a chain, and during tool selection", "Only at the end to format the final response"],
+    ans: 2,
+    ok: "Correct! Routing can be applied at multiple junctures: at the outset to classify a primary task, at intermediate points within a processing chain to determine a subsequent action, or during a subroutine to select the most appropriate tool.",
+    no: "Routing is versatile — it can be applied anywhere in an agent's cycle where a conditional decision needs to be made about which path to follow next."
+  },
+  {
+    q: "What is the key advantage of embedding-based routing over LLM-based routing?",
+    opts: ["It is cheaper to implement", "It handles nuanced language better", "It is faster and robust to paraphrasing and synonyms without needing a generation step", "It requires no maintenance"],
+    ans: 2,
+    ok: "Correct! Embedding-based routing converts input to a vector and compares to route embeddings — no LLM generation step needed, making it faster. It also handles paraphrasing and synonyms well because it works on semantic meaning.",
+    no: "The key advantage is speed and semantic robustness: no generation latency, and comparisons work in vector space so paraphrasing the same intent routes to the same destination."
+  },
+  {
+    q: "How does LangGraph extend routing capabilities beyond what a simple RunnableBranch offers?",
+    opts: ["LangGraph is always faster", "LangGraph routing decisions can be contingent on the entire accumulated system state, not just the immediate input", "LangGraph requires no code to implement routing", "LangGraph supports more programming languages"],
+    ans: 1,
+    ok: "Correct! LangGraph's state-based graph architecture allows routing decisions to depend on the accumulated state of the entire system — all previous steps, outputs, and context — rather than just the current input.",
+    no: "LangGraph's key routing advantage is state-awareness. Its conditional edges can evaluate the full accumulated system state, enabling complex routing decisions based on the history of the entire workflow."
+  }
+];
+
+let curQ = 0, answered = new Set(), scores = [];
+
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => {
+    html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>';
+  });
+  html += '<div class="quiz-fb" id="qfb"></div>';
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next Question</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => {
+      btn.classList.add('disabled');
+      if (i === q2.ans) btn.classList.add('correct');
+    });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+
+renderQuiz();
+</script>
+</body>
+</html>

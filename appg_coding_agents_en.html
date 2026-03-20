@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appendix G: Coding Agents — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2; --text: #1A1A18;
+  --text2: #5C5B57; --text3: #8A8983; --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15); --teal: #1D9E75; --teal-l: #E1F5EE;
+  --teal-d: #085041; --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489; --blue: #378ADD;
+  --blue-l: #E6F1FB; --blue-d: #0C447C; --amber: #BA7517; --amber-l: #FAEEDA;
+  --amber-d: #633806; --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F; --green: #639922;
+  --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: system-ui, -apple-system, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431; --text: #E8E7E2;
+    --text2: #ADACA6; --text3: #7A7974; --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15); --teal-l: #0A3D30; --teal-d: #9FE1CB;
+    --coral-l: #3D1E12; --coral-d: #F5C4B3; --purple-l: #2A2555; --purple-d: #CECBF6;
+    --blue-l: #0A2E4D; --blue-d: #B5D4F4; --amber-l: #3A2805; --amber-d: #FAC775;
+    --pink-l: #3D1528; --pink-d: #F4C0D1; --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.3rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--teal); }
+.fail-card:nth-child(2)::before { background: var(--purple); }
+.fail-card:nth-child(3)::before { background: var(--coral); }
+.fail-card:nth-child(4)::before { background: var(--amber); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 560px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 500px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.agent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .agent-grid { grid-template-columns: 1fr; } }
+.agent-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); background: var(--bg2); }
+.agent-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.agent-card .role { font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.agent-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 8px 14px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 80px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 16px; color: var(--text3); padding: 0 4px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Appendix G</div>
+<h1>Coding Agents</h1>
+<p class="subtitle">The era of the lone coder has given way to a new paradigm: developers leading teams of specialized AI agents. This framework organizes human-agent collaboration through three foundational principles — Human-Led Orchestration, Primacy of Context, and Direct Model Access.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">The Augmented Development Team</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Paradigm</div><div class="metric-value">Human-Led</div></div>
+    <div class="metric"><div class="metric-label">Key Principle</div><div class="metric-value">Context First</div></div>
+    <div class="metric"><div class="metric-label">Specialist Agents</div><div class="metric-value">5 Roles</div></div>
+    <div class="metric"><div class="metric-label">Industry Adoption</div><div class="metric-value">&gt;30% AI Code</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>From Vibe Coding to Augmented Teams</h3>
+    <p>"Vibe coding" has become a powerful technique for rapid innovation — using LLMs to generate initial drafts, outline complex logic, or build quick prototypes. While it excels at ideation and overcoming the "blank page" problem, developing robust, scalable, and maintainable software demands a more structured approach: a collaborative partnership with specialized coding agents.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Agents as Team Members</h3>
+    <p>The industry is shifting towards augmenting developers with sophisticated coding agents. In early 2025, Alphabet CEO Sundar Pichai noted that at Google, "over 30% of new code is now assisted or generated by our Gemini models, fundamentally changing our development velocity." Microsoft made a similar claim. The goal is an augmented relationship: humans guide architectural vision while agents handle specialized, scalable tasks like testing, documentation, and review.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Three Foundational Principles</h3>
+    <ul>
+      <li><strong>Human-Led Orchestration:</strong> The developer is team lead and final decision-maker. Agents are powerful but supportive collaborators.</li>
+      <li><strong>Primacy of Context:</strong> An agent's performance depends entirely on the quality of its context. The developer curates a complete, task-specific briefing.</li>
+      <li><strong>Direct Model Access:</strong> Agents must use frontier models (Gemini 2.5 Pro, Claude Opus 4, etc.) directly — not through intermediaries that obscure or truncate context.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">The Scaling Problem in Software Development</div>
+  <div class="sec-desc">As software complexity grows, individual developers face fundamental scaling limits. Click each card to explore:</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Testing Bottlenecks</h4>
+      <p>Comprehensive tests require disproportionate time</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Writing complete unit tests, integration tests, and end-to-end tests for every feature is time-consuming. Under deadline pressure, testing is cut — leading to technical debt, regressions, and fragile codebases.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Documentation Neglect</h4>
+      <p>APIs and functions go undocumented</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Documentation is the first casualty of sprint pressure. Functions, classes, and APIs accumulate without clear documentation, making onboarding new developers slow and maintenance error-prone.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Review Quality Degrades</h4>
+      <p>Code reviews become superficial under load</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">When developers are overloaded, code reviews become cursory — missing performance issues, security vulnerabilities, and style violations. The review bottleneck slows delivery and lets bugs through.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Optimization Deferred</h4>
+      <p>Performance refactoring gets deprioritized</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Identifying and refactoring performance bottlenecks requires deep analysis that gets deferred in favor of new features. Technical debt accumulates, eventually requiring expensive rewrites.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">The Human-Agent Team Framework</div>
+  <div class="sec-desc">A structured framework of specialized agents, each with a distinct role in the development lifecycle. Click each to understand how the framework is structured:</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--blue);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">O</div>
+        <div>
+          <div class="chain-title">The Orchestrator: The Human Developer</div>
+          <div class="chain-role">Role: Team Lead, Architect, Final Decision-Maker</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The human developer acts as the Orchestrator — the central intelligence and ultimate authority over all AI agents. They define tasks, prepare context, and validate all work done by agents.<br><br>
+        <strong>Interface:</strong> The developer's own terminal, editor, and the native web UI of the chosen agents.<br><br>
+        This is not optional — the developer must remain in the loop, orchestrating the workflow, setting high-level goals, and making final decisions. Agents are powerful, but they are supportive collaborators, not autonomous decision-makers.
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--amber);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">C</div>
+        <div>
+          <div class="chain-title">The Context Staging Area</div>
+          <div class="chain-role">Foundation: Complete, Task-Specific Briefing</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The Context Staging Area is where the developer meticulously prepares a complete and task-specific briefing — the foundation for any successful agent interaction.<br><br>
+        <strong>Implementation:</strong> A temporary directory (e.g., <code>task-context/</code>) containing markdown files for goals, code files, and relevant documentation.<br><br>
+        The briefing includes: (1) The Complete Codebase — all relevant source code; (2) External Knowledge — documentation, API definitions, design documents; (3) The Human Brief — clear goals, requirements, PR descriptions, style guides.
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">S</div>
+        <div>
+          <div class="chain-title">Specialist Agents</div>
+          <div class="chain-role">5 Targeted Personas: Implementer, Guard, Scribe, Refactorer, Supervisor</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        Specialist agents are conceptual personas invoked within the LLM through carefully crafted, role-specific prompts and contexts. They are not separate applications — this approach precisely focuses the model's vast capabilities on specific tasks:<br><br>
+        • <strong>Scaffolder (Implementer):</strong> Writes new code and implements features<br>
+        • <strong>Test Engineer (Quality Guard):</strong> Writes comprehensive test suites<br>
+        • <strong>Documenter (Scribe):</strong> Generates clear, concise documentation<br>
+        • <strong>Optimizer (Refactoring Partner):</strong> Identifies performance bottlenecks and refactoring opportunities<br>
+        • <strong>Process Agent (Code Supervisor):</strong> Performs critique and reflection on code quality
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+  <div class="sec-desc">The five specialist agents each have a distinct purpose, invocation prompt pattern, and role in the development workflow. Click each layer to explore:</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);color:var(--teal-d);border-color:var(--teal);">
+      <div class="ctx-layer-title">The Scaffolder Agent: The Implementer</div>
+      <div class="ctx-layer-sub">Purpose: Write new code, implement features, create boilerplate</div>
+      <div class="ctx-layer-detail"><strong>Invocation Prompt:</strong> "You are a senior software engineer. Based on the requirements in 01_BRIEF.md and the existing patterns in 02_CODE/, implement the feature..."<br><br>The Scaffolder receives the human's specification, studies the existing codebase patterns, and writes new code that fits naturally into the project architecture. It is the workhorse for feature development.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);color:var(--purple-d);border-color:var(--purple);">
+      <div class="ctx-layer-title">The Test Engineer Agent: The Quality Guard</div>
+      <div class="ctx-layer-sub">Purpose: Write comprehensive unit, integration, and E2E tests</div>
+      <div class="ctx-layer-detail"><strong>Invocation Prompt:</strong> "You are a quality assurance engineer. For the code provided in 02_CODE/, write a full suite of unit tests using [Testing Framework, e.g., pytest]. Cover all edge cases and adhere to the project's testing philosophy."<br><br>The Test Engineer dramatically accelerates the often-skipped task of writing thorough tests, covering edge cases the developer might miss.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);color:var(--blue-d);border-color:var(--blue);">
+      <div class="ctx-layer-title">The Documenter Agent: The Scribe</div>
+      <div class="ctx-layer-sub">Purpose: Generate clear documentation for functions, classes, APIs</div>
+      <div class="ctx-layer-detail"><strong>Invocation Prompt:</strong> "You are a technical writer. Generate markdown documentation for the API endpoints defined in the provided code. Include request/response examples and explain each parameter."<br><br>The Documenter eliminates documentation debt by generating accurate, contextually appropriate documentation at scale — for individual functions, entire modules, or full APIs.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);color:var(--amber-d);border-color:var(--amber);">
+      <div class="ctx-layer-title">The Optimizer Agent: The Refactoring Partner</div>
+      <div class="ctx-layer-sub">Purpose: Propose performance optimizations and code refactoring</div>
+      <div class="ctx-layer-detail"><strong>Invocation Prompt:</strong> "Analyze the provided code for performance bottlenecks or areas that could be refactored for clarity. Propose specific changes with explanations for why they are an improvement."<br><br>The Optimizer defers no longer — it systematically identifies opportunities to improve readability, maintainability, and efficiency that would otherwise be backlogged indefinitely.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);color:var(--coral-d);border-color:var(--coral);">
+      <div class="ctx-layer-title">The Process Agent: The Code Supervisor</div>
+      <div class="ctx-layer-sub">Purpose: Critique and reflect on code quality — two-pass review</div>
+      <div class="ctx-layer-detail"><strong>Invocation Prompt:</strong> "You are a principal engineer conducting a code review. First, perform a detailed critique of the changes. Second, reflect on your critique to provide a concise, prioritized summary of the most important feedback."<br><br><strong>Critique pass:</strong> Identifies potential bugs, style violations, and logical flaws like a static analysis tool.<br><strong>Reflection pass:</strong> Synthesizes findings, prioritizes critical issues, dismisses pedantic suggestions, and provides a high-level actionable summary.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Workflow Use Cases</div>
+  <div class="sec-desc">The human-agent team framework applies across the full software development lifecycle. Click a tab to see each workflow:</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Feature Implementation</button>
+    <button class="uc-tab" onclick="showUC(1)">Test Generation</button>
+    <button class="uc-tab" onclick="showUC(2)">Code Review</button>
+    <button class="uc-tab" onclick="showUC(3)">Documentation</button>
+    <button class="uc-tab" onclick="showUC(4)">Refactoring</button>
+  </div>
+
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Feature Implementation with Scaffolder Agent</h3>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Developer creates <code>task-context/01_BRIEF.md</code> with feature requirements and design decisions</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Copies relevant existing code patterns into <code>task-context/02_CODE/</code></div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Invokes Scaffolder Agent: "You are a senior engineer. Based on 01_BRIEF.md and patterns in 02_CODE/, implement the feature..."</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Reviews generated code, exercises final judgment, and integrates into the codebase</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--text3);margin-top:8px;">The human always exercises final judgment on agent-generated output, ensuring alignment with long-term vision and quality standards.</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Test Generation with Test Engineer Agent</h3>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Developer places the new feature code in <code>task-context/02_CODE/</code></div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Invokes Test Engineer: "You are a QA engineer. Write a full test suite using pytest covering all edge cases..."</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Agent generates tests covering happy paths, error cases, and boundary conditions</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Developer runs the tests, reviews coverage, and merges the test files</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Automated Code Review with Process Agent</h3>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Developer stages changed files (e.g., via pre-commit hook triggering the Process Agent)</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Process Agent performs detailed critique — potential bugs, style violations, logical flaws</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Process Agent reflects on critique — synthesizes findings, prioritizes critical issues, dismisses pedantic suggestions</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Developer receives a high-level actionable summary in the terminal before finalizing commit</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--text3);margin-top:8px;">This bakes quality assurance directly into the development process via Git hooks — no additional review step required.</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Documentation Generation with Documenter Agent</h3>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Developer identifies an undocumented module or API</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Places the code in context and invokes Documenter: "You are a technical writer. Generate markdown docs for the API endpoints. Include request/response examples and explain each parameter."</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Agent analyzes function signatures, types, and logic to generate accurate documentation</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Developer reviews for accuracy and merges the documentation</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Performance Analysis with Optimizer Agent</h3>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>Developer identifies a module suspected of performance issues</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>Invokes Optimizer: "Analyze the provided code for performance bottlenecks or refactoring opportunities. Propose specific changes with explanations."</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>Agent identifies O(n²) loops, redundant computations, memory leaks, and readability issues</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>Developer evaluates proposals, applies selected optimizations, and verifies with benchmarks</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Practical Implementation</div>
+  <div class="sec-desc">Setting up the human-agent team framework in practice requires four key infrastructure pieces:</div>
+
+  <div class="card card-bordered">
+    <h3>Setup Checklist</h3>
+    <ul>
+      <li>Provision API keys for at least two frontier models (e.g., Gemini 2.5 Pro + Claude Opus 4) for comparative analysis and redundancy</li>
+      <li>Implement a Local Context Orchestrator — a lightweight CLI tool managing a <code>context.toml</code> config file</li>
+      <li>Establish a version-controlled Prompt Library in your project's Git repo (<code>/prompts/</code> directory)</li>
+      <li>Integrate Agent Workflows with Git Hooks for automated review triggers</li>
+    </ul>
+  </div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0;">Example context.toml configuration for the Context Orchestrator:</p>
+  <div class="code-block"><span class="code-comment"># context.toml — defines what context to send to the agent</span>
+[task]
+goal = <span class="code-string">"Implement user profile update endpoint"</span>
+output_format = <span class="code-string">"Python FastAPI route with Pydantic models"</span>
+
+[codebase]
+<span class="code-comment"># Files to include as existing patterns</span>
+include = [
+  <span class="code-string">"src/routes/auth.py"</span>,
+  <span class="code-string">"src/models/user.py"</span>,
+  <span class="code-string">"src/schemas/base.py"</span>,
+]
+
+[external_knowledge]
+<span class="code-comment"># Documentation and specs</span>
+include = [
+  <span class="code-string">"docs/api_style_guide.md"</span>,
+  <span class="code-string">"docs/openapi_spec.yaml"</span>,
+]
+
+[brief]
+requirements = <span class="code-string">"docs/tasks/profile_update_requirements.md"</span>
+pr_description = <span class="code-string">"docs/tasks/profile_update_pr.md"</span></div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0;">Example Scaffolder Agent invocation via Python:</p>
+  <div class="code-block"><span class="code-keyword">import</span> anthropic
+<span class="code-keyword">import</span> toml
+<span class="code-keyword">from</span> pathlib <span class="code-keyword">import</span> Path
+
+<span class="code-keyword">def</span> invoke_scaffolder_agent(context_config_path: str) -> str:
+    <span class="code-string">"""Invoke the Scaffolder Agent with full context briefing."""</span>
+    config = toml.load(context_config_path)
+    client = anthropic.Anthropic()
+
+    <span class="code-comment"># Build the context from all specified files</span>
+    context_parts = []
+
+    <span class="code-comment"># Add codebase files</span>
+    <span class="code-keyword">for</span> filepath <span class="code-keyword">in</span> config[<span class="code-string">"codebase"</span>][<span class="code-string">"include"</span>]:
+        content = Path(filepath).read_text()
+        context_parts.append(<span class="code-string">f"### {filepath}\n```python\n{content}\n```"</span>)
+
+    <span class="code-comment"># Add external knowledge</span>
+    <span class="code-keyword">for</span> filepath <span class="code-keyword">in</span> config[<span class="code-string">"external_knowledge"</span>][<span class="code-string">"include"</span>]:
+        content = Path(filepath).read_text()
+        context_parts.append(<span class="code-string">f"### {filepath}\n{content}"</span>)
+
+    <span class="code-comment"># Add the human brief</span>
+    brief = Path(config[<span class="code-string">"brief"</span>][<span class="code-string">"requirements"</span>]).read_text()
+
+    full_context = <span class="code-string">"\n\n"</span>.join(context_parts)
+
+    <span class="code-comment"># Invoke the Scaffolder Agent with precise system prompt</span>
+    response = client.messages.create(
+        model=<span class="code-string">"claude-opus-4-5"</span>,
+        max_tokens=<span class="code-string">8192</span>,
+        system=<span class="code-string">"You are a senior software engineer. Based on the requirements "</span>
+               <span class="code-string">"and existing code patterns provided, implement the feature. "</span>
+               <span class="code-string">"Follow the project's established patterns precisely."</span>,
+        messages=[{
+            <span class="code-string">"role"</span>: <span class="code-string">"user"</span>,
+            <span class="code-string">"content"</span>: <span class="code-string">f"## Task\n{brief}\n\n## Context\n{full_context}"</span>
+        }]
+    )
+    <span class="code-keyword">return</span> response.content[0].text
+
+<span class="code-comment"># Usage</span>
+result = invoke_scaffolder_agent(<span class="code-string">"task-context/context.toml"</span>)
+<span class="code-keyword">print</span>(result)</div>
+
+  <p style="font-size:13px;color:var(--text3);margin:12px 0;">Git hook to trigger Process Agent on pre-commit:</p>
+  <div class="code-block"><span class="code-comment">#!/bin/bash</span>
+<span class="code-comment"># .git/hooks/pre-commit</span>
+
+<span class="code-comment"># Get staged changes</span>
+STAGED_DIFF=$(git diff --cached)
+
+<span class="code-comment"># Skip if no changes</span>
+<span class="code-keyword">if</span> [ -z <span class="code-string">"$STAGED_DIFF"</span> ]; <span class="code-keyword">then</span>
+    exit 0
+fi
+
+<span class="code-comment"># Run Process Agent review</span>
+echo <span class="code-string">"Running AI code review..."</span>
+python scripts/process_agent_review.py <span class="code-string">"$STAGED_DIFF"</span>
+
+<span class="code-comment"># Allow commit to proceed (agent output is advisory, not blocking)</span>
+exit 0</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: Principles for Leading the Augmented Team</div>
+  <div class="sec-desc">Successfully leading a human-agent team requires evolving from a sole contributor into the lead of a human-AI team.</div>
+
+  <div class="card card-bordered">
+    <h3>Maintain Architectural Ownership</h3>
+    <p>Your role is to set the strategic direction and own the high-level architecture. You define the "what" and the "why," using the agent team to accelerate the "how." You are the final arbiter of design — ensuring every component aligns with the project's long-term vision and quality standards. Never delegate architectural decisions to agents.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Master the Art of the Brief</h3>
+    <p>The quality of an agent's output is a direct reflection of the quality of its input. A powerful LLM with poor context is useless. Think of your prompt not as a simple command, but as a complete briefing package for a new, highly capable team member. Include: the complete relevant codebase, external knowledge (API docs, design specs), explicit goals, requirements, style guides, and any relevant constraints.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Act as the Ultimate Quality Gate</h3>
+    <p>An agent's output is always a proposal, never a command. Treat the Reviewer Agent's feedback as a powerful signal, but you are the ultimate quality gate. Apply your domain expertise and project-specific knowledge to validate, challenge, and approve all changes, acting as the final guardian of the codebase's integrity.</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--amber); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>Engage in Iterative Dialogue</h3>
+    <p>The best results emerge from conversation, not monologue. If an agent's initial output is imperfect, don't discard it — refine it. Provide corrective feedback, add clarifying context, and prompt for another attempt. This iterative dialogue is crucial, especially with the Reviewer Agent, whose "Reflection" output is designed to be the start of a collaborative discussion, not a final report.</p>
+  </div>
+
+  <div class="diagram-sim">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Agent Pipeline — click each agent to understand their role in the workflow</p>
+    <div class="diagram-nodes">
+      <div class="dia-node" onclick="simClick(0)" style="background:var(--blue-l);color:var(--blue-d);">Scaffolder</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--purple-l);color:var(--purple-d);">Test Engineer</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--teal-l);color:var(--teal-d);">Documenter</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--amber-l);color:var(--amber-d);">Optimizer</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(4)" style="background:var(--coral-l);color:var(--coral-d);">Supervisor</div>
+    </div>
+    <div class="dia-output" id="sim-output">Click any agent above to understand its role, purpose, and position in the development pipeline.</div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--red-l);color:var(--red-d);">
+      <h4>PROBLEM</h4>
+      <p>Individual developers face fundamental scaling limits: testing is skipped, documentation is neglected, reviews are superficial, and optimization is deferred — all under sprint pressure, leading to accumulating technical debt.</p>
+    </div>
+    <div class="glance-card" style="background:var(--teal-l);color:var(--teal-d);">
+      <h4>SOLUTION</h4>
+      <p>A structured human-agent team framework: the developer as Orchestrator leads 5 specialist agents (Scaffolder, Test Engineer, Documenter, Optimizer, Process Agent) via a Context Staging Area with direct frontier model access.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);color:var(--purple-d);">
+      <h4>THREE PRINCIPLES</h4>
+      <p>Human-Led Orchestration (developer is lead), Primacy of Context (quality briefing = quality output), Direct Model Access (frontier models only — no intermediary routing that obscures context).</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);color:var(--amber-d);">
+      <h4>KEY INSIGHT</h4>
+      <p>Agents are conceptual personas invoked within the LLM via role-specific prompts — not separate applications. The developer's meticulous context curation is the primary determinant of output quality, not the model alone.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Quiz</div>
+  <div class="sec-desc">Test your understanding of the coding agent framework and its principles.</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+
+  <ul class="tk-list">
+    <li>The industry has shifted from "vibe coding" (raw generation) to augmented teams where developers lead specialized AI agents as force multipliers, with over 30% of code at Google and Microsoft now AI-assisted.</li>
+    <li>The framework rests on three principles: Human-Led Orchestration (developer as lead), Primacy of Context (briefing quality determines output quality), and Direct Model Access (frontier models, no intermediaries).</li>
+    <li>The human developer acts as Orchestrator — the central intelligence defining tasks, curating context, and validating all agent output. Agents are supportive collaborators, not autonomous decision-makers.</li>
+    <li>The Context Staging Area (a task-specific directory with goals, code files, and docs) is the foundation for any successful agent interaction — automated black-box context retrieval is explicitly avoided.</li>
+    <li>Five specialist agents cover the development lifecycle: Scaffolder (implementation), Test Engineer (testing), Documenter (documentation), Optimizer (performance), and Process Agent (code review via critique + reflection).</li>
+    <li>The Process Agent performs a two-pass review: first a detailed critique identifying bugs, style violations, and logical flaws; then a reflection that synthesizes and prioritizes the most actionable feedback.</li>
+    <li>Best results come from iterative dialogue — if an agent's output is imperfect, provide corrective feedback and refine, rather than discarding and starting over.</li>
+  </ul>
+
+  <div class="card card-bordered">
+    <h3>Summary</h3>
+    <p>The future of code development is augmented. The era of the lone coder has given way to a new paradigm where developers lead teams of specialized AI agents. This model doesn't diminish the human role — it elevates it by automating routine tasks, scaling individual impact, and achieving a development velocity previously unimaginable. By offloading tactical execution to agents, developers dedicate their cognitive energy to strategic innovation, resilient architectural design, and the creative problem-solving required to build products that delight users.</p>
+  </div>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> AI responsible for generating &gt;30% of code at Google: <a href="https://www.reddit.com/r/singularity/comments/1k7rxo0/ai_is_now_writing_well_over_30_of_the_code_at/" target="_blank">reddit.com</a></li>
+    <li><span class="ref-num">[2]</span> AI responsible for generating &gt;30% of code at Microsoft: <a href="https://www.businesstoday.in/tech-today/news/story/30-of-microsofts-code-is-now-ai-generated-says-ceo-satya-nadella-474167-2025-04-30" target="_blank">businesstoday.in</a></li>
+  </ul>
+</div>
+
+<div class="footer">
+  <p>Appendix G · Coding Agents · Interactive Learning</p>
+</div>
+
+</div>
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  "Scaffolder Agent (Implementer): The first agent in the pipeline. Receives the human's specification and existing codebase patterns, then writes new code that fits naturally into the project architecture. Invoked as a 'senior software engineer' persona. Output: new feature code matching established patterns.",
+  "Test Engineer Agent (Quality Guard): Takes the Scaffolder's output and writes a comprehensive test suite — unit tests, integration tests, and edge cases. Invoked as a 'quality assurance engineer' persona. This agent dramatically accelerates the often-skipped task of writing thorough tests. Output: full test suite with edge case coverage.",
+  "Documenter Agent (Scribe): Analyzes the implemented code and generates clear, accurate documentation — TSDoc comments, API reference, usage examples. Invoked as a 'technical writer' persona. Eliminates documentation debt at scale. Output: comprehensive documentation in markdown or inline comments.",
+  "Optimizer Agent (Refactoring Partner): Analyzes the codebase for performance bottlenecks, redundant computations, and refactoring opportunities. Invoked as a performance analyst. Proposes specific changes with explanations for why they are improvements. Output: prioritized optimization recommendations with code examples.",
+  "Process Agent (Code Supervisor): The final quality gate before merge. Performs a two-pass review: (1) Critique — detailed identification of bugs, style violations, logical flaws; (2) Reflection — synthesizes findings, prioritizes critical issues, dismisses pedantic suggestions, provides actionable summary. Often triggered automatically via Git pre-commit hooks."
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: "What are the three foundational principles of the human-agent team framework?",
+    opts: [
+      "Speed, Quality, Automation",
+      "Human-Led Orchestration, Primacy of Context, Direct Model Access",
+      "Test-First, Document-First, Review-First",
+      "Vibe Coding, Scaffolding, Supervision"
+    ],
+    ans: 1,
+    ok: "Correct! The three principles are: (1) Human-Led Orchestration — developer stays in the loop as lead; (2) Primacy of Context — quality briefing determines quality output; (3) Direct Model Access — use frontier models directly, not through intermediaries.",
+    no: "The three foundational principles specifically define how the human-agent relationship works: who leads (human orchestration), what determines output quality (context), and how to achieve peak model performance (direct frontier model access)."
+  },
+  {
+    q: "What is the 'Context Staging Area' and why is it critical?",
+    opts: [
+      "A CI/CD pipeline stage for deploying agents",
+      "A temporary directory containing a complete task-specific briefing for the agent",
+      "A cloud storage area for agent outputs",
+      "A Git branch for staging AI-generated code before review"
+    ],
+    ans: 1,
+    ok: "Correct! The Context Staging Area (e.g., task-context/) is a temporary directory containing markdown files for goals, code files, and relevant docs — providing the complete briefing that determines agent output quality.",
+    no: "The Context Staging Area is specifically about preparing context for the agent, not about deployment, storage, or Git branching."
+  },
+  {
+    q: "What makes the Process Agent (Code Supervisor) unique among the five specialist agents?",
+    opts: [
+      "It writes new code faster than the Scaffolder",
+      "It performs a two-pass review: detailed critique followed by a reflective prioritized summary",
+      "It has access to the internet for real-time documentation lookup",
+      "It manages Git commits and merges automatically"
+    ],
+    ans: 1,
+    ok: "Correct! The Process Agent's two-pass design is key: the Critique pass identifies issues like a static analysis tool, while the Reflection pass synthesizes findings, prioritizes critical items, and provides a high-level actionable summary.",
+    no: "The Process Agent's uniqueness is its two-pass review architecture — critique then reflection — not about speed, internet access, or Git management."
+  },
+  {
+    q: "Why does the framework insist on 'Direct Model Access' to frontier models?",
+    opts: [
+      "Frontier models are cheaper to use directly",
+      "Intermediary platforms may obscure or truncate context, degrading performance",
+      "Direct access provides faster response times",
+      "Frontier models only work without intermediaries"
+    ],
+    ans: 1,
+    ok: "Correct! Using less powerful models or routing through intermediary platforms that obscure or truncate context degrades performance. The framework requires the purest possible dialogue between the human lead and the raw capabilities of the underlying model.",
+    no: "The concern is specifically about context quality degradation — intermediaries that truncate or obscure context dramatically reduce the agent's performance, regardless of speed or cost."
+  },
+  {
+    q: "In the framework, specialist agents are described as what type of construct?",
+    opts: [
+      "Separate microservices deployed on cloud infrastructure",
+      "Conceptual personas invoked within the LLM through role-specific prompts and contexts",
+      "Fine-tuned model variants trained on specific tasks",
+      "Automated scripts that call multiple AI APIs in sequence"
+    ],
+    ans: 1,
+    ok: "Correct! Agents are conceptual personas — not separate applications. They are invoked by crafting role-specific prompts (e.g., 'You are a senior software engineer...') that precisely focus the LLM's capabilities on the specific task.",
+    no: "Agents in this framework are specifically persona-based prompting patterns within a single LLM, not separate services, fine-tuned models, or multi-API scripts."
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

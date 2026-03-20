@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 6: Planning — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --serif: Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", "Fira Code", monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1; --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; background: var(--bg2); }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 90px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Chapter 6</div>
+<h1>Planning</h1>
+<p class="subtitle">The pattern that elevates agents from reactive responders to strategic executors — autonomously decomposing complex goals into coherent, actionable sequences of steps, adapting when circumstances change.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Pattern Name</div><div class="metric-value">Planning</div></div>
+    <div class="metric"><div class="metric-label">Key Strategy</div><div class="metric-value">Goal Decomposition</div></div>
+    <div class="metric"><div class="metric-label">Key Benefit</div><div class="metric-value">Adaptability</div></div>
+    <div class="metric"><div class="metric-label">Primary Goal</div><div class="metric-value">Complex Execution</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>What is the Planning Pattern?</h3>
+    <p>Intelligent behavior often involves more than just reacting to immediate input. It requires foresight, breaking down complex tasks into smaller manageable steps, and strategizing how to achieve a desired outcome. At its core, planning is the ability for an agent or system of agents to formulate a sequence of actions to move from an initial state towards a goal state. The plan is not known in advance; it is created in response to the request.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Adaptability Is the Hallmark</h3>
+    <p>A hallmark of the Planning pattern is adaptability. An initial plan is merely a starting point, not a rigid script. The agent's real power is its ability to incorporate new information and steer the project around obstacles. A capable agent doesn't simply fail when a preferred option becomes unavailable — it adapts, re-evaluates its options, and formulates a new plan.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>The Critical Trade-off: When NOT to Plan</h3>
+    <p>Dynamic planning is a specific tool, not a universal solution. When a problem's solution is already well-understood and repeatable, constraining the agent to a predetermined, fixed workflow is more effective. This limits the agent's autonomy to reduce uncertainty and guarantees reliable, consistent outcomes. The key question: does the "how" need to be discovered, or is it already known?</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Real-World Example: Google DeepResearch</h3>
+    <p>Google Gemini DeepResearch is a concrete example of the Planning pattern in production. It begins by deconstructing a user's prompt into a multi-point research plan (presented for user review), then initiates an iterative search-and-analysis loop. The agent dynamically formulates and refines queries based on gathered information, identifying knowledge gaps and corroborating data points — classic adaptive planning behavior.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Problems Planning Solves</div>
+  <div class="sec-desc">Complex problems cannot be solved with a single action and require foresight to achieve a desired outcome. Click each card to explore the specific failures this pattern addresses:</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Cannot Handle Multi-Step Tasks</h4>
+      <p>Reactive agents fail on tasks requiring sequences of interdependent actions</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">A simple reactive agent can respond to a single input but cannot manage a task like "onboard a new employee" that requires creating accounts, assigning modules, and coordinating with departments in a logical order. Planning provides the framework for orchestrating complex sequences.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>No Goal-Oriented Behavior</h4>
+      <p>Agents without planning lack the ability to proactively work toward complex objectives</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Without planning, agents simply react to inputs. They cannot autonomously pursue a goal across multiple steps, tool calls, and decision points. Planning transforms an agent from a passive responder into a strategic executor that proactively works toward achieving objectives.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Fails on Unexpected Obstacles</h4>
+      <p>Rigid workflows fail when circumstances change mid-execution</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">A hardcoded workflow fails when a critical resource becomes unavailable or a step produces unexpected results. Planning agents can re-evaluate their options, adapt their approach, and formulate a new course of action when the original plan encounters obstacles.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Cannot Manage Dependencies</h4>
+      <p>Complex tasks have interdependent steps that must execute in the right order</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Many real-world tasks involve dependencies — step B must happen after step A, certain information must be gathered before decisions are made, some tools can only be called with outputs from previous steps. Planning provides the logical framework to identify and manage these dependencies correctly.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">How Planning Works</div>
+  <div class="sec-desc">The Planning pattern structures complex goal achievement into distinct phases. Click each step to understand the mechanics:</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Goal Understanding</div>
+          <div class="chain-role">Agent understands initial state and goal state</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The agent first understands the initial state (current conditions, available resources, constraints) and the goal state (what "done" looks like). It defines the "what" — the objective and its constraints — but not yet the "how." This context is essential for generating a relevant and realistic plan.<br><br>
+        <strong>Example:</strong> Goal: "Organize a team offsite" → Constraints: budget, participant count, desired dates → Success: confirmed bookings
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Plan Generation</div>
+          <div class="chain-role">LLM decomposes goal into actionable sub-steps</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The LLM decomposes the high-level objective into a structured sequence of smaller, actionable steps or sub-goals. LLMs are particularly well-suited for this, as they can generate plausible and effective plans based on their vast training data. The plan may be presented to the user for review before execution (as in DeepResearch).<br><br>
+        <strong>Output:</strong> Ordered list of concrete sub-tasks with dependencies identified
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div>
+          <div class="chain-title">Plan Execution</div>
+          <div class="chain-role">Agent executes steps, invoking tools as needed</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The agent follows the plan sequentially, executing each sub-task. This typically involves invoking tools, querying databases, calling APIs, or interacting with other agents. The execution phase transforms the abstract plan into concrete actions with real-world effects. State is maintained across steps to enable dependencies.<br><br>
+        <strong>Example (DeepResearch):</strong> Iteratively executes web searches, analyzes results, identifies knowledge gaps, refines queries
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--blue);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">4</div>
+        <div>
+          <div class="chain-title">Adaptive Re-planning</div>
+          <div class="chain-role">Agent adjusts plan based on new information</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        When execution reveals unexpected results, resource unavailability, or new information, the agent re-evaluates the current state and updates the plan. This adaptability distinguishes a true planning agent from a simple fixed workflow. The agent registers the new constraint, re-evaluates its options, and formulates an alternative course of action.<br><br>
+        <strong>Example:</strong> Preferred venue unavailable → agent searches alternatives → updates plan with new venue
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+
+  <div class="card card-bordered">
+    <h3>Goal Decomposition</h3>
+    <p>The core cognitive operation of planning is decomposing a high-level objective into a directed sequence of sub-tasks. Each sub-task is smaller, more concrete, and manageable. The decomposition must account for dependencies (which steps must come before others), resource requirements, and potential failure points. LLMs can perform this decomposition naturally from task descriptions.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>State Tracking Across Steps</h3>
+    <p>Effective planning requires maintaining state across the execution of multiple steps — tracking what has been accomplished, what resources have been consumed, what results were obtained, and what dependencies have been satisfied. Frameworks like CrewAI and LangGraph provide built-in state management for this purpose.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Planning vs. Fixed Workflow</h3>
+    <p>The fundamental question is: does the "how" need to be discovered, or is it already known? If the solution is well-understood and repeatable, a fixed workflow is more reliable, predictable, and cost-effective. Dynamic planning is appropriate when the path to the goal cannot be predetermined — due to unknown information, variable environments, or complex dependencies that can only be resolved during execution.</p>
+  </div>
+
+  <p style="font-size:13px;color:var(--text3);margin:1rem 0 0.5rem;">Planning Agent State Structure</p>
+  <div class="json-block">{
+  "goal": "Generate a comprehensive research report on topic X",
+  "initial_state": { "topic": "X", "depth": "comprehensive" },
+  "plan": [
+    { "step": 1, "action": "search", "query": "overview of X", "status": "done" },
+    { "step": 2, "action": "search", "query": "recent developments X", "status": "done" },
+    { "step": 3, "action": "analyze", "sources": ["s1","s2"], "status": "in_progress" },
+    { "step": 4, "action": "synthesize", "status": "pending" }
+  ],
+  "knowledge_gaps": ["mechanism Y", "comparison with Z"],
+  "current_step": 3
+}</div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Practical Applications</div>
+  <div class="sec-desc">The Planning pattern enables agents to move beyond simple reactive actions to goal-oriented behavior. Select a use case:</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Deep Research</button>
+    <button class="uc-tab" onclick="showUC(1)">Workflow Automation</button>
+    <button class="uc-tab" onclick="showUC(2)">Robotics / Navigation</button>
+    <button class="uc-tab" onclick="showUC(3)">Content Creation</button>
+    <button class="uc-tab" onclick="showUC(4)">Customer Support</button>
+    <button class="uc-tab" onclick="showUC(5)">Event Planning</button>
+  </div>
+
+  <div id="uc-0" class="uc-panel active">
+    <div class="card card-bordered">
+      <h3>Autonomous Deep Research (Google DeepResearch)</h3>
+      <p>Multi-step research that iteratively queries, analyzes, and synthesizes information from web sources.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Goal:</strong> Produce a comprehensive, cited research report on a complex topic.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Planning:</strong> Decomposes the topic into a multi-point research plan: search for overview → identify key players → focus on growth data → look for sector analysis.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Execution:</strong> Iteratively searches Google, evaluates sources, identifies knowledge gaps, refines queries, synthesizes findings into a structured report with citations.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-1" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Procedural Task Automation (Employee Onboarding)</h3>
+      <p>Orchestrating complex workflows with multiple steps, dependencies, and system integrations.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Goal:</strong> Onboard a new employee — create accounts, assign training, coordinate departments.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Planning:</strong> Decomposes into: create email account → set up HRIS profile → assign training modules → notify IT → schedule orientation → assign buddy.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Execution:</strong> Agent executes steps in logical order, invoking APIs for each system, managing dependencies (email must exist before HRIS profile is linked).</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-2" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Robotics and Autonomous Navigation</h3>
+      <p>State-space traversal — finding a path from initial state to goal state while avoiding obstacles.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Goal:</strong> Navigate a physical or virtual environment from point A to point B.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Planning:</strong> Generates a path optimized for time, energy, or safety, while accounting for obstacles and environmental constraints.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Adaptive:</strong> Detects unexpected obstacles at runtime and re-plans an alternative route to reach the goal.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-3" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Structured Information Synthesis (Research Reports)</h3>
+      <p>Generating complex outputs by planning distinct phases: research → structure → draft → refine.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Goal:</strong> Write a comprehensive research report or technical document.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Planning:</strong> Formulates a plan with distinct phases: information gathering → data summarization → content structuring → iterative refinement.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Execution:</strong> Agent follows the plan, using tools at each phase — search tools for gathering, writing tools for drafting, evaluation tools for refinement.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-4" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Multi-Step Customer Support Resolution</h3>
+      <p>Systematic diagnosis and resolution following a planned approach with escalation paths.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Goal:</strong> Resolve a complex customer issue that may require multiple investigation and action steps.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Planning:</strong> Creates a systematic plan: diagnose issue category → check account status → search known issues → apply fix → verify resolution → escalate if needed.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Adaptive:</strong> If standard fixes don't work, re-plans by escalating to a human agent or trying alternative resolution paths.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-5" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Event Planning and Coordination</h3>
+      <p>Complex coordination tasks with many interdependent components and external dependencies.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Goal:</strong> Organize a team offsite meeting with venue, catering, accommodation, and logistics.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Planning:</strong> Decomposes into: search venues → check availability → get catering quotes → book accommodation → arrange transport → send invites.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Adaptive:</strong> If preferred venue is unavailable, adapts by searching alternatives; if dates conflict, re-plans with adjusted timeline.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Code Examples</div>
+  <div class="sec-desc">Planning pattern implementation in CrewAI (plan-then-write agent) and OpenAI Deep Research API (autonomous research planning).</div>
+
+  <p style="font-size:13px;font-weight:500;margin-bottom:8px;">CrewAI: Planner-Writer Agent</p>
+  <div class="code-block"><span class="code-keyword">from</span> crewai <span class="code-keyword">import</span> Agent, Task, Crew, Process
+<span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> ChatOpenAI
+<span class="code-keyword">from</span> dotenv <span class="code-keyword">import</span> load_dotenv
+
+load_dotenv()
+llm = ChatOpenAI(model=<span class="code-string">"gpt-4-turbo"</span>)
+
+<span class="code-comment"># --- Define a Planner-Writer Agent ---</span>
+planner_writer_agent = Agent(
+    role=<span class="code-string">'Article Planner and Writer'</span>,
+    goal=<span class="code-string">'Plan and then write a concise, engaging summary on a specified topic.'</span>,
+    backstory=(
+        <span class="code-string">'You are an expert technical writer and content strategist. '</span>
+        <span class="code-string">'Your strength lies in creating a clear, actionable plan before writing, '</span>
+        <span class="code-string">'ensuring the final summary is both informative and easy to digest.'</span>
+    ),
+    verbose=<span class="code-string">True</span>,
+    llm=llm
+)
+
+<span class="code-comment"># --- Define Task with explicit planning step ---</span>
+topic = <span class="code-string">"The importance of Reinforcement Learning in AI"</span>
+high_level_task = Task(
+    description=(
+        f<span class="code-string">"1. Create a bullet-point plan for a summary on: '{topic}'.\n"</span>
+        f<span class="code-string">"2. Write the summary based on your plan, keeping it around 200 words."</span>
+    ),
+    expected_output=(
+        <span class="code-string">"A final report with two distinct sections:\n"</span>
+        <span class="code-string">"### Plan\n- A bulleted list outlining the main points.\n\n"</span>
+        <span class="code-string">"### Summary\n- A concise, well-structured summary."</span>
+    ),
+    agent=planner_writer_agent,
+)
+
+<span class="code-comment"># --- Assemble and run the Crew ---</span>
+crew = Crew(
+    agents=[planner_writer_agent],
+    tasks=[high_level_task],
+    process=Process.sequential,
+)
+result = crew.kickoff()
+print(result)</div>
+
+  <p style="font-size:13px;font-weight:500;margin:16px 0 8px;">OpenAI Deep Research API</p>
+  <div class="code-block"><span class="code-keyword">from</span> openai <span class="code-keyword">import</span> OpenAI
+
+client = OpenAI(api_key=<span class="code-string">"YOUR_OPENAI_API_KEY"</span>)
+
+<span class="code-comment"># Define agent role and research question</span>
+system_message = <span class="code-string">"""You are a professional researcher preparing a
+structured, data-driven report.
+Focus on data-rich insights, use reliable sources,
+and include inline citations."""</span>
+
+user_query = <span class="code-string">"Research the economic impact of semaglutide on global healthcare systems."</span>
+
+<span class="code-comment"># The model autonomously creates a research plan, searches the web,</span>
+<span class="code-comment"># analyzes sources, and synthesizes a cited report</span>
+response = client.responses.create(
+    model=<span class="code-string">"o3-deep-research-2025-06-26"</span>,
+    input=[
+        {<span class="code-string">"role"</span>: <span class="code-string">"developer"</span>, <span class="code-string">"content"</span>: [{<span class="code-string">"type"</span>: <span class="code-string">"input_text"</span>, <span class="code-string">"text"</span>: system_message}]},
+        {<span class="code-string">"role"</span>: <span class="code-string">"user"</span>, <span class="code-string">"content"</span>: [{<span class="code-string">"type"</span>: <span class="code-string">"input_text"</span>, <span class="code-string">"text"</span>: user_query}]}
+    ],
+    reasoning={<span class="code-string">"summary"</span>: <span class="code-string">"auto"</span>},
+    tools=[{<span class="code-string">"type"</span>: <span class="code-string">"web_search_preview"</span>}]
+)
+
+<span class="code-comment"># Access final report and inspect intermediate steps</span>
+final_report = response.output[-<span class="code-string">1</span>].content[<span class="code-string">0</span>].text
+print(final_report)</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: Planning in Practice</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--teal-l);color:var(--teal-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Google DeepResearch: Planning at Scale</div>
+      <div class="ctx-layer-sub">An end-to-end example of the Planning pattern in production</div>
+      <div class="ctx-layer-detail">Google Gemini DeepResearch exemplifies advanced Planning in production. It begins by deconstructing a prompt into a multi-point research plan presented to the user for review and modification (enabling collaborative plan refinement). Once approved, it initiates an iterative search-and-analysis loop, dynamically formulating and refining queries based on gathered information, identifying knowledge gaps and corroborating data points. The final output is a structured, multi-page report with citations. The entire asynchronous process is resilient to single-point failures, allowing the user to disengage and be notified upon completion.</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--purple-l);color:var(--purple-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">OpenAI Deep Research API Transparency</div>
+      <div class="ctx-layer-sub">The API exposes intermediate reasoning, searches, and code execution</div>
+      <div class="ctx-layer-detail">Unlike abstracted systems like ChatGPT, the OpenAI Deep Research API exposes all intermediate steps — the agent's internal reasoning steps, the specific web search queries it executed, and any code it ran. This transparency enables detailed debugging and a deeper understanding of how the final answer was constructed. It also supports the Model Context Protocol (MCP), enabling developers to connect the agent to private knowledge bases and internal data sources.</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--amber-l);color:var(--amber-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Dynamic vs. Static Planning</div>
+      <div class="ctx-layer-sub">Choosing between adaptive planning and fixed workflows</div>
+      <div class="ctx-layer-detail">Static (fixed) workflows: optimal when the solution path is known, repeatable, and needs to be reliable. Use for well-understood processes like order fulfillment or data transformation. Dynamic planning: optimal when the path to the goal cannot be predetermined — novel research topics, complex scheduling with many constraints, or tasks where requirements evolve during execution. The Planning pattern adds power but also complexity and unpredictability. Default to fixed workflows unless the task genuinely requires discovering the "how" at runtime.</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--coral-l);color:var(--coral-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Prompting for Planning Behavior</div>
+      <div class="ctx-layer-sub">How to elicit planning behavior from LLMs in agent frameworks</div>
+      <div class="ctx-layer-detail">Explicitly prompting or designing tasks to require planning steps encourages this behavior. In CrewAI, the task description explicitly instructs the agent to first create a plan, then execute it ("1. Create a plan... 2. Write the summary based on your plan"). In LangGraph, planning can be structured as a distinct node. The agent's backstory and goal definition also shape planning behavior — emphasizing "you create a clear, actionable plan before executing" in the backstory reliably induces planning-first behavior.</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--blue-l);color:var(--blue-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Integration with Other Patterns</div>
+      <div class="ctx-layer-sub">Planning works best when combined with Tool Use, Reflection, and Memory</div>
+      <div class="ctx-layer-detail">Planning is most powerful when combined with other patterns. Tool Use enables the agent to execute plan steps by calling external APIs and services. Reflection allows the agent to evaluate intermediate results and adapt the plan. Memory enables the agent to build on previous research and avoid re-doing work. Together, these patterns create a sophisticated system capable of sustained, goal-directed work on complex real-world problems — as exemplified by DeepResearch, which combines planning, tool use (Google Search), and synthesis.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4>WHAT</h4>
+      <p>Complex problems cannot be solved with a single action and require foresight. Without a structured approach, agentic systems struggle to break down high-level objectives into manageable sequences, leading to incomplete or incorrect results when faced with intricate goals.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4>WHY</h4>
+      <p>Planning offers a standardized solution: the agent first creates a coherent plan by decomposing the objective into actionable steps, then executes it. This allows managing complex workflows, orchestrating tools, and handling dependencies — transforming a reactive agent into a strategic executor.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);">
+      <h4>WHEN TO USE</h4>
+      <p>When a user's request is too complex to be handled by a single action or tool. Ideal for multi-step processes like research reports, employee onboarding, competitive analysis, or any task requiring a sequence of interdependent operations to reach a final synthesized outcome.</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);">
+      <h4>RULE OF THUMB</h4>
+      <p>Ask: does the "how" need to be discovered, or is it already known? If known → use a fixed workflow. If it must be discovered (novel research, dynamic environments, complex constraints) → use Planning. Dynamic planning adds power but also complexity and unpredictability.</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">Interactive Flow: Click each node to see its role</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" style="background:var(--blue-l);color:var(--blue-d);" onclick="simClick(0)">Goal</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(1)">Plan</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(2)">Execute</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d);" onclick="simClick(3)">Adapt</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--green-l);color:var(--green-d);" onclick="simClick(4)">Output</div>
+    </div>
+    <div class="dia-output" id="sim-output">Click a node to see what happens at that stage of the Planning pattern.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Check</div>
+  <div id="quizProgress" class="quiz-progress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>Planning enables agents to break down complex goals into actionable, sequential steps — transforming reactive responders into strategic, goal-oriented executors.</li>
+    <li>The hallmark of the Planning pattern is adaptability: an initial plan is a starting point, not a rigid script. The agent can incorporate new information, handle obstacles, and re-formulate its approach mid-execution.</li>
+    <li>The key architectural question is: does the "how" need to be discovered at runtime, or is it already known? If known, a fixed workflow is more reliable; Planning is for tasks where the path must be discovered.</li>
+    <li>LLMs are well-suited for planning tasks — they can generate plausible, effective decompositions of complex goals based on their vast training data and natural language understanding.</li>
+    <li>Explicitly prompting planning behavior (e.g., "First create a plan, then execute it") reliably induces planning-first behavior in agent frameworks like CrewAI and LangGraph.</li>
+    <li>Google DeepResearch exemplifies production-scale Planning: it deconstructs a prompt into a research plan, iteratively executes web searches, identifies knowledge gaps, and synthesizes a cited report — all adaptively.</li>
+    <li>The OpenAI Deep Research API provides programmatic access to deep research planning with full transparency: it exposes reasoning steps, search queries, and code execution for debugging and auditability.</li>
+    <li>Planning is most powerful when combined with Tool Use (for executing plan steps), Reflection (for evaluating and adapting), and Memory (for building on previous work).</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>Google DeepResearch (Gemini Feature) — <a href="https://gemini.google.com" target="_blank">gemini.google.com</a></li>
+    <li><span class="ref-num">2</span>OpenAI Introducing Deep Research — <a href="https://openai.com/index/introducing-deep-research/" target="_blank">openai.com/index/introducing-deep-research/</a></li>
+    <li><span class="ref-num">3</span>Perplexity Deep Research — <a href="https://www.perplexity.ai/hub/blog/introducing-perplexity-deep-research" target="_blank">perplexity.ai/hub/blog/introducing-perplexity-deep-research</a></li>
+    <li><span class="ref-num">4</span>CrewAI Documentation — <a href="https://docs.crewai.com" target="_blank">docs.crewai.com</a></li>
+    <li><span class="ref-num">5</span>ReAct: Synergizing Reasoning and Acting in Language Models — <a href="https://arxiv.org/abs/2210.03629" target="_blank">arxiv.org/abs/2210.03629</a></li>
+    <li><span class="ref-num">6</span>Tree of Thoughts: Deliberate Problem Solving with LLMs — <a href="https://arxiv.org/abs/2305.10601" target="_blank">arxiv.org/abs/2305.10601</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>Agentic Design Patterns — Chapter 6: Planning</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  "Goal Understanding: The agent receives a complex, high-level objective — e.g., 'Research European VC investment trends' or 'Organize a team offsite.' It identifies the initial state (available resources, constraints), defines what 'done' looks like (the goal state), and understands the scope before attempting to solve anything.",
+  "Plan Generation: The LLM decomposes the objective into a structured, ordered sequence of sub-tasks. For DeepResearch, this becomes a multi-point research plan: search for total investment volume → identify top countries → analyze growth rates → find accelerating countries → investigate sector drivers. This plan may be presented to the user for review before execution.",
+  "Plan Execution: The agent follows the plan sequentially, executing each sub-task by invoking tools (web search, code interpreter, databases, APIs). For DeepResearch, this is the iterative search-and-analysis loop — executing searches, evaluating sources, identifying knowledge gaps, and gathering data for each planned research area.",
+  "Adaptive Re-planning: When execution reveals unexpected results or obstacles — a preferred venue is unavailable, a search returns insufficient data, a step fails — the agent doesn't simply error out. It registers the new constraint, re-evaluates its options, and formulates an alternative course of action. For DeepResearch, this means dynamically refining search queries to fill identified knowledge gaps.",
+  "Final Output: Once all planned steps are complete (or a satisfactory state is reached), the agent synthesizes the results into a final output — a comprehensive research report with citations, a completed onboarding workflow confirmation, or a booked event itinerary. The Planning pattern has transformed a high-level goal into a concrete, synthesized result."
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: "What is the fundamental capability that distinguishes the Planning pattern from simple reactive agentic patterns?",
+    opts: [
+      "The ability to process multiple inputs in parallel",
+      "The ability to autonomously formulate and execute a sequence of actions to move from an initial state to a goal state",
+      "The ability to call external APIs and services",
+      "The ability to evaluate and critique its own outputs"
+    ],
+    ans: 1,
+    ok: "Correct! The Planning pattern gives agents the ability to autonomously decompose complex goals into a sequence of actionable steps and execute them. This transforms agents from reactive responders (one input → one output) into strategic executors that proactively work toward complex objectives across multiple steps.",
+    no: "Incorrect. The core capability of Planning is autonomous goal decomposition and sequential execution — formulating a plan of action steps and executing them to move from an initial state to a goal state. Parallel processing, tool use, and reflection are related but distinct patterns."
+  },
+  {
+    q: "According to the chapter, the key question for deciding whether to use the Planning pattern is:",
+    opts: [
+      "How many tools does the task require?",
+      "Does the 'how' need to be discovered at runtime, or is it already known?",
+      "Is the task time-sensitive or latency-critical?",
+      "Does the task involve external APIs?"
+    ],
+    ans: 1,
+    ok: "Correct! The key question is whether the solution path needs to be discovered during execution or is already known. If the 'how' is already known (repeatable, well-understood process), a fixed workflow is more reliable and predictable. If the path must be discovered (novel problems, dynamic environments, complex constraints), the Planning pattern is appropriate.",
+    no: "The defining question is about path discovery: if the solution approach is already known and repeatable, a fixed workflow is better. The Planning pattern is specifically for situations where the 'how' must be discovered at runtime — novel research, dynamic environments, complex constraints that only become clear during execution."
+  },
+  {
+    q: "What makes Google DeepResearch a concrete example of the Planning pattern?",
+    opts: [
+      "It uses Google's Gemini model instead of GPT",
+      "It produces long-form output",
+      "It decomposes a user's prompt into a research plan, presents it for review, then iteratively executes search-analyze cycles — adaptively refining queries based on gathered information and identified knowledge gaps",
+      "It requires a paid subscription"
+    ],
+    ans: 2,
+    ok: "Correct! DeepResearch exhibits all hallmarks of the Planning pattern: goal decomposition (prompt → multi-point research plan), collaborative plan refinement (user review before execution), adaptive execution (iteratively refining search queries based on gaps identified), and synthesis (producing a structured, cited final report).",
+    no: "DeepResearch exemplifies Planning because it: (1) decomposes the user's goal into an explicit research plan, (2) presents the plan for user review and modification, (3) adaptively executes the plan, dynamically refining queries based on what it discovers, and (4) synthesizes findings into a structured report with citations."
+  },
+  {
+    q: "In the CrewAI planning example, how is planning behavior explicitly induced?",
+    opts: [
+      "By using a specialized CrewAI 'Planner' class",
+      "By configuring a planning_enabled=True parameter",
+      "By structuring the task description to explicitly require two phases: 1) create a plan, then 2) execute based on the plan",
+      "By importing the langchain_planners module"
+    ],
+    ans: 2,
+    ok: "Correct! The task description explicitly instructs: '1. Create a bullet-point plan for a summary on the topic. 2. Write the summary based on your plan.' This explicit two-phase instruction reliably induces planning-first behavior in LLMs. The agent's backstory also reinforces this by emphasizing expertise in creating actionable plans before writing.",
+    no: "The planning behavior is induced through careful task description design: explicitly asking the agent to first create a plan, then execute based on that plan. The description '1. Create a plan... 2. Write based on your plan' structures the LLM's behavior into a planning-then-execution pattern — a key technique for eliciting planning behavior."
+  },
+  {
+    q: "What is the key advantage of the OpenAI Deep Research API over abstracted products like ChatGPT for research tasks?",
+    opts: [
+      "It is faster and cheaper",
+      "It produces longer outputs",
+      "It exposes all intermediate steps — reasoning, specific search queries, and code execution — providing full transparency and auditability of how the final answer was constructed",
+      "It only uses verified academic sources"
+    ],
+    ans: 2,
+    ok: "Correct! The Deep Research API's transparency is its key differentiator: it exposes the agent's internal reasoning steps, the exact web search queries it executed, and any code it ran. This enables detailed debugging, analysis, and understanding of how the final answer was constructed — unlike ChatGPT's abstracted interface which hides these intermediate steps.",
+    no: "The key advantage is transparency: the API exposes all intermediate planning steps — reasoning, search queries, code execution — unlike ChatGPT which abstracts these away. This enables debugging, audit trails, and a deep understanding of how the research plan was executed and how the final report was constructed."
+  },
+  {
+    q: "Why is the Planning pattern described as working best when combined with Tool Use, Reflection, and Memory?",
+    opts: [
+      "Because these patterns share the same codebase",
+      "Because combining patterns reduces API costs",
+      "Because Tool Use enables executing plan steps, Reflection enables evaluating and adapting, and Memory enables building on previous work — together enabling sustained, complex goal-directed behavior",
+      "Because regulators require multi-pattern architectures for production systems"
+    ],
+    ans: 2,
+    ok: "Correct! The patterns are complementary: Tool Use gives the agent the ability to execute plan steps by calling external services; Reflection enables evaluating intermediate results and adapting the plan when needed; Memory allows the agent to build on previous research and avoid redundant work. Together they create systems capable of sustained, complex real-world problem-solving — as demonstrated by DeepResearch.",
+    no: "The patterns are complementary by design: Tool Use enables each plan step to call external APIs and services; Reflection allows the agent to evaluate results and adapt the plan if intermediate steps fail or reveal new information; Memory enables building on previous work. Together they create sophisticated systems capable of sustained, goal-directed behavior on complex problems."
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div>';
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    const fb = document.getElementById('qfb');
+    fb.textContent = scores[curQ] ? q2.ok : q2.no;
+    fb.className = 'quiz-fb show ' + (scores[curQ] ? 'right' : 'wrng');
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction — Agentic Design Patterns</title>
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: system-ui, -apple-system, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--teal); }
+.fail-card:nth-child(2)::before { background: var(--blue); }
+.fail-card:nth-child(3)::before { background: var(--purple); }
+.fail-card:nth-child(4)::before { background: var(--coral); }
+.fail-card:nth-child(5)::before { background: var(--amber); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 250px; }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; min-width: 90px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 4px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.quote-block { border-left: 3px solid var(--teal); padding: 16px 20px; background: var(--teal-l); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 16px 0; font-size: 14px; color: var(--teal-d); line-height: 1.8; font-style: italic; }
+.quote-attr { font-size: 12px; color: var(--text3); margin-top: 8px; font-style: normal; font-weight: 500; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Introduction</div>
+<h1>Agentic Design Patterns</h1>
+<p class="subtitle">A Hands-On Guide to Building Intelligent Systems — Preface, Foreword, Introduction, and the Founding Questions of Agentic AI</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">The Challenge</button>
+  <button class="nav-btn" onclick="go('solution')">Why Patterns</button>
+  <button class="nav-btn" onclick="go('concepts')">What is an Agent?</button>
+  <button class="nav-btn" onclick="go('usecases')">Agent Levels</button>
+  <button class="nav-btn" onclick="go('code')">Frameworks</button>
+  <button class="nav-btn" onclick="go('deepdive')">Future Hypotheses</button>
+  <button class="nav-btn" onclick="go('glance')">Book Structure</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Book Overview</div>
+  <div class="sec-desc">Welcome to "Agentic Design Patterns: A Hands-On Guide to Building Intelligent Systems" — a practical guide to the architectural patterns behind the next generation of AI.</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Chapters</div><div class="metric-value">21</div></div>
+    <div class="metric"><div class="metric-label">Appendices</div><div class="metric-value">7</div></div>
+    <div class="metric"><div class="metric-label">Total Pages</div><div class="metric-value">424</div></div>
+    <div class="metric"><div class="metric-label">Market Size 2034</div><div class="metric-value">$200B</div></div>
+  </div>
+
+  <div class="quote-block">
+    "The field of artificial intelligence is at a fascinating inflection point. We are moving beyond building models that can simply process information to creating intelligent systems that can reason, plan, and act to achieve complex goals with ambiguous tasks."
+    <div class="quote-attr">— Saurabh Tiwary, VP &amp; General Manager, CloudAI @ Google (Foreword)</div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>The Central Premise</h3>
+    <p>The power of large language models—the cognitive engines of agentic systems—must be harnessed with structure and thoughtful design. Just as design patterns revolutionized software engineering by providing a common language for common problems, agentic design patterns will be foundational for building robust, scalable, and reliable intelligent systems.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>About the Author</h3>
+    <p>Written by Antonio Gulli, a Google engineer focused on Cloud AI. All royalties from this book are donated to Save the Children. The book is dedicated to his children: "This book is about how to build intelligent tools, but it is dedicated to the profound hope that your generation will guide them with wisdom and compassion."</p>
+  </div>
+
+  <div class="quote-block" style="border-left-color:var(--coral);background:var(--coral-l);color:var(--coral-d);">
+    "This is where craft, culture, and a relentless focus on our principles become our essential guide... We must Build with Purpose, ensuring that every agent we design starts from a clear understanding of the client problem we are solving."
+    <div class="quote-attr">— Marco Argenti, CIO, Goldman Sachs (A Thought Leader's Perspective)</div>
+  </div>
+</div>
+
+<!-- 2. The Challenge -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">The Challenge: From Models to Systems</div>
+  <div class="sec-desc">Why orchestrating LLM capabilities into reliable systems requires more than just a powerful model.</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>State Management</h4>
+      <p>How does the agent maintain context across multiple steps?</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Without explicit Memory Management patterns, an agent operating over many steps loses context—contradicting previous actions or forgetting the user's original intent. This is one of the core complexity challenges in agentic systems.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Tool Decision Making</h4>
+      <p>How does it decide when and how to use a tool?</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Without structured Tool Use patterns, agents either never use tools (limiting capability) or use them indiscriminately (risking errors and costs). The ReAct framework and function-calling patterns provide the discipline needed.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Multi-Agent Communication</h4>
+      <p>How is communication between different agents managed?</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Multi-agent systems without standardized communication protocols produce incoherent outputs. The A2A and MCP patterns exist to establish clear contracts for how agents exchange context, goals, and results.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>Building Resilience</h4>
+      <p>How do you handle unexpected outcomes or errors?</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Production agents encounter unexpected tool failures, malformed outputs, and edge cases. Exception Handling and Recovery patterns (Chapter 12) and Guardrails/Safety patterns (Chapter 18) provide the resilience infrastructure needed for reliable deployment.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>The "Garbage In" Problem</h4>
+      <p>Messy systems plus agents = plausible garbage output</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">As Goldman Sachs CIO Marco Argenti notes: "An AI trained on 'garbage' data doesn't just produce garbage-out; it produces plausible, confident garbage that can poison an entire process." Grounding, validation, and human oversight patterns are essential responses to this challenge.</p></div>
+    </div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>The Agentic AI Market Signal</h3>
+    <p>By end of 2024, AI agent startups had raised more than $2 billion and the market was valued at $5.2 billion. It is projected to reach nearly $200 billion by 2034. A majority of large IT companies are actively using agents, and a fifth started within the past year. The urgency to build these systems well is both technical and economic.</p>
+  </div>
+</div>
+
+<!-- 3. Why Patterns -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">Why Patterns Matter in Agent Development</div>
+  <div class="sec-desc">Agentic design patterns are indispensable because they are battle-tested templates offering proven approaches to standard design and implementation challenges.</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div><div class="chain-title">Avoid Reinventing Fundamentals</div><div class="chain-role">Common language + proven solutions</div></div>
+      </div>
+      <div class="chain-detail">Using design patterns helps you avoid reinventing solutions for managing conversational flow, integrating external capabilities, or coordinating multiple agent actions. They provide a common language and structure that makes your agent's logic clearer and easier for others to understand and maintain.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--blue);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">2</div>
+        <div><div class="chain-title">Build More Robust and Reliable Systems</div><div class="chain-role">Error handling + state management</div></div>
+      </div>
+      <div class="chain-detail">Implementing patterns designed for error handling or state management directly contributes to building more robust and reliable systems. Rather than discovering failure modes ad hoc, patterns encode the lessons learned from building many agents across many domains.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">3</div>
+        <div><div class="chain-title">Accelerate Development</div><div class="chain-role">Focus on unique aspects, not foundational mechanics</div></div>
+      </div>
+      <div class="chain-detail">Leveraging established approaches accelerates your development process, allowing you to focus on the unique aspects of your application rather than the foundational mechanics of agent behavior. Pattern recognition is a force multiplier for every developer building intelligent systems.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">4</div>
+        <div><div class="chain-title">Enable the Agentic Canvas</div><div class="chain-role">Infrastructure + patterns = intelligent systems</div></div>
+      </div>
+      <div class="chain-detail">Think of building intelligent systems as creating a complex work of art or engineering on a canvas. The canvas isn't a blank visual space, but rather the underlying infrastructure that provides the environment and tools for your agents to exist and operate. Patterns are the techniques you apply on that canvas—providing reusable solutions to the recurring problems you'll face when bringing intelligent agents to life.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. What is an Agent? -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">What Makes an AI System an Agent?</div>
+  <div class="sec-desc">In simple terms, an AI agent is a system designed to perceive its environment and take actions to achieve a specific goal. It follows a five-step loop.</div>
+
+  <div class="card card-bordered">
+    <h3>The Five-Step Agent Loop</h3>
+    <ul>
+      <li><strong>Get the Mission:</strong> You give it a goal, like "organize my schedule."</li>
+      <li><strong>Scan the Scene:</strong> It gathers all necessary information—reading emails, checking calendars, accessing contacts—to understand what's happening.</li>
+      <li><strong>Think It Through:</strong> It devises a plan of action by considering the optimal approach to achieve the goal.</li>
+      <li><strong>Take Action:</strong> It executes the plan by sending invitations, scheduling meetings, and updating your calendar.</li>
+      <li><strong>Learn and Get Better:</strong> It observes successful outcomes and adapts accordingly—for example, if a meeting is rescheduled, the system learns from this event to enhance its future performance.</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Key Agent Characteristics</h3>
+    <p>Agentic systems are characterized by: <strong>Autonomy</strong> (act without constant human oversight); <strong>Proactiveness</strong> (initiate actions towards goals); <strong>Reactiveness</strong> (respond to environment changes); <strong>Goal-orientation</strong> (work toward objectives); <strong>Tool use</strong> (interact with external APIs and databases); <strong>Memory</strong> (retain information across interactions); <strong>Communication</strong> (interact with users, systems, or other agents).</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>The Paradigm Shift: LLMs → RAG → AI Agents → Agentic AI</h3>
+    <p>In just two years, the AI paradigm shifted dramatically: <strong>LLM Workflow</strong> (basic prompts + triggers) → <strong>RAG</strong> (grounded in factual information via retrieval) → <strong>AI Agent</strong> (tool use + memory + reasoning) → <strong>Agentic AI</strong> (teams of specialized agents in concert). Each step in this evolution corresponds to patterns in this book.</p>
+  </div>
+</div>
+
+<!-- 5. Agent Levels -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">The Four Levels of Agent Complexity</div>
+  <div class="sec-desc">The book defines four levels of agent sophistication, from a bare LLM to collaborative multi-agent systems. Select a level to explore.</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Level 0: Core Reasoning</button>
+    <button class="uc-tab" onclick="showUC(1)">Level 1: Connected</button>
+    <button class="uc-tab" onclick="showUC(2)">Level 2: Strategic</button>
+    <button class="uc-tab" onclick="showUC(3)">Level 3: Collaborative</button>
+  </div>
+
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Level 0: The Core Reasoning Engine</h3>
+      <p>While an LLM is not an agent in itself, it serves as the reasoning core of a basic agentic system. In a 'Level 0' configuration, the LLM operates without tools, memory, or environment interaction—responding solely based on pretrained knowledge. Its strength lies in leveraging extensive training data to explain established concepts. Its trade-off: a complete lack of current-event awareness. For example, it cannot name the 2025 Oscar winner for "Best Picture" if that information is outside its training data.</p>
+      <p style="margin-top:12px;font-size:13px;color:var(--text3);">Patterns applied: None — this is the baseline before patterns are added.</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Level 1: The Connected Problem-Solver</h3>
+      <p>At this level, the LLM becomes a functional agent by connecting to and utilizing external tools. Problem-solving is no longer limited to pretrained knowledge—it can execute a sequence of actions to gather and process information from the internet (via search) or databases (via RAG). For instance, to find new TV shows, the agent recognizes the need for current information, uses a search tool to find it, and synthesizes the results. It can also use a financial API to get the live stock price for AAPL.</p>
+      <p style="margin-top:12px;font-size:13px;color:var(--text3);">Patterns applied: Tool Use (Ch.5), Knowledge Retrieval/RAG (Ch.14), Routing (Ch.2).</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Level 2: The Strategic Problem-Solver</h3>
+      <p>At this level, capabilities expand significantly: strategic planning, proactive assistance, and self-improvement emerge. The agent uses <strong>context engineering</strong>—the strategic process of selecting, packaging, and managing the most relevant information for each step. For example, to find a coffee shop between two locations, it uses a mapping tool, then engineers a focused context (just street names) to feed into a local search tool. It also achieves self-improvement by refining its own context engineering processes when asked for feedback.</p>
+      <p style="margin-top:12px;font-size:13px;color:var(--text3);">Patterns applied: Planning (Ch.6), Reflection (Ch.4), Learning &amp; Adaptation (Ch.9), Memory Management (Ch.8).</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>Level 3: The Rise of Collaborative Multi-Agent Systems</h3>
+      <p>At Level 3, a significant paradigm shift occurs: complex challenges are solved not by a single generalist, but by a team of specialists working in concert. This mirrors the structure of a human organization. Consider launching a new product: a "Project Manager" agent orchestrates the process, delegating to a "Market Research" agent, a "Product Design" agent, and a "Marketing" agent. The key to their success is seamless communication and information sharing, ensuring all individual efforts align to achieve the collective goal.</p>
+      <p style="margin-top:12px;font-size:13px;color:var(--text3);">Patterns applied: Multi-Agent Collaboration (Ch.7), Inter-Agent Communication A2A (Ch.15), MCP (Ch.10), Human-in-the-Loop (Ch.13).</p>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Frameworks -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Frameworks: The Development Canvas</div>
+  <div class="sec-desc">The book uses three primary frameworks as the "canvas" on which patterns are applied. Understanding their differences helps you choose the right one for your use case.</div>
+
+  <div class="card card-bordered">
+    <h3>LangChain &amp; LangGraph</h3>
+    <p><strong>LangChain</strong> provides a flexible way to chain together language models and other components, offering a robust canvas for building complex sequences and pipelines. <strong>LangGraph</strong>, its stateful extension, enables building graph-based agent workflows where nodes represent steps and edges represent conditional transitions. Used extensively in Chapters 1–8 and 20.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>CrewAI</h3>
+    <p>Provides a structured framework specifically designed for orchestrating multiple AI agents, roles, and tasks. It acts as a canvas particularly well-suited for collaborative agent systems, with first-class support for defining agent roles, goals, and backstories. Featured prominently in Chapter 7 (Multi-Agent Collaboration) and Chapter 3 (Parallelization).</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Google Agent Developer Kit (ADK)</h3>
+    <p>Offers tools and components for building, evaluating, and deploying agents, providing another valuable canvas often integrated with Google's AI infrastructure (Vertex AI, Gemini models). Referenced in 9+ chapters—making it the most widely used framework in the book's code examples. Covered comprehensively in Appendix C.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Pattern-Framework Independence</h3>
+    <p>Crucially, the patterns in this book apply regardless of the specific framework you choose. The examples are designed to clearly illustrate each pattern's core logic—whether implemented in LangChain, CrewAI, ADK, LlamaIndex, MetaGPT, or any other framework. The patterns are the "what"; the framework is the "where."</p>
+  </div>
+</div>
+
+<!-- 7. Future Hypotheses -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">The Future of Agents: 5 Hypotheses</div>
+  <div class="sec-desc">The introduction presents five leading hypotheses about the next wave of agent innovation. Click each to explore.</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);color:var(--teal-d);">
+      <div class="ctx-layer-title">Hypothesis 1: The Emergence of the Generalist Agent</div>
+      <div class="ctx-layer-sub">From narrow specialists to true generalists</div>
+      <div class="ctx-layer-detail" style="color:var(--teal-d);">AI agents will evolve from narrow specialists into true generalists capable of managing complex, ambiguous, and long-term goals with high reliability. You could give an agent: "Plan my company's offsite retreat for 30 people in Lisbon next quarter." It would manage the entire project for weeks—budget, flights, venue, itinerary—while providing regular updates. This requires fundamental breakthroughs in AI reasoning, memory, and near-perfect reliability. An alternative is the rise of Small Language Models (SLMs)—"Lego-like" systems composed from small specialized expert agents.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);color:var(--blue-d);">
+      <div class="ctx-layer-title">Hypothesis 2: Deep Personalization &amp; Proactive Goal Discovery</div>
+      <div class="ctx-layer-sub">From following orders to anticipating needs</div>
+      <div class="ctx-layer-detail" style="color:var(--blue-d);">Agents will become deeply personalised and proactive partners—a new class of "proactive partner." By learning from your unique patterns and goals, these systems will shift from just following orders to anticipating your needs. If you're exploring sustainable energy, the agent might identify your latent goal and proactively support it by suggesting courses or summarizing research. Ultimately, the agent becomes an indispensable ally helping you discover ambitions you haven't yet fully articulated.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);color:var(--purple-d);">
+      <div class="ctx-layer-title">Hypothesis 3: Embodiment &amp; Physical World Interaction</div>
+      <div class="ctx-layer-sub">From digital to physical—robotic agents</div>
+      <div class="ctx-layer-detail" style="color:var(--purple-d);">This hypothesis foresees agents breaking free from purely digital confines to operate in the physical world. By integrating agentic AI with robotics, we will see "embodied agents." Instead of just booking a handyman, you might ask your home agent to fix a leaky tap. The agent would use vision sensors to perceive the problem, access a library of plumbing knowledge, and control robotic manipulators to perform the repair—bridging digital intelligence and physical action.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);color:var(--amber-d);">
+      <div class="ctx-layer-title">Hypothesis 4: The Agent-Driven Economy</div>
+      <div class="ctx-layer-sub">Agents as active economic participants</div>
+      <div class="ctx-layer-detail" style="color:var(--amber-d);">Highly autonomous agents will become active participants in the economy, creating new markets and business models. An entrepreneur could launch an agent to run an entire e-commerce business—identifying trending products, generating marketing copy, managing supply chain logistics, and dynamically adjusting pricing based on real-time demand. This "agent economy" would operate at a speed and scale impossible for humans to manage directly.</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);color:var(--coral-d);">
+      <div class="ctx-layer-title">Hypothesis 5: Goal-Driven, Metamorphic Multi-Agent System</div>
+      <div class="ctx-layer-sub">Self-modifying systems that evolve toward declared goals</div>
+      <div class="ctx-layer-detail" style="color:var(--coral-d);">The most radical hypothesis: emergence of intelligent systems that operate not from explicit programming, but from a declared goal. The user states the desired outcome, and the system autonomously figures out how to achieve it—analyzing its own performance and modifying the topology of its multi-agent workforce, creating, duplicating, or removing agents as needed to form the most effective team for the task at hand.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. Book Structure -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">Book Structure at a Glance</div>
+  <div class="sec-desc">The book is organized across four parts, seven appendices, and back matter spanning 424 pages.</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="border-top:3px solid var(--teal);">
+      <h4>PART ONE (103 pages)</h4>
+      <p>Chapters 1–7: Prompt Chaining, Routing, Parallelization, Reflection, Tool Use, Planning, Multi-Agent Collaboration</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--blue);">
+      <h4>PART TWO (61 pages)</h4>
+      <p>Chapters 8–11: Memory Management, Learning &amp; Adaptation, Model Context Protocol, Goal Setting &amp; Monitoring</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--coral);">
+      <h4>PART THREE (34 pages)</h4>
+      <p>Chapters 12–14: Exception Handling, Human-in-the-Loop, Knowledge Retrieval (RAG)</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--purple);">
+      <h4>PART FOUR (114 pages)</h4>
+      <p>Chapters 15–21: A2A, Resource-Aware Optimization, Reasoning Techniques, Guardrails, Evaluation, Prioritization, Exploration &amp; Discovery</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--amber);">
+      <h4>APPENDICES (74 pages)</h4>
+      <p>A: Advanced Prompting · B: AI Agentic (GUI) · C: Frameworks · D: AgentSpace · E: CLI Agents · F: Reasoning Engines · G: Coding Agents</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--green);">
+      <h4>WHAT EACH CHAPTER CONTAINS</h4>
+      <p>Pattern Overview · Practical Applications &amp; Use Cases · Hands-On Code Example · Key Takeaways · References</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;font-weight:500;margin-bottom:8px;">Agent Capability Evolution — click a stage</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" onclick="simClick(0)" style="background:var(--bg3);color:var(--text2);">LLM</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--teal-l);color:var(--teal-d);">RAG</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--blue-l);color:var(--blue-d);">AI Agent</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--purple-l);color:var(--purple-d);">Agentic AI</div>
+    </div>
+    <div class="dia-output" id="sim-output">Click a stage to understand its capabilities and limitations.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Introduction Quiz</div>
+  <div class="sec-desc">Test your understanding of the book's foundational concepts.</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways from the Introduction</div>
+  <div class="sec-desc">The most important ideas established in the book's front matter.</div>
+  <ul class="tk-list">
+    <li>An agentic system is defined by its ability to perceive its environment, make decisions based on goals, and execute actions autonomously. It is characterized by autonomy, proactiveness, reactiveness, goal-orientation, tool use, memory, and communication capabilities.</li>
+    <li>The "canvas" metaphor is central: your choice of framework (LangChain, CrewAI, ADK) is the canvas; the 21 design patterns are the techniques you apply on that canvas. Both matter—neither alone is sufficient.</li>
+    <li>There are four levels of agent complexity: Level 0 (core LLM), Level 1 (connected/tool-using), Level 2 (strategic/self-improving), Level 3 (collaborative multi-agent). Each level adds capability and complexity, requiring additional patterns.</li>
+    <li>The AI paradigm has shifted from LLM → RAG → AI Agent → Agentic AI. Understanding this progression explains why patterns are needed and which patterns address which level of capability.</li>
+    <li>Patterns matter because they prevent reinvention of solutions, enable robust and reliable systems, accelerate development, and provide a common language for a rapidly growing field.</li>
+    <li>The market for agentic AI is projected to grow from $5.2 billion (2024) to $200 billion (2034). Building agentic systems well—with proper patterns and safety—is both a technical imperative and an economic opportunity.</li>
+    <li>Every chapter follows the same structure: Pattern Overview → Practical Applications → Hands-On Code → Key Takeaways → References. This consistency enables the book to serve both as a cover-to-cover read and as a reference guide to specific challenges.</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <div class="sec-desc">Key references from the Introduction and front matter.</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> Cloudera (April 2025). "96% of enterprises are increasing their use of AI agents." <a href="https://www.cloudera.com/about/news-and-blogs/press-releases/2025-04-16-96-percent-of-enterprises-are-expanding-use-of-ai-agents-according-to-latest-data-from-cloudera.html" target="_blank">cloudera.com</a></li>
+    <li><span class="ref-num">[2]</span> Deloitte (2025). "Autonomous generative AI agents." <a href="https://www.deloitte.com/us/en/insights/industry/technology/technology-media-and-telecom-predictions/2025/autonomous-generative-ai-agents-still-under-development.html" target="_blank">deloitte.com</a></li>
+    <li><span class="ref-num">[3]</span> Market.us. "Global Agentic AI Market Size, Trends and Forecast 2025–2034." <a href="https://market.us/report/agentic-ai-market/" target="_blank">market.us</a></li>
+    <li><span class="ref-num">[4]</span> Gulli, Antonio. <em>Agentic Design Patterns: A Hands-On Guide to Building Intelligent Systems.</em> Springer, 2025. <a href="https://www.amazon.com/Agentic-Design-Patterns-Hands-Intelligent/dp/3032014018/" target="_blank">Amazon Pre-Print</a></li>
+    <li><span class="ref-num">[5]</span> Tiwary, Saurabh. Foreword: "The field of artificial intelligence is at a fascinating inflection point." VP &amp; General Manager, CloudAI @ Google.</li>
+    <li><span class="ref-num">[6]</span> Argenti, Marco. "A Thought Leader's Perspective: Power and Responsibility." CIO, Goldman Sachs.</li>
+  </ul>
+</div>
+
+<div class="footer"><p>Agentic Design Patterns — Introduction &amp; Front Matter</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  'LLM (Level 0): The bare language model without any agentic enhancements. Extremely powerful for knowledge-based tasks within its training data, but cannot access current information, use tools, or maintain state across interactions. The foundation upon which all agentic patterns are built.',
+  'RAG (Level 0→1 Bridge): Retrieval-Augmented Generation connects the LLM to external knowledge sources at inference time. The agent embeds queries, retrieves relevant document chunks, and includes them in the context. This "grounds" the LLM in current, authoritative information and dramatically reduces hallucination.',
+  'AI Agent (Level 1–2): The LLM equipped with tool use, memory, and planning capabilities. It can search the web, call APIs, maintain conversation state, and execute multi-step plans. Corresponds to the Tool Use (Ch.5), Planning (Ch.6), Memory Management (Ch.8), and Reflection (Ch.4) patterns.',
+  'Agentic AI (Level 3): A team of specialized AI agents orchestrated to work in concert, each with a specific role and set of tools. The orchestrator delegates subtasks to specialist agents (researcher, writer, critic, coder) and synthesizes their outputs. Corresponds to Multi-Agent Collaboration (Ch.7), A2A (Ch.15), and MCP (Ch.10) patterns.'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  { q: 'According to the book, what are the four levels of agent complexity?', opts: ['Simple, Moderate, Advanced, Expert', 'Core Reasoning, Connected, Strategic, Collaborative Multi-Agent', 'Reactive, Deliberative, Hybrid, Autonomous', 'Single-turn, Multi-turn, Tool-using, Planning'], ans: 1, ok: 'Correct! Level 0 is the Core Reasoning Engine (bare LLM); Level 1 is the Connected Problem-Solver (tool use + RAG); Level 2 is the Strategic Problem-Solver (planning + context engineering + self-improvement); Level 3 is the Collaborative Multi-Agent System.', no: 'Not quite. The four levels are: Level 0 (Core Reasoning Engine), Level 1 (Connected Problem-Solver), Level 2 (Strategic Problem-Solver), and Level 3 (Collaborative Multi-Agent Systems).' },
+  { q: 'What is "context engineering" as introduced in the Front Matter?', opts: ['Writing more detailed system prompts', 'The strategic process of selecting, packaging, and managing the most relevant information for each agent step', 'Building user interfaces for AI agents', 'The process of designing agent architectures'], ans: 1, ok: 'Correct! Context engineering is the strategic discipline of curating—not just providing—the right information for each step. It prevents context overload and ensures each LLM call receives the minimum necessary relevant information to maximize accuracy.', no: 'Not quite. Context engineering is the strategic process of selecting, packaging, and managing the most relevant information for each step—it is about precision and curation, not just writing longer prompts.' },
+  { q: 'The book uses a "canvas" metaphor. What does the canvas represent?', opts: ['The visual interface for AI agents', 'The underlying technical infrastructure and frameworks (LangChain, CrewAI, ADK) on which agents are built', 'The collection of 21 design patterns', 'The user\'s interaction surface'], ans: 1, ok: 'Correct! The canvas represents the underlying infrastructure and frameworks—LangChain, CrewAI, Google ADK—that provide the environment and tools for agents to exist and operate. The patterns are the techniques applied on that canvas.', no: 'Not quite. The canvas is the underlying infrastructure and frameworks (LangChain, CrewAI, ADK). The patterns are like brushstrokes applied on that canvas to create purposeful intelligent systems.' },
+  { q: 'What does Hypothesis 5 ("Goal-Driven, Metamorphic Multi-Agent System") describe?', opts: ['A system where humans define every agent\'s role explicitly', 'A system that operates from a declared goal and autonomously modifies its own multi-agent topology to achieve it', 'A system that uses only one very powerful agent', 'A system where agents communicate via a fixed protocol'], ans: 1, ok: 'Correct! Hypothesis 5 describes the most radical future: systems that start from a declared goal and autonomously figure out how to achieve it—creating, duplicating, or removing agents as needed, and refining their own prompts and context engineering without human intervention.', no: 'Not quite. Hypothesis 5 describes a system that operates from a declared goal (not explicit programming) and autonomously modifies its multi-agent topology—creating, duplicating, or removing agents—to best achieve that goal.' },
+  { q: 'The Global Agentic AI market was valued at approximately how much in 2024, and what is its projected value by 2034?', opts: ['$1 billion in 2024, $50 billion by 2034', '$5.2 billion in 2024, $200 billion by 2034', '$10 billion in 2024, $500 billion by 2034', '$2 billion in 2024, $100 billion by 2034'], ans: 1, ok: 'Correct! The market was valued at $5.2 billion in 2024 (with AI agent startups having raised more than $2 billion) and is projected to reach nearly $200 billion by 2034—demonstrating the economic urgency of building agentic systems well.', no: 'Not quite. The market was valued at $5.2 billion in 2024 and is projected to reach nearly $200 billion by 2034 according to the Introduction.' }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

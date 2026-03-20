@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appendix C: Agentic Frameworks Overview — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: system-ui, -apple-system, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  background: var(--teal-l);
+  padding: 4px 14px;
+  border-radius: 99px;
+  margin-bottom: 16px;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  max-width: 640px;
+}
+.nav-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 0.5px solid var(--border2);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+  padding-top: 8px;
+}
+.nav-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 7px 16px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active {
+  background: var(--teal-l);
+  color: var(--teal-d);
+  border-color: var(--teal);
+  font-weight: 500;
+}
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 16px;
+  border: 0.5px solid var(--border);
+}
+.card-bordered {
+  border-left: 3px solid var(--teal);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+.metric {
+  background: var(--bg2);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  border: 0.5px solid var(--border);
+}
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card {
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+  overflow: hidden;
+}
+.fail-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all .25s;
+}
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s ease;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow {
+  width: 2px;
+  height: 32px;
+  background: var(--border2);
+  position: relative;
+}
+.chain-arrow::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: -5px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--border2);
+}
+.json-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+}
+.uc-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.uc-tab {
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+}
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active {
+  background: var(--purple-l);
+  color: var(--purple-d);
+  border-color: var(--purple);
+  font-weight: 500;
+}
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+.uc-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 11px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.code-block {
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+  margin: 12px 0;
+  border: 0.5px solid var(--border);
+  tab-size: 2;
+}
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer {
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .25s;
+  border: 0.5px solid transparent;
+}
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg3);
+  transition: all .3s;
+}
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.quiz-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 18px;
+  margin-bottom: 8px;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--bg2);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all .2s;
+  line-height: 1.6;
+}
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb {
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 12px 0;
+  display: none;
+}
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn {
+  font-family: var(--sans);
+  padding: 8px 22px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+  margin-top: 12px;
+}
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li {
+  counter-increment: tk;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.tk-list li::before {
+  content: counter(tk);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--teal-l);
+  color: var(--teal-d);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.glance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card {
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+}
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin: 1.5rem 0;
+  border: 0.5px solid var(--border);
+  text-align: center;
+}
+.diagram-nodes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+.dia-node {
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .3s;
+  position: relative;
+  min-width: 100px;
+  text-align: center;
+}
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output {
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+  text-align: left;
+  min-height: 60px;
+  transition: all .3s;
+}
+.ref-list { list-style: none; padding: 0; }
+.ref-list li {
+  font-size: 13px;
+  color: var(--text2);
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--border);
+  line-height: 1.6;
+}
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+.compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 1rem 0; }
+.compare-table th { background: var(--bg3); padding: 10px 14px; text-align: left; font-weight: 500; border: 0.5px solid var(--border2); }
+.compare-table td { padding: 10px 14px; border: 0.5px solid var(--border); color: var(--text2); vertical-align: top; }
+.compare-table tr:nth-child(even) td { background: var(--bg2); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Appendix C</div>
+<h1>Quick Overview of Agentic Frameworks</h1>
+<p class="subtitle">A practical tour of the major frameworks for building LLM-powered applications — from simple linear chains to full multi-agent orchestration platforms.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Framework Landscape</div>
+  <p class="sec-desc">The agentic framework ecosystem spans a wide spectrum — from foundational component libraries to opinionated multi-agent platforms. Choosing the right one depends on how much control vs. convenience your application requires.</p>
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Frameworks Covered</div>
+      <div class="metric-value">8+</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Abstraction Levels</div>
+      <div class="metric-value">3</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Key Decision</div>
+      <div class="metric-value" style="font-size:1rem;">DAG vs Graph</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Core Trade-off</div>
+      <div class="metric-value" style="font-size:1rem;">Control vs Speed</div>
+    </div>
+  </div>
+  <div class="card card-bordered">
+    <h3>LangChain — Linear Pipelines</h3>
+    <p>LangChain's core strength is its Expression Language (LCEL), which lets you "pipe" components together into a chain. It is ideal for Directed Acyclic Graph (DAG) workflows where the process flows in one direction without loops.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>LangGraph — Stateful Graphs</h3>
+    <p>Built on top of LangChain, LangGraph lets you define workflows as graphs with nodes and edges. Its key advantage is supporting cycles — enabling loops, retries, and tool use until a task is complete.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Google ADK — Multi-Agent Orchestration</h3>
+    <p>Google's Agent Development Kit provides pre-built architectural patterns for multi-agent interaction. It abstracts away graph construction, offering built-in agent types like SequentialAgent and ParallelAgent.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>CrewAI — Role-Based Teams</h3>
+    <p>CrewAI models agents as a team of specialists with distinct personas, roles, and goals. Developers define Agents, Tasks, and a Crew — CrewAI manages the collaborative interaction process.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Why Do We Need Specialized Frameworks?</div>
+  <p class="sec-desc">Building reliable agentic applications from scratch involves solving hard recurring problems. Click each card to understand the challenge.</p>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>State Management</h4>
+      <p>LLMs are stateless by default. Complex workflows need to pass context across multiple steps and agent boundaries.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">Without explicit state objects, data must be manually threaded through every function call. Frameworks like LangGraph solve this with a typed state dictionary that persists across the entire workflow.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Control Flow Complexity</h4>
+      <p>Agents need to loop, branch, retry, and make conditional decisions — impossible to express as a simple function chain.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">DAG-based frameworks like LangChain cannot handle cycles. Graph-based frameworks like LangGraph introduce edges with conditional logic to route between nodes dynamically.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Multi-Agent Coordination</h4>
+      <p>Systems with multiple specialized agents require orchestration logic to delegate, route, and aggregate results.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">High-level platforms like Google ADK and CrewAI provide pre-built patterns — supervisor agents, sequential crews, hierarchical delegation — so developers don't need to build coordination from scratch.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Tool Integration Boilerplate</h4>
+      <p>Connecting LLMs to external APIs, search tools, databases, and code executors involves repetitive scaffolding.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">Frameworks provide standardized tool interfaces and function-calling integration, letting developers focus on defining what tools do rather than how to call them from an LLM.</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>Observability &amp; Debugging</h4>
+      <p>Multi-step LLM workflows are opaque — it's hard to trace why a particular path was taken or where errors occurred.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">Frameworks like SuperAGI and production-oriented platforms include built-in monitoring, logging, and failure-handling mechanisms that catch common issues like infinite loops.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">The Three Layers of Abstraction</div>
+  <p class="sec-desc">Agentic frameworks exist at three distinct levels. Understanding this hierarchy helps you choose the right tool for your use case. Click each node for details.</p>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">1</div>
+        <div>
+          <div class="chain-title">Foundational Component Libraries</div>
+          <div class="chain-role">LangChain, LlamaIndex, Haystack</div>
+        </div>
+      </div>
+      <div class="chain-detail">These frameworks operate at the most foundational level. LangChain provides standardized interfaces for calling models, parsing outputs, and chaining operations. LlamaIndex specializes in data ingestion and RAG pipelines. Haystack focuses on scalable production search. They give maximum control with maximum boilerplate.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Graph-Based Agent Frameworks</div>
+          <div class="chain-role">LangGraph, Microsoft AutoGen, Semantic Kernel</div>
+        </div>
+      </div>
+      <div class="chain-detail">These frameworks extend foundational libraries with stateful, cyclical control flow. LangGraph treats an agent's workflow as a graph of nodes and edges with explicit state objects. AutoGen enables agents to solve tasks through conversation. Semantic Kernel integrates LLMs into enterprise codebases via plugins and planners.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">3</div>
+        <div>
+          <div class="chain-title">Multi-Agent Orchestration Platforms</div>
+          <div class="chain-role">Google ADK, CrewAI, MetaGPT, SuperAGI, Strands</div>
+        </div>
+      </div>
+      <div class="chain-detail">These platforms abstract away graph construction entirely, offering pre-built patterns for teams of agents. Google ADK provides SequentialAgent and ParallelAgent primitives. CrewAI models collaboration as a team with roles and tasks. MetaGPT uses SOPs to mimic a software company. They trade granular control for rapid development of complex systems.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts by Framework</div>
+  <p class="sec-desc">Each framework has a distinct mental model. Understanding the key abstractions is essential before writing any code.</p>
+
+  <div class="card" style="border-left:3px solid var(--blue);">
+    <h3>LangChain: LCEL and Chains</h3>
+    <p>The core abstraction is a <strong>chain</strong> built with the LangChain Expression Language (LCEL). Components are composed using the pipe operator <code>|</code>. The workflow is a Directed Acyclic Graph — each step's output becomes the next step's input. State is generally stateless per run.</p>
+  </div>
+  <div class="json-block"><span class="code-comment"># LCEL chain: prompt | model | output_parser</span>
+chain = prompt | model | output_parser
+result = chain.invoke({<span class="code-string">"topic"</span>: <span class="code-string">"machine learning"</span>})</div>
+
+  <div class="card" style="border-left:3px solid var(--purple);">
+    <h3>LangGraph: Nodes, Edges, and State</h3>
+    <p>The core abstraction is a <strong>StateGraph</strong>. You define a typed state dictionary, then add nodes (Python functions) and edges (control flow). Edges can be conditional, enabling cycles. The state object is updated by each node and passed to the next.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--teal);">
+    <h3>CrewAI: Agents, Tasks, and Crews</h3>
+    <p>Three building blocks: an <strong>Agent</strong> has a role, goal, and backstory. A <strong>Task</strong> is a discrete unit of work with a description and expected output. A <strong>Crew</strong> binds agents and tasks together and executes a Process (sequential or hierarchical).</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--amber);">
+    <h3>Google ADK: LlmAgent and Tools</h3>
+    <p>The core primitive is an <strong>LlmAgent</strong> configured with a model, name, instructions, and a list of tools. ADK handles the agent loop implicitly. For multi-agent systems, agents can be composed into SequentialAgent or ParallelAgent containers that manage flow automatically.</p>
+  </div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Framework Selection Guide</div>
+  <p class="sec-desc">Choose the right framework for your use case. Each tab describes a scenario and the best framework choice.</p>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Simple RAG</button>
+    <button class="uc-tab" onclick="showUC(1)">Tool-Using Agent</button>
+    <button class="uc-tab" onclick="showUC(2)">Multi-Agent Team</button>
+    <button class="uc-tab" onclick="showUC(3)">Plan &amp; Execute</button>
+    <button class="uc-tab" onclick="showUC(4)">Enterprise App</button>
+    <button class="uc-tab" onclick="showUC(5)">Data-Heavy RAG</button>
+  </div>
+
+  <div id="uc-0" class="uc-panel active">
+    <div class="card">
+      <h3>Simple RAG Pipeline</h3>
+      <p><strong>Best framework: LangChain (LCEL)</strong></p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>User query arrives</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>Retriever fetches relevant documents from vector store</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>Prompt template formats context + query</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>LLM generates answer; output parser formats response</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px;">LangChain's LCEL is perfect here. The workflow is linear (A → B → C), has no loops, and maps exactly to a pipe chain: <code>retriever | prompt | model | parser</code>.</p>
+    </div>
+  </div>
+
+  <div id="uc-1" class="uc-panel">
+    <div class="card">
+      <h3>Tool-Using Agent with Retry Logic</h3>
+      <p><strong>Best framework: LangGraph</strong></p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>Agent receives task and generates a plan</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>Agent calls a tool (search, calculator, API)</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>Conditional edge: if result is unsatisfactory, loop back to step 2</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>When task is complete, exit loop and return final answer</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px;">LangGraph's cyclical graph handles the retry loop naturally. The state object tracks tool call history across iterations.</p>
+    </div>
+  </div>
+
+  <div id="uc-2" class="uc-panel">
+    <div class="card">
+      <h3>Research Report with Specialist Agents</h3>
+      <p><strong>Best framework: CrewAI or Google ADK</strong></p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>Researcher agent searches the web for information</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>Analyst agent synthesizes findings into structured data</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>Writer agent composes the final report</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>Editor agent reviews and refines the draft</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px;">CrewAI's role-based model is a natural fit. Each agent has a defined persona and task; the Crew runs them sequentially with context passing between tasks.</p>
+    </div>
+  </div>
+
+  <div id="uc-3" class="uc-panel">
+    <div class="card">
+      <h3>Plan-and-Execute Agent</h3>
+      <p><strong>Best framework: LangGraph</strong></p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>Planner node creates a multi-step plan for the goal</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>Executor node carries out the next step in the plan</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>Evaluator node checks if the step succeeded</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>Loop back to planner to update the plan based on results, or exit when done</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px;">LangGraph's explicit state passing allows the plan, completed steps, and observations to all live in the shared state object, updated across each loop.</p>
+    </div>
+  </div>
+
+  <div id="uc-4" class="uc-panel">
+    <div class="card">
+      <h3>Enterprise Software Integration</h3>
+      <p><strong>Best framework: Semantic Kernel</strong></p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>Existing .NET or Python codebase provides native functions as plugins</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>Semantic Kernel planner determines which plugins to invoke for a user goal</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>LLM acts as a reasoning engine orchestrating existing business logic</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>Results are returned through the standard application layer</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px;">Semantic Kernel's plugin architecture is built for integrating into existing enterprise codebases, particularly in .NET and Python environments.</p>
+    </div>
+  </div>
+
+  <div id="uc-5" class="uc-panel">
+    <div class="card">
+      <h3>Knowledge-Intensive RAG System</h3>
+      <p><strong>Best framework: LlamaIndex</strong></p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>Ingest large document corpus into a sophisticated index structure</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>Build custom retrieval pipelines with re-ranking and filtering</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>Query engine handles complex nested queries across multiple data sources</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>Agent uses retrieved context for evidence-backed responses</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px;">LlamaIndex excels at sophisticated data ingestion and retrieval pipelines. Its native tools for complex agentic control flow are less developed, but for RAG it is exceptional.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Code Examples</div>
+  <p class="sec-desc">Concrete Python examples from the three primary frameworks covered in this appendix.</p>
+
+  <div class="card"><h3>LangChain — Simple LCEL Chain</h3></div>
+  <div class="code-block"><span class="code-comment"># A simple LCEL chain: conceptually demonstrates the pipe flow</span>
+<span class="code-keyword">from</span> langchain_core.prompts <span class="code-keyword">import</span> ChatPromptTemplate
+<span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> ChatOpenAI
+<span class="code-keyword">from</span> langchain_core.output_parsers <span class="code-keyword">import</span> StrOutputParser
+
+prompt = ChatPromptTemplate.from_template(
+    <span class="code-string">"Summarize the following text in one sentence:\n\n{text}"</span>
+)
+model = ChatOpenAI(model=<span class="code-string">"gpt-4o"</span>)
+output_parser = StrOutputParser()
+
+<span class="code-comment"># The pipe operator chains components together</span>
+chain = prompt | model | output_parser
+
+result = chain.invoke({<span class="code-string">"text"</span>: <span class="code-string">"LangChain enables composable LLM applications..."</span>})
+<span class="code-keyword">print</span>(result)</div>
+
+  <div class="card" style="margin-top:1.5rem;"><h3>LangGraph — Parallel Fan-Out with Aggregator</h3></div>
+  <div class="code-block"><span class="code-keyword">from</span> langgraph.graph <span class="code-keyword">import</span> StateGraph, START, END
+<span class="code-keyword">from</span> typing <span class="code-keyword">import</span> TypedDict
+
+<span class="code-comment"># Graph state</span>
+<span class="code-keyword">class</span> State(TypedDict):
+    topic: str
+    joke: str
+    story: str
+    poem: str
+    combined_output: str
+
+<span class="code-comment"># Node functions — each updates a slice of state</span>
+<span class="code-keyword">def</span> call_llm_1(state: State):
+    msg = llm.invoke(f<span class="code-string">"Write a joke about {state['topic']}"</span>)
+    <span class="code-keyword">return</span> {<span class="code-string">"joke"</span>: msg.content}
+
+<span class="code-keyword">def</span> call_llm_2(state: State):
+    msg = llm.invoke(f<span class="code-string">"Write a story about {state['topic']}"</span>)
+    <span class="code-keyword">return</span> {<span class="code-string">"story"</span>: msg.content}
+
+<span class="code-keyword">def</span> aggregator(state: State):
+    combined = f<span class="code-string">"JOKE:\n{state['joke']}\n\nSTORY:\n{state['story']}"</span>
+    <span class="code-keyword">return</span> {<span class="code-string">"combined_output"</span>: combined}
+
+<span class="code-comment"># Build and compile the graph</span>
+builder = StateGraph(State)
+builder.add_node(<span class="code-string">"call_llm_1"</span>, call_llm_1)
+builder.add_node(<span class="code-string">"call_llm_2"</span>, call_llm_2)
+builder.add_node(<span class="code-string">"aggregator"</span>, aggregator)
+builder.add_edge(START, <span class="code-string">"call_llm_1"</span>)
+builder.add_edge(START, <span class="code-string">"call_llm_2"</span>)
+builder.add_edge(<span class="code-string">"call_llm_1"</span>, <span class="code-string">"aggregator"</span>)
+builder.add_edge(<span class="code-string">"call_llm_2"</span>, <span class="code-string">"aggregator"</span>)
+builder.add_edge(<span class="code-string">"aggregator"</span>, END)
+workflow = builder.compile()
+
+state = workflow.invoke({<span class="code-string">"topic"</span>: <span class="code-string">"cats"</span>})
+<span class="code-keyword">print</span>(state[<span class="code-string">"combined_output"</span>])</div>
+
+  <div class="card" style="margin-top:1.5rem;"><h3>Google ADK — Search-Augmented Agent</h3></div>
+  <div class="code-block"><span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> LlmAgent
+<span class="code-keyword">from</span> google.adk.tools <span class="code-keyword">import</span> google_search
+
+<span class="code-comment"># Define an agent with a tool — ADK manages the agent loop</span>
+search_agent = LlmAgent(
+    model=<span class="code-string">"gemini-2.0-flash-exp"</span>,
+    name=<span class="code-string">"research_agent"</span>,
+    description=<span class="code-string">"An agent that answers questions using web search."</span>,
+    instruction=<span class="code-string">"""Answer the user's question using the google_search tool
+to find current, accurate information from the web."""</span>,
+    tools=[google_search],
+)
+
+<span class="code-comment"># The agent loop (observe → think → act) is handled implicitly</span>
+response = search_agent.run(<span class="code-string">"What are the latest developments in LangGraph?"</span>)</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Framework Comparison Deep Dive</div>
+  <p class="sec-desc">A structured comparison of the four primary frameworks across key dimensions. Click each layer to explore the analysis.</p>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--blue-l);border-color:var(--blue);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--blue-d);">LangChain</div>
+      <div class="ctx-layer-sub" style="color:var(--blue-d);">Core abstraction: Chain (LCEL) · Workflow: Linear DAG · State: Stateless per run</div>
+      <div class="ctx-layer-detail" style="color:var(--blue-d);">
+        LangChain operates at the most foundational level, offering components and standardized interfaces. Its LCEL pipe syntax is clean and readable. Best for: Simple RAG pipelines, summarization chains, data extraction from text. The limitation is the absence of cycles — you cannot loop back or retry based on results without LangGraph.
+      </div>
+    </div>
+    <div class="ctx-layer" style="background:var(--purple-l);border-color:var(--purple);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--purple-d);">LangGraph</div>
+      <div class="ctx-layer-sub" style="color:var(--purple-d);">Core abstraction: Graph of Nodes · Workflow: Cyclical · State: Explicit persistent object</div>
+      <div class="ctx-layer-detail" style="color:var(--purple-d);">
+        LangGraph extends LangChain with a stateful graph runtime. Developers explicitly define nodes (functions), edges (transitions), and conditional edges (branching logic). The TypedDict state is the single source of truth, updated by each node. This enables looping agents, plan-and-execute patterns, and human-in-the-loop workflows. Best for: Complex agents that reason, use tools, and retry.
+      </div>
+    </div>
+    <div class="ctx-layer" style="background:var(--teal-l);border-color:var(--teal);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--teal-d);">Google ADK</div>
+      <div class="ctx-layer-sub" style="color:var(--teal-d);">Core abstraction: LlmAgent + Sub-agents · Workflow: Team-oriented · State: Implicitly managed</div>
+      <div class="ctx-layer-detail" style="color:var(--teal-d);">
+        Google's ADK abstracts graph construction with pre-built agent types. SequentialAgent runs sub-agents in order; ParallelAgent runs them concurrently. A primary orchestrator agent delegates to specialists. State and session management are handled more implicitly, providing cohesion at the cost of granular control. Best for: Production multi-agent applications where you want a managed "fleet" of agents.
+      </div>
+    </div>
+    <div class="ctx-layer" style="background:var(--coral-l);border-color:var(--coral);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--coral-d);">CrewAI</div>
+      <div class="ctx-layer-sub" style="color:var(--coral-d);">Core abstraction: Agent + Task + Crew · Workflow: Sequential or Hierarchical · State: Task context passing</div>
+      <div class="ctx-layer-detail" style="color:var(--coral-d);">
+        CrewAI occupies a distinct position by modelling collaboration as a human team. Agents have rich personas (role, goal, backstory) that guide behavior. Tasks have explicit expected outputs. The developer designs a "team charter" rather than a state machine. CrewAI concentrates specifically on agent collaboration logic. Best for: Multi-agent systems that mirror human team workflows — research, analysis, and writing pipelines.
+      </div>
+    </div>
+    <div class="ctx-layer" style="background:var(--amber-l);border-color:var(--amber);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--amber-d);">Other Frameworks: AutoGen, LlamaIndex, Haystack, MetaGPT, SuperAGI, Strands</div>
+      <div class="ctx-layer-sub" style="color:var(--amber-d);">Specialized tools for specific use cases</div>
+      <div class="ctx-layer-detail" style="color:var(--amber-d);">
+        <strong>AutoGen</strong>: Conversation-driven multi-agent coordination. Agents interact through dialogue, enabling complex decomposition. Less predictable execution paths. <strong>LlamaIndex</strong>: Exceptional for sophisticated RAG and data-intensive applications. <strong>Haystack</strong>: Production-ready search systems with modular pipeline nodes. <strong>MetaGPT</strong>: SOP-driven agent collaboration mimicking a software company. <strong>SuperAGI</strong>: Full lifecycle management with monitoring and observability. <strong>Strands Agents</strong>: AWS lightweight SDK — model-agnostic, MCP-native, simple customizable agent loop.
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:1.5rem;">
+    <table class="compare-table">
+      <thead>
+        <tr><th>Feature</th><th>LangChain</th><th>LangGraph</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Core Abstraction</td><td>Chain (LCEL)</td><td>Graph of Nodes</td></tr>
+        <tr><td>Workflow Type</td><td>Linear (DAG)</td><td>Cyclical (loops)</td></tr>
+        <tr><td>State Management</td><td>Stateless per run</td><td>Explicit persistent object</td></tr>
+        <tr><td>Primary Use</td><td>Simple predictable sequences</td><td>Complex stateful agents</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--blue-l);">
+      <h4 style="color:var(--blue-d);">LANGCHAIN</h4>
+      <p style="color:var(--blue-d);">Linear pipelines. Use when your workflow is A → B → C with no loops. Ideal for RAG, summarization, and extraction.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4 style="color:var(--purple-d);">LANGGRAPH</h4>
+      <p style="color:var(--purple-d);">Stateful graphs with cycles. Use when agents need to loop, retry, or operate with dynamic conditional flow.</p>
+    </div>
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4 style="color:var(--teal-d);">GOOGLE ADK</h4>
+      <p style="color:var(--teal-d);">Pre-built multi-agent patterns. Use when you want a managed fleet of collaborating agents without wiring every edge.</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);">
+      <h4 style="color:var(--coral-d);">CREWAI</h4>
+      <p style="color:var(--coral-d);">Role-based team collaboration. Use when your application mirrors a human team — researchers, analysts, writers with defined roles.</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Click a framework to see where it fits in the spectrum</div>
+    <div class="diagram-nodes">
+      <div class="dia-node active" style="background:var(--blue-l);color:var(--blue-d);" onclick="simClick(0)">LangChain</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(1)">LangGraph</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(2)">ADK</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d);" onclick="simClick(3)">CrewAI</div>
+    </div>
+    <div class="dia-output" id="sim-output">LangChain — Foundational level. You compose components with LCEL pipes. Stateless linear DAG. Maximum control over each step. Best starting point for any LLM application.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Check</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>LangChain's LCEL provides a clean pipe-based syntax for building linear, DAG-style LLM workflows. It is the right choice for predictable, sequential pipelines.</li>
+    <li>LangGraph extends LangChain with cyclical graphs and explicit state management. Use it whenever your agent needs to loop, retry, or make conditional decisions based on intermediate results.</li>
+    <li>The key LangChain vs. LangGraph decision: if your flow can be described as A → B → C without looping, use LangChain. If the agent needs to reason, use tools, and potentially try again, use LangGraph.</li>
+    <li>Google's ADK abstracts away low-level graph construction, providing pre-built agent types (SequentialAgent, ParallelAgent) for orchestrating teams of specialized agents.</li>
+    <li>CrewAI models multi-agent collaboration as a human team with defined roles, goals, and backstories. It focuses on the "who does what" rather than "how the graph is wired."</li>
+    <li>Specialized frameworks serve distinct niches: LlamaIndex for data-intensive RAG, Haystack for production search, MetaGPT for SOP-driven code generation, Strands for lightweight AWS-native agents.</li>
+    <li>The core trade-off across all frameworks is granular control (graph-based) vs. streamlined development (opinionated platforms). The right choice depends on whether your application requires a simple sequence, a dynamic reasoning loop, or a managed team of specialists.</li>
+    <li>The agentic framework ecosystem is rapidly evolving. The best framework is the one that matches the precise level of abstraction your application demands — not necessarily the most popular one.</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>LangChain — <a href="https://www.langchain.com/" target="_blank">https://www.langchain.com/</a></li>
+    <li><span class="ref-num">2</span>LangGraph — <a href="https://www.langchain.com/langgraph" target="_blank">https://www.langchain.com/langgraph</a></li>
+    <li><span class="ref-num">3</span>Google's ADK — <a href="https://google.github.io/adk-docs/" target="_blank">https://google.github.io/adk-docs/</a></li>
+    <li><span class="ref-num">4</span>Crew.AI — <a href="https://docs.crewai.com/en/introduction" target="_blank">https://docs.crewai.com/en/introduction</a></li>
+    <li><span class="ref-num">5</span>Microsoft AutoGen — <a href="https://microsoft.github.io/autogen/" target="_blank">https://microsoft.github.io/autogen/</a></li>
+    <li><span class="ref-num">6</span>Strands Agents (AWS) — <a href="https://strandsagents.com/" target="_blank">https://strandsagents.com/</a></li>
+    <li><span class="ref-num">7</span>LlamaIndex — <a href="https://www.llamaindex.ai/" target="_blank">https://www.llamaindex.ai/</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>Appendix C · Agentic Frameworks Overview · Interactive Learning Module</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  'LangChain — Foundational level. You compose components with LCEL pipes. Stateless linear DAG. Maximum control over each step. Best starting point for any LLM application.',
+  'LangGraph — Graph-based stateful agent framework. Nodes are Python functions; edges are transitions. Supports cycles for looping, retrying, and dynamic tool use.',
+  'Google ADK — Pre-built multi-agent orchestration. SequentialAgent and ParallelAgent patterns. State managed implicitly. Best for deploying a coordinated fleet of specialist agents.',
+  'CrewAI — Role-based team collaboration. Agents have personas (role, goal, backstory). Tasks have expected outputs. The Crew executes a Process. Best for simulating human team workflows.'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: 'What is the key architectural difference between LangChain and LangGraph?',
+    opts: [
+      'LangChain uses Python while LangGraph uses JavaScript',
+      'LangChain supports linear DAG workflows; LangGraph supports cyclical graphs with loops',
+      'LangChain is open source; LangGraph requires a paid license',
+      'LangGraph only works with OpenAI models'
+    ],
+    ans: 1,
+    ok: 'Correct! LangChain\'s LCEL builds linear pipelines (DAGs), while LangGraph enables cycles — allowing agents to loop, retry, and make conditional decisions.',
+    no: 'Not quite. The key difference is workflow type: LangChain uses linear DAGs; LangGraph supports cyclical graphs with explicit state management.'
+  },
+  {
+    q: 'Which framework would you choose for a system where a supervisor agent delegates tasks to specialized sub-agents?',
+    opts: [
+      'LangChain LCEL',
+      'Haystack',
+      'Google ADK or CrewAI',
+      'LlamaIndex'
+    ],
+    ans: 2,
+    ok: 'Correct! Google ADK and CrewAI are specifically designed for multi-agent orchestration where a primary agent coordinates a team of specialists.',
+    no: 'Not quite. LangChain and Haystack are better for single-pipeline workflows. Google ADK and CrewAI are built for multi-agent team coordination.'
+  },
+  {
+    q: 'In LangGraph, what role does the State (TypedDict) object play?',
+    opts: [
+      'It stores only the final output of the workflow',
+      'It is a configuration object for setting model parameters',
+      'It is the single source of truth, updated by each node and passed between all nodes in the graph',
+      'It defines the visual layout of the workflow diagram'
+    ],
+    ans: 2,
+    ok: 'Correct! The State object is central to LangGraph. Each node receives the current state, processes it, and returns an update. This enables persistent context across the entire cyclical workflow.',
+    no: 'Not quite. In LangGraph, the State TypedDict is the shared mutable context that flows through every node — it\'s the mechanism by which nodes communicate.'
+  },
+  {
+    q: 'What are the three core components of a CrewAI application?',
+    opts: [
+      'Nodes, Edges, and State',
+      'Agents, Tasks, and Crew',
+      'Chains, Tools, and Memory',
+      'Plugins, Planners, and Kernels'
+    ],
+    ans: 1,
+    ok: 'Correct! CrewAI\'s three building blocks are: Agent (persona with role, goal, backstory), Task (discrete work unit with expected output), and Crew (binds agents and tasks, executes a Process).',
+    no: 'Not quite. Nodes/Edges/State are LangGraph concepts. Chains/Tools/Memory are LangChain concepts. CrewAI\'s building blocks are Agents, Tasks, and Crew.'
+  },
+  {
+    q: 'Which framework is described as best for "data-intensive applications" requiring sophisticated RAG pipelines?',
+    opts: [
+      'LangGraph',
+      'MetaGPT',
+      'LlamaIndex',
+      'SuperAGI'
+    ],
+    ans: 2,
+    ok: 'Correct! LlamaIndex is fundamentally a data framework designed to connect LLMs with external data sources, excelling at sophisticated data ingestion and retrieval pipelines for RAG.',
+    no: 'Not quite. LlamaIndex is the specialist here — it is fundamentally a data framework optimized for RAG and knowledge-intensive applications.'
+  },
+  {
+    q: 'Google\'s ADK differs from LangGraph primarily because it:',
+    opts: [
+      'Only works with Google\'s Gemini models',
+      'Provides pre-built multi-agent architectural patterns rather than requiring manual node-and-edge graph construction',
+      'Does not support tool use',
+      'Requires all agents to run sequentially'
+    ],
+    ans: 1,
+    ok: 'Correct! ADK abstracts away low-level graph construction. Instead of manually wiring nodes and edges, developers use pre-built primitives like SequentialAgent and ParallelAgent.',
+    no: 'Not quite. ADK\'s key distinction is its level of abstraction — it provides pre-built multi-agent patterns so you don\'t need to construct graphs manually.'
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot'; if (i===curQ) cls+=' current'; else if (scores[i]===true) cls+=' done'; else if (scores[i]===false) cls+=' wrong-dot';
+    dots += '<div class="'+cls+'"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question '+(curQ+1)+' of '+quizData.length+'</div>';
+  html += '<div class="quiz-q">'+q.q+'</div>';
+  q.opts.forEach((opt,i)=>{ html+='<button class="quiz-opt" id="qo'+i+'" onclick="answer('+i+')">'+opt+'</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ>0) html+='<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ<quizData.length-1) html+='<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html+='<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) { const q2=quizData[curQ]; document.querySelectorAll('.quiz-opt').forEach((btn,i)=>{btn.classList.add('disabled');if(i===q2.ans)btn.classList.add('correct');}); document.getElementById('nextBtn').style.display='inline-block'; }
+}
+function answer(i) {
+  if (answered.has(curQ)) return; answered.add(curQ);
+  const q=quizData[curQ]; const isRight=i===q.ans; scores[curQ]=isRight;
+  document.getElementById('qo'+i).classList.add(isRight?'correct':'wrong');
+  if (!isRight) document.getElementById('qo'+q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.classList.add('disabled'));
+  const fb=document.getElementById('qfb'); fb.textContent=isRight?q.ok:q.no; fb.className='quiz-fb show '+(isRight?'right':'wrng');
+  document.getElementById('nextBtn').style.display='inline-block'; renderQuiz();
+}
+function nextQ(){curQ++;renderQuiz();}
+function prevQ(){curQ--;renderQuiz();}
+renderQuiz();
+</script>
+</body>
+</html>

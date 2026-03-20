@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第二十章：优先级排序 — 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB;
+    --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6;
+    --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775;
+    --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+
+<div class="chapter-tag">第二十章</div>
+<h1>优先级排序</h1>
+<p class="subtitle">在复杂的动态环境中，智能代理频繁面对大量潜在行动、相互冲突的目标和有限的资源。优先级排序模式通过让代理按重要性、紧迫性和依赖关系对任务进行评估与排序，确保将精力集中在最关键的工作上。</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">概览</button>
+  <button class="nav-btn" onclick="go('problem')">问题所在</button>
+  <button class="nav-btn" onclick="go('solution')">解决方案</button>
+  <button class="nav-btn" onclick="go('concepts')">核心概念</button>
+  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
+  <button class="nav-btn" onclick="go('code')">代码实战</button>
+  <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
+  <button class="nav-btn" onclick="go('glance')">一览概要</button>
+  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
+  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
+  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+</nav>
+
+<!-- 1. 概览 -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">模式概览</div>
+  <p class="sec-desc">若缺乏确定下一步行动的明确流程，代理在复杂环境中会出现效率低下、运营延误甚至无法实现关键目标等问题。优先级排序模式通过让代理根据重要性、紧迫性、依赖关系和既定标准评估和排序任务来解决这一问题。</p>
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">优先级层次</div>
+      <div class="metric-value">3 级</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">评估维度</div>
+      <div class="metric-value">6 种</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">排序作用范围</div>
+      <div class="metric-value">3 个层级</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">核心应用领域</div>
+      <div class="metric-value">7 个</div>
+    </div>
+  </div>
+  <div class="card card-bordered">
+    <h3>优先级排序解决的核心问题</h3>
+    <p>代理面对大量潜在行动、相互冲突的目标和有限资源。若缺乏优先级机制，代理将变得低效，导致运营延误甚至无法完成核心目标。优先级排序让代理能够有目的、有逻辑地行动。</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>三个排序层级</h3>
+    <p><strong>高层目标优先级</strong>：选择整体战略目标。<strong>子任务优先级</strong>：在计划中对步骤排序。<strong>行动选择</strong>：从可用选项中选择下一个即时行动。</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>人类团队类比</h3>
+    <p>这与人类团队管理如出一辙——项目经理综合考虑所有成员的输入来排定任务优先级。代理作为战略决策者，权衡标准就像人类项目经理一样。</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>动态重新排序</h3>
+    <p>情况会发生变化：出现新的紧急事件、截止日期临近。动态重新排序允许代理实时调整优先级，确保在不可预测的环境中保持适应性和响应能力。</p>
+  </div>
+</div>
+
+<!-- 2. 问题所在 -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">问题所在：缺乏优先级排序的代价</div>
+  <p class="sec-desc">没有原则性优先级策略的代理面临具体且代价高昂的失败模式。点击各卡片了解详情。</p>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>行动瘫痪</h4>
+      <p>面对太多权重相同的选项时，代理陷入停滞。</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">当每个任务看起来同等重要时，代理无法确定下一步。这导致循环、过度推理开销或随意选择——三者都无法服务于用户的真实目标。</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>资源错误分配</h4>
+      <p>关键任务资源匮乏，而琐碎任务却顺利推进。</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">若不按紧迫性加权，低影响的批处理任务可能消耗本应用于时间敏感型客户请求的计算资源。优先级排序确保关键工作负载优先获得服务。</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>错过截止日期</h4>
+      <p>时间敏感型任务因无序执行而失败。</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">将碰撞避免和燃油优化视为同等优先级的自动驾驶代理是危险的。安全行动必须优先于效率目标。时间敏感性必须是一等公民标准。</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>目标错位</h4>
+      <p>代理追求低价值活动，而战略目标却被搁置。</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">若重要性权重不与主要目标挂钩，代理可能花时间打磨次要输出，而核心交付物却未完成。优先级排序让代理行为保持战略一致性。</p></div>
+    </div>
+    <div class="fail-card" onclick="toggleChain(this)">
+      <h4>依赖关系违规</h4>
+      <p>代理在前置条件完成前尝试执行后续任务。</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2);">复杂工作流存在前置依赖链。忽略依赖关系会导致任务失败、资源浪费和状态损坏。健壮的优先级系统必须在调度执行前考虑任务依赖关系。</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. 解决方案 -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">解决方案：优先级排序模式</div>
+  <p class="sec-desc">该模式引入了评估和排序任务的结构化管道。点击各步骤展开详情。</p>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">定义评估标准</div>
+          <div class="chain-role">建立任务评估规则</div>
+        </div>
+      </div>
+      <div class="chain-detail">确定评判任务的维度：紧迫性（时间敏感度）、重要性（对主要目标的影响）、依赖关系（前置条件）、资源可用性（工具和信息就绪度）、成本/收益比（投入与预期产出），以及个性化代理的用户偏好。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">评估候选任务</div>
+          <div class="chain-role">对每个候选行动按标准打分</div>
+        </div>
+      </div>
+      <div class="chain-detail">方法从简单的基于规则打分（如紧迫性高则加 3 分）到复杂的 LLM 推理（同时权衡多个竞争因素）不等。代理对每个潜在行动按定义标准进行评估，生成排名列表。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">3</div>
+        <div>
+          <div class="chain-title">调度与选择</div>
+          <div class="chain-role">执行最优下一步行动或任务序列</div>
+        </div>
+      </div>
+      <div class="chain-detail">调度算法根据评估分数选择最优下一行动。可以使用优先级队列、规划组件或直接 LLM 选择。代理提交最高优先级任务并开始执行。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">4</div>
+        <div>
+          <div class="chain-title">动态重新排序</div>
+          <div class="chain-role">随情况演变调整优先级</div>
+        </div>
+      </div>
+      <div class="chain-detail">优先级队列不是静态的。当出现新的紧急事件（系统故障、截止日期变更、用户升级）时，代理重新评估任务列表并相应调整关注点。这种实时适应能力正是真正的代理系统区别于简单脚本的关键所在。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. 核心概念 -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">核心概念</div>
+  <p class="sec-desc">优先级排序模式的基础构建模块。</p>
+  <div class="card">
+    <h3>六大优先级评估维度</h3>
+    <ul>
+      <li><strong>紧迫性：</strong>时间敏感度——现在必须做还是可以等？</li>
+      <li><strong>重要性：</strong>对主要目标的影响——对核心目标有多关键？</li>
+      <li><strong>依赖关系：</strong>这个任务是否是其他高价值任务的前置条件？</li>
+      <li><strong>资源可用性：</strong>必要的工具、数据和计算资源是否就绪？</li>
+      <li><strong>成本/收益：</strong>所需投入相对于预期产出是什么比例？</li>
+      <li><strong>用户偏好：</strong>对于个性化代理，用户最重视什么？</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>优先级层次：P0、P1、P2</h3>
+    <p><strong>P0（最高）：</strong>关键、即时。映射到请求中的"紧急"、"尽快"、"危急"等语言。代理必须立即行动。<br>
+    <strong>P1（中等）：</strong>重要但不紧急。未指定优先级时的默认分配。<br>
+    <strong>P2（最低）：</strong>后台处理或锦上添花。存在更高优先级工作时可延后。</p>
+  </div>
+  <div class="card">
+    <h3>任务评估方法</h3>
+    <p>简单规则型：使用明确的 if-then 逻辑进行确定性打分，速度快且可预测，但缺乏灵活性。LLM 型：模型整体推理竞争性优先级，能处理模糊请求（例如"紧急"在不同语境中可能含义不同）。混合型：规则处理明确情况，LLM 处理边缘情况。</p>
+  </div>
+  <div class="card">
+    <h3>优先级队列架构</h3>
+    <p>维护待处理任务有序列表的内部数据结构。新任务根据其评估优先级分数插入到适当位置。代理始终出队并执行优先级最高的可用任务。当优先级变化时，任务可以重新插入或重新排序。</p>
+    <div class="json-block">{
+  "task_id": "TASK-001",
+  "description": "实现新登录系统",
+  "priority": "P0",
+  "assigned_to": "工程师 B",
+  "created_at": "2025-01-15T10:30:00Z"
+}</div>
+  </div>
+</div>
+
+<!-- 5. 应用场景 -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">应用场景</div>
+  <p class="sec-desc">智能代理在广泛的真实领域中应用优先级排序。选择场景查看详情。</p>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">客户支持</button>
+    <button class="uc-tab" onclick="showUC(1)">云计算</button>
+    <button class="uc-tab" onclick="showUC(2)">自动驾驶</button>
+    <button class="uc-tab" onclick="showUC(3)">金融交易</button>
+    <button class="uc-tab" onclick="showUC(4)">项目管理</button>
+    <button class="uc-tab" onclick="showUC(5)">网络安全</button>
+    <button class="uc-tab" onclick="showUC(6)">个人助手</button>
+  </div>
+  <div id="uc-0" class="uc-panel active">
+    <div class="card">
+      <h3>自动化客户支持</h3>
+      <p>代理优先处理紧急请求（如系统中断报告、数据丢失事件），而非日常事务（如密码重置）。高价值客户也可能根据账户级别获得优先处理。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>按严重程度、账户级别和 SLA 截止日期对工单分类</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>优先级队列排序：系统中断 → 账单错误 → 一般咨询</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>代理优先处理最高优先级工单，每次解决后重新评估队列</span></div>
+      </div>
+    </div>
+  </div>
+  <div id="uc-1" class="uc-panel">
+    <div class="card">
+      <h3>云计算资源调度</h3>
+      <p>AI 通过在峰值需求期间将资源优先分配给关键应用程序，同时将不那么紧迫的批处理任务推迟到非峰值时段来管理资源、降低成本，确保高优先级工作负载的 SLA 合规。</p>
+    </div>
+  </div>
+  <div id="uc-2" class="uc-panel">
+    <div class="card">
+      <h3>自动驾驶系统</h3>
+      <p>持续对行动排序以确保安全和效率。避免碰撞的制动操作对保持车道纪律或优化燃油效率具有绝对优先权。安全是硬约束而非权重标准。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>碰撞避免 — P0，不可商量</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>交通法规遵守 — 大多数场景下 P0</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>乘客舒适度、燃油效率 — P1/P2</span></div>
+      </div>
+    </div>
+  </div>
+  <div id="uc-3" class="uc-panel">
+    <div class="card">
+      <h3>金融交易</h3>
+      <p>交易机器人通过分析市场状况、风险承受能力、利润空间和实时新闻等因素来排定交易优先级，实现高优先级交易的及时执行。时间就是金钱——优先级判断的毫秒延迟可能产生重大财务影响。</p>
+    </div>
+  </div>
+  <div id="uc-4" class="uc-panel">
+    <div class="card">
+      <h3>AI 项目经理代理</h3>
+      <p>AI 代理根据截止日期、依赖关系、团队可用性和战略重要性对项目看板上的任务排序。基于 LangChain 的项目经理代码示例演示了用 P0/P1/P2 级别创建、排序和分配任务给团队成员的过程。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><span>用户以自然语言提交任务请求</span></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><span>代理创建任务，解析紧迫性信号（"尽快" → P0）</span></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><span>代理分配优先级和执行者；未指定时默认 P1 + 工程师 A</span></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><span>代理列出所有任务显示最终状态</span></div>
+      </div>
+    </div>
+  </div>
+  <div id="uc-5" class="uc-panel">
+    <div class="card">
+      <h3>网络安全威胁响应</h3>
+      <p>监控网络流量的代理通过评估威胁严重性、潜在影响和资产关键性来排定告警优先级，确保对最危险的威胁立即响应。生产数据库上的勒索软件攻击尝试是 P0；开发服务器上的端口扫描可能是 P2。</p>
+    </div>
+  </div>
+  <div id="uc-6" class="uc-panel">
+    <div class="card">
+      <h3>个人助手 AI</h3>
+      <p>个人 AI 助手利用优先级排序管理日常生活，根据用户定义的重要性、临近截止日期和当前情境组织日历事件、提醒和通知。会议前 5 分钟的提醒优先级高于每周新闻摘要。</p>
+    </div>
+  </div>
+</div>
+
+<!-- 6. 代码实战 -->
+<div id="sec-code" class="section">
+  <div class="sec-title">代码实战</div>
+  <p class="sec-desc">基于 LangChain 的项目经理代理，演示带真实工具的优先级排序模式。</p>
+  <div class="card"><h3>第一部分：任务模型与管理器</h3></div>
+  <div class="code-block"><span class="code-keyword">import</span> os, asyncio
+<span class="code-keyword">from</span> typing <span class="code-keyword">import</span> Optional, Dict
+<span class="code-keyword">from</span> pydantic <span class="code-keyword">import</span> BaseModel, Field
+<span class="code-keyword">from</span> langchain_core.tools <span class="code-keyword">import</span> Tool
+<span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> ChatOpenAI
+<span class="code-keyword">from</span> langchain.agents <span class="code-keyword">import</span> AgentExecutor, create_react_agent
+
+<span class="code-comment"># 使用 Pydantic 模型确保类型安全</span>
+<span class="code-keyword">class</span> <span class="code-string">Task</span>(BaseModel):
+    <span class="code-string">"""系统中的单个任务"""</span>
+    id: str
+    description: str
+    priority: Optional[str] = None  <span class="code-comment"># P0、P1、P2</span>
+    assigned_to: Optional[str] = None
+
+<span class="code-keyword">class</span> <span class="code-string">SuperSimpleTaskManager</span>:
+    <span class="code-string">"""高效的内存任务管理器"""</span>
+    <span class="code-keyword">def</span> __init__(self):
+        self.tasks: Dict[str, Task] = {}  <span class="code-comment"># O(1) 查找</span>
+        self.next_task_id = 1
+
+    <span class="code-keyword">def</span> <span class="code-string">create_task</span>(self, description: str) -> Task:
+        task_id = f<span class="code-string">"TASK-{self.next_task_id:03d}"</span>
+        new_task = Task(id=task_id, description=description)
+        self.tasks[task_id] = new_task
+        self.next_task_id += 1
+        <span class="code-keyword">return</span> new_task
+
+    <span class="code-keyword">def</span> <span class="code-string">update_task</span>(self, task_id: str, **kwargs) -> Optional[Task]:
+        task = self.tasks.get(task_id)
+        <span class="code-keyword">if</span> task:
+            update_data = {k: v <span class="code-keyword">for</span> k, v <span class="code-keyword">in</span> kwargs.items() <span class="code-keyword">if</span> v <span class="code-keyword">is not</span> None}
+            <span class="code-keyword">return</span> task.model_copy(update=update_data)
+        <span class="code-keyword">return</span> None</div>
+
+  <div class="card"><h3>第二部分：代理工具与优先级分配逻辑</h3></div>
+  <div class="code-block"><span class="code-keyword">def</span> <span class="code-string">create_new_task_tool</span>(description: str) -> str:
+    task = task_manager.create_task(description)
+    <span class="code-keyword">return</span> f<span class="code-string">"已创建任务 {task.id}：'{task.description}'"</span>
+
+<span class="code-keyword">def</span> <span class="code-string">assign_priority_to_task_tool</span>(task_id: str, priority: str) -> str:
+    <span class="code-keyword">if</span> priority <span class="code-keyword">not in</span> [<span class="code-string">"P0"</span>, <span class="code-string">"P1"</span>, <span class="code-string">"P2"</span>]:
+        <span class="code-keyword">return</span> <span class="code-string">"无效优先级，必须为 P0、P1 或 P2。"</span>
+    task = task_manager.update_task(task_id, priority=priority)
+    <span class="code-keyword">return</span> f<span class="code-string">"已为任务 {task.id} 分配优先级 {priority}。"</span> <span class="code-keyword">if</span> task <span class="code-keyword">else</span> f<span class="code-string">"未找到任务 {task_id}。"</span>
+
+<span class="code-comment"># 代理系统提示中的优先级推理规则：
+# - "紧急"/"尽快"/"危急" → 映射到 P0
+# - 未指定优先级 → 默认 P1
+# - 未指定执行者 → 默认工程师 A
+# - 每次任务处理后：调用 list_all_tasks 显示最终状态</span>
+
+<span class="code-comment"># 模拟两个场景</span>
+<span class="code-keyword">async def</span> <span class="code-string">run_simulation</span>():
+    <span class="code-comment"># 场景 1：紧急 + 明确指定执行者</span>
+    <span class="code-keyword">await</span> pm_agent_executor.ainvoke({
+        <span class="code-string">"input"</span>: <span class="code-string">"创建一个实现新登录系统的任务，很紧急，应分配给工程师 B。"</span>
+    })
+    <span class="code-comment"># 场景 2：低紧迫度，无详情 → 应用默认值</span>
+    <span class="code-keyword">await</span> pm_agent_executor.ainvoke({
+        <span class="code-string">"input"</span>: <span class="code-string">"管理一个新任务：审查营销网站内容。"</span>
+    })</div>
+</div>
+
+<!-- 7. 深入解析 -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">深入解析：优先级排序机制各层</div>
+  <p class="sec-desc">完整优先级排序系统从输入到执行的各个层次。点击展开详情。</p>
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--teal-l);border-color:var(--teal);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--teal-d);">第一层：标准定义</div>
+      <div class="ctx-layer-sub" style="color:var(--teal-d);">基础——对这个代理来说"重要"意味着什么？</div>
+      <div class="ctx-layer-detail" style="color:var(--teal-d);">必须在评估任何任务之前定义标准。对于客服代理，紧迫性可能至关重要；对于研究代理，重要性（与核心问题的相关性）可能占主导。标准可以加权：紧迫性 × 3 + 重要性 × 2 + 成本效益 × 1。此权重函数的设计对代理行为影响深远。</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--blue-l);border-color:var(--blue);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--blue-d);">第二层：任务评估引擎</div>
+      <div class="ctx-layer-sub" style="color:var(--blue-d);">打分机制——规则型、LLM 型或混合型</div>
+      <div class="ctx-layer-detail" style="color:var(--blue-d);">规则型系统速度快、确定性强、可审计，但面对新颖输入时脆弱。LLM 型评估可处理细微差别（"根据客户沮丧的语气，这似乎很紧急"），但引入了延迟和非确定性。混合方法对明确情况使用规则，对模糊情况使用 LLM 判断。</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--purple-l);border-color:var(--purple);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--purple-d);">第三层：调度与选择逻辑</div>
+      <div class="ctx-layer-sub" style="color:var(--purple-d);">决定执行顺序的算法</div>
+      <div class="ctx-layer-detail" style="color:var(--purple-d);">调度器维护有序的优先级队列，必须处理平局（相同优先级分数）、依赖约束（任务 B 不能在任务 A 完成前开始）和资源竞争（两个 P0 任务争用同一工具）。高级规划器在调度前使用基于图的依赖解析。</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--amber-l);border-color:var(--amber);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--amber-d);">第四层：动态重新排序触发器</div>
+      <div class="ctx-layer-sub" style="color:var(--amber-d);">执行中途优先级何时以及如何变化</div>
+      <div class="ctx-layer-detail" style="color:var(--amber-d);">触发器包括：比当前工作优先级更高的新任务到来、截止日期临近（紧迫性分数随截止日期临近而增加）、任务失败需要重新路由、资源可用性变化，以及外部事件信号（Webhook、告警）。代理必须决定：抢占当前任务还是先完成它？</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--coral-l);border-color:var(--coral);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--coral-d);">第五层：多层次优先级排序</div>
+      <div class="ctx-layer-sub" style="color:var(--coral-d);">目标、子任务和行动层次协同工作</div>
+      <div class="ctx-layer-detail" style="color:var(--coral-d);">高层目标优先级选择追求哪个整体目标。在该目标内，子任务优先级排列工作计划。在最低层次，行动选择挑选下一次 API 调用或工具调用。三个层次必须保持一致——用低优先级子任务服务高优先级目标是设计失误。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. 一览概要 -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">一览概要</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);border-color:var(--teal);">
+      <h4 style="color:var(--teal-d);">是什么（WHAT）</h4>
+      <p style="color:var(--teal-d);">复杂环境中的 AI 代理面对大量潜在行动、相互冲突的目标和有限资源。若无优先级机制，代理将变得低效并无法完成主要目标。核心挑战是管理压倒性的选择，确保代理有目的、有逻辑地行动。</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);border-color:var(--purple);">
+      <h4 style="color:var(--purple-d);">为什么（WHY）</h4>
+      <p style="color:var(--purple-d);">优先级排序模式通过让代理使用明确标准（紧迫性、重要性、依赖关系和资源成本）对任务排名来提供标准化解决方案。这使系统能够动态适应变化的情况，有效管理有限资源，并将行为与战略目标对齐。</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);border-color:var(--amber);">
+      <h4 style="color:var(--amber-d);">经验法则</h4>
+      <p style="color:var(--amber-d);">当代理系统必须在资源约束下自主管理多个（通常相互冲突的）任务或目标，以在动态环境中有效运作时，使用优先级排序模式。当决策具有时间敏感性或战略影响时尤为必要。</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);border-color:var(--coral);">
+      <h4 style="color:var(--coral-d);">核心洞见</h4>
+      <p style="color:var(--coral-d);">真正的代理系统与简单自动化脚本的区别在于自主管理自身工作流的能力。动态重新排序——随情况变化实时调整关注点——是真正代理智能的标志。</p>
+    </div>
+  </div>
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">优先级排序设计模式——点击各节点了解其作用</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(0)">提示</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(1)">代理</div>
+      <div class="dia-arrow">⇄</div>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d);" onclick="simClick(2)">优先级队列</div>
+    </div>
+    <div class="dia-output" id="sim-output">点击节点查看其在优先级排序模式中的作用</div>
+  </div>
+</div>
+
+<!-- 9. 知识测验 -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">知识测验</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. 核心要点 -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">核心要点</div>
+  <ul class="tk-list">
+    <li>优先级排序通过使用紧迫性、重要性、依赖关系和资源可用性对任务排名，使 AI 代理能够在复杂的多维环境中有效运作。</li>
+    <li>代理使用既定标准评估每个潜在行动——评估方法可以从简单的规则打分到处理模糊输入的复杂 LLM 推理。</li>
+    <li>动态重新排序允许代理实时调整运营关注点，以响应新事件、变化的截止日期或资源变化。</li>
+    <li>优先级排序发生在三个层次：整体战略目标选择、计划内子任务排序和即时下一步行动选择——三者必须保持一致。</li>
+    <li>有效的优先级排序带来效率提升、运营健壮性改善，以及真正与代理战略目标对齐的行为。</li>
+    <li>LangChain 项目经理示例表明，即使是简单的自然语言信号（"紧急"、"尽快"）也可以通过代理推理可靠地映射到优先级层次（P0、P1、P2）。</li>
+    <li>真正的代理系统与简单自动化脚本的区别在于通过有原则的优先级排序自主管理自身工作流的能力。</li>
+  </ul>
+</div>
+
+<!-- 11. 参考资料 -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">参考资料</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span><a href="https://www.irejournals.com/paper-details/1706160" target="_blank">审查项目管理中 AI 的安全性：AI 驱动项目调度与资源分配案例研究 — irejournals.com</a></li>
+    <li><span class="ref-num">2</span><a href="https://www.mdpi.com/2079-8954/13/3/208" target="_blank">敏捷软件项目管理中的 AI 决策支持系统 — MDPI Systems, 2025</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>第二十章：优先级排序 · Agentic AI 交互式学习模块</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  '提示节点：代理以自然语言接收任务请求。像"尽快"、"紧急"或"危急"这样的紧迫性信号被解析并映射到优先级层次（P0/P1/P2）。模糊的优先级语言由 LLM 推理引擎解析。',
+  '代理节点：AI 代理根据既定标准（紧迫性、重要性、依赖关系、资源可用性）评估传入任务，推理优先级，选择适当工具（create_task、assign_priority_to_task、assign_task_to_worker），并提交执行最高优先级行动。',
+  '优先级队列节点：维护所有待处理任务按评估优先级分数排名的有序数据结构。代理始终出队最高优先级任务。当新的高优先级任务到来时，队列动态重新排序。P0 任务始终优先于 P1 和 P2。'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: '代理收到一个描述为"审查营销网站内容"的任务，没有明确的优先级或执行者。根据项目经理代理的默认规则，应该发生什么？',
+    opts: ['分配 P0 和工程师 B', '分配 P1 和工程师 A', '分配 P2 且不指定执行者', '在继续之前向用户询问澄清'],
+    ans: 1,
+    ok: '正确！代理的系统提示指定，当缺少优先级和执行者信息时，应进行合理的默认分配：P1 优先级（中等，非关键）和"工程师 A"作为默认执行者。这确保没有任务缺乏优先级。',
+    no: '不对。代理规则规定缺失信息应用合理默认值填充——P1 优先级（中等，非关键）和工程师 A 作为默认执行者。对例行任务要求澄清会增加不必要的延迟。'
+  },
+  {
+    q: '以下哪项最准确地描述了"动态重新排序"？',
+    opts: [
+      '新任务到来时按字母顺序重新排列任务列表',
+      '当情况变化时实时调整代理关注点，例如出现新的关键事件或截止日期临近',
+      '从队列中永久删除低优先级任务',
+      '将优先级决策委托给人工操作员'
+    ],
+    ans: 1,
+    ok: '正确！动态重新排序是在情况变化时修改优先级的能力——新的 P0 事件可以抢占正在进行的 P1 工作，紧迫性分数随截止日期临近而增加。这种实时适应能力是真正代理行为的标志。',
+    no: '不对。动态重新排序意味着代理持续监控其任务列表，并根据现实变化——新事件、截止压力、资源变化——调整执行顺序，而不是依赖初始的静态排名。'
+  },
+  {
+    q: '在优先级排序模式中，排序发生在多个层次。以下哪个组合正确描述了这三个层次？',
+    opts: [
+      '工具选择、提示工程和模型微调',
+      '高层目标选择、计划内子任务排序和即时下一步行动选择',
+      '训练、推理和部署',
+      '用户请求、代理推理和 API 调用'
+    ],
+    ans: 1,
+    ok: '正确！三个层次是：（1）高层目标优先级——追求哪个整体目标；（2）子任务优先级——在所选目标计划内对步骤排序；（3）行动选择——选择下一次即时工具调用或操作。',
+    no: '不对。此模式中的三个优先级层次是：选择整体目标、在该目标计划内排列任务，以及选择下一步即时行动。三者必须保持一致才能实现有效的代理行为。'
+  },
+  {
+    q: '对于处理自然语言优先级信号，为什么 LLM 型任务评估比纯规则型打分更可取？',
+    opts: [
+      'LLM 总是比规则引擎更快',
+      'LLM 可以处理细微差别和歧义——解释语气、情境和隐含的紧迫性——这是死板规则做不到的',
+      '规则型系统无法处理超过 3 个优先级层次',
+      'LLM 随着项目演进自动更新优先级标准'
+    ],
+    ans: 1,
+    ok: '正确！LLM 可以整体推理竞争因素并解释模糊语言。规则引擎可能不知道"客户非常愤怒"意味着 P0 紧迫性，但 LLM 可以从情境推断，使其在处理真实世界输入时更加灵活。',
+    no: '不对。LLM 型评估的关键优势是处理自然语言中细微差别和歧义的能力——从语气推断紧迫性、解决相互冲突的信号，以及应用刚性规则引擎无法匹敌的情境判断。'
+  },
+  {
+    q: '与一般软件代理相比，为什么优先级排序模式在自动驾驶系统中尤为关键？',
+    opts: [
+      '自动驾驶车辆使用更多 LLM API 调用',
+      '安全关键行动（碰撞避免）必须对所有其他目标具有不可商量的优先权——优先级排序有生死攸关的后果',
+      '驾驶代理的任务比其他代理更多',
+      '交通法规频繁变化，需要持续重新排序'
+    ],
+    ans: 1,
+    ok: '正确！在自动驾驶中，碰撞避免不仅仅是高优先级任务——它是必须无条件优先于所有其他目标的硬约束。优先级排序模式必须将安全编码为不可商量，而非仅仅是高权重标准。',
+    no: '不对。关键区别在于安全关键行动必须被视为绝对约束，而非仅仅是加权偏好。制动避免碰撞必须始终覆盖燃油效率和车道优化——这需要明确的优先级架构，而非仅仅是更高的分数。'
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i===curQ) cls+=' current';
+    else if (scores[i]===true) cls+=' done';
+    else if (scores[i]===false) cls+=' wrong-dot';
+    dots += '<div class="'+cls+'"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">第 '+(curQ+1)+' 题 / 共 '+quizData.length+' 题</div>';
+  html += '<div class="quiz-q">'+q.q+'</div>';
+  q.opts.forEach((opt,i)=>{ html+='<button class="quiz-opt" id="qo'+i+'" onclick="answer('+i+')">'+opt+'</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ>0) html+='<button class="btn" onclick="prevQ()">上一题</button>';
+  if (curQ<quizData.length-1) html+='<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">下一题</button>';
+  else html+='<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">查看核心要点</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2=quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn,i)=>{btn.classList.add('disabled');if(i===q2.ans)btn.classList.add('correct');});
+    document.getElementById('nextBtn').style.display='inline-block';
+    const fb=document.getElementById('qfb');
+    fb.textContent=scores[curQ]?q2.ok:q2.no;
+    fb.className='quiz-fb show '+(scores[curQ]?'right':'wrng');
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q=quizData[curQ];
+  const isRight=i===q.ans;
+  scores[curQ]=isRight;
+  document.getElementById('qo'+i).classList.add(isRight?'correct':'wrong');
+  if (!isRight) document.getElementById('qo'+q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.classList.add('disabled'));
+  const fb=document.getElementById('qfb');
+  fb.textContent=isRight?q.ok:q.no;
+  fb.className='quiz-fb show '+(isRight?'right':'wrng');
+  document.getElementById('nextBtn').style.display='inline-block';
+  renderQuiz();
+}
+function nextQ(){curQ++;renderQuiz();}
+function prevQ(){curQ--;renderQuiz();}
+renderQuiz();
+</script>
+</body>
+</html>

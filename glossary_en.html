@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glossary — Agentic Design Patterns</title>
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: system-ui, -apple-system, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --red-l: #3D1313; --red-d: #F7C1C1;
+    --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+/* Glossary term cards */
+.term-card { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 10px; border: 0.5px solid var(--border); border-left: 3px solid var(--teal); }
+.term-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.term-def { font-size: 13px; color: var(--text2); line-height: 1.8; }
+.term-meta { font-size: 11px; color: var(--text3); margin-top: 6px; letter-spacing: 0.5px; }
+.cat-header { font-size: 12px; font-weight: 500; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 0.5px solid var(--border2); }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+/* Quick ref table */
+.qr-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 1rem 0; }
+.qr-table th { text-align: left; padding: 10px 14px; background: var(--bg3); font-weight: 500; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); }
+.qr-table td { padding: 10px 14px; border-bottom: 0.5px solid var(--border); vertical-align: top; color: var(--text2); line-height: 1.6; }
+.qr-table td:first-child { font-weight: 500; color: var(--text); white-space: nowrap; }
+.qr-table tr:last-child td { border-bottom: none; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Glossary</div>
+<h1>Glossary of Terms</h1>
+<p class="subtitle">Definitions of key concepts, architectures, and techniques referenced throughout "Agentic Design Patterns." Organized by category for easy navigation.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Why Terminology</button>
+  <button class="nav-btn" onclick="go('solution')">How to Use</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Terms (A–F)</button>
+  <button class="nav-btn" onclick="go('usecases')">Terms in Context (G–L)</button>
+  <button class="nav-btn" onclick="go('code')">Technical Terms (M–R)</button>
+  <button class="nav-btn" onclick="go('deepdive')">Advanced Terms (S–Z)</button>
+  <button class="nav-btn" onclick="go('glance')">Quick Reference</button>
+  <button class="nav-btn" onclick="go('quiz')">Terminology Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Key Definitions</button>
+  <button class="nav-btn" onclick="go('refs')">Further Reading</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Terminology Categories Overview</div>
+  <div class="sec-desc">The glossary covers five main areas of terminology essential to understanding and building agentic AI systems.</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total Terms</div><div class="metric-value">35+</div></div>
+    <div class="metric"><div class="metric-label">Categories</div><div class="metric-value">5</div></div>
+    <div class="metric"><div class="metric-label">Architecture Types</div><div class="metric-value">6</div></div>
+    <div class="metric"><div class="metric-label">Training Techniques</div><div class="metric-value">8</div></div>
+  </div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="border-top:3px solid var(--teal);">
+      <h4>FUNDAMENTAL CONCEPTS</h4>
+      <p>Prompt, Context Window, In-Context Learning, Zero/One/Few-Shot Prompting, Multimodality, Grounding</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--blue);">
+      <h4>CORE AI ARCHITECTURES</h4>
+      <p>Transformers, RNN, Mixture of Experts (MoE), Diffusion Models, Mamba (SSM)</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--coral);">
+      <h4>LLM DEVELOPMENT LIFECYCLE</h4>
+      <p>Pre-training, Fine-tuning, Alignment (RLHF, DPO, KTO), PEFT, LoRA, QLoRA, SFT</p>
+    </div>
+    <div class="glance-card" style="border-top:3px solid var(--purple);">
+      <h4>AI AGENT CAPABILITIES</h4>
+      <p>Chain of Thought (CoT), Tree of Thoughts (ToT), ReAct, Planning, Deep Research, Critique Model, RAG</p>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Why Terminology Matters -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Why Terminology Matters</div>
+  <div class="sec-desc">Precise terminology is the foundation of effective communication and system design in agentic AI.</div>
+
+  <div class="card card-bordered">
+    <h3>The Vocabulary Problem</h3>
+    <p>Agentic AI draws from multiple disciplines: machine learning, software architecture, cognitive science, and distributed systems. Without precise shared vocabulary, teams miscommunicate requirements, engineers implement the wrong patterns, and researchers talk past each other. This glossary establishes the common language used throughout the book.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Overloaded Terms</h3>
+    <p>Many terms in AI have multiple meanings depending on context. "Agent" can mean a reinforcement learning actor, a software agent, or an LLM-based autonomous system. "Memory" can mean GPU memory, context window capacity, or persistent storage for conversation history. This glossary defines each term specifically within the agentic design patterns context.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Rapidly Evolving Language</h3>
+    <p>The field moves quickly. New terms emerge monthly (MCP, A2A, SICA, RLVR). Grounding yourself in the stable foundational vocabulary makes it easier to understand new terminology as it emerges—because new concepts almost always build on established ones.</p>
+  </div>
+</div>
+
+<!-- 3. How to Use -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">How to Use This Glossary</div>
+  <div class="sec-desc">This glossary is designed as a reference companion to the main chapters, not a standalone reading experience.</div>
+
+  <div class="card card-bordered">
+    <h3>Navigation by Section</h3>
+    <p>Terms are organized alphabetically within five sections: Core Terms (A–F), Terms in Context (G–L), Technical Terms (M–R), and Advanced Terms (S–Z). Use the navigation bar above to jump directly to the relevant section.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Chapter Cross-References</h3>
+    <p>Each term includes a "See also" note pointing to the chapter(s) where the concept is applied in practice. For example, "RAG → Chapter 14: Knowledge Retrieval" tells you that the term Retrieval-Augmented Generation is explored in depth in Chapter 14 with code examples.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Index vs. Glossary</h3>
+    <p>This Glossary provides definitions of concepts. The Index of Terms (separate section) maps every term to its chapter location for quick lookup. Use the Glossary to understand what a term means; use the Index to find where it appears in the book.</p>
+  </div>
+</div>
+
+<!-- 4. Core Terms A-F -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Terms: A–F</div>
+  <div class="sec-desc">Fundamental concepts that underpin the entire field of agentic AI.</div>
+
+  <div class="cat-header">Fundamental Concepts</div>
+
+  <div class="term-card">
+    <div class="term-name">Prompt</div>
+    <div class="term-def">The input, typically in the form of a question, instruction, or statement, that a user provides to an AI model to elicit a response. The quality and structure of the prompt heavily influence the model's output, making prompt engineering a key skill for effectively using AI.</div>
+    <div class="term-meta">See: Appendix A (Advanced Prompting Techniques) · Glossary</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--blue);">
+    <div class="term-name">Context Window</div>
+    <div class="term-def">The maximum number of tokens an AI model can process at once, including both the input and its generated output. This fixed size is a critical limitation—information outside the window is ignored—while larger windows enable more complex conversations and document analysis.</div>
+    <div class="term-meta">See: Chapter 1 (Prompt Chaining) · Chapter 8 (Memory Management) · Glossary</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--purple);">
+    <div class="term-name">In-Context Learning</div>
+    <div class="term-def">An AI's ability to learn a new task from examples provided directly in the prompt, without requiring any retraining. This powerful feature allows a single, general-purpose model to be adapted to countless specific tasks on the fly.</div>
+    <div class="term-meta">See: Appendix A · Glossary</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--coral);">
+    <div class="term-name">Zero-Shot, One-Shot, &amp; Few-Shot Prompting</div>
+    <div class="term-def">Prompting techniques where a model is given zero, one, or a few examples of a task to guide its response. Providing more examples generally helps the model better understand the user's intent and improves accuracy for the specific task.</div>
+    <div class="term-meta">See: Appendix A · Chapter 9 (Learning and Adaptation) · Glossary</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--amber);">
+    <div class="term-name">Fine-tuning</div>
+    <div class="term-def">The process of adapting a general pre-trained model to a specific task using a smaller, specialized dataset. The most common approach is Supervised Fine-Tuning (SFT), where the model is trained on labeled examples of correct input-output pairs. Instruction Tuning focuses specifically on training the model to better follow user commands.</div>
+    <div class="term-meta">See: Chapter 9 (Learning and Adaptation) · Glossary</div>
+  </div>
+
+  <div class="cat-header" style="margin-top:24px;">Agent-Specific Terms (A–F)</div>
+
+  <div class="term-card">
+    <div class="term-name">Agent Trajectory</div>
+    <div class="term-def">The complete log of an agent's steps while performing a task—all its thoughts, actions (tool calls), and observations. Analyzing trajectories is a key part of debugging and understanding agent behavior, and is the primary evaluation artifact in Chapter 19.</div>
+    <div class="term-meta">See: Chapter 19 (Evaluation and Monitoring)</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--coral);">
+    <div class="term-name">Critique Model</div>
+    <div class="term-def">A specialized AI model trained to review, evaluate, and provide feedback on the output of another AI model. It acts as an automated critic, helping to identify errors, improve reasoning, and ensure the final output meets a desired quality standard. Central to the Reflection pattern.</div>
+    <div class="term-meta">See: Chapter 4 (Reflection) · Glossary</div>
+  </div>
+</div>
+
+<!-- 5. Terms in Context G-L -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Terms in Context: G–L</div>
+  <div class="sec-desc">Terms relating to how agents interact with data, knowledge, and their environment.</div>
+
+  <div class="term-card">
+    <div class="term-name">Grounding</div>
+    <div class="term-def">The process of connecting a model's outputs to verifiable, real-world information sources to ensure factual accuracy and reduce hallucinations. Often achieved with techniques like RAG to make AI systems more trustworthy.</div>
+    <div class="term-meta">See: Chapter 14 (Knowledge Retrieval) · Glossary</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--blue);">
+    <div class="term-name">Hallucination</div>
+    <div class="term-def">When an AI model generates information that is factually incorrect, fabricated, or not supported by its input context—stated with high confidence. Hallucination is one of the primary failure modes that Grounding (RAG), Reflection, and Self-Correction patterns aim to mitigate.</div>
+    <div class="term-meta">See: Chapter 4 (Reflection) · Chapter 14 (RAG)</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--purple);">
+    <div class="term-name">Human-in-the-Loop (HITL)</div>
+    <div class="term-def">A design pattern that integrates human oversight and interaction into an agent's workflow. The agent pauses at critical junctures to ask for human feedback, approval, clarification, or direction—rather than operating fully autonomously.</div>
+    <div class="term-meta">See: Chapter 13 (Human-in-the-Loop) · Glossary via Index</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--coral);">
+    <div class="term-name">In-Context Learning (see Core Terms)</div>
+    <div class="term-def">Referenced here because in the agent context, it is the mechanism by which agents adapt their behavior from examples within their system prompt or conversation history—without retraining. This is how few-shot examples in system prompts improve agent reliability.</div>
+    <div class="term-meta">See: Appendix A · Chapter 9</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--amber);">
+    <div class="term-name">Knowledge Retrieval / RAG (Retrieval-Augmented Generation)</div>
+    <div class="term-def">A technique that enhances an LLM by connecting it to an external knowledge source at inference time. The agent embeds a query, retrieves relevant document chunks from a vector database, and includes them in the prompt context. This grounds responses in authoritative, current information.</div>
+    <div class="term-meta">See: Chapter 14 (Knowledge Retrieval) · Chapter 8 (Memory Management) · Glossary</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--green);">
+    <div class="term-name">LangChain / LangGraph</div>
+    <div class="term-def">LangChain is a framework providing tools and abstractions to chain together LLMs, prompts, tools, and data sources. LangGraph is its extension for building stateful, graph-based agent workflows where nodes represent agent steps and edges represent conditional transitions between them.</div>
+    <div class="term-meta">See: Chapters 1–8 (primary framework for code examples) · Appendix C</div>
+  </div>
+</div>
+
+<!-- 6. Technical Terms M-R -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Technical Terms: M–R</div>
+  <div class="sec-desc">Technical concepts covering model architectures, training methods, and agentic frameworks.</div>
+
+  <div class="cat-header">Model Architectures</div>
+
+  <div class="term-card">
+    <div class="term-name">Transformer</div>
+    <div class="term-def">The foundational neural network architecture for most modern LLMs. Its key innovation is the self-attention mechanism, which efficiently processes long sequences of text and captures complex relationships between words. Nearly all state-of-the-art language models (GPT, Gemini, Claude, Llama) are Transformer-based.</div>
+    <div class="term-meta">See: Glossary · Appendix F (Under the Hood)</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--purple);">
+    <div class="term-name">Mixture of Experts (MoE)</div>
+    <div class="term-def">An efficient model architecture where a "router" network dynamically selects a small subset of "expert" networks to handle any given input. This allows models to have a massive number of parameters while keeping computational costs manageable—enabling scale without proportional cost increase.</div>
+    <div class="term-meta">See: Glossary · Appendix F</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--coral);">
+    <div class="term-name">Mamba (Selective State Space Model)</div>
+    <div class="term-def">A recent AI architecture using a Selective State Space Model (SSM) to process sequences with high efficiency, especially for very long contexts. Its selective mechanism focuses on relevant information while filtering out noise, making it a potential alternative to Transformer-based models for certain tasks.</div>
+    <div class="term-meta">See: Glossary</div>
+  </div>
+
+  <div class="cat-header" style="margin-top:24px;">Training &amp; Fine-tuning Techniques</div>
+
+  <div class="term-card">
+    <div class="term-name">PEFT (Parameter-Efficient Fine-Tuning)</div>
+    <div class="term-def">Methods for adapting a pre-trained model to a specific task while updating only a small fraction of its parameters. This dramatically reduces computational cost compared to full fine-tuning. Key PEFT techniques include LoRA (Low-Rank Adaptation), QLoRA (memory-efficient LoRA), and prefix tuning.</div>
+    <div class="term-meta">See: Glossary · Chapter 9 (Learning and Adaptation)</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--blue);">
+    <div class="term-name">RLHF (Reinforcement Learning from Human Feedback)</div>
+    <div class="term-def">The most prominent alignment technique. A "reward model" trained on human preferences guides the AI's learning process, often using Proximal Policy Optimization (PPO). Simpler alternatives include DPO (Direct Preference Optimization, bypasses separate reward model) and KTO (Kahneman-Tversky Optimization, simplifies data collection).</div>
+    <div class="term-meta">See: Glossary · Chapter 9 (Learning and Adaptation)</div>
+  </div>
+
+  <div class="cat-header" style="margin-top:24px;">Agentic Frameworks &amp; Protocols</div>
+
+  <div class="term-card">
+    <div class="term-name">Model Context Protocol (MCP)</div>
+    <div class="term-def">An emerging standard (Anthropic) for how agents and tools exchange information. MCP defines standardized tool discovery, invocation, and response formats—enabling agents to use tools they were not explicitly programmed for and supporting the "agentic ecosystem" vision.</div>
+    <div class="term-meta">See: Chapter 10 (Model Context Protocol) · Index</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--purple);">
+    <div class="term-name">ReAct (Reason and Act)</div>
+    <div class="term-def">An agent framework combining reasoning and acting in a loop: <strong>Thought</strong> (reason about what to do) → <strong>Action</strong> (use a tool) → <strong>Observation</strong> (see the result) → repeat until done. ReAct is foundational to the Tool Use and Planning patterns throughout the book.</div>
+    <div class="term-meta">See: Chapter 5 (Tool Use) · Chapter 17 (Reasoning Techniques) · Appendix A · Glossary</div>
+  </div>
+</div>
+
+<!-- 7. Advanced Terms S-Z -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Advanced Terms: S–Z</div>
+  <div class="sec-desc">Advanced concepts for production-grade agentic systems and cutting-edge research areas.</div>
+
+  <div class="term-card">
+    <div class="term-name">Self-Consistency</div>
+    <div class="term-def">A prompting technique where the model generates multiple independent reasoning paths for the same problem and selects the most consistent answer via majority vote. Improves accuracy on complex reasoning tasks by leveraging the diversity of the model's outputs.</div>
+    <div class="term-meta">See: Appendix A · Chapter 17 (Reasoning Techniques)</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--blue);">
+    <div class="term-name">SICA (Self-Improving Coding Agent)</div>
+    <div class="term-def">An agent architecture where the agent autonomously writes, executes, and evaluates code, using the results to iteratively improve its own codebase or the code it generates. Represents the Learning and Adaptation pattern applied to software development.</div>
+    <div class="term-meta">See: Chapter 9 (Learning and Adaptation)</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--purple);">
+    <div class="term-name">Tree of Thoughts (ToT)</div>
+    <div class="term-def">An advanced reasoning framework where an agent explores multiple reasoning paths simultaneously, like branches on a tree. The agent self-evaluates different lines of thought and chooses the most promising one to pursue, making it more effective at complex problem-solving than linear chain-of-thought.</div>
+    <div class="term-meta">See: Chapter 17 (Reasoning Techniques) · Appendix A · Glossary</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--coral);">
+    <div class="term-name">Chain of Thought (CoT)</div>
+    <div class="term-def">A prompting technique that encourages a model to explain its reasoning step-by-step before giving a final answer. This "thinking out loud" process often leads to more accurate results on complex reasoning tasks by making intermediate reasoning explicit and checkable.</div>
+    <div class="term-meta">See: Chapter 17 (Reasoning Techniques) · Appendix A · Glossary</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--amber);">
+    <div class="term-name">Deep Research</div>
+    <div class="term-def">An agent's capability to autonomously explore a topic in-depth by iteratively searching for information, synthesizing findings, and identifying new questions to investigate. Allows the agent to build comprehensive understanding far beyond what a single search query provides.</div>
+    <div class="term-meta">See: Chapter 6 (Planning) · Chapter 17 (Reasoning Techniques) · Glossary</div>
+  </div>
+
+  <div class="term-card" style="border-left-color:var(--green);">
+    <div class="term-name">RLVR (Reinforcement Learning with Verifiable Rewards)</div>
+    <div class="term-def">A training approach where the reward signal comes from verifiable, ground-truth feedback rather than human preferences. Particularly powerful for mathematical reasoning, coding, and other domains where correctness can be automatically verified—enabling scaling laws in agent training.</div>
+    <div class="term-meta">See: Chapter 17 (Reasoning Techniques)</div>
+  </div>
+</div>
+
+<!-- 8. Quick Reference -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">Quick Reference Table</div>
+  <div class="sec-desc">A condensed reference of the most frequently used terms and their one-line definitions.</div>
+
+  <table class="qr-table">
+    <tr><th>Term</th><th>One-Line Definition</th><th>Chapter</th></tr>
+    <tr><td>Prompt</td><td>Input provided to an AI model to elicit a response</td><td>App. A</td></tr>
+    <tr><td>Context Window</td><td>Maximum tokens an LLM can process at once</td><td>Ch.1, Ch.8</td></tr>
+    <tr><td>RAG</td><td>Enhancing LLMs with external knowledge retrieval</td><td>Ch.14</td></tr>
+    <tr><td>ReAct</td><td>Thought → Action → Observation loop for agents</td><td>Ch.5</td></tr>
+    <tr><td>CoT</td><td>Prompting the model to reason step-by-step</td><td>Ch.17</td></tr>
+    <tr><td>ToT</td><td>Exploring multiple reasoning paths like a tree</td><td>Ch.17</td></tr>
+    <tr><td>HITL</td><td>Human oversight integrated into agent workflow</td><td>Ch.13</td></tr>
+    <tr><td>MCP</td><td>Standardized protocol for agent-tool communication</td><td>Ch.10</td></tr>
+    <tr><td>A2A</td><td>Inter-agent communication protocol</td><td>Ch.15</td></tr>
+    <tr><td>RLHF</td><td>Alignment via human preference reward models</td><td>Glossary</td></tr>
+    <tr><td>LoRA</td><td>Parameter-efficient fine-tuning via low-rank matrices</td><td>Glossary</td></tr>
+    <tr><td>Trajectory</td><td>Complete log of agent thoughts, actions, observations</td><td>Ch.19</td></tr>
+    <tr><td>Grounding</td><td>Connecting model outputs to verifiable real-world sources</td><td>Ch.14</td></tr>
+    <tr><td>Planning</td><td>Breaking a goal into a sequence of actionable steps</td><td>Ch.6</td></tr>
+    <tr><td>Deep Research</td><td>Iterative autonomous exploration of a topic</td><td>Ch.6, Ch.17</td></tr>
+  </table>
+</div>
+
+<!-- 9. Terminology Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Terminology Quiz</div>
+  <div class="sec-desc">Match the correct definition to each term.</div>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Key Definitions to Remember -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Definitions to Remember</div>
+  <div class="sec-desc">The most important terms that appear repeatedly throughout the book.</div>
+  <ul class="tk-list">
+    <li><strong>Context Window</strong> — The hard limit on how much an LLM can "see" at once. Everything outside it is invisible to the model. This single constraint drives the design of Memory Management and RAG patterns.</li>
+    <li><strong>Grounding</strong> — Connecting AI outputs to verifiable facts. Without grounding, agents hallucinate. RAG, Tool Use, and Reflection all contribute to grounding in different ways.</li>
+    <li><strong>ReAct (Reason and Act)</strong> — The foundational loop of modern agents: Think → Act → Observe → repeat. Most Tool Use and Planning implementations follow this pattern explicitly.</li>
+    <li><strong>RLHF</strong> — How most production LLMs are aligned with human values. Understanding this explains why models refuse certain requests, have certain default behaviors, and how fine-tuning for specific agent roles works.</li>
+    <li><strong>Trajectory</strong> — The audit trail of everything an agent does. Critical for debugging, evaluation, and building trust in autonomous systems. Always log trajectories in production agents.</li>
+    <li><strong>MCP (Model Context Protocol)</strong> — The emerging standard for how agents discover and use tools. Understanding MCP is essential for building agents that can integrate with an expanding ecosystem of services.</li>
+  </ul>
+</div>
+
+<!-- 11. Further Reading -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">Further Reading</div>
+  <div class="sec-desc">Resources for deeper understanding of the concepts defined in this glossary.</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> Attention Is All You Need — Vaswani et al. (2017). The original Transformer paper. Foundational for understanding the architecture underlying all modern LLMs.</li>
+    <li><span class="ref-num">[2]</span> "ReAct: Synergizing Reasoning and Acting in Language Models" — Yao et al. (2022). Defines the Thought-Action-Observation loop.</li>
+    <li><span class="ref-num">[3]</span> "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models" — Wei et al. (2022). Foundational paper on CoT prompting.</li>
+    <li><span class="ref-num">[4]</span> "Tree of Thoughts: Deliberate Problem Solving with Large Language Models" — Yao et al. (2023). The ToT framework.</li>
+    <li><span class="ref-num">[5]</span> Model Context Protocol Specification — Anthropic (2024). Official MCP specification and documentation.</li>
+    <li><span class="ref-num">[6]</span> Appendix F in this book: "Under the Hood: An Inside Look at the Agents' Reasoning Engines" — Deep dive into Transformer architectures powering agents.</li>
+  </ul>
+</div>
+
+<div class="footer"><p>Agentic Design Patterns — Glossary</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [];
+function simClick(i) {}
+const quizData = [
+  { q: 'Which term describes the maximum number of tokens an LLM can process at once, including both input and output?', opts: ['Embedding Size', 'Context Window', 'Attention Span', 'Token Limit'], ans: 1, ok: 'Correct! The Context Window is the fixed-size limit on how much an LLM can "see" at once. Information beyond this limit is invisible to the model, making it a critical constraint that drives Memory Management and RAG pattern design.', no: 'Not quite. The Context Window is the correct term for the maximum tokens an LLM can process at once—both input and output combined.' },
+  { q: 'What does "RAG" stand for, and what problem does it solve?', opts: ['Recurrent Agent Graph — enables multi-step workflows', 'Retrieval-Augmented Generation — grounds LLMs in external, current knowledge to reduce hallucination', 'Reasoning and Generation — combines thinking with output production', 'Role-Assigned Guidance — gives agents specific roles'], ans: 1, ok: 'Correct! Retrieval-Augmented Generation connects an LLM to an external knowledge source at inference time, enabling it to provide accurate, current, and verifiable answers beyond its training data.', no: 'Not quite. RAG stands for Retrieval-Augmented Generation—it grounds LLMs in external, current knowledge sources to reduce hallucination and provide up-to-date information.' },
+  { q: 'In the ReAct framework, what are the three steps in the agent loop?', opts: ['Read, Analyze, Conclude', 'Reason, Adjust, Complete', 'Thought, Action, Observation', 'Plan, Execute, Review'], ans: 2, ok: 'Correct! ReAct (Reason and Act) uses a Thought → Action → Observation loop. The agent thinks about what to do, takes an action (usually a tool call), observes the result, and repeats until the task is complete.', no: 'Not quite. The ReAct loop is: Thought (reasoning about what to do) → Action (using a tool) → Observation (seeing the result). This loop repeats until the task is complete.' },
+  { q: 'What is RLHF and what problem does it solve?', opts: ['Recurrent Language Hybrid Framework — a type of model architecture', 'Reinforcement Learning from Human Feedback — aligns AI behavior with human values and preferences', 'Retrieval-based Learning from Historical Facts — grounds models in historical data', 'Rapid Learning with High Frequency — accelerates training speed'], ans: 1, ok: 'Correct! RLHF (Reinforcement Learning from Human Feedback) is the primary technique for aligning LLMs with human values. A reward model trained on human preferences guides the AI\'s learning, making outputs more helpful and safe.', no: 'Not quite. RLHF stands for Reinforcement Learning from Human Feedback—it aligns AI behavior with human values by training a reward model on human preference data to guide the LLM\'s learning.' },
+  { q: 'What distinguishes "Tree of Thoughts" (ToT) from standard "Chain of Thought" (CoT) prompting?', opts: ['CoT is older; ToT is newer—they are otherwise equivalent', 'ToT explores multiple reasoning paths simultaneously like branches on a tree, while CoT follows a single linear reasoning path', 'CoT uses code; ToT uses natural language', 'ToT requires multiple models; CoT uses one'], ans: 1, ok: 'Correct! Chain of Thought follows a single, linear step-by-step reasoning path. Tree of Thoughts explores multiple candidate reasoning paths in parallel, evaluates them, and selects the most promising branch—enabling more effective complex problem-solving.', no: 'Not quite. ToT explores multiple reasoning branches simultaneously and self-evaluates to select the best path, while CoT follows a single linear reasoning chain.' }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

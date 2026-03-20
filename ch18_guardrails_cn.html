@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第十八章：护栏与安全模式 — 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431; --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974; --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15); --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3; --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4; --amber-l: #3A2805; --amber-d: #FAC775; --pink-l: #3D1528; --pink-d: #F4C0D1; --red-l: #3D1313; --red-d: #F7C1C1; --green-l: #1E3008; --green-d: #C0DD97; }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text2); text-decoration: none; margin-bottom: 20px; }
+.back-link:hover { color: var(--text); }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; background: var(--bg2); }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); } .fail-card:nth-child(2)::before { background: var(--coral); } .fail-card:nth-child(3)::before { background: var(--amber); } .fail-card:nth-child(4)::before { background: var(--pink); } .fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); } .code-string { color: var(--teal); } .code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; min-width: 80px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+<a href="./index_cn.html" class="back-link">← 返回章节列表</a>
+<div class="chapter-tag">第十八章</div>
+<h1>护栏与安全模式</h1>
+<p class="subtitle">通过分层防御机制确保智能体安全、合乎伦理地运行——包括输入验证、输出过滤和行为约束，在不限制合法能力的同时保障系统可信度。</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">概览</button>
+  <button class="nav-btn" onclick="go('problem')">问题所在</button>
+  <button class="nav-btn" onclick="go('solution')">解决方案</button>
+  <button class="nav-btn" onclick="go('concepts')">核心概念</button>
+  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
+  <button class="nav-btn" onclick="go('code')">代码实战</button>
+  <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
+  <button class="nav-btn" onclick="go('glance')">一览概要</button>
+  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
+  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
+  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+</nav>
+
+<div id="sec-overview" class="section active">
+  <div class="sec-title">模式概览</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">模式名称</div><div class="metric-value">护栏模式</div></div>
+    <div class="metric"><div class="metric-label">核心策略</div><div class="metric-value">分层防御</div></div>
+    <div class="metric"><div class="metric-label">关键优势</div><div class="metric-value">安全可信</div></div>
+    <div class="metric"><div class="metric-label">最终目标</div><div class="metric-value">负责任AI</div></div>
+  </div>
+  <div class="card card-bordered">
+    <h3>什么是护栏？</h3>
+    <p>护栏是确保 AI 智能体安全、合乎伦理并按预期运行的保护机制。它们作为安全层，引导智能体的行为和输出，防止有害、偏见、不相关或不受欢迎的响应——同时不限制合法能力。护栏的目标是使系统鲁棒、可信且有益。</p>
+  </div>
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>六种护栏类型</h3>
+    <ul>
+      <li><strong>输入验证/清理</strong> — 过滤恶意或超出范围的输入</li>
+      <li><strong>输出过滤/后处理</strong> — 检查响应中的毒性或偏见</li>
+      <li><strong>行为约束</strong> — 通过提示级别直接指令约束智能体</li>
+      <li><strong>工具使用限制</strong> — 限制智能体可以调用的工具</li>
+      <li><strong>外部审核 API</strong> — 第三方内容审核服务</li>
+      <li><strong>人工监督/干预</strong> — 关键节点的人机协作</li>
+    </ul>
+  </div>
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>为什么护栏至关重要</h3>
+    <p>没有护栏，AI 系统可能不受约束、不可预测，甚至存在潜在危险。护栏通过防止操纵、维护道德和法律标准以及确保可预测的安全行为来维持用户信任。轻量快速的模型可用作额外的快速安全检查，预筛选输入或双重检查输出。</p>
+  </div>
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>纵深防御</h3>
+    <p>使用 CrewAI 等框架实现护栏需要分层方法：输入清理、使用 Pydantic 进行模式验证、监控与可观测性、带指数退避的错误处理重试、通过特定角色配置智能体，以及关键决策的人机协作。</p>
+  </div>
+</div>
+
+<div id="sec-problem" class="section">
+  <div class="sec-title">缺乏护栏的问题</div>
+  <div class="sec-desc">未受约束的 AI 智能体面临五种关键失败模式。点击卡片了解详情：</div>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>越狱与提示注入</h4>
+      <p>恶意输入绕过智能体指令</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">攻击者使用"忽略之前的规则"或"重置你的记忆"等指令来颠覆智能体的基础参数。没有输入验证，智能体可能遵从违反预期目的的有害请求。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>有害输出生成</h4>
+      <p>智能体产生有毒、偏颇或危险内容</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">没有输出过滤，智能体可能生成歧视性言论、危险指令、露骨材料或辱骂性语言。后处理护栏对于在传递给用户之前捕获这些问题至关重要。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>超出范围行为</h4>
+      <p>智能体回答其预期范围以外的问题</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">设计用于客户服务的智能体可能讨论政治话题、提供法律建议或进行完全超出其运营焦点的对话。行为约束和范围定义可防止这种偏离。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>不受控制的工具使用</h4>
+      <p>智能体不当地调用强大工具</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">没有工具使用限制，智能体可能调用文件删除 API、发送电子邮件、进行金融交易或以不安全的方式执行代码。工具限制约束了在哪些上下文中可以调用哪些能力。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>合规与法律风险</h4>
+      <p>输出违反法规或知识产权</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">提供明确法律/医疗建议、复制受版权保护内容或违反 GDPR 的智能体会给组织带来重大法律责任。护栏强制执行合规性并确保适当的免责声明。</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="sec-solution" class="section">
+  <div class="sec-title">分层防御解决方案</div>
+  <div class="sec-desc">护栏作为多层防御系统运作。点击每个层级查看其运作方式：</div>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--red);">
+      <div class="chain-head"><div class="chain-num" style="background:var(--red-l);color:var(--red-d);">1</div><div><div class="chain-title">输入验证层</div><div class="chain-role">第一道防线</div></div></div>
+      <div class="chain-detail">在请求到达主智能体之前筛选。使用内容审核 API 检测不当提示。应用 Pydantic 模式验证确保结构化输入遵守预定义规则。拒绝或标记违反安全策略的越狱、禁止内容或超出范围主题的输入。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--amber);">
+      <div class="chain-head"><div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">2</div><div><div class="chain-title">智能体配置约束</div><div class="chain-role">基于角色的行为护栏</div></div></div>
+      <div class="chain-detail">精确定义智能体角色、目标和背景故事以引导行为并减少意外输出。专业化智能体优于通用智能体。管理上下文窗口、设置速率限制、安全管理 API 密钥，并通过系统提示和行为约束定义清晰的运营边界。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head"><div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">3</div><div><div class="chain-title">输出过滤层</div><div class="chain-role">后处理安全检查</div></div></div>
+      <div class="chain-detail">主智能体生成响应后，应用输出过滤检查毒性、偏见、策略违规或格式错误。使用轻量快速模型（如 gemini-2.0-flash）作为快速安全检查。使用 Pydantic 模型验证结构化输出确保数据完整性。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head"><div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">4</div><div><div class="chain-title">监控与人工监督</div><div class="chain-role">持续可观测性与升级</div></div></div>
+      <div class="chain-detail">记录所有操作、工具使用、输入和输出以供调试和审计。收集延迟、成功率和错误的指标。当护栏检测到问题或出现关键决策时，集成人机协作来验证输出或干预。这种可追溯性将每个操作链接回其来源以进行异常调查。</div>
+    </div>
+  </div>
+</div>
+
+<div id="sec-concepts" class="section">
+  <div class="sec-title">核心概念</div>
+  <div class="card card-bordered">
+    <h3>安全策略指令</h3>
+    <p>定义什么构成不合规输入的结构化规则集。四个关键指令类别：(1) 指令颠覆尝试——越狱、提示注入；(2) 禁止内容——仇恨言论、危险活动、露骨材料；(3) 不相关/超出范围讨论——政治、宗教、超出范围话题；(4) 专有/竞争信息。</p>
+  </div>
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>基于 Pydantic 的输出验证</h3>
+    <p>结构化输出验证确保护栏结果机器可读且可操作。<code>PolicyEvaluation</code> 模型包含三个字段：<code>compliance_status</code>（"合规"或"不合规"）、<code>evaluation_summary</code>（简短说明）和 <code>triggered_policies</code>（已违反指令列表）。</p>
+  </div>
+  <div class="json-block">{
+  "compliance_status": "non-compliant",
+  "evaluation_summary": "尝试策略绕过和危险指令请求",
+  "triggered_policies": [
+    "1. 指令颠覆尝试（越狱）",
+    "2. 禁止内容：危险活动"
+  ]
+}</div>
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>评估流程</h3>
+    <p>护栏智能体根据每条安全策略指令评估每个输入。如果输入违反<em>任何单条</em>指令，结果为"不合规"。如有任何歧义，默认为"合规"以避免过度屏蔽合法请求。这种保守方法在安全性与可用性之间取得平衡。</p>
+  </div>
+</div>
+
+<div id="sec-usecases" class="section">
+  <div class="sec-title">实际应用场景</div>
+  <div class="sec-desc">护栏应用于各种领域。点击标签探索：</div>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">客户服务</button>
+    <button class="uc-tab" onclick="showUC(1)">内容生成</button>
+    <button class="uc-tab" onclick="showUC(2)">教育辅助</button>
+    <button class="uc-tab" onclick="showUC(3)">法律与HR</button>
+    <button class="uc-tab" onclick="showUC(4)">社交媒体</button>
+    <button class="uc-tab" onclick="showUC(5)">科学研究</button>
+  </div>
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>客户服务聊天机器人</h3>
+      <p>防止生成冒犯性语言、不正确的医疗/法律建议或偏离主题的响应。护栏检测有毒用户输入并指示机器人拒绝响应或升级至人工客服。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>接收用户消息并运行输入验证</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>检测毒性、越狱尝试、超出范围话题</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>用主智能体处理合规请求</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>交付前过滤输出中的有害内容</div></div>
+        <div class="uc-step"><div class="uc-step-num">5</div><div>将标记的案例升级至人工客服</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>内容生成系统</h3>
+      <p>确保生成的文章、营销文案或创意内容遵守指南、法律要求和道德标准——通过后处理过滤器标记和编辑仇恨言论、虚假信息或露骨内容中的有问题短语。</p>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>教育辅导/助手</h3>
+      <p>防止智能体提供错误答案、宣传偏见观点或进行不当对话。内容过滤遵循预定义的课程和适龄指南，确保教育内容的准确性和适当性。</p>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>法律研究与HR工具</h3>
+      <p><strong>法律：</strong>防止提供明确的法律建议或充当执照律师的替代品——引导用户咨询法律专业人士。<br><strong>HR：</strong>通过过滤歧视性语言或标准确保候选人筛选或员工评估的公平性，防止偏见。</p>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--pink);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>社交媒体内容审核</h3>
+      <p>自动识别并标记包含仇恨言论、虚假信息或图形内容的帖子。护栏作为防御机制，保护用户、组织和 AI 系统的声誉。</p>
+    </div>
+  </div>
+  <div class="uc-panel" id="uc-5">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>科学研究助手</h3>
+      <p>防止捏造研究数据或得出无根据的结论。护栏强调实证验证和同行评审的必要性，确保智能体承认不确定性并正确引用来源。</p>
+    </div>
+  </div>
+</div>
+
+<div id="sec-code" class="section">
+  <div class="sec-title">代码实战</div>
+  <div class="sec-desc">使用 CrewAI 实现安全护栏，包含 Pydantic 验证和专用策略执行智能体：</div>
+  <div class="code-block"><span class="code-keyword">from</span> crewai <span class="code-keyword">import</span> Agent, Task, Crew, Process, LLM
+<span class="code-keyword">from</span> pydantic <span class="code-keyword">import</span> BaseModel, Field
+<span class="code-keyword">from</span> typing <span class="code-keyword">import</span> Tuple, List
+
+<span class="code-comment"># 使用快速轻量模型作为护栏——成本效益最优</span>
+CONTENT_POLICY_MODEL = <span class="code-string">"gemini/gemini-2.0-flash"</span>
+
+<span class="code-comment"># 护栏评估的结构化输出模型</span>
+<span class="code-keyword">class</span> PolicyEvaluation(BaseModel):
+    compliance_status: str = Field(description=<span class="code-string">"'compliant' 或 'non-compliant'"</span>)
+    evaluation_summary: str = Field(description=<span class="code-string">"合规状态的简短说明"</span>)
+    triggered_policies: List[str] = Field(description=<span class="code-string">"已触发的策略指令列表"</span>)
+
+<span class="code-comment"># 护栏验证函数</span>
+<span class="code-keyword">def</span> validate_policy_evaluation(output) -> Tuple[bool, object]:
+    <span class="code-keyword">try</span>:
+        evaluation = PolicyEvaluation.model_validate(output)
+        <span class="code-keyword">if</span> evaluation.compliance_status <span class="code-keyword">not in</span> [<span class="code-string">"compliant"</span>, <span class="code-string">"non-compliant"</span>]:
+            <span class="code-keyword">return</span> False, <span class="code-string">"无效的 compliance_status"</span>
+        <span class="code-keyword">return</span> True, evaluation
+    <span class="code-keyword">except</span> Exception <span class="code-keyword">as</span> e:
+        <span class="code-keyword">return</span> False, <span class="code-string">f"验证失败: {e}"</span></div>
+  <div class="code-block"><span class="code-comment"># 策略执行智能体——严格聚焦的角色</span>
+policy_enforcer_agent = Agent(
+    role=<span class="code-string">'AI内容策略执行者'</span>,
+    goal=<span class="code-string">'严格根据安全策略筛查用户输入'</span>,
+    backstory=<span class="code-string">'维护AI系统完整性和安全性的公正守卫'</span>,
+    verbose=False, allow_delegation=False,
+    llm=LLM(model=CONTENT_POLICY_MODEL, temperature=0.0)
+)
+
+<span class="code-comment"># 运行护栏检查</span>
+<span class="code-keyword">def</span> run_guardrail_crew(user_input: str):
+    result = crew.kickoff(inputs={<span class="code-string">'user_input'</span>: user_input})
+    <span class="code-keyword">if</span> result.compliance_status == <span class="code-string">"non-compliant"</span>:
+        <span class="code-keyword">return</span> False, result.evaluation_summary, result.triggered_policies
+    <span class="code-keyword">return</span> True, result.evaluation_summary, []</div>
+</div>
+
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">深入解析：护栏架构层次</div>
+  <div class="sec-desc">点击每个层次深入了解生产级护栏系统的技术细节：</div>
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--red-l);">
+      <div class="ctx-layer-title">层次1：输入清理与模式验证</div>
+      <div class="ctx-layer-sub">第一接触——清理和结构化传入数据</div>
+      <div class="ctx-layer-detail">使用内容审核 API 在到达主智能体之前检测不当提示。Pydantic 模式验证确保结构化输入遵守预定义规则。可以在输入阶段限制智能体与敏感话题的接触，防止任何明显违规内容被处理。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);">
+      <div class="ctx-layer-title">层次2：智能体角色配置</div>
+      <div class="ctx-layer-sub">通过智能体设计实现行为约束</div>
+      <div class="ctx-layer-detail">定义角色、目标和背景故事可引导智能体行为并减少意外输出。专业化智能体优于通用智能体。设置速率限制防止 API 滥用。安全管理 API 密钥和保护敏感数据是关键基础设施护栏。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);">
+      <div class="ctx-layer-title">层次3：实时监控与可观测性</div>
+      <div class="ctx-layer-sub">持续跟踪合规性和调试</div>
+      <div class="ctx-layer-detail">记录所有操作、工具使用、输入和输出创建合规性审计跟踪。收集延迟、成功率和错误指标实现主动问题检测。可追溯性将每个智能体操作链接回其来源和目的，便于异常调查和根因分析。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);">
+      <div class="ctx-layer-title">层次4：错误处理与弹性</div>
+      <div class="ctx-layer-sub">优雅的故障管理</div>
+      <div class="ctx-layer-detail">使用 try-except 块和带指数退避的重试逻辑优雅地处理故障。清晰的错误消息是排错的关键。错误处理本身就是护栏——防止一个组件遇到意外输入时的级联故障。</div>
+    </div>
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);">
+      <div class="ctx-layer-title">层次5：人机协作升级</div>
+      <div class="ctx-layer-sub">关键或模糊案例的人工监督</div>
+      <div class="ctx-layer-detail">对于关键决策或护栏检测到模糊问题时，集成人工监督来验证输出或干预工作流。这个"人工安全网"是自动化系统无法可靠处理的边缘案例的最终护栏，确保高风险操作的问责制。</div>
+    </div>
+  </div>
+</div>
+
+<div id="sec-glance" class="section">
+  <div class="sec-title">一览概要</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4>何时应用</h4>
+      <p>任何面向用户的AI系统、内容生成管道、具有工具访问权限的智能体工作流，或医疗、法律、金融等受监管行业的应用。</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4>关键权衡</h4>
+      <p>更严格的护栏降低风险但可能过度屏蔽合法请求。模糊时默认"合规"以保留可用性。</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);">
+      <h4>性能影响</h4>
+      <p>使用快速轻量模型（gemini-2.0-flash）进行护栏评估增加最小延迟。专用护栏智能体在主智能体之前独立运行，约增加100-500ms。</p>
+    </div>
+    <div class="glance-card" style="background:var(--blue-l);">
+      <h4>集成模式</h4>
+      <p>同时实现预处理步骤（输入护栏）和后处理步骤（输出护栏）。CrewAI 的 Task 对象原生 guardrail 参数提供结构化集成。</p>
+    </div>
+  </div>
+  <div class="diagram-sim">
+    <p style="font-size:13px;color:var(--text3);margin-bottom:8px;">点击每个阶段查看其在护栏管道中的作用：</p>
+    <div class="diagram-nodes">
+      <div class="dia-node" style="background:var(--red-l);color:var(--red-d);" onclick="simClick(0)">用户输入</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d);" onclick="simClick(1)">输入护栏</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(2)">主智能体</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(3)">输出护栏</div>
+      <span class="dia-arrow">→</span>
+      <div class="dia-node" style="background:var(--green-l);color:var(--green-d);" onclick="simClick(4)">安全响应</div>
+    </div>
+    <div class="dia-output" id="sim-output">点击上方阶段探索护栏管道流程。</div>
+  </div>
+</div>
+
+<div id="sec-quiz" class="section">
+  <div class="sec-title">知识测验</div>
+  <div id="quizProgress" class="quiz-progress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">核心要点</div>
+  <ul class="tk-list">
+    <li>护栏是确保智能体安全、合乎伦理并按预期运行的基本保护机制——不会不必要地限制合法能力。</li>
+    <li>分层防御方法最有效：输入验证、行为约束、输出过滤、监控和人工监督协同工作。</li>
+    <li>使用快速轻量模型（如 Gemini Flash）作为专用护栏智能体，以最小延迟和成本提供快速预筛选。</li>
+    <li>基于 Pydantic 的结构化输出验证确保护栏结果机器可读、可操作且格式一致。</li>
+    <li>安全策略指令应涵盖四个关键类别：指令颠覆、禁止内容、超出范围行为和专有信息。</li>
+    <li>模糊时默认"合规"——过于严格的护栏会损害可用性并给合法用户造成摩擦。</li>
+    <li>监控和可观测性本身就是护栏：记录所有智能体操作可实现异常检测、调试和合规审计。</li>
+    <li>人机协作升级是自动化护栏无法可靠解决的案例的最终安全网。</li>
+  </ul>
+</div>
+
+<div id="sec-refs" class="section">
+  <div class="sec-title">参考资料</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">[1]</span> CrewAI 护栏文档: <a href="https://docs.crewai.com/concepts/tasks#task-guardrails" target="_blank">docs.crewai.com</a></li>
+    <li><span class="ref-num">[2]</span> Pydantic 数据验证: <a href="https://docs.pydantic.dev/" target="_blank">docs.pydantic.dev</a></li>
+    <li><span class="ref-num">[3]</span> Google Gemini 安全设置: <a href="https://ai.google.dev/gemini-api/docs/safety-settings" target="_blank">ai.google.dev</a></li>
+    <li><span class="ref-num">[4]</span> Anthropic 宪法 AI: <a href="https://www.anthropic.com/research/constitutional-ai" target="_blank">anthropic.com</a></li>
+    <li><span class="ref-num">[5]</span> OWASP LLM 十大安全风险: <a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/" target="_blank">owasp.org</a></li>
+    <li><span class="ref-num">[6]</span> NIST AI 风险管理框架: <a href="https://www.nist.gov/system/files/documents/2023/01/26/AI%20RMF%201.0.pdf" target="_blank">nist.gov</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>第十八章 · 护栏与安全模式 · 交互式学习体验</p></div>
+</div>
+<script>
+function go(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active');window.scrollTo({top:document.getElementById('navbar').offsetTop-10,behavior:'smooth'});}
+function toggleChain(el){el.classList.toggle('open');}
+function toggleCtx(el){el.classList.toggle('open');}
+function showUC(i){document.querySelectorAll('.uc-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.uc-tab').forEach(t=>t.classList.remove('active'));document.getElementById('uc-'+i).classList.add('active');document.querySelectorAll('.uc-tab')[i].classList.add('active');}
+const simTexts=['用户输入：来自用户的原始消息到达。可能包含合法请求，但也可能包含有害、超出范围或恶意内容。护栏管道从这里开始——没有任何输入在未经筛查的情况下到达主智能体。','输入护栏：专用策略执行智能体根据所有安全策略指令筛查输入。检查越狱尝试、禁止内容、超出范围主题和专有信息请求。不合规输入被阻止并附上说明返回。','主智能体：只有合规的、经过验证的输入才能到达主智能体。它在其定义的角色和工具限制内运行。整个处理过程中，智能体配置（角色、目标、背景故事）充当隐式行为护栏。','输出护栏：生成的响应被检查是否有毒性、偏见、策略违规和格式正确性。Pydantic 验证确保结构化输出符合预期模式。有问题的响应在交付前被过滤、重新格式化或升级。','安全响应：经过验证的合规响应交付给用户。所有操作记录用于监控和审计。边缘案例或模糊决策升级至人机协作审查。用户获得可信、可预测的响应。'];
+function simClick(i){document.querySelectorAll('.dia-node').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.dia-node')[i].classList.add('active');document.getElementById('sim-output').textContent=simTexts[i];}
+const quizData=[
+  {q:'护栏在AI智能体系统中的主要目的是什么？',opts:['同等限制所有智能体能力','确保智能体安全、合乎伦理地按预期运行，不限制合法使用','完全替代人工操作员','通过过滤请求降低API成本'],ans:1,ok:'正确！护栏旨在确保安全、合乎伦理的预期操作——而不是限制合法能力。它们作为安全措施，同时为合规用例保持完整功能。',no:'主要目的不是限制——而是安全和可信赖。护栏应校准为阻止真正有害的内容，同时允许合法请求通过。'},
+  {q:'为什么推荐使用快速轻量模型进行护栏评估？',opts:['因为它比大型模型更聪明','以最小延迟和成本有效筛查输入','因为大型模型无法评估安全策略','避免使用主智能体的上下文窗口'],ans:1,ok:'正确！快速模型如 Gemini Flash 提供快速预筛选，延迟开销最小。护栏评估不需要最大能力——它需要在策略分类上的速度和准确性。',no:'速度和成本是关键因素。轻量模型为护栏评估增加约100-500毫秒，同时保持低成本，使护栏在每个请求上都实际可行。'},
+  {q:'当护栏遇到模糊输入（不确定是否违反策略）时应该怎么做？',opts:['为了安全起见阻止它','默认为"合规"以避免过度屏蔽','升级至最高能力模型','无说明拒绝'],ans:1,ok:'正确！推荐方法是不确定时默认"合规"。过于严格的护栏通过屏蔽合法请求来损害可用性。策略是：只在明确不合规时才阻止。',no:'总是阻止模糊输入会导致过度过滤和糟糕的用户体验。本章推荐对模糊案例默认"合规"，以在安全性和可用性之间取得平衡。'},
+  {q:'以下哪项不是第十八章描述的六种护栏类型之一？',opts:['输入验证/清理','输出过滤/后处理','模型微调','人工监督/干预'],ans:2,ok:'正确！模型微调不是六种护栏类型之一。六种类型是：输入验证、输出过滤、行为约束、工具使用限制、外部审核 API 和人工监督/干预。',no:'模型微调是训练技术，而非运行时护栏。六种类型是：输入验证、输出过滤、行为约束、工具使用限制、外部审核 API 和人工监督。'},
+  {q:'监控和日志记录在护栏系统中扮演什么角色？',opts:['只帮助调试错误','本身就是护栏，通过实现异常检测和合规审计','延迟增加过多，实际不可行','对生产系统是可选的'],ans:1,ok:'正确！监控和可观测性本身就是护栏。记录所有操作、工具使用、输入和输出创建审计跟踪，实现异常检测、调试、合规验证和根因分析。',no:'监控远不止调试错误——它提供智能体行为的持续监督，将操作链接到其来源，并实现在安全问题升级之前的主动检测。'},
+  {q:'在CrewAI护栏示例中，Pydantic PolicyEvaluation模型提供什么？',opts:['安全策略的自然语言描述','具有compliance_status、evaluation_summary和triggered_policies的结构化机器可读评估结果','已批准用户请求的列表','主智能体的响应内容'],ans:1,ok:'正确！PolicyEvaluation Pydantic 模型包含三个结构化字段：compliance_status（"合规"/"不合规"）、evaluation_summary（简短说明）和 triggered_policies（已违反指令列表）。这种结构化格式使下游代码能够基于护栏评估做出程序化决策。',no:'Pydantic 模型提供结构化、机器可读的输出——而不是自然语言。其三个字段使下游代码能够基于护栏评估做出程序化决策。'}
+];
+let curQ=0,answered=new Set(),scores=[];
+function renderQuiz(){let dots='';for(let i=0;i<quizData.length;i++){let cls='quiz-dot';if(i===curQ)cls+=' current';else if(scores[i]===true)cls+=' done';else if(scores[i]===false)cls+=' wrong-dot';dots+='<div class="'+cls+'"></div>';}document.getElementById('quizProgress').innerHTML=dots;const q=quizData[curQ];let html='<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">第 '+(curQ+1)+' 题 / 共 '+quizData.length+' 题</div>';html+='<div class="quiz-q">'+q.q+'</div>';q.opts.forEach((opt,i)=>{html+='<button class="quiz-opt" id="qo'+i+'" onclick="answer('+i+')">'+opt+'</button>';});html+='<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';if(curQ>0)html+='<button class="btn" onclick="prevQ()">上一题</button>';if(curQ<quizData.length-1)html+='<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">下一题</button>';else html+='<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">查看核心要点</button>';html+='</div>';document.getElementById('quizArea').innerHTML=html;if(answered.has(curQ)){const q2=quizData[curQ];document.querySelectorAll('.quiz-opt').forEach((btn,i)=>{btn.classList.add('disabled');if(i===q2.ans)btn.classList.add('correct');});document.getElementById('nextBtn').style.display='inline-block';}}
+function answer(i){if(answered.has(curQ))return;answered.add(curQ);const q=quizData[curQ];const isRight=i===q.ans;scores[curQ]=isRight;document.getElementById('qo'+i).classList.add(isRight?'correct':'wrong');if(!isRight)document.getElementById('qo'+q.ans).classList.add('correct');document.querySelectorAll('.quiz-opt').forEach(b=>b.classList.add('disabled'));const fb=document.getElementById('qfb');fb.textContent=isRight?q.ok:q.no;fb.className='quiz-fb show '+(isRight?'right':'wrng');document.getElementById('nextBtn').style.display='inline-block';renderQuiz();}
+function nextQ(){curQ++;renderQuiz();}
+function prevQ(){curQ--;renderQuiz();}
+renderQuiz();
+</script>
+</body>
+</html>

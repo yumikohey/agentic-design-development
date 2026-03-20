@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 7: Multi-Agent Collaboration — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Chapter 07</div>
+<h1>Multi-Agent Collaboration</h1>
+<p class="subtitle">Orchestrating multiple specialized agents to tackle complex, multi-domain problems that exceed the capabilities of any single agent — through structured communication, delegation, and shared goals.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <p class="sec-desc">The Multi-Agent Collaboration pattern structures a system as a cooperative ensemble of distinct, specialized agents. A high-level objective is broken into discrete sub-problems, each assigned to the agent best suited for that task — based on tools, data access, or reasoning capabilities.</p>
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Collaboration Modes</div>
+      <div class="metric-value">6</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Key Frameworks</div>
+      <div class="metric-value">3+</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Agent Topologies</div>
+      <div class="metric-value">5</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Pattern Benefit</div>
+      <div class="metric-value">Synergy</div>
+    </div>
+  </div>
+  <div class="card card-bordered">
+    <h3>Sequential Handoffs</h3>
+    <p>One agent completes a task and passes its output to the next agent in the pipeline. Similar to prompt chaining but explicitly involving distinct agents with different roles, tools, and context.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Parallel Processing</h3>
+    <p>Multiple agents work on different parts of a problem simultaneously. Results are later combined by an aggregator. This pattern dramatically reduces wall-clock time for parallelizable tasks.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Hierarchical Structures</h3>
+    <p>A manager (supervisor) agent delegates tasks to worker agents based on capabilities. Each agent can handle relevant groups of tools rather than a single agent managing everything.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Critic-Reviewer Pattern</h3>
+    <p>Agents create initial outputs. A second group critically assesses for quality, correctness, policy compliance, and alignment. The original agent revises based on feedback — reducing hallucinations and errors.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Problems Addressed</div>
+  <p class="sec-desc">A monolithic single-agent architecture hits fundamental limits when faced with complex, multi-domain tasks. Click each card to expand.</p>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Capability Ceiling</h4>
+      <p>Single agents lack the diverse specialized skills needed for multifaceted problems.</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">A single agent cannot simultaneously be an expert researcher, coder, data analyst, and writer. Forcing one agent to do everything leads to mediocre results in each domain.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Context Window Exhaustion</h4>
+      <p>Complex tasks overflow an agent's available context, causing loss of critical information.</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">As task complexity grows, the context window fills quickly. Relevant earlier information gets truncated, causing the agent to lose track of constraints, goals, and prior work.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>No Specialization</h4>
+      <p>Generalist agents produce lower-quality outputs than purpose-built specialists.</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">Without domain-specific instructions, tools, and knowledge bases, a generalist agent will consistently underperform a specialist agent given the same resources and time.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Sequential Bottleneck</h4>
+      <p>Single-agent systems cannot parallelize work, making complex tasks slow and inefficient.</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">When multiple independent sub-tasks exist, a single agent must execute them one by one. Multi-agent systems can run many tasks simultaneously, completing work much faster.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>No Cross-Validation</h4>
+      <p>Without peer review, errors and hallucinations propagate unchecked through the pipeline.</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">A single agent cannot objectively critique its own output. Multi-agent systems enable one agent's work to be reviewed by another, catching mistakes before they reach the user.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">How Multi-Agent Collaboration Works</div>
+  <p class="sec-desc">The pattern decomposes complex objectives into specialized sub-tasks, assigns them to purpose-built agents, establishes communication channels, and synthesizes results.</p>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Task Decomposition</div>
+          <div class="chain-role">Break complex goal into specialized sub-problems</div>
+        </div>
+      </div>
+      <div class="chain-detail">A high-level objective is analyzed and decomposed into discrete sub-problems. Each sub-problem is characterized by the skills, tools, and data access required to solve it. This decomposition is the foundation of effective multi-agent design.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Agent Assignment &amp; Coordination</div>
+          <div class="chain-role">Route sub-tasks to specialized agents via defined protocols</div>
+        </div>
+      </div>
+      <div class="chain-detail">Each sub-task is routed to the agent best equipped to handle it. A supervisor or orchestrator manages this routing, using defined communication protocols and shared ontologies. Agents exchange data, delegate further sub-tasks, and coordinate actions.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">3</div>
+        <div>
+          <div class="chain-title">Parallel Execution</div>
+          <div class="chain-role">Agents work simultaneously on independent sub-tasks</div>
+        </div>
+      </div>
+      <div class="chain-detail">Where sub-tasks are independent, agents execute in parallel — dramatically reducing overall completion time. Sequential agents handle tasks with dependencies. The system tracks completion status across all running agents.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">4</div>
+        <div>
+          <div class="chain-title">Synthesis &amp; Output</div>
+          <div class="chain-role">Combine agent outputs into a coherent final result</div>
+        </div>
+      </div>
+      <div class="chain-detail">A synthesis agent (or the supervisor) aggregates the outputs from all worker agents. It resolves conflicts, fills gaps, and produces a coherent final output that exceeds what any individual agent could have produced alone.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+  <p class="sec-desc">Understanding the building blocks of multi-agent systems — agent roles, communication structures, and coordination topologies.</p>
+
+  <div class="card card-bordered">
+    <h3>Agent Roles</h3>
+    <p>Each agent in a multi-agent system has a defined role: a specific goal, specialized tools, and knowledge relevant to its domain. Clear role definition prevents overlap and ensures each agent contributes uniquely to the system's objectives.</p>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>Communication Protocols</h3>
+    <p>Agents exchange information through standardized communication channels. A shared ontology or message schema ensures agents can parse and use data produced by other agents — even when implemented with different LLMs or tools.</p>
+  </div>
+
+  <div class="card">
+    <h3>Topology Types</h3>
+    <div class="json-block">{
+  "topologies": {
+    "single_agent":   "Autonomous, no inter-agent communication",
+    "network":        "Peer-to-peer, decentralized communication",
+    "supervisor":     "Central hub coordinates subordinate agents",
+    "supervisor_tool":"Supervisor as resource provider, not commander",
+    "hierarchical":   "Multi-level supervisors, structured delegation",
+    "custom":         "Hybrid designs tailored to specific problems"
+  }
+}</div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>Inter-Agent Communication</h3>
+    <p>Agents pass structured messages containing task inputs, intermediate results, and status signals. Frameworks like CrewAI and Google ADK provide built-in mechanisms for this, including shared session state and event buses.</p>
+  </div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Practical Use Cases</div>
+  <p class="sec-desc">Multi-Agent Collaboration is applicable across a wide range of complex, multi-domain problems.</p>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Research</button>
+    <button class="uc-tab" onclick="showUC(1)">Software Dev</button>
+    <button class="uc-tab" onclick="showUC(2)">Creative Content</button>
+    <button class="uc-tab" onclick="showUC(3)">Financial Analysis</button>
+    <button class="uc-tab" onclick="showUC(4)">Customer Support</button>
+    <button class="uc-tab" onclick="showUC(5)">Supply Chain</button>
+    <button class="uc-tab" onclick="showUC(6)">Network Ops</button>
+  </div>
+  <div id="uc-0" class="uc-panel active">
+    <div class="card"><h3>Complex Research and Analysis</h3><p>A team of agents collaborates on a research project. Agent roles: database searcher, summarizer, trend identifier, synthesis writer. This mirrors how a human research team operates, with each member contributing domain expertise. The supervisor coordinates handoffs and ensures all angles are covered.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Search Agent queries academic databases and web sources</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Summarizer Agent condenses each retrieved document</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Analysis Agent identifies trends and patterns across summaries</div></div>
+      <div class="uc-step"><div class="uc-step-num">4</div><div>Synthesis Agent produces the final structured report</div></div>
+    </div>
+  </div>
+  <div id="uc-1" class="uc-panel">
+    <div class="card"><h3>Software Development</h3><p>Agents collaborate to build software: a requirements analyst, code generator, tester, and documentation writer. They pass outputs between each other to build and verify components. The critic-reviewer pattern ensures code quality before each handoff.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Requirements Agent parses user request into structured specs</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Coder Agent generates implementation from specs</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Tester Agent writes and runs tests, reports failures</div></div>
+      <div class="uc-step"><div class="uc-step-num">4</div><div>Doc Writer Agent produces technical documentation</div></div>
+    </div>
+  </div>
+  <div id="uc-2" class="uc-panel">
+    <div class="card"><h3>Creative Content Generation</h3><p>A marketing campaign involves a market research agent, copywriter agent, graphic design agent (using image generation tools), and social media scheduling agent — all working together in a coordinated pipeline to produce multi-channel content.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Market Research Agent identifies audience and trends</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Copywriter Agent drafts campaign messaging</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Design Agent generates visual assets</div></div>
+      <div class="uc-step"><div class="uc-step-num">4</div><div>Scheduler Agent plans and queues publication</div></div>
+    </div>
+  </div>
+  <div id="uc-3" class="uc-panel">
+    <div class="card"><h3>Financial Analysis</h3><p>A multi-agent system analyzes financial markets. Specialized agents fetch stock data, analyze news sentiment, perform technical analysis, and generate investment recommendations. Each agent runs in parallel on its domain, with results synthesized into a unified report.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Data Agent fetches real-time market prices and volumes</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Sentiment Agent analyzes news and social media</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Technical Agent performs chart pattern analysis</div></div>
+      <div class="uc-step"><div class="uc-step-num">4</div><div>Synthesis Agent generates ranked recommendations</div></div>
+    </div>
+  </div>
+  <div id="uc-4" class="uc-panel">
+    <div class="card"><h3>Customer Support Escalation</h3><p>A front-line support agent handles initial queries. It escalates complex issues to specialist agents (technical expert, billing specialist) based on problem complexity — a sequential handoff pattern. The escalation logic itself can be LLM-driven.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Front-line Agent receives and triages incoming request</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Router determines required specialist based on issue type</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Specialist Agent resolves the complex issue</div></div>
+      <div class="uc-step"><div class="uc-step-num">4</div><div>Resolution Agent logs outcome and updates knowledge base</div></div>
+    </div>
+  </div>
+  <div id="uc-5" class="uc-panel">
+    <div class="card"><h3>Supply Chain Optimization</h3><p>Agents represent different nodes in a supply chain — suppliers, manufacturers, distributors. They collaborate to optimize inventory levels, logistics, and scheduling in response to changing demand or disruptions. Each agent has access to its node's real-time data.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Demand Agent forecasts requirements from market signals</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Inventory Agent identifies gaps and surpluses</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Logistics Agent optimizes shipping and routing</div></div>
+      <div class="uc-step"><div class="uc-step-num">4</div><div>Coordinator Agent implements and monitors the plan</div></div>
+    </div>
+  </div>
+  <div id="uc-6" class="uc-panel">
+    <div class="card"><h3>Network Analysis and Remediation</h3><p>Autonomous operations benefit greatly from multi-agent architecture. Multiple agents collaborate to triage and remediate network issues, suggesting optimal actions. These agents integrate with traditional ML models and tooling, combining the strengths of both paradigms.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Monitor Agent detects anomalies in network telemetry</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Diagnosis Agent identifies root cause using ML models</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Remediation Agent proposes and executes corrective actions</div></div>
+      <div class="uc-step"><div class="uc-step-num">4</div><div>Verification Agent confirms resolution and documents fix</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Code Examples</div>
+  <p class="sec-desc">Hands-on implementations using CrewAI and Google ADK frameworks.</p>
+
+  <div class="card"><h3>CrewAI: Researcher + Writer Crew</h3></div>
+<div class="code-block"><span class="code-keyword">import</span> os
+<span class="code-keyword">from</span> dotenv <span class="code-keyword">import</span> load_dotenv
+<span class="code-keyword">from</span> crewai <span class="code-keyword">import</span> Agent, Task, Crew, Process
+<span class="code-keyword">from</span> langchain_google_genai <span class="code-keyword">import</span> ChatGoogleGenerativeAI
+
+<span class="code-keyword">def</span> main():
+    load_dotenv()
+    llm = ChatGoogleGenerativeAI(model=<span class="code-string">"gemini-2.0-flash"</span>)
+
+    <span class="code-comment"># Define Agents with specific roles and goals</span>
+    researcher = Agent(
+        role=<span class="code-string">'Senior Research Analyst'</span>,
+        goal=<span class="code-string">'Find and summarize the latest trends in AI.'</span>,
+        backstory=<span class="code-string">"Experienced analyst with a knack for identifying trends."</span>,
+        verbose=<span class="code-keyword">True</span>,
+        allow_delegation=<span class="code-keyword">False</span>,
+    )
+    writer = Agent(
+        role=<span class="code-string">'Technical Content Writer'</span>,
+        goal=<span class="code-string">'Write a clear, engaging blog post based on research.'</span>,
+        backstory=<span class="code-string">"Skilled writer who translates complex topics accessibly."</span>,
+        verbose=<span class="code-keyword">True</span>,
+        allow_delegation=<span class="code-keyword">False</span>,
+    )
+
+    <span class="code-comment"># Define Tasks</span>
+    research_task = Task(
+        description=<span class="code-string">"Research the top 3 AI trends in 2024-2025."</span>,
+        expected_output=<span class="code-string">"A detailed summary with key points and sources."</span>,
+        agent=researcher,
+    )
+    writing_task = Task(
+        description=<span class="code-string">"Write a 500-word blog post from the research findings."</span>,
+        expected_output=<span class="code-string">"A complete, engaging blog post."</span>,
+        agent=writer,
+        context=[research_task],
+    )
+
+    <span class="code-comment"># Create and run the Crew</span>
+    crew = Crew(
+        agents=[researcher, writer],
+        tasks=[research_task, writing_task],
+        process=Process.sequential,
+        llm=llm,
+        verbose=2
+    )
+    result = crew.kickoff()
+    <span class="code-keyword">print</span>(result)
+
+<span class="code-keyword">if</span> __name__ == <span class="code-string">"__main__"</span>:
+    main()</div>
+
+  <div class="card"><h3>Google ADK: Hierarchical Agent Structure</h3></div>
+<div class="code-block"><span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> LlmAgent, BaseAgent
+<span class="code-keyword">from</span> google.adk.agents.invocation_context <span class="code-keyword">import</span> InvocationContext
+<span class="code-keyword">from</span> google.adk.events <span class="code-keyword">import</span> Event
+<span class="code-keyword">from</span> typing <span class="code-keyword">import</span> AsyncGenerator
+
+<span class="code-keyword">class</span> TaskExecutor(BaseAgent):
+    <span class="code-string">"""A specialized agent with custom, non-LLM behavior."""</span>
+    name: str = <span class="code-string">"TaskExecutor"</span>
+    description: str = <span class="code-string">"Executes a predefined task."</span>
+
+    <span class="code-keyword">async def</span> _run_async_impl(
+        self, context: InvocationContext
+    ) -> AsyncGenerator[Event, None]:
+        <span class="code-keyword">yield</span> Event(author=self.name, content=<span class="code-string">"Task finished successfully."</span>)
+
+<span class="code-comment"># Define individual agents</span>
+greeter = LlmAgent(
+    name=<span class="code-string">"Greeter"</span>,
+    model=<span class="code-string">"gemini-2.0-flash-exp"</span>,
+    instruction=<span class="code-string">"You are a friendly greeter."</span>
+)
+task_doer = TaskExecutor()
+
+<span class="code-comment"># Create coordinator with sub-agents (hierarchical structure)</span>
+coordinator = LlmAgent(
+    name=<span class="code-string">"Coordinator"</span>,
+    model=<span class="code-string">"gemini-2.0-flash-exp"</span>,
+    description=<span class="code-string">"Coordinator that greets users and executes tasks."</span>,
+    instruction=<span class="code-string">"Delegate greetings to Greeter; tasks to TaskExecutor."</span>,
+    sub_agents=[greeter, task_doer]
+)
+
+<span class="code-comment"># Verify parent-child relationships</span>
+<span class="code-keyword">assert</span> greeter.parent_agent == coordinator
+<span class="code-keyword">assert</span> task_doer.parent_agent == coordinator
+<span class="code-keyword">print</span>(<span class="code-string">"Agent hierarchy created successfully."</span>)</div>
+
+  <div class="card"><h3>Google ADK: ParallelAgent Pattern</h3></div>
+<div class="code-block"><span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> Agent, ParallelAgent
+
+<span class="code-comment"># Agents run concurrently; outputs stored in session state</span>
+weather_fetcher = Agent(
+    name=<span class="code-string">"weather_fetcher"</span>,
+    model=<span class="code-string">"gemini-2.0-flash-exp"</span>,
+    instruction=<span class="code-string">"Fetch weather for the given location and return the report."</span>,
+    output_key=<span class="code-string">"weather_data"</span>
+)
+news_fetcher = Agent(
+    name=<span class="code-string">"news_fetcher"</span>,
+    model=<span class="code-string">"gemini-2.0-flash-exp"</span>,
+    instruction=<span class="code-string">"Retrieve the top news story for the given topic."</span>,
+    output_key=<span class="code-string">"news_data"</span>
+)
+
+<span class="code-comment"># ParallelAgent runs both sub-agents simultaneously</span>
+data_gatherer = ParallelAgent(
+    name=<span class="code-string">"data_gatherer"</span>,
+    sub_agents=[weather_fetcher, news_fetcher]
+)</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Communication Topology Deep Dive</div>
+  <p class="sec-desc">The choice of inter-agent communication model critically shapes a system's efficiency, robustness, and scalability. Click each topology to explore.</p>
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--teal-l);color:var(--teal-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Single Agent</div>
+      <div class="ctx-layer-sub">Autonomous, no inter-agent communication</div>
+      <div class="ctx-layer-detail">The baseline. One agent operates autonomously with all its tools. Simple to implement and manage, but inherently limited by individual scope and resources. Best for tasks decomposable into independent sub-problems solvable by a self-sufficient agent.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--blue-l);color:var(--blue-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Network</div>
+      <div class="ctx-layer-sub">Peer-to-peer decentralized communication</div>
+      <div class="ctx-layer-detail">Multiple agents interact directly in a decentralized fashion. Communication occurs peer-to-peer for sharing information, resources, and tasks. Resilient — failure of one agent doesn't cripple the system. Challenge: managing communication overhead and coherent decision-making in large unstructured networks.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--purple-l);color:var(--purple-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Supervisor</div>
+      <div class="ctx-layer-sub">Central hub coordinates subordinate agents</div>
+      <div class="ctx-layer-detail">A dedicated supervisor agent oversees and coordinates subordinate agents. The supervisor is the central hub for communication, task allocation, and conflict resolution. Provides clear lines of authority. Risk: single point of failure and potential bottleneck with many subordinates.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--amber-l);color:var(--amber-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Hierarchical</div>
+      <div class="ctx-layer-sub">Multi-level supervisors with structured delegation</div>
+      <div class="ctx-layer-detail">Expands the supervisor concept into a multi-layered organizational structure with multiple levels of supervisors. Higher-level supervisors oversee lower-level ones, with operational agents at the lowest tier. Well-suited for complex problems that decompose into sub-problems, each managed by a specific hierarchy layer.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--coral-l);color:var(--coral-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Custom</div>
+      <div class="ctx-layer-sub">Hybrid designs tailored to specific constraints</div>
+      <div class="ctx-layer-detail">The ultimate flexibility: unique interrelationship and communication structures tailored precisely to a given problem. Can involve hybrid approaches combining elements of all previous models, or entirely novel designs. Custom models arise from the need to optimize for specific performance metrics, handle dynamic environments, or incorporate domain-specific knowledge.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4>WHAT</h4>
+      <p>Complex problems exceed the capabilities of a single monolithic LLM-based agent, which lacks the diverse specialized skills or tools needed for all parts of a multifaceted task.</p>
+    </div>
+    <div class="glance-card" style="background:var(--blue-l);">
+      <h4>WHY</h4>
+      <p>The Multi-Agent pattern breaks problems into manageable sub-problems, each assigned to a specialized agent. Agents work through defined protocols — sequential, parallel, or hierarchical — creating synergistic outcomes.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4>WHEN TO USE</h4>
+      <p>Use when a task is too complex for one agent and can be decomposed into distinct sub-tasks requiring specialized skills or tools. Ideal for problems benefiting from diverse expertise, parallel processing, or structured multi-stage workflows.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);">
+      <h4>KEY BENEFIT</h4>
+      <p>The collective performance of the multi-agent system surpasses the potential capabilities of any single agent within the ensemble — a true synergistic effect emerging from collaboration.</p>
+    </div>
+  </div>
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">Click a node to explore its role in the multi-agent system</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(0)">Supervisor</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(1)">Researcher</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--blue-l);color:var(--blue-d);" onclick="simClick(2)">Analyst</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d);" onclick="simClick(3)">Writer</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d);" onclick="simClick(4)">Critic</div>
+    </div>
+    <div class="dia-output" id="sim-output">Select a node above to see its role description.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Check</div>
+  <p class="sec-desc">Test your understanding of multi-agent collaboration patterns.</p>
+  <div id="quizProgress" class="quiz-progress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>Multi-agent collaboration involves multiple specialized agents working together to achieve a common goal that no single agent could accomplish alone.</li>
+    <li>The pattern leverages task decomposition, specialized roles, distributed execution, and inter-agent communication to produce synergistic outcomes.</li>
+    <li>Collaboration can take forms: sequential handoffs, parallel processing, debate and consensus, hierarchical delegation, and expert teams.</li>
+    <li>Six communication topologies exist: Single Agent, Network, Supervisor, Supervisor-as-Tool, Hierarchical, and Custom — each with distinct trade-offs.</li>
+    <li>Frameworks like CrewAI and Google ADK provide structured mechanisms for defining agents, tasks, and coordination protocols.</li>
+    <li>The Critic-Reviewer pattern is particularly effective for code generation, research writing, and ensuring quality and alignment before final output.</li>
+    <li>This pattern is ideal for complex problems requiring diverse expertise, parallel processing, or structured workflows with multiple distinct stages.</li>
+    <li>Enhanced modularity and robustness are key benefits: failure of a single agent does not necessarily cause total system failure.</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>Multi-Agent Collaboration Mechanisms: A Survey of LLMs — <a href="https://arxiv.org/abs/2501.06322" target="_blank">arxiv.org/abs/2501.06322</a></li>
+    <li><span class="ref-num">2</span>Multi-Agent System — The Power of Collaboration — <a href="https://aravindakumar.medium.com/introducing-multi-agent-frameworks-the-power-of-collaboration-e9db31bba1b6" target="_blank">Medium article by Aravindakumar</a></li>
+    <li><span class="ref-num">3</span>CrewAI Framework Documentation — <a href="https://docs.crewai.com" target="_blank">docs.crewai.com</a></li>
+    <li><span class="ref-num">4</span>Google Agent Developer Kit (ADK) — <a href="https://google.github.io/adk-docs/" target="_blank">google.github.io/adk-docs/</a></li>
+    <li><span class="ref-num">5</span>LangGraph Multi-Agent Architectures — <a href="https://langchain-ai.github.io/langgraph/concepts/multi_agent/" target="_blank">langchain-ai.github.io/langgraph</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>Agentic Design Patterns — Chapter 7: Multi-Agent Collaboration</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  'Supervisor: Orchestrates the entire workflow. Receives the high-level goal, decomposes it into sub-tasks, routes each to the appropriate specialist agent, monitors progress, and synthesizes final output.',
+  'Researcher Agent: Specializes in information retrieval. Queries databases, web sources, and knowledge bases. Returns structured, sourced summaries ready for analysis by downstream agents.',
+  'Analyst Agent: Processes research outputs to identify patterns, trends, and insights. Performs statistical or logical analysis and produces structured analytical reports.',
+  'Writer Agent: Transforms analytical outputs into human-readable content. Adapts tone, structure, and format to the target audience and medium specified by the task.',
+  'Critic Agent: Reviews the writer\'s output for quality, accuracy, policy compliance, and alignment with the original goal. Returns structured feedback for revision — the final quality gate.'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: 'What is the primary advantage of Multi-Agent Collaboration over a single monolithic agent?',
+    opts: [
+      'It always runs faster due to more hardware',
+      'The collective performance surpasses what any single agent could achieve alone',
+      'It requires fewer API calls to the LLM',
+      'It eliminates the need for a system prompt'
+    ],
+    ans: 1,
+    ok: 'Correct! The synergistic effect of specialized agents collaborating produces outcomes that exceed any individual agent\'s potential — this is the core value proposition.',
+    no: 'Not quite. The key advantage is the synergistic outcome: specialized agents collaborating produce results that exceed any single agent\'s capabilities.'
+  },
+  {
+    q: 'In the Supervisor topology, what is the primary risk?',
+    opts: [
+      'Agents cannot communicate with each other',
+      'The system becomes too fast to control',
+      'Single point of failure — if the supervisor fails, coordination collapses',
+      'Agents develop conflicting goals autonomously'
+    ],
+    ans: 2,
+    ok: 'Correct! The supervisor is both the strength and the weakness of this topology — it provides clear authority but also introduces a single point of failure.',
+    no: 'The key risk is that the supervisor is a single point of failure. If it fails, the entire coordination mechanism collapses.'
+  },
+  {
+    q: 'Which collaboration form involves a second group of agents critically assessing initial outputs for quality and correctness?',
+    opts: [
+      'Sequential Handoffs',
+      'Parallel Processing',
+      'Critic-Reviewer Pattern',
+      'Expert Teams'
+    ],
+    ans: 2,
+    ok: 'Correct! The Critic-Reviewer pattern has one set of agents produce outputs and another set critically assess them — particularly effective for code generation and research writing.',
+    no: 'This describes the Critic-Reviewer Pattern, where reviewer agents evaluate creator agents\' outputs for quality, correctness, and policy compliance.'
+  },
+  {
+    q: 'In Google ADK, which agent type allows multiple sub-agents to execute simultaneously?',
+    opts: [
+      'SequentialAgent',
+      'LoopAgent',
+      'ParallelAgent',
+      'LlmAgent'
+    ],
+    ans: 2,
+    ok: 'Correct! ParallelAgent orchestrates sub-agents to run concurrently, storing their independent results in session state for later combination.',
+    no: 'The ParallelAgent in Google ADK runs multiple sub-agents concurrently, each storing results in session state under separate output keys.'
+  },
+  {
+    q: 'What makes the "Custom" topology unique among multi-agent communication models?',
+    opts: [
+      'It uses only one agent with many tools',
+      'It allows hybrid designs tailored to specific problem constraints',
+      'It requires all agents to share the same LLM',
+      'It eliminates the need for communication protocols'
+    ],
+    ans: 1,
+    ok: 'Correct! The Custom topology provides ultimate flexibility — combining elements from other models or creating entirely novel designs optimized for specific requirements.',
+    no: 'The Custom topology is unique because it allows hybrid designs combining elements from any other model, tailored precisely to the specific problem\'s constraints.'
+  },
+  {
+    q: 'A system where a Research Agent, Summarizer Agent, and Synthesis Agent work in order best exemplifies which collaboration pattern?',
+    opts: [
+      'Parallel Processing',
+      'Debate and Consensus',
+      'Sequential Handoffs',
+      'Hierarchical Structures'
+    ],
+    ans: 2,
+    ok: 'Correct! Each agent completes its task and passes the output to the next — this is the Sequential Handoffs pattern, fundamental to pipeline-style multi-agent systems.',
+    no: 'This is Sequential Handoffs: each agent completes its task and passes output to the next agent in the pipeline.'
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    if (scores[curQ] === false) document.getElementById('qo' + q2.ans).classList.remove('disabled');
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

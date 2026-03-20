@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 14: Knowledge Retrieval (RAG) — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1; --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Chapter 14</div>
+<h1>Knowledge Retrieval (RAG)</h1>
+<p class="subtitle">Retrieval-Augmented Generation enables LLMs to access external, up-to-date knowledge sources — transforming agents from closed-book conversationalists into grounded, fact-based reasoning tools.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <p class="sec-desc">RAG significantly enhances LLM capabilities by granting access to external knowledge bases before generating a response. Instead of relying on static training data, RAG allows LLMs to "look up" information — providing accurate, up-to-date, and verifiable answers with citations.</p>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Pattern Type</div><div class="metric-value">RAG</div></div>
+    <div class="metric"><div class="metric-label">Core Tech</div><div class="metric-value">Vectors</div></div>
+    <div class="metric"><div class="metric-label">Key Benefit</div><div class="metric-value">Grounding</div></div>
+    <div class="metric"><div class="metric-label">Advanced Form</div><div class="metric-value">Agentic</div></div>
+  </div>
+  <div class="card card-bordered">
+    <h3>Retrieval Step</h3>
+    <p>When a query arrives, the system semantically searches a vast external knowledge base — documents, databases, or web pages — for the most pertinent information chunks. This is a semantic search, not just keyword matching.</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--coral)">
+    <h3>Augmentation Step</h3>
+    <p>The retrieved chunks are appended to the original user prompt, creating a richer, more informed query with relevant context already embedded. This augmented prompt is then sent to the LLM.</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--purple)">
+    <h3>Generation Step</h3>
+    <p>The LLM generates a response grounded in the retrieved external data — not just its training memory. The response is accurate, verifiable, and can include citations pointing to the source documents.</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--amber)">
+    <h3>Key Benefits</h3>
+    <p>Overcomes static training data cutoff. Reduces hallucinations by grounding in facts. Enables proprietary knowledge integration. Provides attributable answers with source citations for trust and verifiability.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Problems RAG Solves</div>
+  <p class="sec-desc">LLMs have powerful text generation abilities but are fundamentally limited by their training data. Click each card to explore the failure modes RAG addresses.</p>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Static Knowledge Cutoff</h4>
+      <p>LLMs only know what was in their training data, frozen at a point in time.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">A model trained in 2024 cannot answer questions about events in 2025. For any application requiring current information — news, stock prices, recent policy changes — a static LLM will provide outdated or wrong answers without RAG.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Hallucination</h4>
+      <p>LLMs confidently generate plausible-sounding but false information.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">Without external grounding, LLMs may invent facts, citations, or statistics that sound authoritative but are entirely fabricated. RAG anchors responses in verifiable retrieved documents, dramatically reducing this failure mode.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>No Private Knowledge</h4>
+      <p>LLMs have no access to proprietary company data, internal documents, or specialized databases.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">A customer support bot cannot answer questions about your specific product manuals or internal policy documents using base LLM knowledge alone. RAG enables injection of private, domain-specific knowledge at query time.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>No Source Attribution</h4>
+      <p>Pure LLM answers cannot be traced back to a specific authoritative source.</p>
+      <div class="detail"><p style="margin-top:8px;font-size:13px;color:var(--text2)">For compliance, trust, and verification purposes, users need to know where information comes from. RAG enables attributable answers — the system can cite exact document sections, page numbers, and sources that the response is based upon.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">The RAG Pipeline</div>
+  <p class="sec-desc">RAG connects LLMs to external knowledge through a structured pipeline. Click each step to understand how the system works.</p>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d)">1</div>
+        <div><div class="chain-title">Document Ingestion & Chunking</div><div class="chain-role">Pre-processing the knowledge base</div></div>
+      </div>
+      <div class="chain-detail">Documents (PDFs, wikis, manuals) are loaded, split into smaller "chunks" (paragraphs, sections), and each chunk is converted into a numerical vector embedding using an embedding model. These embeddings capture semantic meaning, not just words.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d)">2</div>
+        <div><div class="chain-title">Vector Storage</div><div class="chain-role">Indexed for semantic search</div></div>
+      </div>
+      <div class="chain-detail">All document chunk embeddings are stored in a vector database (Pinecone, Weaviate, Chroma, Qdrant, pgvector). This specialized database enables high-speed nearest-neighbor search across millions of vectors, finding semantically similar content in milliseconds.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d)">3</div>
+        <div><div class="chain-title">Query Embedding & Retrieval</div><div class="chain-role">Finding relevant context</div></div>
+      </div>
+      <div class="chain-detail">The user's query is converted to an embedding using the same model. The vector database finds the top-k most semantically similar document chunks by minimizing cosine distance. Hybrid search (vector + BM25 keyword) often improves recall further.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d)">4</div>
+        <div><div class="chain-title">Augmentation & Generation</div><div class="chain-role">Grounded LLM response</div></div>
+      </div>
+      <div class="chain-detail">Retrieved chunks are injected into the LLM prompt as context: "Use the following retrieved documents to answer the question." The LLM generates a response grounded in this real data, not its parametric memory — producing accurate, citable answers.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+  <p class="sec-desc">Understanding RAG requires mastering several foundational concepts about how text is represented and retrieved.</p>
+  <div class="card card-bordered">
+    <h3>Embeddings</h3>
+    <p>Numerical vector representations of text that capture semantic meaning. Words or phrases with similar meanings have embeddings that are geometrically close in high-dimensional space. "Cat" and "kitten" are nearby; "car" is far. These vectors enable semantic search that understands meaning, not just characters.</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--purple)">
+    <h3>Semantic Similarity & Distance</h3>
+    <p>Semantic similarity measures how alike two pieces of text are in meaning, regardless of exact wording. "What is the capital of France?" and "Which city is the capital of France?" are semantically identical. Cosine similarity quantifies this. RAG finds chunks with minimal semantic distance to the query.</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--amber)">
+    <h3>Chunking Strategies</h3>
+    <p>Breaking documents into appropriately-sized pieces is critical. Chunks too small lose context; too large overwhelm the LLM context window. Common strategies: fixed-size with overlap, sentence-based, paragraph-based, and semantic chunking (splitting at topic boundaries). Chunk quality directly impacts retrieval quality.</p>
+  </div>
+  <div class="card card-bordered" style="border-color:var(--coral)">
+    <h3>Vector Databases</h3>
+    <p>Specialized databases storing high-dimensional embedding vectors and optimized for nearest-neighbor search using algorithms like HNSW (Hierarchical Navigable Small World). They search for meaning, not keywords. Options: managed (Pinecone, Weaviate), open-source (Chroma, Qdrant, Milvus), or vector extensions (pgvector for Postgres).</p>
+  </div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Practical Use Cases</div>
+  <p class="sec-desc">RAG is transforming how LLMs are used across industries. Explore the key application areas.</p>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Enterprise Search</button>
+    <button class="uc-tab" onclick="showUC(1)">Customer Support</button>
+    <button class="uc-tab" onclick="showUC(2)">Legal Research</button>
+    <button class="uc-tab" onclick="showUC(3)">News Summarization</button>
+    <button class="uc-tab" onclick="showUC(4)">Medical Q&A</button>
+    <button class="uc-tab" onclick="showUC(5)">Code Assistance</button>
+  </div>
+  <div id="uc-0" class="uc-panel active">
+    <div class="card"><h3>Enterprise Search & Q&A</h3><p>Organizations build internal chatbots that respond to employee inquiries using internal documentation — HR policies, technical manuals, product specs. The RAG system extracts relevant sections to inform the LLM's response, enabling employees to ask natural language questions about any internal document.</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>Employee asks: "What's our parental leave policy for contractors?"</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>RAG retrieves relevant HR policy document chunks</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>LLM generates answer grounded in actual policy text</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>Response includes citation to specific policy document and section</div>
+    </div></div>
+  </div>
+  <div id="uc-1" class="uc-panel">
+    <div class="card"><h3>Customer Support & Helpdesks</h3><p>RAG-based systems deliver precise and consistent responses by accessing product manuals, FAQs, and support tickets. This reduces need for direct human intervention on routine issues. The system can always reference the latest product documentation, unlike an LLM trained at a point in time.</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>Customer asks: "How do I reset my device to factory settings?"</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>RAG finds exact instructions from product manual</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>LLM formats a clear, step-by-step response</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>Link to manual section included for verification</div>
+    </div></div>
+  </div>
+  <div id="uc-2" class="uc-panel">
+    <div class="card"><h3>Legal Research & Document Review</h3><p>Legal RAG systems search case law, statutes, and contract databases to surface relevant precedents and clauses. Attorneys query in natural language to find relevant case law across thousands of documents. The system retrieves specific passages with citations, accelerating research while maintaining accuracy.</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>Attorney asks about relevant precedents for a specific legal situation</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>RAG searches case law and statute databases</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>LLM synthesizes relevant precedents with citations</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>Attorney reviews source documents for final judgment</div>
+    </div></div>
+  </div>
+  <div id="uc-3" class="uc-panel">
+    <div class="card"><h3>News & Current Events Summarization</h3><p>LLMs integrated with real-time news feeds. When prompted about a current event, the RAG system retrieves recent articles, allowing the LLM to produce an up-to-date summary grounded in actual recent reporting — overcoming the training cutoff entirely.</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>User asks about latest developments in a breaking story</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>RAG retrieves articles from real-time news index</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>LLM generates balanced summary from multiple sources</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>Article sources cited for user verification</div>
+    </div></div>
+  </div>
+  <div id="uc-4" class="uc-panel">
+    <div class="card"><h3>Medical Q&A & Clinical Decision Support</h3><p>Medical RAG systems retrieve from clinical guidelines, drug databases, and research literature. Clinicians receive evidence-based answers grounded in current medical literature rather than LLM training data, with citations to specific guidelines for accountability and auditability.</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>Clinician asks about dosing guidelines for a specific drug interaction</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>RAG retrieves relevant clinical guidelines and drug database entries</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>LLM synthesizes recommendation with clear caveats</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>Specific guideline sources cited; physician retains final judgment</div>
+    </div></div>
+  </div>
+  <div id="uc-5" class="uc-panel">
+    <div class="card"><h3>Code Assistance with Internal Codebase</h3><p>Developers query a RAG system trained on their internal codebase, API documentation, and coding standards. Unlike a generic code LLM, this system retrieves actual code patterns from the team's own repositories, ensuring suggestions are consistent with existing architecture and conventions.</p>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div>Developer asks: "How does our payment service handle retry logic?"</div>
+      <div class="uc-step"><div class="uc-step-num">2</div>RAG retrieves relevant code files and documentation</div>
+      <div class="uc-step"><div class="uc-step-num">3</div>LLM explains pattern with actual code snippets from codebase</div>
+      <div class="uc-step"><div class="uc-step-num">4</div>File paths and function names cited for navigation</div>
+    </div></div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Hands-On Code Examples</div>
+  <p class="sec-desc">Three approaches to implementing RAG: Google ADK with Google Search, Vertex AI RAG, and a full LangChain/LangGraph pipeline.</p>
+
+  <div class="card"><h3>1. ADK + Google Search (Simple RAG)</h3></div>
+  <div class="code-block"><span class="code-keyword">from</span> google.adk.tools <span class="code-keyword">import</span> google_search
+<span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> Agent
+
+<span class="code-comment"># Google Search as a built-in RAG tool</span>
+search_agent = Agent(
+    name=<span class="code-string">"research_assistant"</span>,
+    model=<span class="code-string">"gemini-2.0-flash-exp"</span>,
+    instruction=<span class="code-string">"You help users research topics. When asked, use the Google Search tool to find current, accurate information and cite your sources."</span>,
+    tools=[google_search]
+)</div>
+
+  <div class="card" style="margin-top:1.5rem;"><h3>2. Vertex AI RAG Memory Service</h3></div>
+  <div class="code-block"><span class="code-keyword">from</span> google.adk.memory <span class="code-keyword">import</span> VertexAiRagMemoryService
+
+RAG_CORPUS_RESOURCE_NAME = <span class="code-string">"projects/your-gcp-project-id/locations/us-central1/ragCorpora/your-corpus-id"</span>
+
+<span class="code-comment"># Top-k similar results to retrieve</span>
+SIMILARITY_TOP_K = 5
+
+<span class="code-comment"># Maximum semantic distance for retrieved results</span>
+VECTOR_DISTANCE_THRESHOLD = 0.7
+
+<span class="code-comment"># Initialize connection to Vertex AI RAG Corpus</span>
+memory_service = VertexAiRagMemoryService(
+    rag_corpus=RAG_CORPUS_RESOURCE_NAME,
+    similarity_top_k=SIMILARITY_TOP_K,
+    vector_distance_threshold=VECTOR_DISTANCE_THRESHOLD
+)</div>
+
+  <div class="card" style="margin-top:1.5rem;"><h3>3. LangChain + LangGraph RAG Pipeline</h3></div>
+  <div class="code-block"><span class="code-keyword">from</span> langchain_community.document_loaders <span class="code-keyword">import</span> TextLoader
+<span class="code-keyword">from</span> langchain.text_splitter <span class="code-keyword">import</span> CharacterTextSplitter
+<span class="code-keyword">from</span> langchain_community.embeddings <span class="code-keyword">import</span> OpenAIEmbeddings
+<span class="code-keyword">from</span> langchain_community.vectorstores <span class="code-keyword">import</span> Weaviate
+<span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> ChatOpenAI
+<span class="code-keyword">from</span> langchain_core.prompts <span class="code-keyword">import</span> ChatPromptTemplate
+<span class="code-keyword">from</span> langgraph.graph <span class="code-keyword">import</span> StateGraph, END
+<span class="code-keyword">from</span> typing <span class="code-keyword">import</span> TypedDict, List
+<span class="code-keyword">from</span> langchain_core.documents <span class="code-keyword">import</span> Document
+
+<span class="code-comment"># 1. Load and chunk documents</span>
+loader = TextLoader(<span class="code-string">'./knowledge_base.txt'</span>)
+documents = loader.load()
+text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+chunks = text_splitter.split_documents(documents)
+
+<span class="code-comment"># 2. Embed and store in vector database</span>
+vectorstore = Weaviate.from_documents(documents=chunks,
+    embedding=OpenAIEmbeddings())
+retriever = vectorstore.as_retriever()
+
+<span class="code-comment"># 3. LangGraph state and nodes</span>
+<span class="code-keyword">class</span> RAGGraphState(TypedDict):
+    question: str
+    documents: List[Document]
+    generation: str
+
+<span class="code-keyword">def</span> retrieve_documents_node(state: RAGGraphState) -> RAGGraphState:
+    question = state[<span class="code-string">"question"</span>]
+    documents = retriever.invoke(question)
+    <span class="code-keyword">return</span> {<span class="code-string">"documents"</span>: documents, <span class="code-string">"question"</span>: question, <span class="code-string">"generation"</span>: <span class="code-string">""</span>}
+
+<span class="code-keyword">def</span> generate_response_node(state: RAGGraphState) -> RAGGraphState:
+    llm = ChatOpenAI(model_name=<span class="code-string">"gpt-4o"</span>, temperature=0)
+    context = <span class="code-string">"\n\n"</span>.join([doc.page_content <span class="code-keyword">for</span> doc <span class="code-keyword">in</span> state[<span class="code-string">"documents"</span>]])
+    prompt = ChatPromptTemplate.from_template(
+        <span class="code-string">"Use the context to answer. Context: {context}\nQuestion: {question}"</span>)
+    rag_chain = prompt | llm
+    generation = rag_chain.invoke({<span class="code-string">"context"</span>: context,
+        <span class="code-string">"question"</span>: state[<span class="code-string">"question"</span>]})
+    <span class="code-keyword">return</span> {**state, <span class="code-string">"generation"</span>: generation.content}
+
+<span class="code-comment"># 4. Build and compile graph</span>
+workflow = StateGraph(RAGGraphState)
+workflow.add_node(<span class="code-string">"retrieve"</span>, retrieve_documents_node)
+workflow.add_node(<span class="code-string">"generate"</span>, generate_response_node)
+workflow.set_entry_point(<span class="code-string">"retrieve"</span>)
+workflow.add_edge(<span class="code-string">"retrieve"</span>, <span class="code-string">"generate"</span>)
+workflow.add_edge(<span class="code-string">"generate"</span>, END)
+app = workflow.compile()</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: Advanced RAG Concepts</div>
+  <p class="sec-desc">Explore the advanced evolution of RAG systems beyond basic retrieval. Click each layer to expand.</p>
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--teal-l);border-color:var(--teal)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--teal-d)">GraphRAG</div>
+      <div class="ctx-layer-sub" style="color:var(--teal-d)">Knowledge graph-based retrieval for complex relational queries</div>
+      <div class="ctx-layer-detail" style="color:var(--teal-d)">GraphRAG uses a knowledge graph (nodes = entities, edges = relationships) instead of a vector database. It can answer complex queries by navigating explicit relationships — e.g., "Which genes are related to both cancer X and drug Y?" It excels where standard RAG fails: synthesizing information fragmented across multiple documents. Trade-off: significantly higher complexity and cost to build and maintain the knowledge graph.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--purple-l);border-color:var(--purple)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--purple-d)">Agentic RAG</div>
+      <div class="ctx-layer-sub" style="color:var(--purple-d)">Adding a reasoning agent to validate and refine retrieved knowledge</div>
+      <div class="ctx-layer-detail" style="color:var(--purple-d)">Agentic RAG adds an AI agent as a gatekeeper between retrieval and generation. Rather than passively accepting retrieved data, the agent: (1) validates source freshness and authority; (2) reconciles conflicting information from multiple sources; (3) decomposes complex queries into sub-queries; (4) identifies knowledge gaps and uses external tools (web search) to fill them. This produces far more reliable answers at the cost of increased latency and complexity.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--amber-l);border-color:var(--amber)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--amber-d)">Hybrid Search</div>
+      <div class="ctx-layer-sub" style="color:var(--amber-d)">Combining vector semantic search with BM25 keyword search</div>
+      <div class="ctx-layer-detail" style="color:var(--amber-d)">Pure vector search excels at conceptual similarity ("furry feline companion" finds "cat") but can miss exact keyword matches. BM25 (term frequency ranking) is excellent for specific terms, product codes, or proper nouns. Hybrid search combines both using reciprocal rank fusion (RRF) — capturing both literal matches and conceptual relevance. This typically improves recall by 10-20% over either approach alone.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--coral-l);border-color:var(--coral)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--coral-d)">RAG Challenges</div>
+      <div class="ctx-layer-sub" style="color:var(--coral-d)">Known limitations and failure modes</div>
+      <div class="ctx-layer-detail" style="color:var(--coral-d)">Key challenges: (1) fragmented information — answers spanning multiple documents may not be fully retrieved; (2) chunk quality dependence — poor chunking strategy causes poor retrieval; (3) knowledge base maintenance — the entire corpus must be pre-processed, embedded, and kept current (especially for evolving wikis); (4) latency and cost — the additional retrieval step adds latency and token usage; (5) irrelevant chunk injection — if wrong chunks are retrieved, they can confuse the LLM and degrade output quality.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--blue-l);border-color:var(--blue)" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title" style="color:var(--blue-d)">Retrieval Evaluation</div>
+      <div class="ctx-layer-sub" style="color:var(--blue-d)">Measuring RAG system quality</div>
+      <div class="ctx-layer-detail" style="color:var(--blue-d)">RAG systems require evaluation at two levels: (1) Retrieval quality — are the right chunks being retrieved? Measured by recall@k (did the relevant chunk appear in top-k results?) and precision@k (are most retrieved chunks relevant?); (2) Generation quality — is the LLM's answer faithful to the retrieved context? Measured by faithfulness score, answer relevance, and context utilization metrics. Frameworks like RAGAS automate this evaluation pipeline.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);border-color:var(--teal)">
+      <h4 style="color:var(--teal-d)">WHAT IS THE PROBLEM?</h4>
+      <p style="color:var(--teal-d)">LLMs are limited to their static training data — they cannot access real-time information, private company data, or highly specialized details. Their responses can be outdated, hallucinated, or lack verifiable sources, restricting reliability for fact-demanding applications.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);border-color:var(--purple)">
+      <h4 style="color:var(--purple-d)">WHY RAG WORKS</h4>
+      <p style="color:var(--purple-d)">RAG connects LLMs to external knowledge at query time. Retrieved snippets are appended to the prompt, enabling the LLM to generate accurate, verifiable, grounded responses. It transforms the LLM from a closed-book reasoner into an open-book one — significantly enhancing utility and trust.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);border-color:var(--amber)">
+      <h4 style="color:var(--amber-d)">WHEN TO USE IT</h4>
+      <p style="color:var(--amber-d)">Use RAG when an LLM needs to answer questions based on specific, up-to-date, or proprietary information not in its training data. Ideal for internal Q&A systems over documents, customer support bots, applications requiring verifiable fact-based responses with citations.</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);border-color:var(--coral)">
+      <h4 style="color:var(--coral-d)">KEY CAVEATS</h4>
+      <p style="color:var(--coral-d)">Retrieval quality is only as good as chunking strategy and embedding model. Fragmented information may not be fully retrieved. The knowledge base requires pre-processing and periodic updates. Additional latency, cost, and token usage vs. pure LLM. Irrelevant chunk injection can degrade response quality.</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">Click a node to explore the RAG pipeline</div>
+    <div class="diagram-nodes">
+      <div class="dia-node active" style="background:var(--blue-l);color:var(--blue-d)" onclick="simClick(0)">User Query</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d)" onclick="simClick(1)">Embed Query</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d)" onclick="simClick(2)">Vector Search</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d)" onclick="simClick(3)">Augment Prompt</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d)" onclick="simClick(4)">LLM + Citations</div>
+    </div>
+    <div class="dia-output" id="sim-output">The user submits a natural language query to the RAG system.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Check</div>
+  <p class="sec-desc">Test your understanding of the Knowledge Retrieval (RAG) pattern with these questions from the chapter.</p>
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>RAG enhances LLMs by allowing them to access external, up-to-date, and specific information at query time — overcoming the fundamental limitation of static training data.</li>
+    <li>The process involves: Retrieval (semantic search of knowledge base) + Augmentation (appending retrieved chunks to prompt) + Generation (LLM produces grounded response).</li>
+    <li>RAG reduces hallucinations by grounding responses in verifiable data, and enables attributable answers with citations pointing to source documents.</li>
+    <li>Core technologies: embeddings (semantic vector representations), vector databases (HNSW-powered nearest-neighbor search), and chunking strategies (splitting documents into retrievable units).</li>
+    <li>GraphRAG leverages a knowledge graph to understand relationships between information entities — enabling synthesis of answers from fragmented, interconnected data sources.</li>
+    <li>Agentic RAG introduces a reasoning agent that actively validates, reconciles, and refines retrieved knowledge — producing more reliable answers at the cost of higher latency and complexity.</li>
+    <li>RAG requires knowledge base pre-processing, periodic updates, and careful evaluation — retrieval quality directly determines final answer quality.</li>
+    <li>Practical applications span enterprise search, customer support, legal research, medical Q&A, code assistance, and any domain requiring current or proprietary knowledge.</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>Lewis, P., et al. (2020). "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks." <a href="https://arxiv.org/abs/2005.11401" target="_blank">arxiv.org/abs/2005.11401</a></li>
+    <li><span class="ref-num">2</span>Google AI for Developers. "Retrieval Augmented Generation." <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/rag-engine/rag-overview" target="_blank">cloud.google.com/vertex-ai/…/rag-overview</a></li>
+    <li><span class="ref-num">3</span>"Retrieval-Augmented Generation with Graphs (GraphRAG)." <a href="https://arxiv.org/abs/2501.00309" target="_blank">arxiv.org/abs/2501.00309</a></li>
+    <li><span class="ref-num">4</span>Monigatti, L. "Retrieval-Augmented Generation (RAG): From Theory to LangChain Implementation." <a href="https://medium.com/data-science/retrieval-augmented-generation-rag-from-theory-to-langchain-implementation-4e9bd5f6a4f2" target="_blank">medium.com</a></li>
+    <li><span class="ref-num">5</span>Google Cloud Vertex AI RAG Corpus. <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/rag-engine/manage-your-rag-corpus" target="_blank">cloud.google.com/vertex-ai/…/manage-your-rag-corpus</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>Agentic Design Patterns — Chapter 14: Knowledge Retrieval (RAG)</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  'The user submits a natural language query to the RAG system.',
+  'The query is converted to a high-dimensional vector embedding using the same embedding model used for indexing documents.',
+  'The vector database uses HNSW nearest-neighbor search to find the top-k document chunks with smallest semantic distance (cosine similarity) to the query embedding.',
+  'Retrieved chunks are inserted into the LLM prompt as context: the original query is augmented with relevant, real information from the knowledge base.',
+  'The LLM generates a response grounded in the retrieved external data, not its training memory. Source citations can be included for verifiability.'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  { q: 'What does RAG stand for, and what is its primary purpose?', opts: ['Retrieval-Augmented Generation — connecting LLMs to external knowledge', 'Random Aggregation of Graphs — organizing data structures', 'Recursive Attention Generation — improving LLM focus', 'Robust Agent Grounding — securing AI systems'], ans: 0, ok: 'Correct! RAG = Retrieval-Augmented Generation. It connects LLMs to external knowledge bases to overcome training data limitations.', no: 'Incorrect. RAG stands for Retrieval-Augmented Generation — it connects LLMs to external knowledge sources to provide grounded, accurate answers.' },
+  { q: 'What are "embeddings" in the context of RAG?', opts: ['Encrypted data stored in databases', 'Numerical vector representations of text that capture semantic meaning', 'Compressed versions of large documents', 'User interface components for displaying results'], ans: 1, ok: 'Correct! Embeddings are numerical vector representations that capture semantic meaning, enabling similarity-based search.', no: 'Incorrect. Embeddings are numerical vector representations of text that capture semantic meaning — enabling semantic rather than keyword search.' },
+  { q: 'What is the primary advantage of vector databases over traditional keyword search for RAG?', opts: ['They are faster', 'They search by conceptual meaning, not just exact keywords', 'They require less storage', 'They are easier to maintain'], ans: 1, ok: 'Correct! Vector databases find documents based on semantic meaning — "furry feline companion" can match "cat" even with no shared keywords.', no: 'Incorrect. Vector databases excel at semantic search — finding conceptually similar content even when exact words don\'t match.' },
+  { q: 'What distinguishes "Agentic RAG" from standard RAG?', opts: ['Agentic RAG is faster', 'An AI agent validates, reconciles, and refines retrieved knowledge before generation', 'Agentic RAG uses larger documents', 'Agentic RAG does not require a vector database'], ans: 1, ok: 'Correct! Agentic RAG adds a reasoning agent that actively validates sources, reconciles conflicts, and decomposes complex queries.', no: 'Incorrect. Agentic RAG introduces a reasoning agent that actively validates source quality, reconciles conflicting information, and can use external tools to fill knowledge gaps.' },
+  { q: 'What is "chunking" in RAG, and why does it matter?', opts: ['Encrypting documents for security', 'Breaking documents into smaller pieces for efficient retrieval', 'Summarizing documents with AI', 'Indexing documents by publication date'], ans: 1, ok: 'Correct! Chunking splits documents into appropriately-sized pieces. Chunk quality directly determines retrieval quality.', no: 'Incorrect. Chunking breaks documents into smaller, retrievable units. The chunking strategy directly impacts retrieval quality — too large or too small chunks both degrade performance.' },
+  { q: 'What is the primary challenge RAG addresses compared to a pure LLM approach?', opts: ['LLMs are too slow for real-time use', 'LLMs have static knowledge limited to training data, cannot access current or proprietary information', 'LLMs cannot understand complex questions', 'LLMs are too expensive to operate'], ans: 1, ok: 'Correct! LLMs are limited to static training data — RAG enables access to current, specific, and proprietary knowledge at query time.', no: 'Incorrect. The primary challenge is that LLMs are limited to their static training data — RAG connects them to current, specific, and proprietary external knowledge.' }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    if (scores[curQ] === false) document.getElementById('qo' + q2.ans).classList.remove('disabled');
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

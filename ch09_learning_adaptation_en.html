@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 9: Learning and Adaptation — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1; --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Chapter 09</div>
+<h1>Learning and Adaptation</h1>
+<p class="subtitle">Learning and adaptation enable AI agents to evolve beyond predefined parameters — improving autonomously through experience and environmental interaction, managing novel situations, and optimizing performance without constant manual intervention.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <p class="sec-desc">Agents learn and adapt by changing their thinking, actions, or knowledge based on new experiences and data. This allows agents to evolve from simply following instructions to becoming smarter over time — the foundation of truly autonomous, intelligent systems.</p>
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Learning Paradigms</div>
+      <div class="metric-value">6</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Case Studies</div>
+      <div class="metric-value">3</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">SICA Iterations</div>
+      <div class="metric-value">14+</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">AlphaEvolve Gains</div>
+      <div class="metric-value">23%+</div>
+    </div>
+  </div>
+  <div class="card card-bordered">
+    <h3>Reinforcement Learning</h3>
+    <p>Agents try actions and receive rewards for positive outcomes, penalties for negative ones, learning optimal behaviors in changing situations. Useful for agents controlling robots or playing games.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Few-Shot / Zero-Shot Learning with LLMs</h3>
+    <p>LLM-based agents quickly adapt to new tasks with minimal examples or clear instructions, enabling rapid responses to novel commands. This is the dominant paradigm for modern agentic systems.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Self-Modification (SICA)</h3>
+    <p>Advanced agents like SICA can modify their own source code based on past performance benchmarks — representing a paradigm shift where the agent is both the modifier and the modified entity, iteratively refining its codebase.</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>Evolutionary Algorithms (AlphaEvolve)</h3>
+    <p>Google's AlphaEvolve combines LLMs with evolutionary algorithms to autonomously discover and optimize algorithms — achieving real-world improvements in data center scheduling, TPU design, and mathematical research.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Problems Addressed</div>
+  <p class="sec-desc">Static, pre-programmed agents cannot handle the dynamic complexity of real-world environments. Click to expand each problem.</p>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Static Behavior</h4>
+      <p>Pre-programmed agents cannot handle novel situations not anticipated during initial design, degrading in performance over time.</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">An agent designed for a specific task will fail when the environment changes, user needs evolve, or genuinely new situations arise. Without learning, agents cannot adapt to the inevitable drift between their training assumptions and reality.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>No Performance Improvement</h4>
+      <p>Without learning mechanisms, agents cannot optimize their strategies based on feedback — they repeat the same mistakes indefinitely.</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">A static agent that fails at a task will continue failing in the same way. Learning agents analyze failures, update their strategies, and improve performance over time — essential for complex, long-running deployments.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Lack of Personalization</h4>
+      <p>Agents that cannot learn from user interactions remain generic — failing to adapt to individual preferences, styles, and needs.</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">Generic responses satisfy no one deeply. Agents that learn from interaction history can tailor their communication style, anticipate needs, and provide increasingly relevant suggestions — creating genuinely valuable assistants.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Brittleness in Dynamic Environments</h4>
+      <p>Environments that change over time render static agents increasingly ineffective without continuous adaptation.</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">Financial markets, user behavior, and system dynamics all change continuously. An agent without learning mechanisms will become progressively more misaligned with reality, making increasingly poor decisions as its world model drifts from the actual environment.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">How Learning and Adaptation Works</div>
+  <p class="sec-desc">The solution integrates learning mechanisms to transform static agents into dynamic, evolving systems that autonomously refine knowledge and behaviors based on new data and interactions.</p>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Experience Collection</div>
+          <div class="chain-role">Gather outcomes from actions and interactions</div>
+        </div>
+      </div>
+      <div class="chain-detail">The agent executes actions in its environment and collects structured experience data: the state before the action, the action taken, the resulting state, and the reward or outcome signal received. This experience data is the raw material for learning.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">Performance Evaluation</div>
+          <div class="chain-role">Assess outcomes against benchmarks and goals</div>
+        </div>
+      </div>
+      <div class="chain-detail">Collected experiences are evaluated against performance benchmarks. For SICA, this means running against benchmark test suites. For AlphaEvolve, automated evaluation systems score proposed algorithms. For RL agents, it means computing rewards from the environment signal.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">3</div>
+        <div>
+          <div class="chain-title">Knowledge / Policy Update</div>
+          <div class="chain-role">Modify behavior, code, or parameters based on learning</div>
+        </div>
+      </div>
+      <div class="chain-detail">Based on evaluation results, the agent updates its behavior. This may be: updating neural network weights (RL), modifying its own source code (SICA), generating improved algorithms (AlphaEvolve), updating its system prompt (Reflection), or storing new strategies in long-term memory.</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">4</div>
+        <div>
+          <div class="chain-title">Iterative Improvement Loop</div>
+          <div class="chain-role">Repeat the cycle to continuously refine performance</div>
+        </div>
+      </div>
+      <div class="chain-detail">The updated agent is deployed and begins collecting new experiences — starting the cycle again. Each iteration refines performance. SICA selects the best-performing version from its archive for the next meta-improvement cycle. AlphaEvolve's evolutionary loop runs asynchronously for maximum throughput.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+  <p class="sec-desc">The key technical foundations of agent learning — from RL algorithms to self-modification architectures.</p>
+
+  <div class="card card-bordered">
+    <h3>Proximal Policy Optimization (PPO)</h3>
+    <p>PPO is an RL algorithm for training agents with continuous action spaces (robotics, game agents). Its key innovation is the "clipping" mechanism — a trust region that prevents policy updates from being too different from the current strategy. This avoids catastrophic failures and leads to stable, reliable improvement.</p>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>Direct Preference Optimization (DPO)</h3>
+    <p>DPO aligns LLMs with human preferences directly — without training a separate reward model (as required by the PPO-based RLHF approach). It uses human preference data (A is better than B) directly to update the LLM's policy, making alignment more efficient and robust by eliminating reward model hacking.</p>
+  </div>
+
+  <div class="card">
+    <h3>Learning Paradigm Comparison</h3>
+    <div class="json-block">{
+  "reinforcement":   "Trial-and-error with reward signals",
+  "supervised":      "Learn from labeled input-output examples",
+  "unsupervised":    "Discover hidden patterns in unlabeled data",
+  "few_shot":        "Adapt to new tasks with minimal examples (LLMs)",
+  "online":          "Continuously update from real-time data streams",
+  "memory_based":    "Recall past experiences to guide current decisions"
+}</div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>SICA: Self-Improving Coding Agent</h3>
+    <p>SICA selects the best-performing version from its archive, analyzes it for improvement opportunities, directly modifies its own source code, tests against benchmarks, and records results. Key self-improvements included Smart Editor, Diff-Enhanced Smart Editor, AST Symbol Locator, and Hybrid Symbol Locator — each improving utility by measurable amounts.</p>
+  </div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Practical Use Cases</div>
+  <p class="sec-desc">Adaptive agents exhibit enhanced performance in variable environments through iterative updates driven by experiential data.</p>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Personal Assistants</button>
+    <button class="uc-tab" onclick="showUC(1)">Trading Bots</button>
+    <button class="uc-tab" onclick="showUC(2)">Robotics</button>
+    <button class="uc-tab" onclick="showUC(3)">Fraud Detection</button>
+    <button class="uc-tab" onclick="showUC(4)">Recommendation</button>
+    <button class="uc-tab" onclick="showUC(5)">Game AI</button>
+    <button class="uc-tab" onclick="showUC(6)">KB Learning</button>
+  </div>
+  <div id="uc-0" class="uc-panel active">
+    <div class="card"><h3>Personalized Assistant Agents</h3><p>Personal assistants refine interaction protocols through longitudinal analysis of individual user behaviors — ensuring highly optimized response generation. Over time, the agent learns communication preferences, response styles, task prioritization patterns, and anticipates user needs before they are explicitly stated.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Track interaction outcomes and explicit/implicit user feedback</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Identify patterns in user preferences and communication style</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Update user profile and interaction policies in long-term memory</div></div>
+    </div>
+  </div>
+  <div id="uc-1" class="uc-panel">
+    <div class="card"><h3>Trading Bot Agents</h3><p>Trading bots optimize decision-making by dynamically adjusting model parameters based on high-resolution, real-time market data — maximizing financial returns and mitigating risk. Continuous online learning allows the agent to adapt to changing market conditions, volatility regimes, and emerging patterns.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Ingest real-time market data and trade execution outcomes</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Evaluate strategy performance against risk-adjusted benchmarks</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Update trading policy parameters via online RL</div></div>
+    </div>
+  </div>
+  <div id="uc-2" class="uc-panel">
+    <div class="card"><h3>Robotic and Autonomous Vehicle Agents</h3><p>Robotic agents enhance navigation and response capabilities by integrating sensor data and historical action analysis — enabling safe and efficient operation across diverse environmental conditions. PPO is commonly used for continuous control tasks in robotics.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Collect sensor observations and action-outcome pairs</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Evaluate navigation policy with safety and efficiency metrics</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Update policy via PPO with clipped objective for stability</div></div>
+    </div>
+  </div>
+  <div id="uc-3" class="uc-panel">
+    <div class="card"><h3>Fraud Detection Agents</h3><p>Fraud detection agents improve anomaly detection by refining predictive models with newly identified fraudulent patterns — enhancing system security and minimizing financial losses. Online learning allows continuous adaptation to novel fraud tactics as they emerge.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Ingest confirmed fraud cases and false positive/negative signals</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Update anomaly detection model with new fraud patterns</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Re-evaluate thresholds and decision boundaries</div></div>
+    </div>
+  </div>
+  <div id="uc-4" class="uc-panel">
+    <div class="card"><h3>Recommendation Agents</h3><p>Recommendation agents improve content selection precision by employing user preference learning algorithms — providing highly individualized and contextually relevant recommendations. Collaborative and content-based filtering combine with online learning to continuously refine the recommendation model.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Track user engagement signals (clicks, dwell time, ratings)</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Update user preference model via bandit algorithms</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Re-rank recommendations using updated preference model</div></div>
+    </div>
+  </div>
+  <div id="uc-5" class="uc-panel">
+    <div class="card"><h3>Game AI Agents</h3><p>Game AI enhances player engagement by dynamically adapting strategic algorithms — increasing game complexity and challenge as the player's skill improves. RL with self-play (AlphaGo-style) allows agents to discover entirely novel strategies not present in human gameplay data.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Play games and collect win/loss outcomes and game states</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Train strategy model via self-play RL</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Adjust difficulty and style to match player's current skill level</div></div>
+    </div>
+  </div>
+  <div id="uc-6" class="uc-panel">
+    <div class="card"><h3>Knowledge Base Learning Agents</h3><p>Agents leverage RAG to maintain a dynamic knowledge base of problem descriptions and proven solutions. By storing successful strategies and challenges encountered, the agent can reference this data during decision-making — adapting to new situations by applying previously successful patterns or avoiding known pitfalls.</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>Evaluate each task execution and classify outcomes</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>Store successful patterns and failure modes in vector store</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>Retrieve relevant past experience to guide new decisions via RAG</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Code Examples</div>
+  <p class="sec-desc">Practical implementations of learning and adaptation — from PPO to OpenEvolve.</p>
+
+  <div class="card"><h3>PPO Training Loop (Conceptual)</h3></div>
+<div class="code-block"><span class="code-keyword">import</span> torch
+<span class="code-keyword">import</span> torch.nn <span class="code-keyword">as</span> nn
+
+<span class="code-keyword">class</span> PPOAgent:
+    <span class="code-string">"""PPO agent with clipped objective for stable policy updates."""</span>
+    <span class="code-keyword">def</span> __init__(self, policy_net, value_net, clip_epsilon=0.2):
+        self.policy = policy_net
+        self.value = value_net
+        self.clip_epsilon = clip_epsilon
+        self.optimizer = torch.optim.Adam(
+            list(policy_net.parameters()) + list(value_net.parameters()),
+            lr=3e-4
+        )
+
+    <span class="code-keyword">def</span> compute_ppo_loss(self, states, actions, old_log_probs, advantages):
+        <span class="code-comment"># Compute new log probabilities</span>
+        new_log_probs = self.policy.log_prob(states, actions)
+        ratio = torch.exp(new_log_probs - old_log_probs)
+
+        <span class="code-comment"># Clipped surrogate objective — the key PPO innovation</span>
+        clipped = torch.clamp(ratio, 1 - self.clip_epsilon, 1 + self.clip_epsilon)
+        policy_loss = -torch.min(ratio * advantages, clipped * advantages).mean()
+        <span class="code-keyword">return</span> policy_loss
+
+    <span class="code-keyword">def</span> update(self, trajectory):
+        states, actions, rewards, old_log_probs = trajectory
+        advantages = self._compute_advantages(states, rewards)
+        <span class="code-keyword">for</span> _ <span class="code-keyword">in</span> range(4):  <span class="code-comment"># Multiple epochs per rollout</span>
+            loss = self.compute_ppo_loss(states, actions, old_log_probs, advantages)
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()</div>
+
+  <div class="card"><h3>OpenEvolve: Evolutionary Code Optimization</h3></div>
+<div class="code-block"><span class="code-keyword">from</span> openevolve <span class="code-keyword">import</span> OpenEvolve
+
+<span class="code-comment"># Initialize the evolutionary optimization system</span>
+evolve = OpenEvolve(
+    initial_program_path=<span class="code-string">"path/to/initial_program.py"</span>,
+    evaluation_file=<span class="code-string">"path/to/evaluator.py"</span>,
+    config_path=<span class="code-string">"path/to/config.yaml"</span>
+)
+
+<span class="code-comment"># Run 1000 iterations of evolutionary improvement</span>
+<span class="code-comment"># LLM ensemble generates modifications; evaluator pool scores them</span>
+best_program = <span class="code-keyword">await</span> evolve.run(iterations=1000)
+
+<span class="code-keyword">print</span>(f<span class="code-string">"Best program metrics:"</span>)
+<span class="code-keyword">for</span> name, value <span class="code-keyword">in</span> best_program.metrics.items():
+    <span class="code-keyword">print</span>(f<span class="code-string">"  {name}: {value:.4f}"</span>)</div>
+
+  <div class="card"><h3>Reflection: Agent Updates Its Own Instructions</h3></div>
+<div class="code-block"><span class="code-comment"># LangGraph node that updates the agent's instructions via reflection</span>
+<span class="code-keyword">def</span> update_instructions(state: State, store: BaseStore):
+    namespace = (<span class="code-string">"instructions"</span>,)
+    current = store.search(namespace)[0]
+    current_instructions = current.value[<span class="code-string">"instructions"</span>]
+
+    <span class="code-comment"># Prompt the LLM to reflect on its performance and suggest improvements</span>
+    reflection_prompt = f<span class="code-string">"""You are reviewing your own performance.
+
+Current instructions: {current_instructions}
+
+Recent conversation: {state['messages']}
+
+Analyze what worked well and what didn't. Generate improved instructions
+that would have led to better outcomes. Be specific and actionable.
+
+Return JSON: {{"new_instructions": "..."}}"""</span>
+
+    output = llm.invoke(reflection_prompt)
+    new_instructions = output[<span class="code-string">'new_instructions'</span>]
+
+    <span class="code-comment"># Store improved instructions back to persistent memory</span>
+    store.put(
+        (<span class="code-string">"agent_instructions"</span>,),
+        <span class="code-string">"agent_a"</span>,
+        {<span class="code-string">"instructions"</span>: new_instructions}
+    )</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Case Studies Deep Dive</div>
+  <p class="sec-desc">Three landmark systems demonstrating real-world learning and adaptation in agentic AI. Click each to explore.</p>
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--teal-l);color:var(--teal-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">SICA: Self-Improving Coding Agent</div>
+      <div class="ctx-layer-sub">Meta-improvement through iterative self-modification</div>
+      <div class="ctx-layer-detail">Developed by Robeyns, Aitchison, and Szummer. SICA reviews an archive of past versions and their benchmark performance, selects the best performer, and directly modifies its own source code to improve. Key innovations discovered autonomously: Smart Editor (contextual edits), Diff-Enhanced Smart Editor (targeted modifications), AST Symbol Locator (structural code navigation), and Hybrid Symbol Locator. An asynchronous overseer LLM monitors for pathological deviations. Security: runs in Docker containers for isolation. Utility improved from ~0.55 to ~0.67 across 14 iterations.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--purple-l);color:var(--purple-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">AlphaEvolve: LLM + Evolutionary Algorithms</div>
+      <div class="ctx-layer-sub">Autonomous algorithm discovery via Gemini ensemble</div>
+      <div class="ctx-layer-detail">Google's AlphaEvolve uses Gemini Flash (broad exploration) and Gemini Pro (deep refinement). Proposed algorithms are automatically evaluated and scored. Real-world impact: 0.7% reduction in Google's global compute resource usage (data center scheduling), optimizations for Verilog in upcoming TPUs, 23% speed improvement in Gemini architecture kernel, 32.5% optimization of FlashAttention GPU instructions. Research: discovered 4x4 complex-valued matrix multiplication using 48 scalar multiplications, improved 20% of 50+ open mathematical problems.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--amber-l);color:var(--amber-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">OpenEvolve: Open-Source Code Evolution</div>
+      <div class="ctx-layer-sub">LLM-driven evolutionary optimization for entire files</div>
+      <div class="ctx-layer-detail">OpenEvolve orchestrates a pipeline of LLM-driven code generation, evaluation, and selection to continuously enhance programs. Key differentiators: evolves entire code files (not just functions), supports multiple programming languages, compatible with any OpenAI-compatible API, multi-objective optimization, flexible prompt engineering, distributed evaluation. Architecture: Controller Orchestration manages Program Database, Prompt Sampler, Evaluator Pool, and LLM Ensemble in an asynchronous pipeline optimized for maximum throughput.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--blue-l);color:var(--blue-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">PPO vs DPO: Training Paradigms</div>
+      <div class="ctx-layer-sub">RL-based vs direct preference optimization for LLM alignment</div>
+      <div class="ctx-layer-detail">PPO-based RLHF (two-step): (1) Train reward model from human preference data, (2) Fine-tune LLM with PPO to maximize reward model score. Risk: LLM may "hack" the reward model (get high scores for bad responses). DPO (direct): Skips the reward model entirely. Uses human preference pairs (A preferred over B) directly to update LLM policy via a mathematical relationship that increases the probability of preferred responses and decreases disfavored ones. More efficient and robust — eliminates reward hacking risk.</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--coral-l);color:var(--coral-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Online Learning for Dynamic Environments</div>
+      <div class="ctx-layer-sub">Continuous adaptation to real-time data streams</div>
+      <div class="ctx-layer-detail">Online learning enables agents to continuously update their knowledge as new data arrives — without retraining from scratch. Critical for agents processing continuous data streams (financial markets, sensor networks, user behavior). Unlike batch learning which requires periodic retraining cycles, online learning keeps the agent's world model synchronized with the current state of its environment — essential for time-sensitive, high-stakes applications.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4>WHAT</h4>
+      <p>AI agents often operate in dynamic, unpredictable environments where pre-programmed logic is insufficient. Without learning, agents cannot optimize strategies, personalize interactions, or handle novel situations — limiting them to rigidly defined use cases.</p>
+    </div>
+    <div class="glance-card" style="background:var(--blue-l);">
+      <h4>WHY</h4>
+      <p>Integrating learning transforms static agents into dynamic, evolving systems. Methods range from RL and DPO (parameter updates) to Reflection (prompt updates) to SICA-style self-modification (code updates) to AlphaEvolve (evolutionary discovery) — each appropriate for different problem classes.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4>WHEN TO USE</h4>
+      <p>Use this pattern for agents that must operate in dynamic, uncertain, or evolving environments. Essential for applications requiring personalization, continuous performance improvement, and the ability to handle novel situations autonomously without constant manual reprogramming.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);">
+      <h4>KEY INSIGHT</h4>
+      <p>"Adaptation" is the visible change in behavior or knowledge that results from learning. Systems like SICA demonstrate that even the learning mechanism itself can be learned — true meta-learning enables compounding improvement over time.</p>
+    </div>
+  </div>
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">Click each component of the learning loop to explore its role</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(0)">Agent</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(1)">Experience</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--blue-l);color:var(--blue-d);" onclick="simClick(2)">Evaluate</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d);" onclick="simClick(3)">Learn</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d);" onclick="simClick(4)">Adapt</div>
+    </div>
+    <div class="dia-output" id="sim-output">Select a component above to see its role in the learning cycle.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Check</div>
+  <p class="sec-desc">Test your understanding of agent learning and adaptation.</p>
+  <div id="quizProgress" class="quiz-progress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>Learning and Adaptation enable agents to improve over time by using experiences — evolving from following instructions to genuine autonomy in complex environments.</li>
+    <li>"Adaptation" is the visible change in behavior or knowledge that results from learning — distinct from the learning process itself.</li>
+    <li>SICA demonstrates meta-learning: the agent self-improves by modifying its own code based on benchmark performance, discovering tools like Smart Editor and AST Symbol Locator autonomously.</li>
+    <li>PPO's clipping mechanism creates a "trust region" that prevents catastrophic policy updates — enabling stable, reliable reinforcement learning for continuous control tasks.</li>
+    <li>DPO is more efficient than PPO-based RLHF for LLM alignment: it directly optimizes on human preference data without the complexity and instability of training a separate reward model.</li>
+    <li>AlphaEvolve shows that LLMs combined with evolutionary algorithms can discover novel algorithmic solutions — achieving real infrastructure improvements of 23%+ in Google's systems.</li>
+    <li>Building learning agents typically means connecting them with ML tools and designing data pipelines that capture experience signals and feed them back into the learning mechanism.</li>
+    <li>The LLM's context window organization (system prompt, core prompt, assistant messages) is critical for efficient agent operation during learning and meta-improvement cycles.</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>Sutton, R. S., &amp; Barto, A. G. (2018). Reinforcement Learning: An Introduction. MIT Press.</li>
+    <li><span class="ref-num">2</span>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). Deep Learning. MIT Press.</li>
+    <li><span class="ref-num">3</span>Proximal Policy Optimization Algorithms — Schulman et al. — <a href="https://arxiv.org/abs/1707.06347" target="_blank">arxiv.org/abs/1707.06347</a></li>
+    <li><span class="ref-num">4</span>Robeyns, M., Aitchison, L., &amp; Szummer, M. (2025). A Self-Improving Coding Agent — <a href="https://arxiv.org/pdf/2504.15228" target="_blank">arxiv.org/pdf/2504.15228</a> | <a href="https://github.com/MaximeRobeyns/self_improving_coding_agent" target="_blank">GitHub</a></li>
+    <li><span class="ref-num">5</span>AlphaEvolve blog — <a href="https://deepmind.google/discover/blog/alphaevolve-a-gemini-powered-coding-agent-for-designing-advanced-algorithms/" target="_blank">DeepMind Blog</a></li>
+    <li><span class="ref-num">6</span>OpenEvolve — <a href="https://github.com/codelion/openevolve" target="_blank">github.com/codelion/openevolve</a></li>
+    <li><span class="ref-num">7</span>Mitchell, T. M. (1997). Machine Learning. McGraw-Hill.</li>
+  </ul>
+</div>
+
+<div class="footer"><p>Agentic Design Patterns — Chapter 9: Learning and Adaptation</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  'Agent: Executes actions in its environment based on its current policy or knowledge. Collects raw experience data — observations, actions taken, and outcomes received. This is the starting point of every learning cycle.',
+  'Experience: The structured record of what the agent did and what happened: (state, action, reward, next_state). For SICA, this is benchmark test results. For RL agents, it\'s environment transitions. For LLM agents, it\'s interaction outcomes.',
+  'Evaluate: Compare the collected experience against performance benchmarks. Compute rewards (RL), run benchmark suites (SICA), score with evaluator pools (AlphaEvolve), or analyze conversation quality (Reflection). This step determines what needs to improve.',
+  'Learn: Update the agent\'s knowledge, parameters, code, or instructions based on the evaluation. PPO updates neural weights with the clipped objective. SICA modifies source code. AlphaEvolve generates better algorithms. Reflection rewrites system prompts.',
+  'Adapt: The agent\'s behavior visibly changes in response to learning. Better policies, improved code, refined instructions, or updated strategies result in measurably better performance on the next cycle — completing the virtuous improvement loop.'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: 'What is the key mechanism in PPO that prevents catastrophic policy updates during reinforcement learning?',
+    opts: [
+      'A learning rate scheduler that reduces learning rate over time',
+      'The "clipping" mechanism that creates a trust region preventing too-different policy updates',
+      'A separate reward model that validates all policy updates',
+      'Batch normalization applied to the policy gradient'
+    ],
+    ans: 1,
+    ok: 'Correct! PPO\'s clipping mechanism creates a "trust region" or safe zone — preventing the algorithm from making updates that are too different from the current policy, avoiding catastrophic failures during training.',
+    no: 'PPO\'s key innovation is the clipping mechanism: a trust region that prevents policy updates from being too different from the current strategy, avoiding catastrophic failures.'
+  },
+  {
+    q: 'How does DPO differ from the PPO-based RLHF approach for LLM alignment?',
+    opts: [
+      'DPO requires more human preference data than PPO-based RLHF',
+      'DPO skips the reward model and directly uses preference data to update the LLM\'s policy',
+      'DPO only works with smaller language models',
+      'DPO uses evolutionary algorithms instead of gradient descent'
+    ],
+    ans: 1,
+    ok: 'Correct! DPO eliminates the separate reward model entirely — directly using human preference pairs (A over B) to update the LLM policy, making alignment more efficient and eliminating reward model hacking risk.',
+    no: 'DPO skips training a separate reward model. Instead, it directly uses human preference data (A is better than B) to update the LLM\'s policy — simpler and more robust than the two-step PPO-based approach.'
+  },
+  {
+    q: 'In the SICA (Self-Improving Coding Agent), what is the purpose of the asynchronous overseer?',
+    opts: [
+      'To generate new benchmark tasks for evaluation',
+      'To monitor SICA\'s behavior and intervene if it detects pathological deviations or stagnation',
+      'To manage the version control of SICA\'s code archive',
+      'To provide additional computational resources during intensive iterations'
+    ],
+    ans: 1,
+    ok: 'Correct! The asynchronous overseer is another LLM that runs concurrently with SICA, periodically assessing behavior for loops or stagnation, and can intervene to halt execution if necessary.',
+    no: 'The asynchronous overseer is an LLM that runs concurrently with SICA to monitor for pathological deviations or stagnation — it can intervene and halt execution if necessary.'
+  },
+  {
+    q: 'AlphaEvolve demonstrated a 23% speed improvement in which system?',
+    opts: [
+      'Google Search ranking algorithm',
+      'A core kernel of the Gemini model architecture',
+      'AlphaGo self-play training pipeline',
+      'Google Translate neural network'
+    ],
+    ans: 1,
+    ok: 'Correct! AlphaEvolve achieved a 23% speed improvement in a core kernel of the Gemini architecture, along with 32.5% optimization of low-level GPU instructions for FlashAttention.',
+    no: 'AlphaEvolve achieved a 23% speed improvement in a core kernel of the Gemini model architecture, and also delivered 32.5% optimization of FlashAttention GPU instructions.'
+  },
+  {
+    q: 'What distinguishes "online learning" from traditional batch learning for agents?',
+    opts: [
+      'Online learning uses the internet to retrieve new training data',
+      'Online learning continuously updates the model from real-time data without requiring full retraining cycles',
+      'Online learning only works with reinforcement learning algorithms',
+      'Online learning requires more labeled data than batch learning'
+    ],
+    ans: 1,
+    ok: 'Correct! Online learning continuously updates the agent\'s model as new data arrives — keeping the agent\'s world model synchronized with the current environment without periodic full retraining cycles.',
+    no: 'Online learning continuously updates from real-time data streams without full retraining — keeping the agent synchronized with the current environment. Critical for dynamic domains like financial markets.'
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

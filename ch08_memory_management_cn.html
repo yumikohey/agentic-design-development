@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第八章：记忆管理 — 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1; --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+
+<div class="chapter-tag">第八章</div>
+<h1>记忆管理</h1>
+<p class="subtitle">有效的记忆管理对智能体至关重要——既提供大语言模型上下文窗口内的短期情境记忆，也提供跨会话的长期持久记忆，使智能体能够学习、个性化响应并随时间保持连贯对话。</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">概览</button>
+  <button class="nav-btn" onclick="go('problem')">问题所在</button>
+  <button class="nav-btn" onclick="go('solution')">解决方案</button>
+  <button class="nav-btn" onclick="go('concepts')">核心概念</button>
+  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
+  <button class="nav-btn" onclick="go('code')">代码实战</button>
+  <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
+  <button class="nav-btn" onclick="go('glance')">一览概要</button>
+  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
+  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
+  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+</nav>
+
+<!-- 1. 概览 -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">模式概览</div>
+  <p class="sec-desc">智能体需要不同类型的记忆——就像人类一样——才能高效运作。记忆是指智能体从过往交互、观察和学习经验中保留并利用信息的能力，使其能够做出明智决策、维护对话上下文并随时间不断进步。</p>
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">记忆类型</div>
+      <div class="metric-value">2</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">长期记忆种类</div>
+      <div class="metric-value">3</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">ADK 服务</div>
+      <div class="metric-value">2</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">存储后端</div>
+      <div class="metric-value">3+</div>
+    </div>
+  </div>
+  <div class="card card-bordered">
+    <h3>短期记忆（情境记忆）</h3>
+    <p>类似于工作记忆，保存当前正在处理或最近访问的信息。对于基于大语言模型的智能体，短期记忆存在于上下文窗口中——包括最近的消息、回复、工具调用结果和反思。它是短暂的：会话结束时即消失。</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>长期记忆（持久记忆）</h3>
+    <p>作为智能体需要跨交互、跨任务或长期保留信息的存储库。数据存储在外部——数据库、知识图谱或向量数据库中——需要时通过语义搜索检索。</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>会话与状态（ADK）</h3>
+    <p>在 Google ADK 中，Session（会话）跟踪带有事件历史和临时 State（状态）数据的单个对话线程。SessionService 管理生命周期：创建、记录活动和终止。状态作为会话的草稿本，用于存储动态的、特定于轮次的数据。</p>
+  </div>
+  <div class="card card-bordered">
+    <h3>记忆服务（ADK）</h3>
+    <p>MemoryService 提供可搜索的长期知识存储库，来源于多个过去的会话或外部数据。它使用 add_session_to_memory 摄取会话，使用 search_memory 为当前上下文检索相关的过往知识。</p>
+  </div>
+</div>
+
+<!-- 2. 问题所在 -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">核心问题</div>
+  <p class="sec-desc">没有有效的记忆管理，智能体本质上是无状态的——无法提供连贯或个性化的体验。点击展开每个问题。</p>
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>无状态智能体</h4>
+      <p>没有记忆，智能体无法在交互之间维护上下文，将每次交流都视为全新开始。</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">无状态智能体无法记住用户刚说过的名字、完成了工作流的第一步或表达过某种偏好。这使得复杂的多轮任务无法完成，并产生令人沮丧的用户体验。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>上下文窗口限制</h4>
+      <p>大语言模型的上下文窗口容量有限——长对话最终会溢出，丢失关键的早期信息。</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">即使有大上下文窗口，每次调用都处理所有令牌也很昂贵。关键的早期信息被截断，导致智能体在对话中途"忘记"关键约束、用户偏好或先前决策。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>无跨会话学习</h4>
+      <p>没有持久记忆，智能体无法保留一次会话的知识以应用于未来的会话。</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">每次新对话都从零开始。智能体无法回忆用户更喜欢 Python 而非 JavaScript、之前在某个主题上遇到过困难，或者上周完成了入门培训。这阻碍了有意义的个性化。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>无法个性化</h4>
+      <p>没有用户特定的持久记忆，每次交互都是通用的，无法适应个人需求。</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">通用响应令期望系统"了解"自己的用户感到沮丧。个性化需要记住用户偏好、过往行为和以前会话的上下文——这一切都需要持久记忆。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>昂贵的重复处理</h4>
+      <p>没有摘要或选择性检索，智能体必须在每轮都重新处理所有先前上下文——代价高昂且缓慢。</p>
+      <div class="detail"><p style="margin-top:10px;font-size:13px;color:var(--text2);">每次 API 调用都传递完整对话历史会大幅增加延迟和令牌成本。高效的记忆管理使用摘要和向量搜索，只注入最相关的上下文。</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. 解决方案 -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">双组件记忆解决方案</div>
+  <p class="sec-desc">标准化解决方案实现了区分短期和长期存储的双组件记忆系统。</p>
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">短期上下文窗口</div>
+          <div class="chain-role">大语言模型上下文中的近期交互数据</div>
+        </div>
+      </div>
+      <div class="chain-detail">最近的消息、智能体回复、工具调用结果和反思都保存在上下文窗口中。这确保了单次会话内的对话连贯性。摘要技术可以压缩较旧的段落，为新信息腾出空间。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">长期外部存储</div>
+          <div class="chain-role">向量数据库或数据库中的持久知识</div>
+        </div>
+      </div>
+      <div class="chain-detail">必须超越单次会话持久保存的信息存储在外部数据库中——通常是用于语义搜索的向量存储。在后续会话中，智能体查询此存储以检索相关的过往知识，并将其整合到当前上下文窗口中。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">3</div>
+        <div>
+          <div class="chain-title">会话状态管理</div>
+          <div class="chain-role">活跃对话的动态键值草稿本</div>
+        </div>
+      </div>
+      <div class="chain-detail">会话状态存储与活跃对话相关的动态数据点：用户偏好、任务进度、增量数据收集和条件标志。键可以有作用域：会话特定（无前缀）、用户范围（user:）、应用范围（app:）或仅限当前轮次（temp:）。</div>
+    </div>
+    <div class="chain-arrow"></div>
+    <div class="chain-node" onclick="toggleChain(this)">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--blue-l);color:var(--blue-d);">4</div>
+        <div>
+          <div class="chain-title">记忆检索与注入</div>
+          <div class="chain-role">语义搜索将相关的过去上下文带入当前</div>
+        </div>
+      </div>
+      <div class="chain-detail">开始新会话时，智能体使用语义相似性搜索查询长期记忆。最相关的过往知识被检索并注入当前上下文窗口——将多次交互桥接为连贯、连续的体验。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. 核心概念 -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">核心概念</div>
+  <p class="sec-desc">Google ADK 和 LangChain 中智能体记忆系统的技术构建模块。</p>
+
+  <div class="card card-bordered">
+    <h3>ADK 会话对象</h3>
+    <p>Session（会话）封装了唯一的对话线程：标识符（id、app_name、user_id）、按时间顺序排列的事件日志、会话状态字典和最后更新时间戳。由 SessionService 管理——不要直接操作。</p>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>状态键前缀</h3>
+    <p>状态键使用前缀定义数据范围和持久性。无前缀的键是会话特定的。<code>user:</code> 将数据与跨所有会话的用户 ID 关联。<code>app:</code> 指定所有用户共享的数据。<code>temp:</code> 仅对当前处理轮次有效，永不持久化。</p>
+  </div>
+
+  <div class="card">
+    <h3>ADK 记忆架构</h3>
+    <div class="json-block">{
+  "Session":  "单个对话线程——事件 + 状态",
+  "State":    "会话内的轮次作用域草稿本",
+  "Memory":   "可搜索的跨会话知识存储库",
+  "Services": {
+    "SessionService": "管理 Session 生命周期",
+    "MemoryService":  "管理长期 Memory 存储"
+  },
+  "Backends": {
+    "InMemory":     "测试用——非持久化",
+    "Database":     "通过 SQLAlchemy 使用 SQLite/PostgreSQL",
+    "VertexAI":     "可扩展的 GCP 生产环境"
+  }
+}</div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>长期记忆类型（LangChain）</h3>
+    <p>类比人类记忆的三种类型：<strong>语义记忆</strong>（记住事实——用户档案、领域知识）；<strong>情节记忆</strong>（记住经历——过去的任务序列、少样本示例）；<strong>程序记忆</strong>（记住规则——智能体指令、可通过反思自我更新的系统提示）。</p>
+  </div>
+</div>
+
+<!-- 5. 应用场景 -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">实际应用场景</div>
+  <p class="sec-desc">记忆对于需要完成不止单一问题回答的智能体至关重要。</p>
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">聊天机器人</button>
+    <button class="uc-tab" onclick="showUC(1)">任务型智能体</button>
+    <button class="uc-tab" onclick="showUC(2)">个性化体验</button>
+    <button class="uc-tab" onclick="showUC(3)">RAG 系统</button>
+    <button class="uc-tab" onclick="showUC(4)">学习型智能体</button>
+    <button class="uc-tab" onclick="showUC(5)">自主系统</button>
+  </div>
+  <div id="uc-0" class="uc-panel active">
+    <div class="card"><h3>聊天机器人和对话式 AI</h3><p>对话流程依赖短期记忆跟踪正在进行的对话。长期记忆使聊天机器人能够回忆用户偏好、过往问题和之前的讨论——在多个会话中提供个性化、连续的交互，而用户无需重复说明。</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>短期记忆维护当前对话线程</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>会话开始时检索相关的长期记忆</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>智能体根据召回的偏好个性化响应</div></div>
+      <div class="uc-step"><div class="uc-step-num">4</div><div>会话结束时保存到长期记忆</div></div>
+    </div>
+  </div>
+  <div id="uc-1" class="uc-panel">
+    <div class="card"><h3>任务型智能体</h3><p>管理多步骤任务的智能体需要短期记忆来跟踪之前的步骤、当前进度和总体目标——保存在会话状态中。长期记忆对于访问不在直接上下文中的特定用户相关数据至关重要：过往配置、之前的决策、随时间积累的领域专业知识。</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>会话状态跟踪任务进度和中间结果</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>长期记忆提供历史上下文和用户偏好</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>任务完成时更新状态和长期知识</div></div>
+    </div>
+  </div>
+  <div id="uc-2" class="uc-panel">
+    <div class="card"><h3>个性化体验</h3><p>提供定制化交互的智能体利用长期记忆存储和检索用户偏好、过往行为和个人信息。这使智能体能够为每个人调整响应和建议——将通用助手转变为真正的个人助手。</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>用户档案以 user: 前缀键存储在长期记忆中</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>会话开始时检索并注入上下文</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>随着用户行为演变，偏好逐步更新</div></div>
+    </div>
+  </div>
+  <div id="uc-3" class="uc-panel">
+    <div class="card"><h3>检索增强生成（RAG）</h3><p>专为知识密集型问答设计的智能体将知识库作为其长期记忆。智能体使用语义相似性搜索检索相关文档或数据，并整合检索到的上下文以产生准确、有依据的响应。</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>查询被嵌入并用于语义相似性搜索</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>从向量存储检索 Top-K 相关文档</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>检索到的上下文注入提示以生成有依据的回答</div></div>
+    </div>
+  </div>
+  <div id="uc-4" class="uc-panel">
+    <div class="card"><h3>学习与自我改进</h3><p>智能体可以通过将成功策略、错误和新信息存储到长期记忆中来提升性能。强化学习智能体以这种方式存储学到的策略。反思技术提示智能体根据过去表现更新自己的程序记忆（系统提示）。</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>评估每次交互的结果</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>成功和失败的策略存储到长期记忆</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>智能体反思并根据历史更新自身指令</div></div>
+    </div>
+  </div>
+  <div id="uc-5" class="uc-panel">
+    <div class="card"><h3>自主系统</h3><p>机器人和自动驾驶汽车需要地图、路线、物体位置和习得行为的记忆。短期记忆处理即时周围环境和当前导航状态；长期记忆提供一般环境知识和习得的安全行为。</p></div>
+    <div class="uc-steps">
+      <div class="uc-step"><div class="uc-step-num">1</div><div>传感器数据填充短期情境感知</div></div>
+      <div class="uc-step"><div class="uc-step-num">2</div><div>长期记忆提供地图和习得的环境模型</div></div>
+      <div class="uc-step"><div class="uc-step-num">3</div><div>新经历更新持久的环境知识库</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. 代码实战 -->
+<div id="sec-code" class="section">
+  <div class="sec-title">代码实战</div>
+  <p class="sec-desc">使用 Google ADK 和 LangChain 的实际记忆实现示例。</p>
+
+  <div class="card"><h3>ADK：通过 output_key 更新会话状态</h3></div>
+<div class="code-block"><span class="code-keyword">from</span> google.adk.agents <span class="code-keyword">import</span> LlmAgent
+<span class="code-keyword">from</span> google.adk.sessions <span class="code-keyword">import</span> InMemorySessionService
+<span class="code-keyword">from</span> google.adk.runners <span class="code-keyword">import</span> Runner
+<span class="code-keyword">from</span> google.genai.types <span class="code-keyword">import</span> Content, Part
+
+<span class="code-comment"># 智能体自动将最终文本响应保存到会话状态</span>
+greeting_agent = LlmAgent(
+    name=<span class="code-string">"Greeter"</span>,
+    model=<span class="code-string">"gemini-2.0-flash"</span>,
+    instruction=<span class="code-string">"生成一句简短友好的问候语。"</span>,
+    output_key=<span class="code-string">"last_greeting"</span>  <span class="code-comment"># 保存到 session.state</span>
+)
+
+app_name, user_id, session_id = <span class="code-string">"state_app"</span>, <span class="code-string">"user1"</span>, <span class="code-string">"session1"</span>
+session_service = InMemorySessionService()
+runner = Runner(
+    agent=greeting_agent,
+    app_name=app_name,
+    session_service=session_service
+)
+session = session_service.create_session(
+    app_name=app_name, user_id=user_id, session_id=session_id
+)
+
+<span class="code-comment"># 运行智能体</span>
+user_message = Content(parts=[Part(text=<span class="code-string">"你好"</span>)])
+<span class="code-keyword">for</span> event <span class="code-keyword">in</span> runner.run(
+    user_id=user_id, session_id=session_id, new_message=user_message
+):
+    <span class="code-keyword">if</span> event.is_final_response():
+        <span class="code-keyword">print</span>(<span class="code-string">"智能体已响应。"</span>)
+
+<span class="code-comment"># 运行后检查状态——状态已正确更新</span>
+updated_session = session_service.get_session(app_name, user_id, session_id)
+<span class="code-keyword">print</span>(f<span class="code-string">"运行后状态：{updated_session.state}"</span>)</div>
+
+  <div class="card"><h3>LangChain：ConversationBufferMemory 与 LLMChain</h3></div>
+<div class="code-block"><span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> OpenAI
+<span class="code-keyword">from</span> langchain.chains <span class="code-keyword">import</span> LLMChain
+<span class="code-keyword">from</span> langchain.prompts <span class="code-keyword">import</span> PromptTemplate
+<span class="code-keyword">from</span> langchain.memory <span class="code-keyword">import</span> ConversationBufferMemory
+
+llm = OpenAI(temperature=0)
+<span class="code-comment"># 提示模板中的 {history} 占位符</span>
+template = <span class="code-string">"""你是一位有帮助的旅行顾问。
+
+之前的对话：
+{history}
+
+新问题：{question}
+回答："""</span>
+prompt = PromptTemplate.from_template(template)
+
+<span class="code-comment"># memory_key 与提示中的 {history} 匹配</span>
+memory = ConversationBufferMemory(memory_key=<span class="code-string">"history"</span>)
+conversation = LLMChain(llm=llm, prompt=prompt, memory=memory)
+
+<span class="code-comment"># 多轮对话——历史自动累积</span>
+r1 = conversation.predict(question=<span class="code-string">"我想预订一张机票。"</span>)
+r2 = conversation.predict(question=<span class="code-string">"顺便说一下，我叫小明。"</span>)
+r3 = conversation.predict(question=<span class="code-string">"我叫什么名字？"</span>)
+<span class="code-keyword">print</span>(r3)  <span class="code-comment"># 智能体从记忆中回忆起"小明"</span></div>
+
+  <div class="card"><h3>LangGraph：长期程序记忆——反思更新指令</h3></div>
+<div class="code-block"><span class="code-comment"># 更新智能体指令的节点（程序记忆通过反思更新）</span>
+<span class="code-keyword">def</span> update_instructions(state: State, store: BaseStore):
+    namespace = (<span class="code-string">"instructions"</span>,)
+    <span class="code-comment"># 从存储中获取当前指令</span>
+    current_instructions = store.search(namespace)[0]
+
+    <span class="code-comment"># 提示大语言模型反思并生成改进的指令</span>
+    prompt = prompt_template.format(
+        instructions=current_instructions.value[<span class="code-string">"instructions"</span>],
+        conversation=state[<span class="code-string">"messages"</span>]
+    )
+    output = llm.invoke(prompt)
+    new_instructions = output[<span class="code-string">'new_instructions'</span>]
+
+    <span class="code-comment"># 将更新后的指令存储回存储</span>
+    store.put((<span class="code-string">"agent_instructions"</span>,), <span class="code-string">"agent_a"</span>,
+              {<span class="code-string">"instructions"</span>: new_instructions})</div>
+</div>
+
+<!-- 7. 深入解析 -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">记忆架构深度解析</div>
+  <p class="sec-desc">从短暂的上下文到持久的知识——智能体记忆的各个层次。点击每一层进行探索。</p>
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--teal-l);color:var(--teal-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">上下文窗口（工作记忆）</div>
+      <div class="ctx-layer-sub">短暂——会话结束时丢失</div>
+      <div class="ctx-layer-detail">大语言模型的上下文窗口是智能体的工作记忆。它保存当前对话、工具输出和智能体反思。对于大上下文模型，这可以相当可观——但始终是短暂的。反复处理它代价高昂，使摘要策略对于长对话至关重要。</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--purple-l);color:var(--purple-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">会话状态（草稿本）</div>
+      <div class="ctx-layer-sub">会话内的轮次作用域键值存储</div>
+      <div class="ctx-layer-detail">会话状态是跟踪与活跃对话相关的动态数据的键值对字典：任务进度、条件标志、中间结果。它在会话中的轮次之间持久保存，但作用域限于该会话。键前缀（user:、app:、temp:）可以扩展范围。始终通过 append_event 更新——不要直接修改。</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--amber-l);color:var(--amber-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">语义记忆（事实）</div>
+      <div class="ctx-layer-sub">用户档案、偏好、领域知识</div>
+      <div class="ctx-layer-detail">语义记忆保留特定事实和概念——用户偏好、领域知识、实体信息。作为持续更新的用户档案（JSON 文档）或向量存储中的事实文档集合存储。通过语义相似性检索，将相关事实注入上下文窗口。</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--blue-l);color:var(--blue-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">情节记忆（经历）</div>
+      <div class="ctx-layer-sub">过去的交互序列和任务轨迹</div>
+      <div class="ctx-layer-detail">情节记忆回忆过去的事件或行动——完成任务的交互序列，或需要避免的失败尝试。在实践中，通过少样本示例提示实现，智能体从过去成功的交互序列中学习。LangGraph BaseStore 支持跨会话的情节记忆存储。</div>
+    </div>
+    <div class="ctx-layer" style="background:var(--coral-l);color:var(--coral-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">程序记忆（规则与指令）</div>
+      <div class="ctx-layer-sub">系统提示、行为规则——可自我更新</div>
+      <div class="ctx-layer-detail">程序记忆是智能体的核心指令和行为规则——通常包含在系统提示中。智能体可以修改自己的提示以适应和改进。反思技术提示智能体审视当前指令和近期交互，然后生成存储回 BaseStore 的精炼指令。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. 一览概要 -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">一览概要</div>
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4>问题</h4>
+      <p>没有记忆机制，智能体是无状态的——无法维护对话上下文、从经验中学习或个性化响应。这将它们限制为简单的单次交互。</p>
+    </div>
+    <div class="glance-card" style="background:var(--blue-l);">
+      <h4>解决方案</h4>
+      <p>双组件记忆系统区分短期（上下文窗口）和长期（外部向量存储）。ADK 提供 Session + State 用于短期记忆，MemoryService 用于长期记忆。两者共同实现连贯、个性化和持续学习的智能体。</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4>适用时机</h4>
+      <p>每当智能体需要完成不止单一问题回答时使用：多轮对话、多步骤任务、个性化、从反馈中学习，或任何需要跨轮次或会话保持上下文的场景。</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);">
+      <h4>经验法则</h4>
+      <p>当智能体预期需要根据过去的成功、失败或新获得的信息进行学习或适应时，实施记忆管理——或者当用户满意度取决于系统记住他们是谁时。</p>
+    </div>
+  </div>
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">点击每个组件查看其在记忆系统中的角色</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" style="background:var(--blue-l);color:var(--blue-d);" onclick="simClick(0)">提示</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(1)">智能体</div>
+      <div class="dia-arrow">↔</div>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(2)">记忆</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--amber-l);color:var(--amber-d);" onclick="simClick(3)">输出</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d);" onclick="simClick(4)">用户</div>
+    </div>
+    <div class="dia-output" id="sim-output">点击上方组件查看其角色描述。</div>
+  </div>
+</div>
+
+<!-- 9. 知识测验 -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">知识测验</div>
+  <p class="sec-desc">测试您对智能体记忆管理的理解。</p>
+  <div id="quizProgress" class="quiz-progress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. 核心要点 -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">核心要点</div>
+  <ul class="tk-list">
+    <li>记忆使智能体能够维护历史记录、从经验中学习、个性化交互并管理复杂的时间依赖任务。</li>
+    <li>短期记忆（上下文窗口）是短暂的，受大语言模型容量限制，会话结束时消失——但可以立即访问。</li>
+    <li>长期记忆通过外部数据库（尤其是通过语义搜索访问的向量存储）跨会话持久保存。</li>
+    <li>在 Google ADK 中，三种核心记忆抽象是：Session（对话线程）、State（会话草稿本）和 Memory（可搜索的跨会话存储库）。</li>
+    <li>状态键前缀定义作用域：无前缀 = 会话级，user: = 用户级，app: = 应用级，temp: = 仅当前轮次。</li>
+    <li>强烈不建议直接修改 session.state——始终通过 append_event 机制更新，以确保正确的持久化和事件跟踪。</li>
+    <li>长期记忆有三种类比人类记忆的类型：语义记忆（事实）、情节记忆（经历）和程序记忆（可自我更新的规则/指令）。</li>
+    <li>Vertex AI Memory Bank 和 VertexAiRagMemoryService 提供具有语义搜索能力的生产级可扩展持久记忆。</li>
+  </ul>
+</div>
+
+<!-- 11. 参考资料 -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">参考资料</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>Google ADK 会话、状态与记忆文档 — <a href="https://google.github.io/adk-docs/sessions/session/" target="_blank">google.github.io/adk-docs/sessions/</a></li>
+    <li><span class="ref-num">2</span>LangChain 记忆文档 — <a href="https://python.langchain.com/docs/modules/memory/" target="_blank">python.langchain.com/docs/modules/memory/</a></li>
+    <li><span class="ref-num">3</span>LangGraph 记忆（长期） — <a href="https://langchain-ai.github.io/langgraph/concepts/memory/" target="_blank">langchain-ai.github.io/langgraph/concepts/memory/</a></li>
+    <li><span class="ref-num">4</span>Vertex AI Memory Bank — <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/memory-bank" target="_blank">cloud.google.com/vertex-ai/generative-ai/docs</a></li>
+    <li><span class="ref-num">5</span>检索增强生成概述 — <a href="https://cloud.google.com/use-cases/retrieval-augmented-generation" target="_blank">cloud.google.com/use-cases/retrieval-augmented-generation</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>智能体设计模式 — 第八章：记忆管理</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  '提示：用户的输入进入系统，并与检索到的长期记忆相结合。组合的上下文——当前提示 + 相关的过往知识——传递给智能体进行处理。',
+  '智能体：使用大语言模型处理丰富的上下文。在处理过程中，它可以读写记忆：存储新信息、更新状态，并使用检索到的事实为响应奠定基础。',
+  '记忆：持久存储层。双向：智能体在响应前通过语义搜索读取相关的过往知识，并在每次交互后将新信息写回，以备将来检索。',
+  '输出：智能体的响应，使用当前提示和召回的长期上下文共同生成。比无状态响应更丰富，因为它融入了个性化的持久知识。',
+  '用户：收到感觉连续、个性化且上下文感知的响应——仿佛智能体真的记得他们。这从根本上比无状态交互创造了更好的用户体验。'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: '在智能体系统中，短期记忆和长期记忆的关键区别是什么？',
+    opts: [
+      '短期记忆存储在数据库中；长期记忆存在于上下文窗口中',
+      '短期记忆在上下文窗口中是短暂的；长期记忆跨会话持久存储在外部存储中',
+      '短期记忆用于事实；长期记忆用于对话历史',
+      '它们在功能上是相同的——只是不同的命名惯例'
+    ],
+    ans: 1,
+    ok: '正确！短期记忆是短暂的上下文窗口——会话结束时丢失。长期记忆跨多个会话持久存储在外部数据库（如向量数据库）中。',
+    no: '短期记忆（上下文窗口）是短暂的，会话结束时消失。长期记忆跨会话持久存储在外部数据库中。'
+  },
+  {
+    q: '在 Google ADK 中，会话状态中的 "temp:" 键前缀意味着什么？',
+    opts: [
+      '数据被压缩以节省空间',
+      '数据在应用程序的所有用户之间共享',
+      '数据仅对当前处理轮次有效，永不持久化',
+      '数据被加密以确保安全'
+    ],
+    ans: 2,
+    ok: '正确！"temp:" 前缀表示数据仅对当前处理轮次有效，SessionService 不会持久化它——纯粹是瞬态的。',
+    no: '"temp:" 前缀意味着数据仅对当前处理轮次有效，SessionService 永不持久化它。'
+  },
+  {
+    q: '哪种类型的长期记忆存储智能体的行为规则和系统提示，并可以通过反思自我更新？',
+    opts: [
+      '语义记忆',
+      '情节记忆',
+      '陈述性记忆',
+      '程序记忆'
+    ],
+    ans: 3,
+    ok: '正确！程序记忆是如何执行任务的记忆——智能体系统提示中的核心指令。反思技术允许智能体根据经验更新自己的程序记忆。',
+    no: '程序记忆包含智能体的行为规则和系统指令。反思技术通过分析近期表现使智能体能够更新程序记忆。'
+  },
+  {
+    q: '为什么在 Google ADK 中强烈不建议直接修改 session.state？',
+    opts: [
+      '这会使代码变得更长',
+      '它绕过事件处理机制，不会记录到历史中，可能不持久，并可能导致并发问题',
+      'ADK 框架会用异常阻止直接修改',
+      '它只能与 InMemorySessionService 一起使用'
+    ],
+    ans: 1,
+    ok: '正确！直接修改绕过了标准事件处理机制——更改不会在事件历史中，可能不持久，可能导致并发问题，并且不会更新时间戳等元数据。',
+    no: '直接修改 session.state 绕过事件处理：更改不记录在会话历史中，可能不持久，可能导致并发问题，并且不更新时间戳。'
+  },
+  {
+    q: 'Google ADK 中 MemoryService 的主要用途是什么？',
+    opts: [
+      '管理大语言模型的上下文窗口大小',
+      '提供可搜索的跨会话知识存储库，用于长期记忆',
+      '处理用户认证和会话安全',
+      '压缩对话历史以减少令牌数量'
+    ],
+    ans: 1,
+    ok: '正确！MemoryService 管理长期知识存储：add_session_to_memory 摄取会话，search_memory 为当前上下文检索相关的过往知识——实现跨会话连续性。',
+    no: 'MemoryService 提供来自过去会话的长期知识可搜索存储库。它支持 add_session_to_memory（存储）和 search_memory（检索）操作。'
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">第 ' + (curQ+1) + ' 题 / 共 ' + quizData.length + ' 题</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">下一题</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">查看核心要点</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

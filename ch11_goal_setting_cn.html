@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第十一章：目标设定与监控 — 交互式学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8;
+  --bg2: #F2F1ED;
+  --bg3: #E8E7E2;
+  --text: #1A1A18;
+  --text2: #5C5B57;
+  --text3: #8A8983;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75;
+  --teal-l: #E1F5EE;
+  --teal-d: #085041;
+  --coral: #D85A30;
+  --coral-l: #FAECE7;
+  --coral-d: #712B13;
+  --purple: #7F77DD;
+  --purple-l: #EEEDFE;
+  --purple-d: #3C3489;
+  --blue: #378ADD;
+  --blue-l: #E6F1FB;
+  --blue-d: #0C447C;
+  --amber: #BA7517;
+  --amber-l: #FAEEDA;
+  --amber-d: #633806;
+  --pink: #D4537E;
+  --pink-l: #FBEAF0;
+  --pink-d: #72243E;
+  --red: #E24B4A;
+  --red-l: #FCEBEB;
+  --red-d: #791F1F;
+  --green: #639922;
+  --green-l: #EAF3DE;
+  --green-d: #27500A;
+  --sans: 'Noto Sans SC', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A;
+    --bg2: #2A2A27;
+    --bg3: #343431;
+    --text: #E8E7E2;
+    --text2: #ADACA6;
+    --text3: #7A7974;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30;
+    --teal-d: #9FE1CB;
+    --coral-l: #3D1E12;
+    --coral-d: #F5C4B3;
+    --purple-l: #2A2555;
+    --purple-d: #CECBF6;
+    --blue-l: #0A2E4D;
+    --blue-d: #B5D4F4;
+    --amber-l: #3A2805;
+    --amber-d: #FAC775;
+    --pink-l: #3D1528;
+    --pink-d: #F4C0D1;
+    --red-l: #3D1313;
+    --red-d: #F7C1C1;
+    --green-l: #1E3008;
+    --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn:active { transform: scale(.98); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 100px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_cn.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← 返回章节列表</a>
+
+<div class="chapter-tag">第十一章</div>
+<h1>目标设定与监控</h1>
+<p class="subtitle">为 AI 代理注入明确目标与自我评估机制——将被动响应型系统转变为能够自主规划、追踪进度并持续适应的主动目标导向实体。</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">概览</button>
+  <button class="nav-btn" onclick="go('problem')">问题所在</button>
+  <button class="nav-btn" onclick="go('solution')">解决方案</button>
+  <button class="nav-btn" onclick="go('concepts')">核心概念</button>
+  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
+  <button class="nav-btn" onclick="go('code')">代码实战</button>
+  <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
+  <button class="nav-btn" onclick="go('glance')">一览概要</button>
+  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
+  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
+  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+</nav>
+
+<!-- 1. 概览 -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">模式概览</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">模式类型</div><div class="metric-value">目标驱动</div></div>
+    <div class="metric"><div class="metric-label">核心机制</div><div class="metric-value">规划 + 监控</div></div>
+    <div class="metric"><div class="metric-label">关键特性</div><div class="metric-value">反馈闭环</div></div>
+    <div class="metric"><div class="metric-label">目标框架</div><div class="metric-value">SMART 原则</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>什么是目标设定与监控？</h3>
+    <p>AI 代理要真正发挥效用，不仅需要处理信息和使用工具的能力，更需要明确的方向感以及一种判断自己是否成功的机制。目标设定与监控模式的核心是：为代理指定具体目标，并赋予其追踪进度、判断目标是否达成的手段。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>规划作为基础能力</h3>
+    <p>想象规划一次旅行：你决定去哪里（目标状态），明确出发地（初始状态），考虑选项（交通、路线、预算），然后制定步骤：订票、打包、出发……在智能代理系统中，规划意味着代理接收高层次目标，自主生成一系列中间步骤或子目标，并协调工具使用、路由决策或多代理协作来推进执行。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>为什么规划如此重要？</h3>
+    <p>良好的规划能力让代理能够处理非简单的单步查询——应对多方面的复杂请求、在环境变化时重新规划、编排复杂工作流。这是众多高级代理行为的基础模式，将简单的被动响应系统转变为能主动朝定义目标努力的自主系统。</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>监控反馈闭环</h3>
+    <p>仅仅设定目标是不够的——代理还必须监控自身进度。通过持续评估行动是否在推进目标，代理可以检测偏差、纠正方向、调整计划。这个反馈闭环是将静态规划者转变为真正自主、自我管理系统的关键要素。</p>
+  </div>
+</div>
+
+<!-- 2. 问题所在 -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">无目标代理的根本缺陷</div>
+  <div class="sec-desc">缺乏目标设定与监控机制的 AI 代理存在根本性局限，无法胜任复杂的真实世界任务。点击卡片查看详情：</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>缺乏自主方向感</h4>
+      <p>只能对当前提示做出即时反应</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">没有明确目标，代理只能被动响应——无法主动规划或朝着更宏观目标执行多步骤任务，也无法在步骤之间保持连贯性。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>无法追踪进度</h4>
+      <p>代理无从判断自己是否在成功推进</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">没有监控机制，代理无法判断其行动是否真正朝期望结果推进。它可能持续采取行动，却对这些行动是否有效毫无感知。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>无法处理多步骤任务</h4>
+      <p>复杂工作流需要跨步骤的持续上下文</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">"规划产品发布"这类任务需要数十个协调步骤。没有目标框架来跨步骤维护上下文，代理会迷失方向，忘记已完成的工作和尚未完成的任务。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>无法纠正路线</h4>
+      <p>环境变化时无法自适应调整</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">在动态环境中，条件会不断变化。没有监控能力的代理无法检测到当前方案已不再有效，会盲目沿着一条失败的路径继续执行。</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')" style="background:var(--bg2);">
+      <h4>成功标准模糊</h4>
+      <p>没有明确的"完成"定义</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">缺乏明确可测量的目标，就无法判断任务何时完成。代理可能过早停止（留下未竟工作）或无限持续（在已解决的问题上浪费资源）。</p></div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--red); border-radius: 0 var(--radius) var(--radius) 0;">
+    <h3>核心矛盾</h3>
+    <p>AI 代理常常缺乏清晰方向，导致其无法超越简单被动任务、有目的地行动。没有明确目标，它们既无法独立处理复杂多步骤问题，也没有内在机制来判断行动是否正在导向成功结果。这严重限制了代理在动态真实场景中的自主性和有效性。</p>
+  </div>
+</div>
+
+<!-- 3. 解决方案 -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">目标设定与监控解决方案</div>
+  <div class="sec-desc">该模式通过三个关键阶段将目标感和自我评估能力嵌入代理系统。点击每个节点深入了解：</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">定义清晰目标</div>
+          <div class="chain-role">SMART 原则：具体、可测量、可实现、相关、有时限</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        明确定义代理必须实现什么。好的目标遵循 SMART 原则：<strong>具体（Specific）</strong>而非模糊；<strong>可测量（Measurable）</strong>，能判断是否达成；<strong>可实现（Achievable）</strong>，在代理能力范围内；<strong>相关（Relevant）</strong>，与整体目标一致；<strong>有时限（Time-bound）</strong>，有明确时间框架或完成条件。<br><br>
+        在 Google ADK 中，目标通常通过代理指令传达，监控则通过状态管理和工具交互来实现。
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">执行与监控</div>
+          <div class="chain-role">追踪代理行动、环境状态和工具输出</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        代理工作的同时，持续观察并记录：已采取的行动、产生的输出、环境状态变化和工具调用结果。这些监控数据构成评估进度的信息基础。<br><br>
+        监控涵盖：观察代理行动、追踪环境状态变化、评估工具输出结果，以及维护相对目标指标的持续进度记录。
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div>
+          <div class="chain-title">评估与适应</div>
+          <div class="chain-role">反馈闭环：评估进度、纠正路线或升级处理</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        利用监控数据评估目标是否已达成。若已达成，成功结束任务。若未达成，分析原因并选择重新规划、调整参数，或升级至人工操作员处理。<br><br>
+        这个反馈闭环是关键成分——它使代理能够评估自身表现、纠正路线、在偏离成功路径时调整计划，从而将被动代理转变为主动自我管理系统。
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>从被动响应到主动驱动</h3>
+    <p>通过实施该模式，开发者可以将简单的被动代理转变为主动的、目标导向的系统，实现自主可靠的运行。代理不再仅仅是响应——它追求、评估、适应，直到目标达成或通知人工干预。</p>
+  </div>
+</div>
+
+<!-- 4. 核心概念 -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">核心概念：SMART 目标与监控指标</div>
+  <div class="sec-desc">该模式的效果取决于目标的定义质量和成功标准的清晰程度。</div>
+
+  <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>SMART 目标框架</h3>
+    <p>目标应当是具体的（Specific）、可测量的（Measurable）、可实现的（Achievable）、相关的（Relevant）、有时限的（Time-bound）。"提升性能"这样模糊的目标无法有效监控。"在本迭代周期结束前将 API 延迟降低到 200ms 以下"这样具体的目标才能为代理提供清晰靶点和可测量的成功标准。</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--green);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>成功指标与监控范围</h3>
+    <p>定义监控什么与定义目标本身同等重要。监控应涵盖：代理行动及其结果、外部环境状态、工具输出和 API 响应、中间子目标的完成情况，以及朝最终目标的整体进度。</p>
+  </div>
+
+  <p style="font-size:14px;color:var(--text2);margin-bottom:12px;">代码生成代理的目标定义与监控状态示例：</p>
+  <div class="json-block">{
+  "目标": {
+    "用例": "编写一个求正整数二进制间隔（BinaryGap）的函数",
+    "质量标准": [
+      "代码简单易懂",
+      "功能正确",
+      "处理边缘情况",
+      "仅接受正整数输入",
+      "打印结果并给出示例"
+    ],
+    "最大迭代次数": 5,
+    "成功条件": "LLM 裁判对所有标准返回 True"
+  },
+  "监控状态": {
+    "当前迭代": 2,
+    "最新反馈": "代码处理了基本情况，但遗漏了零输入的边缘情况",
+    "目标已达成": false,
+    "上一版本代码": "def binary_gap(n): ..."
+  }
+}</div>
+
+  <div class="card card-bordered">
+    <h3>迭代精炼闭环</h3>
+    <p>目标监控的核心威力在于迭代循环：生成 → 对照目标评估 → 若未达标则融入反馈并重新生成 → 重复直到目标达成或达到最大迭代次数。这与熟练开发者的工作方式如出一辙：起草、审查、修改。</p>
+  </div>
+</div>
+
+<!-- 5. 应用场景 -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">实际应用与用例</div>
+  <div class="sec-desc">目标设定与监控对任何需要可靠运行、实现特定成果的代理都至关重要。点击标签探索六大应用领域：</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">客户支持</button>
+    <button class="uc-tab" onclick="showUC(1)">个性化教育</button>
+    <button class="uc-tab" onclick="showUC(2)">项目管理</button>
+    <button class="uc-tab" onclick="showUC(3)">量化交易</button>
+    <button class="uc-tab" onclick="showUC(4)">机器人控制</button>
+    <button class="uc-tab" onclick="showUC(5)">内容审核</button>
+  </div>
+
+  <div class="uc-panel active" id="uc-0">
+    <div class="card" style="border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>客户支持自动化</h3>
+      <p>代理的目标可能是"解决客户的账单查询问题"。它监控对话、检查数据库条目，并使用工具调整账单。成功标准是账单变更已确认且收到积极的客户反馈。若问题未在若干次尝试后解决，则升级至人工客服并附带完整上下文。</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div>定义目标：解决特定账单问题</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div>监控：检查数据库、对话情感、解决状态</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div>评估：账单是否已更新？客户是否满意？</div></div>
+        <div class="uc-step"><div class="uc-step-num">4</div><div>若未解决：携带完整上下文升级至人工客服</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-1">
+    <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>个性化学习系统</h3>
+      <p>学习代理的目标是"提升学生对代数的理解"。它监控学生在练习题上的进度、调整教学材料，并追踪准确率和完成时间等绩效指标。若学生遇到困难，代理会调整方式——呈现更简单的示例、改变解释风格或提供额外练习。</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-2">
+    <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>项目管理助手</h3>
+      <p>负责"确保项目里程碑 X 在 Y 日期前完成"的代理，会持续监控任务状态、团队沟通和资源可用性，在目标面临风险时主动标记延误并建议纠正措施，在阻碍演变为危机之前提前识别。</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-3">
+    <div class="card" style="border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>自动化量化交易</h3>
+      <p>交易代理的目标是"在风险容忍度范围内最大化投资组合收益"。它实时监控市场数据、当前持仓价值和风险指标，在条件符合目标时执行交易，在风险阈值被突破时调整策略。监控循环实时运行。</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-4">
+    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>机器人与自动驾驶</h3>
+      <p>自动驾驶车辆的目标是"安全将乘客从 A 点运送到 B 点"。它持续监控环境（其他车辆、行人、信号灯）、自身状态（速度、油量）和路线进度，实时调整驾驶行为以安全高效地实现目标。</p>
+    </div>
+  </div>
+
+  <div class="uc-panel" id="uc-5">
+    <div class="card" style="border-left:3px solid var(--green);border-radius:0 var(--radius) var(--radius) 0;">
+      <h3>内容审核</h3>
+      <p>审核代理的目标是"识别并删除平台 X 上的有害内容"。它监控传入内容、应用分类模型，并追踪误报/漏报等指标，在置信度低于阈值时调整过滤标准或将模糊案例升级至人工审核员。</p>
+    </div>
+  </div>
+</div>
+
+<!-- 6. 代码实战 -->
+<div id="sec-code" class="section">
+  <div class="sec-title">代码实战：目标驱动的代码生成代理</div>
+  <div class="sec-desc">以下示例使用 LangChain 和 OpenAI 展示目标设定与监控模式。代理迭代生成并优化 Python 代码，直到满足质量目标。</div>
+
+  <p style="font-size:14px;color:var(--text2);margin-bottom:8px;font-weight:500;">代理设置与目标监控循环（LangChain + OpenAI）：</p>
+  <div class="code-block"><span class="code-keyword">import</span> os
+<span class="code-keyword">import</span> re
+<span class="code-keyword">from</span> pathlib <span class="code-keyword">import</span> Path
+<span class="code-keyword">from</span> langchain_openai <span class="code-keyword">import</span> ChatOpenAI
+<span class="code-keyword">from</span> dotenv <span class="code-keyword">import</span> load_dotenv, find_dotenv
+
+_ = load_dotenv(find_dotenv())
+OPENAI_API_KEY = os.getenv(<span class="code-string">"OPENAI_API_KEY"</span>)
+<span class="code-keyword">if not</span> OPENAI_API_KEY:
+    <span class="code-keyword">raise</span> EnvironmentError(<span class="code-string">"OPENAI_API_KEY 环境变量未设置。"</span>)
+
+llm = ChatOpenAI(
+    model=<span class="code-string">"gpt-4o"</span>,
+    temperature=<span class="code-number">0.3</span>,
+    openai_api_key=OPENAI_API_KEY,
+)
+
+<span class="code-keyword">def</span> generate_prompt(use_case: str, goals: list[str],
+                   previous_code: str = <span class="code-string">""</span>, feedback: str = <span class="code-string">""</span>) -> str:
+    <span class="code-string">"""构造代码生成提示词。"""</span>
+    base_prompt = f<span class="code-string">"""你是一个 AI 编程代理。请为以下用例编写 Python 代码：
+用例：{use_case}
+目标：
+{chr(10).join(f'- {g.strip()}' for g in goals)}"""</span>
+    <span class="code-keyword">if</span> previous_code:
+        base_prompt += f<span class="code-string">"\n上一版本代码：\n{previous_code}"</span>
+    <span class="code-keyword">if</span> feedback:
+        base_prompt += f<span class="code-string">"\n对上一版本的反馈：\n{feedback}\n"</span>
+    base_prompt += <span class="code-string">"\n请只返回修改后的 Python 代码，不要包含代码外的注释或解释。"</span>
+    <span class="code-keyword">return</span> base_prompt
+
+<span class="code-keyword">def</span> goals_met(feedback_text: str, goals: list[str]) -> bool:
+    <span class="code-string">"""使用 LLM 判断目标是否满足。返回 True 或 False。"""</span>
+    review_prompt = f<span class="code-string">"""你是一个 AI 审阅者。
+目标：{chr(10).join(f'- {g.strip()}' for g in goals)}
+对代码的反馈：\"\"\"{feedback_text}\"\"\"
+根据以上反馈，目标是否已达成？请只回答一个词：True 或 False。"""</span>
+    response = llm.invoke(review_prompt).content.strip().lower()
+    <span class="code-keyword">return</span> response == <span class="code-string">"true"</span></div>
+
+  <p style="font-size:14px;color:var(--text2);margin-bottom:8px;font-weight:500;">带迭代监控的主代理循环：</p>
+  <div class="code-block"><span class="code-keyword">def</span> run_code_agent(use_case: str, goals_input: str, max_iterations: int = <span class="code-number">5</span>) -> str:
+    goals = [g.strip() <span class="code-keyword">for</span> g <span class="code-keyword">in</span> goals_input.split(<span class="code-string">","</span>)]
+    previous_code = <span class="code-string">""</span>
+    feedback = <span class="code-string">""</span>
+
+    <span class="code-keyword">for</span> i <span class="code-keyword">in</span> range(max_iterations):
+        print(f<span class="code-string">"\n=== 第 {i + 1} 轮迭代 / 共 {max_iterations} 轮 ==="</span>)
+
+        <span class="code-comment"># 生成：朝目标生成代码</span>
+        prompt = generate_prompt(use_case, goals, previous_code,
+                                 feedback <span class="code-keyword">if</span> isinstance(feedback, str) <span class="code-keyword">else</span> feedback.content)
+        code_response = llm.invoke(prompt)
+        code = clean_code_block(code_response.content.strip())
+
+        <span class="code-comment"># 监控：获取 LLM 对代码的反馈</span>
+        feedback = get_code_feedback(code, goals)
+        feedback_text = feedback.content.strip()
+
+        <span class="code-comment"># 评估：检查目标是否满足</span>
+        <span class="code-keyword">if</span> goals_met(feedback_text, goals):
+            print(<span class="code-string">"目标已达成，停止迭代。"</span>)
+            <span class="code-keyword">break</span>
+
+        previous_code = code  <span class="code-comment"># 适应：携带代码进入下一轮迭代</span>
+
+    final_code = add_comment_header(code, use_case)
+    <span class="code-keyword">return</span> save_code_to_file(final_code, use_case)
+
+<span class="code-comment"># 示例调用</span>
+<span class="code-keyword">if</span> __name__ == <span class="code-string">"__main__"</span>:
+    use_case_input = <span class="code-string">"编写一个求正整数二进制间隔（BinaryGap）的函数"</span>
+    goals_input = <span class="code-string">"代码简单易懂,功能正确,处理边缘情况,仅接受正整数输入,打印结果并给出示例"</span>
+    run_code_agent(use_case_input, goals_input)</div>
+</div>
+
+<!-- 7. 深入解析 -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">深入解析：注意事项与进阶考量</div>
+  <div class="sec-desc">目标设定与监控模式功能强大，但需要精心设计以规避陷阱。点击各层级查看进阶分析：</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--teal-l);color:var(--teal-d);">
+      <div class="ctx-layer-title">LLM 自我评估偏差</div>
+      <div class="ctx-layer-sub">裁判与被裁判是同一人</div>
+      <div class="ctx-layer-detail">
+        当同一个 LLM 既生成输出又评估其质量时，它可能更难识别自身错误——模型可能将表现错误评估为成功，即使目标实际上并未真正达成。更稳健的方案是使用独立代理：一个负责生成，另一个负责审查，使用不同的提示词甚至不同的模型。
+      </div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--purple-l);color:var(--purple-d);">
+      <div class="ctx-layer-title">无限循环风险</div>
+      <div class="ctx-layer-sub">务必设置最大迭代次数上限</div>
+      <div class="ctx-layer-detail">
+        没有迭代次数硬性上限，若代理始终无法获得"True"的判定，监控循环可能永远运行下去。始终实现 max_iterations 参数。达到上限而目标仍未达成时，代理应返回最优解并标记为未完成，或升级至人工审查。
+      </div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--coral-l);color:var(--coral-d);">
+      <div class="ctx-layer-title">目标质量决定一切</div>
+      <div class="ctx-layer-sub">垃圾进，垃圾出</div>
+      <div class="ctx-layer-detail">
+        LLM 可能无法完全理解模糊目标的真实含义，从而错误地将表现评估为成功。在目标定义上投入时间，打磨精确、无歧义的表述。使用 SMART 框架：如果目标无法被清晰测量，监控机制就无法可靠运作。
+      </div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--amber-l);color:var(--amber-d);">
+      <div class="ctx-layer-title">多代理目标职责分离</div>
+      <div class="ctx-layer-sub">专业化角色提升客观评估质量</div>
+      <div class="ctx-layer-detail">
+        更稳健的生产级方案使用一组专业代理团队：同伴程序员负责生成代码，代码审查员负责发现错误，测试编写员创建单元测试，文档编写员处理文档，提示优化员优化交互。职责分离天然提升了各阶段的客观性和质量。
+      </div>
+    </div>
+
+    <div class="ctx-layer" onclick="toggleCtx(this)" style="background:var(--blue-l);color:var(--blue-d);">
+      <div class="ctx-layer-title">代码幻觉问题</div>
+      <div class="ctx-layer-sub">生成的代码必须执行测试，而非仅做审查</div>
+      <div class="ctx-layer-detail">
+        LLM 不会神奇地生成完美代码。即使 LLM 裁判认为代码满足所有目标，你仍然需要实际运行和测试所生成的代码。基础示例中的监控机制是概念性的——生产系统需要真实的测试执行来验证正确性。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. 一览概要 -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">一览概要</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4>是什么（WHAT）</h4>
+      <p>AI 代理常常缺乏清晰方向，无法超越简单被动任务有目的地行动。没有明确目标，它们无法独立处理复杂多步骤问题，也没有内在机制判断行动是否导向成功，严重限制了在动态场景中的自主性。</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4>为什么（WHY）</h4>
+      <p>目标设定与监控将目标感和自我评估嵌入代理系统：明确定义可测量目标，建立持续追踪进度的监控机制。二者共同创造反馈闭环，使代理能够评估表现、纠正路线、调整计划，从被动响应者变为主动追求者。</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);">
+      <h4>经验法则（RULE）</h4>
+      <p>当 AI 代理必须自主执行多步骤任务、适应动态条件、并在无需持续人工干预的情况下可靠实现特定高层目标时，使用此模式。若仅需简单任务执行，更简单的被动模式即可满足需求。</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);">
+      <h4>核心洞察</h4>
+      <p>关键不仅在于设定目标，而在于反馈闭环：定义 → 执行 → 监控 → 评估 → 适应。没有监控和适应步骤，目标设定只是文档。正是这个循环让代理真正实现自主和自我纠错。</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;font-weight:500;margin-bottom:8px;">目标-监控循环模拟</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">点击各节点了解该阶段的作用</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" onclick="simClick(0)" style="background:var(--teal-l);color:var(--teal-d);">设定目标</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(1)" style="background:var(--purple-l);color:var(--purple-d);">执行</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(2)" style="background:var(--coral-l);color:var(--coral-d);">监控</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(3)" style="background:var(--amber-l);color:var(--amber-d);">评估</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" onclick="simClick(4)" style="background:var(--blue-l);color:var(--blue-d);">适应/完成</div>
+    </div>
+    <div class="dia-output" id="sim-output">点击上方任意节点，了解目标监控循环在该阶段的运作方式。</div>
+  </div>
+</div>
+
+<!-- 9. 知识测验 -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">知识测验</div>
+  <div class="sec-desc">检验你对目标设定与监控模式的理解。</div>
+  <div id="quizProgress" class="quiz-progress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. 核心要点 -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">核心要点</div>
+  <div class="sec-desc">第十一章"目标设定与监控"的关键收获：</div>
+  <ul class="tk-list">
+    <li>目标设定与监控为代理注入目标感和进度追踪机制，将被动响应系统转变为主动目标驱动实体。</li>
+    <li>目标应遵循 SMART 原则：具体、可测量、可实现、相关、有时限，以支持有效监控。</li>
+    <li>清晰定义指标和成功标准至关重要——无法测量的目标就无法有效监控。</li>
+    <li>监控涵盖在整个执行过程中持续观察代理行动、环境状态和工具输出。</li>
+    <li>来自监控的反馈闭环使代理能够适应、修正计划，或在进度停滞时升级处理。</li>
+    <li>在 Google ADK 中，目标通常通过代理指令传达，监控通过状态管理和工具交互实现。</li>
+    <li>将同一 LLM 用作生成者和裁判时，需警惕自我评估偏差——独立审查代理能产生更客观的评估。</li>
+    <li>务必实现迭代次数限制以防止无限循环；生产系统还需要真实的代码执行来验证生成输出的正确性。</li>
+  </ul>
+</div>
+
+<!-- 11. 参考资料 -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">参考资料</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>SMART 目标框架. <a href="https://en.wikipedia.org/wiki/SMART_criteria" target="_blank">https://en.wikipedia.org/wiki/SMART_criteria</a></li>
+    <li><span class="ref-num">2</span>LangChain 文档. <em>LangChain</em>. <a href="https://python.langchain.com/docs/" target="_blank">https://python.langchain.com/docs/</a></li>
+    <li><span class="ref-num">3</span>Google ADK 文档. <em>Agent Development Kit</em>. <a href="https://google.github.io/adk-docs/" target="_blank">https://google.github.io/adk-docs/</a></li>
+    <li><span class="ref-num">4</span>Russell, S., &amp; Norvig, P. (2020). <em>人工智能：现代方法（第4版）</em>. Pearson.</li>
+    <li><span class="ref-num">5</span>Doran, G. T. (1981). There's a S.M.A.R.T. way to write management's goals and objectives. <em>Management Review, 70</em>(11), 35–36.</li>
+  </ul>
+</div>
+
+<div class="footer"><p>第十一章 · 目标设定与监控 · 智能代理开发交互式学习</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  '设定目标：使用 SMART 原则为代理定义清晰可测量的目标。在代码中，这可能是生成输出的质量标准列表、需要达到的目标指标，或需要到达的特定结束状态。',
+  '执行：代理采取行动朝目标推进——生成代码、调用 API、做出决策。它基于指令和可用工具自主运作，不需要人工逐步干预。',
+  '监控：持续观察并记录代理行动、工具输出、环境状态变化和中间结果。这些数据构成评估目标是否正在接近的信息基础。',
+  '评估：将当前状态与目标标准对比。代理（或独立裁判）评估输出是否满足所有定义的成功条件。返回 True（目标已达成）或 False（需要继续迭代）。',
+  '适应/完成：若目标已达成，成功结束任务。若未达成（且还有剩余迭代次数），融入反馈并适应——优化方法、调整参数或重新规划。若迭代次数耗尽，升级至人工审查。'
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: 'SMART 目标中的"M"代表什么，为什么它对代理监控至关重要？',
+    opts: [
+      'A. 激励性（Motivating）——目标必须能激励代理行动',
+      'B. 可测量性（Measurable）——能客观判断目标是否已达成',
+      'C. 模块化（Modular）——目标必须拆解为子任务',
+      'D. 最简化（Minimal）——目标应尽可能简单'
+    ],
+    ans: 1,
+    ok: '正确！可测量性（Measurable）是关键，因为监控机制需要具体、客观的标准来进行评估。没有可测量性，代理和人类都无法判断目标是否真正达成。',
+    no: '不正确。"M"代表可测量性（Measurable）——能够客观判断目标是否达成，这是自动化监控得以实现的基础。'
+  },
+  {
+    q: '在代码生成代理示例中，"裁判"LLM 扮演什么角色？',
+    opts: [
+      'A. 根据用例编写初始代码',
+      'B. 评估生成的代码是否满足定义的质量目标',
+      'C. 将最终代码保存到文件',
+      'D. 从用例描述中生成质量目标'
+    ],
+    ans: 1,
+    ok: '正确！裁判 LLM 充当监控组件，对照质量目标评估生成的代码，返回 True（目标已达成）或 False（需要继续迭代）。',
+    no: '不正确。裁判 LLM 负责对照质量目标评估生成的代码——它是反馈闭环中的监控和评估组件。'
+  },
+  {
+    q: '为什么将同一 LLM 同时用作生成者和评估者可能存在问题？',
+    opts: [
+      'A. 这会使 API 调用成本加倍',
+      'B. LLM 可能存在自我评估偏差，无法识别自身错误',
+      'C. 这总是会产生比使用两个独立模型更差的代码',
+      'D. 这会阻止代理使用外部工具'
+    ],
+    ans: 1,
+    ok: '正确！当同一 LLM 生成并评估自身输出时，可能存在自我评估偏差——它可能错误地将表现评估为成功，即使目标并未真正达成，导致改进循环过早终止。',
+    no: '核心问题是自我评估偏差：生成输出的同一模型在客观识别自身缺陷方面可能力不从心，可能导致改进循环提前终止。'
+  },
+  {
+    q: '没有最大迭代次数限制的目标监控循环面临的主要风险是什么？',
+    opts: [
+      'A. 代理会产生质量更低的输出',
+      'B. 若代理始终无法满足成功标准，循环可能无限运行',
+      'C. 监控状态会超出可用内存',
+      'D. LLM 会失去对原始目标的上下文'
+    ],
+    ans: 1,
+    ok: '正确！没有迭代次数硬性上限，若代理始终无法从裁判处获得"True"的判定，循环将永远运行，消耗无限的 API 调用和时间。',
+    no: '主要风险是无限循环。务必实现 max_iterations 参数，确保即使目标从未完全达成，过程也能终止。'
+  },
+  {
+    q: '以下哪项最准确地描述了目标设定与监控模式中的"反馈闭环"？',
+    opts: [
+      'A. 代理向监控仪表板发送日志数据',
+      'B. 执行 → 监控 → 评估 → 适应的循环，使自我纠错成为可能',
+      'C. 对每个代理行动获取人工反馈的过程',
+      'D. 将所有代理输出记录到数据库供后续审查'
+    ],
+    ans: 1,
+    ok: '正确！反馈闭环是核心机制：代理执行，监控记录发生了什么，评估与目标对比，适应为下一轮迭代调整方法——使自主自我纠错成为可能。',
+    no: '此模式中的反馈闭环是内部循环：执行 → 监控 → 评估 → 适应。它赋予代理无需人工逐步干预即可自我纠错的能力。'
+  },
+  {
+    q: '根据本章，为什么该模式"对需要可靠运行的代理至关重要"？',
+    opts: [
+      'A. 它完全消除了对人工监督的需求',
+      'B. 它提供了智能自我管理的框架：目标感、进度追踪和适应能力',
+      'C. 它保证代理总能达成目标',
+      'D. 它使代理比被动系统快得多'
+    ],
+    ans: 1,
+    ok: '正确！该模式至关重要是因为它提供了可靠自主运行的三大要素：明确目标（目标感）、持续进度追踪（监控）、以及适应能力（反馈闭环）。',
+    no: '该模式至关重要是因为它提供了智能自我管理的完整框架——目标赋予方向感，监控追踪进度，反馈闭环使适应成为可能。三者合力使可靠的自主运行成为现实。'
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">第 ' + (curQ+1) + ' 题 / 共 ' + quizData.length + ' 题</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">下一题</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">查看核心要点</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

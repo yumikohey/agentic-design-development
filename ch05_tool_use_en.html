@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 5: Tool Use (Function Calling) — Interactive Learning</title>
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F2F1ED; --bg3: #E8E7E2;
+  --text: #1A1A18; --text2: #5C5B57; --text3: #8A8983;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
+  --teal: #1D9E75; --teal-l: #E1F5EE; --teal-d: #085041;
+  --coral: #D85A30; --coral-l: #FAECE7; --coral-d: #712B13;
+  --purple: #7F77DD; --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --blue: #378ADD; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --pink: #D4537E; --pink-l: #FBEAF0; --pink-d: #72243E;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --serif: Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", "Fira Code", monospace;
+  --radius: 12px; --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1C1A; --bg2: #2A2A27; --bg3: #343431;
+    --text: #E8E7E2; --text2: #ADACA6; --text3: #7A7974;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --teal-l: #0A3D30; --teal-d: #9FE1CB; --coral-l: #3D1E12; --coral-d: #F5C4B3;
+    --purple-l: #2A2555; --purple-d: #CECBF6; --blue-l: #0A2E4D; --blue-d: #B5D4F4;
+    --amber-l: #3A2805; --amber-d: #FAC775; --pink-l: #3D1528; --pink-d: #F4C0D1;
+    --red-l: #3D1313; --red-d: #F7C1C1; --green-l: #1E3008; --green-d: #C0DD97;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.app { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.chapter-tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); background: var(--teal-l); padding: 4px 14px; border-radius: 99px; margin-bottom: 16px; }
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+.subtitle { font-size: 1.05rem; color: var(--text2); line-height: 1.8; margin-bottom: 2rem; max-width: 640px; }
+.nav-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border2); position: sticky; top: 0; background: var(--bg); z-index: 100; padding-top: 8px; }
+.nav-btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; font-weight: 400; white-space: nowrap; }
+.nav-btn:hover { border-color: var(--text3); color: var(--text); }
+.nav-btn.active { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); font-weight: 500; }
+.section { display: none; animation: fadeUp .4s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-bordered { border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; }
+.card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.card ul { padding-left: 1.4rem; margin-top: 8px; }
+.card li { font-size: 14px; color: var(--text2); margin-bottom: 4px; line-height: 1.7; }
+.sec-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.sec-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.8; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 16px 20px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.metric-value { font-size: 1.5rem; font-weight: 500; color: var(--text); margin-top: 4px; }
+.fail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .fail-grid { grid-template-columns: 1fr; } }
+.fail-card { padding: 16px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); cursor: pointer; transition: all .25s; position: relative; overflow: hidden; background: var(--bg2); }
+.fail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.fail-card:nth-child(1)::before { background: var(--red); }
+.fail-card:nth-child(2)::before { background: var(--coral); }
+.fail-card:nth-child(3)::before { background: var(--amber); }
+.fail-card:nth-child(4)::before { background: var(--pink); }
+.fail-card:nth-child(5)::before { background: var(--purple); }
+.fail-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fail-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fail-card .detail { max-height: 0; overflow: hidden; transition: max-height .3s; }
+.fail-card.open .detail { max-height: 200px; }
+.fail-card:hover { border-color: var(--border2); }
+.chain-container { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.chain-node { width: 100%; max-width: 520px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; cursor: pointer; transition: all .25s; }
+.chain-node:hover { border-color: var(--border2); }
+.chain-node.open { border-color: var(--teal); background: var(--teal-l); }
+.chain-head { display: flex; align-items: center; gap: 14px; }
+.chain-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.chain-title { font-size: 15px; font-weight: 500; }
+.chain-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.chain-detail { max-height: 0; overflow: hidden; transition: max-height .35s ease; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.chain-node.open .chain-detail { max-height: 400px; padding-top: 14px; }
+.chain-arrow { width: 2px; height: 32px; background: var(--border2); position: relative; }
+.chain-arrow::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid var(--border2); }
+.json-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); }
+.uc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.uc-tab { font-family: var(--sans); font-size: 12px; padding: 6px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .2s; }
+.uc-tab:hover { border-color: var(--text3); }
+.uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
+.uc-panel { display: none; animation: fadeUp .3s ease; }
+.uc-panel.active { display: block; }
+.uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
+.uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.code-block { background: var(--bg3); border-radius: var(--radius-sm); padding: 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0; border: 0.5px solid var(--border); tab-size: 2; }
+.code-comment { color: var(--text3); }
+.code-string { color: var(--teal); }
+.code-keyword { color: var(--purple); }
+.ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
+.ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
+.ctx-layer:hover { transform: translateX(4px); }
+.ctx-layer.open { transform: translateX(0); }
+.ctx-layer-title { font-size: 14px; font-weight: 500; }
+.ctx-layer-sub { font-size: 12px; opacity: .75; margin-top: 2px; }
+.ctx-layer-detail { max-height: 0; overflow: hidden; transition: max-height .35s; font-size: 13px; line-height: 1.8; }
+.ctx-layer.open .ctx-layer-detail { max-height: 300px; padding-top: 10px; }
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all .3s; }
+.quiz-dot.current { background: var(--teal); transform: scale(1.3); }
+.quiz-dot.done { background: var(--green); }
+.quiz-dot.wrong-dot { background: var(--red); }
+.quiz-q { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 18px; margin-bottom: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg2); color: var(--text); font-size: 14px; cursor: pointer; font-family: var(--sans); transition: all .2s; line-height: 1.6; }
+.quiz-opt:hover { border-color: var(--text3); background: var(--bg3); }
+.quiz-opt.correct { background: var(--green-l); border-color: var(--green); color: var(--green-d); }
+.quiz-opt.wrong { background: var(--red-l); border-color: var(--red); color: var(--red-d); }
+.quiz-opt.disabled { pointer-events: none; opacity: .6; }
+.quiz-opt.disabled.correct { opacity: 1; }
+.quiz-fb { padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; margin: 12px 0; display: none; }
+.quiz-fb.show { display: block; }
+.quiz-fb.right { background: var(--green-l); color: var(--green-d); }
+.quiz-fb.wrng { background: var(--red-l); color: var(--red-d); }
+.btn { font-family: var(--sans); padding: 8px 22px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-size: 13px; cursor: pointer; transition: all .15s; margin-top: 12px; }
+.btn:hover { background: var(--bg3); }
+.btn-teal { background: var(--teal-l); color: var(--teal-d); border-color: var(--teal); }
+.tk-list { counter-reset: tk; list-style: none; padding: 0; }
+.tk-list li { counter-increment: tk; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tk-list li::before { content: counter(tk); width: 28px; height: 28px; border-radius: 50%; background: var(--teal-l); color: var(--teal-d); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+@media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+.glance-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: .5px; }
+.glance-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.diagram-sim { background: var(--bg2); border-radius: var(--radius); padding: 24px; margin: 1.5rem 0; border: 0.5px solid var(--border); text-align: center; }
+.diagram-nodes { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+.dia-node { padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .3s; position: relative; min-width: 90px; text-align: center; }
+.dia-node:hover { transform: scale(1.05); }
+.dia-node.active { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(29,158,117,.3); }
+.dia-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+.dia-output { margin-top: 16px; padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); line-height: 1.7; text-align: left; min-height: 60px; transition: all .3s; }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); padding: 8px 0; border-bottom: 0.5px solid var(--border); line-height: 1.6; }
+.ref-list li:last-child { border-bottom: none; }
+.ref-list a { color: var(--blue-d); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="./index_en.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:20px;">← Back to Chapters</a>
+
+<div class="chapter-tag">Chapter 5</div>
+<h1>Tool Use (Function Calling)</h1>
+<p class="subtitle">The pattern that breaks LLMs out of their training data — enabling agents to call external APIs, databases, code interpreters, and other services to act in the real world.</p>
+
+<nav class="nav-bar" id="navbar">
+  <button class="nav-btn active" onclick="go('overview')">Overview</button>
+  <button class="nav-btn" onclick="go('problem')">Problems</button>
+  <button class="nav-btn" onclick="go('solution')">Solution</button>
+  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
+  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
+  <button class="nav-btn" onclick="go('code')">Code</button>
+  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
+  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
+  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
+  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
+  <button class="nav-btn" onclick="go('refs')">References</button>
+</nav>
+
+<!-- 1. Overview -->
+<div id="sec-overview" class="section active">
+  <div class="sec-title">Pattern Overview</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Pattern Name</div><div class="metric-value">Tool Use</div></div>
+    <div class="metric"><div class="metric-label">Key Strategy</div><div class="metric-value">Function Calling</div></div>
+    <div class="metric"><div class="metric-label">Key Benefit</div><div class="metric-value">Real-World Access</div></div>
+    <div class="metric"><div class="metric-label">Primary Goal</div><div class="metric-value">External Action</div></div>
+  </div>
+
+  <div class="card card-bordered">
+    <h3>What is the Tool Use Pattern?</h3>
+    <p>The Tool Use pattern, often implemented through a mechanism called Function Calling, enables an agent to interact with external APIs, databases, services, or even execute code. It allows the LLM at the core of the agent to decide when and how to use a specific external function based on the user's request or the current state of the task. This is what transforms a language model from a text generator into an agent capable of sensing, reasoning, and acting in the digital world.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Beyond "Function Calling"</h3>
+    <p>While "function calling" aptly describes invoking predefined code functions, the broader concept of "tool calling" acknowledges that an agent's capabilities can extend far beyond simple function execution. A "tool" can be a traditional function, a complex API endpoint, a database request, or even an instruction directed at another specialized agent — enabling primary agents to delegate tasks to "analyst agents" or query external knowledge bases.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Why It's Fundamental</h3>
+    <p>This pattern is fundamental because it breaks the limitations of the LLM's training data cutoff and allows it to access up-to-date information, perform calculations it can't do internally, interact with user-specific data, or trigger real-world actions. Without tools, an agent is limited to knowledge frozen at training time.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Framework Support</h3>
+    <p>LangChain, LangGraph, and Google Agent Developer Kit (ADK) provide robust support for defining tools and integrating them into agent workflows, leveraging the native function calling capabilities of modern LLMs like those in the Gemini or OpenAI series. The @tool decorator, create_tool_calling_agent, and AgentExecutor patterns make tool integration straightforward.</p>
+  </div>
+</div>
+
+<!-- 2. Problems -->
+<div id="sec-problem" class="section">
+  <div class="sec-title">Problems Tool Use Solves</div>
+  <div class="sec-desc">LLMs are powerful text generators, but they are fundamentally disconnected from the outside world. Click each card to explore the specific limitations this pattern addresses:</div>
+
+  <div class="fail-grid">
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Static Training Data</h4>
+      <p>LLM knowledge is frozen at the training cutoff</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">LLMs cannot know about events that happened after their training cutoff date. Without tools, agents cannot answer questions about current stock prices, today's weather, recent news, or any other real-time information.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>No Access to Private Data</h4>
+      <p>Agents cannot query user-specific or company data</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">An LLM has no knowledge of a user's account balance, order history, calendar, or internal company databases. Tools enable agents to query these private systems and retrieve personalized, accurate information on demand.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Unreliable Arithmetic</h4>
+      <p>LLMs cannot perform precise calculations</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">Language models are notorious for arithmetic errors, especially with large numbers, complex formulas, or multi-step calculations. Tools like code interpreters or calculator functions provide deterministic, exact results that LLMs cannot guarantee.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Cannot Trigger Real-World Actions</h4>
+      <p>Text generation alone cannot send emails or control devices</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">An agent that can only generate text cannot actually send an email, create a calendar event, place an order, or control a smart home device. Tools provide the bridge between the LLM's reasoning and real-world effects.</p></div>
+    </div>
+    <div class="fail-card" onclick="this.classList.toggle('open')">
+      <h4>Cannot Execute Code</h4>
+      <p>LLMs can write code but cannot run it</p>
+      <div class="detail"><p style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.7;">LLMs can generate Python snippets but cannot execute them to verify correctness, process data, or produce computed outputs. Code interpreter tools provide a sandboxed execution environment, enabling agents to write, run, and analyze code results.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Solution -->
+<div id="sec-solution" class="section">
+  <div class="sec-title">How Tool Use Works</div>
+  <div class="sec-desc">The Tool Use pattern follows a structured sequence. The LLM decides when tools are needed and generates structured function call requests that the framework executes. Click each step:</div>
+
+  <div class="chain-container">
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--teal);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--teal-l);color:var(--teal-d);">1</div>
+        <div>
+          <div class="chain-title">Tool Definition</div>
+          <div class="chain-role">Developer describes tools to the LLM</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        External functions or capabilities are defined and described to the LLM. The description includes the function's purpose, its name, and the parameters it accepts (with types and descriptions). This metadata allows the LLM to understand what each tool does and when to use it.<br><br>
+        <strong>In LangChain:</strong> @langchain_tool decorator on a Python function<br>
+        <strong>In ADK:</strong> Built-in tools like google_search, or custom LlmAgent tools
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--purple);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--purple-l);color:var(--purple-d);">2</div>
+        <div>
+          <div class="chain-title">LLM Decision</div>
+          <div class="chain-role">The LLM decides whether to call a tool</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The LLM receives the user's request and the available tool definitions. Based on its understanding of the request and the tools, it decides if calling one or more tools is necessary to fulfill the request. It may also decide to respond directly from its training knowledge if no tool is needed.<br><br>
+        <strong>Example:</strong> "What's the weather in London?" → LLM determines it needs the weather tool
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--coral);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--coral-l);color:var(--coral-d);">3</div>
+        <div>
+          <div class="chain-title">Function Call Generation</div>
+          <div class="chain-role">LLM outputs a structured call request</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        If the LLM decides to use a tool, it generates a structured output (often a JSON object) that specifies the name of the tool to call and the arguments (parameters) to pass to it, extracted from the user's request. This is not executed by the LLM directly — it's a request to the orchestration layer.<br><br>
+        <strong>Example output:</strong> {"tool": "get_weather", "args": {"location": "London"}}
+      </div>
+    </div>
+    <div class="chain-arrow"></div>
+
+    <div class="chain-node" onclick="toggleChain(this)" style="border-left:3px solid var(--amber);">
+      <div class="chain-head">
+        <div class="chain-num" style="background:var(--amber-l);color:var(--amber-d);">4</div>
+        <div>
+          <div class="chain-title">Tool Execution & Result</div>
+          <div class="chain-role">Framework runs the tool, returns result to LLM</div>
+        </div>
+      </div>
+      <div class="chain-detail">
+        The agentic framework (AgentExecutor, ADK Runner) intercepts the structured output, identifies the requested tool, and executes the actual external function with the provided arguments. The output or result from the tool execution is then returned to the agent. The LLM uses this result as context to formulate its final response or decide on the next step.<br><br>
+        <strong>Result flow:</strong> Tool result → LLM context → Final natural language response
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Core Concepts -->
+<div id="sec-concepts" class="section">
+  <div class="sec-title">Core Concepts</div>
+
+  <div class="card card-bordered">
+    <h3>Tool Definition Anatomy</h3>
+    <p>A well-defined tool has three critical components: (1) a <strong>name</strong> that the LLM uses to refer to it, (2) a clear <strong>description</strong> explaining what the tool does and when to use it (this is the most important part — the LLM reads this to decide when to call the tool), and (3) a <strong>parameter schema</strong> describing the input parameters with their types and descriptions.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--purple);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Agents as Tools (Tool Chaining)</h3>
+    <p>A powerful concept is using specialized agents as tools for a primary orchestrator agent. A "primary agent" can delegate a complex data analysis task to a dedicated "analyst agent" or query an external knowledge base through its API. This allows building sophisticated multi-agent systems where the tool-use pattern enables rich inter-agent communication.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--coral);border-radius:0 var(--radius) var(--radius) 0;">
+    <h3>Vertex AI Extensions vs. Function Calling</h3>
+    <p>Google's Vertex AI Extensions are structured API wrappers that enable a model to connect with external APIs for real-time data processing and action execution. The key difference: Vertex AI automatically executes extensions, whereas function calls require manual execution by the user or client. Extensions offer enterprise-grade security, data privacy, and performance guarantees.</p>
+  </div>
+
+  <p style="font-size:13px;color:var(--text3);margin:1rem 0 0.5rem;">LangChain Tool Definition Structure</p>
+  <div class="json-block">@langchain_tool
+def search_information(query: str) -> str:
+    """
+    Provides factual information on a given topic.
+    Use this tool to find answers to questions like
+    'capital of France' or 'weather in London?'.
+    """
+    # Tool implementation here...
+    return result
+
+# Tool is now ready to be bound to an LLM:
+# llm_with_tools = llm.bind_tools([search_information])</div>
+</div>
+
+<!-- 5. Use Cases -->
+<div id="sec-usecases" class="section">
+  <div class="sec-title">Practical Applications</div>
+  <div class="sec-desc">Tool Use is applicable in virtually any scenario where an agent needs to go beyond generating text to perform an action or retrieve specific, dynamic information. Select a use case:</div>
+
+  <div class="uc-tabs">
+    <button class="uc-tab active" onclick="showUC(0)">Info Retrieval</button>
+    <button class="uc-tab" onclick="showUC(1)">Database & APIs</button>
+    <button class="uc-tab" onclick="showUC(2)">Calculations</button>
+    <button class="uc-tab" onclick="showUC(3)">Communications</button>
+    <button class="uc-tab" onclick="showUC(4)">Code Execution</button>
+    <button class="uc-tab" onclick="showUC(5)">Smart Home / IoT</button>
+    <button class="uc-tab" onclick="showUC(6)">Enterprise Search</button>
+  </div>
+
+  <div id="uc-0" class="uc-panel active">
+    <div class="card card-bordered">
+      <h3>Information Retrieval from External Sources</h3>
+      <p>Accessing real-time data or information not present in the LLM's training data.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Use Case:</strong> A weather agent.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Tool:</strong> A weather API that takes a location and returns current conditions.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Agent Flow:</strong> User asks "What's the weather in London?" → LLM identifies need for weather tool → calls tool with "London" → tool returns data → LLM formats into user-friendly response.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-1" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Interacting with Databases and APIs</h3>
+      <p>Performing queries, updates, or other operations on structured data.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Use Case:</strong> An e-commerce agent.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Tools:</strong> API calls to check product inventory, get order status, or process payments.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Agent Flow:</strong> User asks "Is product X in stock?" → LLM calls the inventory API → tool returns stock count → LLM tells the user the stock status.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-2" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Performing Calculations and Data Analysis</h3>
+      <p>Using external calculators, data analysis libraries, or statistical tools for precise results.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Use Case:</strong> A financial agent.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Tools:</strong> A calculator function, a stock market data API, a spreadsheet tool.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Agent Flow:</strong> "What's AAPL's price and profit if I bought 100 shares at $150?" → LLM calls stock API → gets price → calls calculator → formats response.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-3" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Sending Communications</h3>
+      <p>Sending emails, messages, or making API calls to external communication services.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Use Case:</strong> A personal assistant agent.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Tool:</strong> An email sending API.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Agent Flow:</strong> "Send an email to John about the meeting tomorrow" → LLM extracts recipient, subject, body → calls email tool → confirms sending.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-4" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Executing Code</h3>
+      <p>Running code snippets in a safe environment to perform specific tasks or verify outputs.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Use Case:</strong> A coding assistant agent.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Tool:</strong> A sandboxed code interpreter (ADK's built_in_code_execution).</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Agent Flow:</strong> User asks "What does this code output?" → LLM uses code interpreter to run it → analyzes output → provides explanation.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-5" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Controlling Smart Home / IoT Devices</h3>
+      <p>Interacting with smart home devices, IoT platforms, or other connected systems.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Use Case:</strong> A smart home agent.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Tool:</strong> An API to control smart lights, thermostats, or appliances.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Agent Flow:</strong> "Turn off the living room lights" → LLM calls smart home tool with command and target device → confirms action.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="uc-6" class="uc-panel">
+    <div class="card card-bordered">
+      <h3>Enterprise Search with Vertex AI</h3>
+      <p>Searching private enterprise knowledge bases using Vertex AI Search datastores.</p>
+      <div class="uc-steps">
+        <div class="uc-step"><div class="uc-step-num">1</div><div><strong>Use Case:</strong> An internal knowledge assistant for a company.</div></div>
+        <div class="uc-step"><div class="uc-step-num">2</div><div><strong>Tool:</strong> VSearchAgent with a Vertex AI Search datastore containing company documents.</div></div>
+        <div class="uc-step"><div class="uc-step-num">3</div><div><strong>Agent Flow:</strong> "Summarize Q2 strategy" → ADK VSearchAgent searches the datastore → retrieves relevant documents → synthesizes a grounded response with source attributions.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Code -->
+<div id="sec-code" class="section">
+  <div class="sec-title">Code Examples</div>
+  <div class="sec-desc">Tool Use implementation across LangChain (search tool agent) and CrewAI (stock price agent).</div>
+
+  <p style="font-size:13px;font-weight:500;margin-bottom:8px;">LangChain: Tool-Calling Agent with Search Tool</p>
+  <div class="code-block"><span class="code-keyword">from</span> langchain_google_genai <span class="code-keyword">import</span> ChatGoogleGenerativeAI
+<span class="code-keyword">from</span> langchain_core.tools <span class="code-keyword">import</span> tool <span class="code-keyword">as</span> langchain_tool
+<span class="code-keyword">from</span> langchain.agents <span class="code-keyword">import</span> create_tool_calling_agent, AgentExecutor
+<span class="code-keyword">from</span> langchain_core.prompts <span class="code-keyword">import</span> ChatPromptTemplate
+
+llm = ChatGoogleGenerativeAI(model=<span class="code-string">"gemini-2.0-flash"</span>, temperature=<span class="code-string">0</span>)
+
+<span class="code-comment"># --- Define a Tool ---</span>
+@langchain_tool
+<span class="code-keyword">def</span> search_information(query: str) -> str:
+    <span class="code-string">"""Provides factual information on a given topic.
+    Use this to find answers to questions like
+    'capital of France' or 'weather in London?'."""</span>
+    simulated_results = {
+        <span class="code-string">"weather in london"</span>: <span class="code-string">"Currently cloudy, 15°C."</span>,
+        <span class="code-string">"capital of france"</span>: <span class="code-string">"The capital of France is Paris."</span>,
+    }
+    <span class="code-keyword">return</span> simulated_results.get(query.lower(),
+        f<span class="code-string">"No specific info found for '{query}'."</span>)
+
+<span class="code-comment"># --- Create Tool-Calling Agent ---</span>
+agent_prompt = ChatPromptTemplate.from_messages([
+    (<span class="code-string">"system"</span>, <span class="code-string">"You are a helpful assistant."</span>),
+    (<span class="code-string">"human"</span>, <span class="code-string">"{input}"</span>),
+    (<span class="code-string">"placeholder"</span>, <span class="code-string">"{agent_scratchpad}"</span>),
+])
+
+agent = create_tool_calling_agent(llm, [search_information], agent_prompt)
+agent_executor = AgentExecutor(agent=agent, tools=[search_information], verbose=<span class="code-string">True</span>)
+
+<span class="code-comment"># --- Run the agent ---</span>
+result = agent_executor.invoke({<span class="code-string">"input"</span>: <span class="code-string">"What's the weather like in London?"</span>})
+print(result[<span class="code-string">"output"</span>])</div>
+
+  <p style="font-size:13px;font-weight:500;margin:16px 0 8px;">CrewAI: Stock Price Lookup Tool</p>
+  <div class="code-block"><span class="code-keyword">from</span> crewai <span class="code-keyword">import</span> Agent, Task, Crew
+<span class="code-keyword">from</span> crewai.tools <span class="code-keyword">import</span> tool
+
+<span class="code-comment"># --- Define Tool: returns clean data or raises error ---</span>
+@tool(<span class="code-string">"Stock Price Lookup Tool"</span>)
+<span class="code-keyword">def</span> get_stock_price(ticker: str) -> float:
+    <span class="code-string">"""Fetches the latest simulated stock price for a given ticker.
+    Returns price as float. Raises ValueError if ticker not found."""</span>
+    simulated_prices = {<span class="code-string">"AAPL"</span>: <span class="code-string">178.15</span>, <span class="code-string">"GOOGL"</span>: <span class="code-string">1750.30</span>, <span class="code-string">"MSFT"</span>: <span class="code-string">425.50</span>}
+    price = simulated_prices.get(ticker.upper())
+    <span class="code-keyword">if</span> price <span class="code-keyword">is not</span> None:
+        <span class="code-keyword">return</span> price
+    <span class="code-keyword">raise</span> ValueError(f<span class="code-string">"Simulated price for '{ticker.upper()}' not found."</span>)
+
+<span class="code-comment"># --- Define Agent with the tool ---</span>
+financial_analyst = Agent(
+    role=<span class="code-string">'Senior Financial Analyst'</span>,
+    goal=<span class="code-string">'Analyze stock data using provided tools and report key prices.'</span>,
+    backstory=<span class="code-string">'Experienced analyst adept at using data sources for stock info.'</span>,
+    tools=[get_stock_price],
+    allow_delegation=<span class="code-string">False</span>,
+)
+
+<span class="code-comment"># --- Define Task and run Crew ---</span>
+task = Task(
+    description=<span class="code-string">"What is the current simulated stock price for Apple (AAPL)?"</span>,
+    expected_output=<span class="code-string">"A sentence stating the simulated stock price for AAPL."</span>,
+    agent=financial_analyst,
+)
+crew = Crew(agents=[financial_analyst], tasks=[task], verbose=<span class="code-string">True</span>)
+result = crew.kickoff()
+print(result)</div>
+</div>
+
+<!-- 7. Deep Dive -->
+<div id="sec-deepdive" class="section">
+  <div class="sec-title">Deep Dive: Design Considerations</div>
+
+  <div class="ctx-stack">
+    <div class="ctx-layer" style="background:var(--teal-l);color:var(--teal-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Writing Effective Tool Descriptions</div>
+      <div class="ctx-layer-sub">The description is what the LLM reads to decide when to call the tool</div>
+      <div class="ctx-layer-detail">The tool description is the most critical part of tool definition. The LLM reads these descriptions — not the code — to decide when and how to call a tool. Effective descriptions clearly state: what the tool does, when to use it (including example queries), what inputs it expects, and what it returns. Ambiguous or vague descriptions lead to missed tool calls or incorrect parameter extraction. Think of the description as documentation written for the LLM.</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--purple-l);color:var(--purple-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Error Handling in Tools</div>
+      <div class="ctx-layer-sub">Tools should return clean data or raise informative errors</div>
+      <div class="ctx-layer-detail">As shown in the CrewAI example, the best practice is for tools to return clean data (floats, dicts, strings) for success cases and raise specific Python exceptions (ValueError, TypeError) for failure cases rather than returning error strings. This enables the agent to distinguish between successful results and errors, and to decide how to react — retry, use a fallback, or report the failure to the user.</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--amber-l);color:var(--amber-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Multi-Step Tool Calling</div>
+      <div class="ctx-layer-sub">Agents can call multiple tools in sequence to answer complex questions</div>
+      <div class="ctx-layer-detail">Agents are not limited to a single tool call per query. The LLM can decide to call multiple tools in sequence: for example, first calling a stock price API to get the current price, then calling a calculator tool to compute profit/loss, and finally formatting the combined result as a natural language response. The AgentExecutor manages this loop, repeatedly invoking the LLM and executing tools until the LLM generates a final answer.</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--coral-l);color:var(--coral-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">ADK Built-In Tools</div>
+      <div class="ctx-layer-sub">Google ADK provides natively integrated tools like google_search and code execution</div>
+      <div class="ctx-layer-detail">Google ADK includes a library of natively integrated tools: google_search (direct interface to Google Search), built_in_code_execution (sandboxed Python interpreter for mathematical and data processing tasks), and VSearchAgent (Vertex AI Search for enterprise data). These built-in tools integrate seamlessly with ADK agents and eliminate the need for custom implementation of common functionality.</div>
+    </div>
+
+    <div class="ctx-layer" style="background:var(--blue-l);color:var(--blue-d);" onclick="toggleCtx(this)">
+      <div class="ctx-layer-title">Security Considerations</div>
+      <div class="ctx-layer-sub">Tools that execute actions require careful authorization controls</div>
+      <div class="ctx-layer-detail">Tools that trigger real-world actions (sending emails, executing payments, controlling devices) require careful security controls. Best practices include: validate all inputs before passing to external systems, implement rate limiting to prevent abuse, require explicit user confirmation for destructive or irreversible actions, use API keys stored in environment variables (never hardcoded), and consider sandboxing for code execution tools to prevent unauthorized system access.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. At a Glance -->
+<div id="sec-glance" class="section">
+  <div class="sec-title">At a Glance</div>
+
+  <div class="glance-grid">
+    <div class="glance-card" style="background:var(--teal-l);">
+      <h4>WHAT</h4>
+      <p>LLMs are powerful but disconnected from the outside world. Their knowledge is static, they can't perform actions or retrieve real-time information. Without a bridge to external systems, their utility for solving real-world problems is severely constrained.</p>
+    </div>
+    <div class="glance-card" style="background:var(--purple-l);">
+      <h4>WHY</h4>
+      <p>Tool Use provides a standardized solution: describing available external functions ("tools") to the LLM so it can request them when needed. An orchestration layer executes these requests and feeds results back, giving the LLM the ability to act on up-to-date, external information.</p>
+    </div>
+    <div class="glance-card" style="background:var(--amber-l);">
+      <h4>WHEN TO USE</h4>
+      <p>Whenever an agent needs to break out of the LLM's internal knowledge and interact with the outside world: real-time data (weather, stock prices), private information (user's database), precise calculations, executing code, or triggering actions (emails, device control).</p>
+    </div>
+    <div class="glance-card" style="background:var(--coral-l);">
+      <h4>KEY INSIGHT</h4>
+      <p>Thinking in terms of "tool calling" rather than "function calling" better captures the full potential: tools can be APIs, databases, code interpreters, or even other specialized agents — enabling a primary agent to orchestrate across a diverse ecosystem of digital resources.</p>
+    </div>
+  </div>
+
+  <div class="diagram-sim">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">Interactive Flow: Click each node to see its role</div>
+    <div class="diagram-nodes">
+      <div class="dia-node" style="background:var(--blue-l);color:var(--blue-d);" onclick="simClick(0)">User</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--teal-l);color:var(--teal-d);" onclick="simClick(1)">LLM</div>
+      <div class="dia-arrow">↕</div>
+      <div class="dia-node" style="background:var(--purple-l);color:var(--purple-d);" onclick="simClick(2)">Tool Call</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--coral-l);color:var(--coral-d);" onclick="simClick(3)">Tool</div>
+      <div class="dia-arrow">→</div>
+      <div class="dia-node" style="background:var(--green-l);color:var(--green-d);" onclick="simClick(4)">Output</div>
+    </div>
+    <div class="dia-output" id="sim-output">Click a node to see what happens at that stage of the Tool Use pattern.</div>
+  </div>
+</div>
+
+<!-- 9. Quiz -->
+<div id="sec-quiz" class="section">
+  <div class="sec-title">Knowledge Check</div>
+  <div id="quizProgress" class="quiz-progress"></div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- 10. Takeaways -->
+<div id="sec-takeaways" class="section">
+  <div class="sec-title">Key Takeaways</div>
+  <ul class="tk-list">
+    <li>Tool Use (Function Calling) allows agents to interact with external systems and access dynamic information, breaking the fundamental limitation of static LLM training data.</li>
+    <li>The LLM decides when to use a tool and generates structured function call requests; the orchestration framework (AgentExecutor, ADK Runner) executes the actual tool and returns results.</li>
+    <li>Tools must be defined with clear, descriptive metadata — especially the description — as the LLM reads this to understand when and how to call each tool.</li>
+    <li>Thinking in terms of "tool calling" rather than "function calling" is more powerful: tools can be APIs, databases, code interpreters, or even specialized sub-agents.</li>
+    <li>LangChain simplifies tool definition using the @tool decorator and provides create_tool_calling_agent and AgentExecutor for building tool-using agents.</li>
+    <li>Google ADK includes natively integrated built-in tools: google_search for web search, built_in_code_execution for code running, and VSearchAgent for enterprise data access.</li>
+    <li>Tools that trigger real-world actions require careful security controls: input validation, rate limiting, API key management, and user confirmation for destructive operations.</li>
+    <li>Tool Use is the cornerstone pattern for building powerful, interactive, and externally aware agents that can sense, reason, and act in the real world.</li>
+  </ul>
+</div>
+
+<!-- 11. References -->
+<div id="sec-refs" class="section">
+  <div class="sec-title">References</div>
+  <ul class="ref-list">
+    <li><span class="ref-num">1</span>LangChain Tool Documentation — <a href="https://python.langchain.com/docs/concepts/tools/" target="_blank">python.langchain.com/docs/concepts/tools/</a></li>
+    <li><span class="ref-num">2</span>Google ADK Built-in Tools — <a href="https://google.github.io/adk-docs/tools/" target="_blank">google.github.io/adk-docs/tools/</a></li>
+    <li><span class="ref-num">3</span>CrewAI Tools Documentation — <a href="https://docs.crewai.com/concepts/tools" target="_blank">docs.crewai.com/concepts/tools</a></li>
+    <li><span class="ref-num">4</span>OpenAI Function Calling Documentation — <a href="https://platform.openai.com/docs/guides/function-calling" target="_blank">platform.openai.com/docs/guides/function-calling</a></li>
+    <li><span class="ref-num">5</span>Vertex AI Extensions — <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/extensions/overview" target="_blank">cloud.google.com/vertex-ai/generative-ai/docs/extensions/</a></li>
+    <li><span class="ref-num">6</span>Toolformer: Language Models Can Teach Themselves to Use Tools — <a href="https://arxiv.org/abs/2302.04761" target="_blank">arxiv.org/abs/2302.04761</a></li>
+  </ul>
+</div>
+
+<div class="footer"><p>Agentic Design Patterns — Chapter 5: Tool Use (Function Calling)</p></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
+}
+function toggleChain(el) { el.classList.toggle('open'); }
+function toggleCtx(el) { el.classList.toggle('open'); }
+function showUC(i) {
+  document.querySelectorAll('.uc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.uc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('uc-' + i).classList.add('active');
+  document.querySelectorAll('.uc-tab')[i].classList.add('active');
+}
+const simTexts = [
+  "User: Sends a natural language request that requires information or action beyond the LLM's internal knowledge — e.g., 'What's the weather in London?' or 'Send an email to John about tomorrow's meeting.' This triggers the Tool Use flow.",
+  "LLM Agent: Receives the user's request along with all tool definitions. It decides whether a tool call is necessary. If yes, it generates a structured tool call request (a JSON object with tool name and arguments). If no tool is needed, it responds directly from its training knowledge.",
+  "Tool Call Request: A structured JSON object generated by the LLM specifying which tool to call and with what arguments — e.g., {\"tool\": \"get_weather\", \"args\": {\"location\": \"London\"}}. This is NOT executed by the LLM; it's a request sent to the orchestration framework.",
+  "Tool Execution: The AgentExecutor or ADK Runner intercepts the structured tool call, identifies the corresponding function, and executes it with the provided arguments. The tool interacts with external APIs, databases, code interpreters, or other systems and returns a result.",
+  "Final Output: The tool's result is passed back to the LLM as additional context. The LLM uses this real-world data to formulate a final, accurate natural language response to the user. For complex tasks, the LLM may call multiple tools before generating the final answer."
+];
+function simClick(i) {
+  document.querySelectorAll('.dia-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.dia-node')[i].classList.add('active');
+  document.getElementById('sim-output').textContent = simTexts[i];
+}
+const quizData = [
+  {
+    q: "What is the fundamental difference between an LLM with Tool Use and one without?",
+    opts: [
+      "Tool Use makes the LLM faster at generating responses",
+      "Tool Use allows the LLM to interact with external systems, access real-time data, and trigger real-world actions beyond its static training knowledge",
+      "Tool Use increases the LLM's context window size",
+      "Tool Use allows the LLM to use larger training datasets"
+    ],
+    ans: 1,
+    ok: "Correct! Without tools, an LLM is limited to the static knowledge from its training cutoff. Tool Use fundamentally expands agent capabilities by enabling real-time data access, private database queries, precise calculations, code execution, and triggering real-world actions.",
+    no: "Incorrect. The fundamental difference is that Tool Use connects the LLM to the outside world — real-time data, external APIs, code execution, and the ability to trigger actions. Without tools, the LLM can only draw on its frozen training data."
+  },
+  {
+    q: "In the Tool Use pattern, who is responsible for actually EXECUTING the tool function?",
+    opts: [
+      "The LLM directly executes the function as part of its response generation",
+      "The user must manually run the function and provide results back to the LLM",
+      "The agentic framework (AgentExecutor, ADK Runner) intercepts the structured tool call request and executes the actual function",
+      "A separate cloud service automatically detects and runs all tool calls"
+    ],
+    ans: 2,
+    ok: "Correct! The LLM generates a structured tool call REQUEST (a JSON object), but it does NOT execute the function itself. The orchestration framework (AgentExecutor in LangChain, Runner in ADK) intercepts this request, executes the actual external function, and returns the result to the LLM.",
+    no: "Incorrect. The LLM generates a structured call request but doesn't execute functions. The orchestration framework (AgentExecutor, ADK Runner) intercepts the request, runs the actual function, and returns results to the LLM as context for its final response."
+  },
+  {
+    q: "Why is the tool's DESCRIPTION the most critical component of tool definition (more than the actual code)?",
+    opts: [
+      "Longer descriptions reduce API costs",
+      "The LLM reads the description to decide when and how to call the tool — not the code. A vague description leads to missed or incorrect tool calls",
+      "Descriptions are required by the OpenAI API specification",
+      "Descriptions improve the tool's execution speed"
+    ],
+    ans: 1,
+    ok: "Correct! The LLM never sees the tool's implementation code — only the description, name, and parameter schema. The description is what the LLM reads to understand what the tool does and when to call it. A vague or incomplete description directly causes missed tool calls or wrong argument extraction.",
+    no: "The LLM reads descriptions, not code. The description tells the LLM what the tool does and when to use it. This is why 'Provides factual information on a given topic. Use this to find answers to questions like capital of France or weather in London' works much better than just 'search tool'."
+  },
+  {
+    q: "What is the key difference between a Vertex AI Extension and a standard function call?",
+    opts: [
+      "Extensions only work with Gemini models",
+      "Extensions use JavaScript while function calls use Python",
+      "Vertex AI automatically executes extensions, whereas function calls require manual execution by the user or client",
+      "Extensions can only access public data while function calls can access private data"
+    ],
+    ans: 2,
+    ok: "Correct! The key distinction is execution: Vertex AI Extensions are automatically executed by the Vertex AI platform (no client-side execution needed), while function calls generate a structured request that the user's client code must execute. Extensions also offer enterprise-grade security and Google product integration.",
+    no: "The key difference is execution responsibility: with standard function calling, the client code must intercept the structured call request and execute the function. With Vertex AI Extensions, the Vertex AI platform automatically executes the extension on behalf of the model."
+  },
+  {
+    q: "According to the chapter, what does thinking in terms of 'tool calling' (rather than 'function calling') enable?",
+    opts: [
+      "Faster response generation",
+      "Better error messages",
+      "A broader perspective where tools can be APIs, databases, code interpreters, or even other specialized agents — enabling sophisticated multi-agent orchestration",
+      "Reduced API costs through batching"
+    ],
+    ans: 2,
+    ok: "Correct! 'Tool calling' is a broader concept — a tool can be a traditional function, a complex API endpoint, a database, or even another specialized agent. This perspective enables sophisticated systems where a primary agent can delegate tasks to specialist agents, query knowledge bases, or orchestrate across a diverse ecosystem of digital resources.",
+    no: "The distinction is conceptual breadth. 'Function calling' implies invoking predefined code. 'Tool calling' encompasses any external capability — APIs, databases, code interpreters, or other agents. This broader view enables primary agents to orchestrate across diverse systems and delegate to specialized sub-agents."
+  }
+];
+let curQ = 0, answered = new Set(), scores = [];
+function renderQuiz() {
+  let dots = '';
+  for (let i = 0; i < quizData.length; i++) {
+    let cls = 'quiz-dot';
+    if (i === curQ) cls += ' current';
+    else if (scores[i] === true) cls += ' done';
+    else if (scores[i] === false) cls += ' wrong-dot';
+    dots += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('quizProgress').innerHTML = dots;
+  const q = quizData[curQ];
+  let html = '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Question ' + (curQ+1) + ' of ' + quizData.length + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>'; });
+  html += '<div class="quiz-fb" id="qfb"></div>';
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  if (curQ > 0) html += '<button class="btn" onclick="prevQ()">Previous</button>';
+  if (curQ < quizData.length - 1) html += '<button class="btn btn-teal" id="nextBtn" onclick="nextQ()" style="display:none;">Next</button>';
+  else html += '<button class="btn btn-teal" id="nextBtn" onclick="go(\'takeaways\');document.querySelectorAll(\'.nav-btn\')[9].click();" style="display:none;">View Takeaways</button>';
+  html += '</div>';
+  document.getElementById('quizArea').innerHTML = html;
+  if (answered.has(curQ)) {
+    const q2 = quizData[curQ];
+    document.querySelectorAll('.quiz-opt').forEach((btn, i) => { btn.classList.add('disabled'); if (i === q2.ans) btn.classList.add('correct'); });
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    const fb = document.getElementById('qfb');
+    fb.textContent = scores[curQ] ? q2.ok : q2.no;
+    fb.className = 'quiz-fb show ' + (scores[curQ] ? 'right' : 'wrng');
+  }
+}
+function answer(i) {
+  if (answered.has(curQ)) return;
+  answered.add(curQ);
+  const q = quizData[curQ];
+  const isRight = i === q.ans;
+  scores[curQ] = isRight;
+  document.getElementById('qo' + i).classList.add(isRight ? 'correct' : 'wrong');
+  if (!isRight) document.getElementById('qo' + q.ans).classList.add('correct');
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('qfb');
+  fb.textContent = isRight ? q.ok : q.no;
+  fb.className = 'quiz-fb show ' + (isRight ? 'right' : 'wrng');
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  renderQuiz();
+}
+function nextQ() { curQ++; renderQuiz(); }
+function prevQ() { curQ--; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>
