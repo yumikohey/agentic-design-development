@@ -88,6 +88,10 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 .uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
 .uc-panel { display: none; animation: fadeUp .3s ease; }
 .uc-panel.active { display: block; }
+@media (max-width: 560px) {
+  .uc-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .uc-tab  { white-space: nowrap; flex-shrink: 0; }
+}
 .glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
 @media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
 .glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
@@ -134,17 +138,17 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 <p class="subtitle">Answers to the most common questions about agentic design patterns—from foundational concepts to implementation details, advanced patterns, and evaluation strategies.</p>
 
 <nav class="nav-bar" id="navbar">
-  <button class="nav-btn active" onclick="go('overview')">Overview</button>
-  <button class="nav-btn" onclick="go('problem')">Misconceptions</button>
-  <button class="nav-btn" onclick="go('solution')">Pattern FAQs</button>
-  <button class="nav-btn" onclick="go('concepts')">Conceptual FAQs</button>
-  <button class="nav-btn" onclick="go('usecases')">Practical FAQs</button>
-  <button class="nav-btn" onclick="go('code')">Implementation FAQs</button>
-  <button class="nav-btn" onclick="go('deepdive')">Advanced FAQs</button>
-  <button class="nav-btn" onclick="go('glance')">Quick Reference</button>
-  <button class="nav-btn" onclick="go('quiz')">True or False</button>
-  <button class="nav-btn" onclick="go('takeaways')">Key Clarifications</button>
-  <button class="nav-btn" onclick="go('refs')">Learn More</button>
+  <button class="nav-btn active" onclick=\"go('overview', this)\">Overview</button>
+  <button class="nav-btn" onclick=\"go('problem', this)\">Misconceptions</button>
+  <button class="nav-btn" onclick=\"go('solution', this)\">Pattern FAQs</button>
+  <button class="nav-btn" onclick=\"go('concepts', this)\">Conceptual FAQs</button>
+  <button class="nav-btn" onclick=\"go('usecases', this)\">Practical FAQs</button>
+  <button class="nav-btn" onclick=\"go('code', this)\">Implementation FAQs</button>
+  <button class="nav-btn" onclick=\"go('deepdive', this)\">Advanced FAQs</button>
+  <button class="nav-btn" onclick=\"go('glance', this)\">Quick Reference</button>
+  <button class="nav-btn" onclick=\"go('quiz', this)\">True or False</button>
+  <button class="nav-btn" onclick=\"go('takeaways', this)\">Key Clarifications</button>
+  <button class="nav-btn" onclick=\"go('refs', this)\">Learn More</button>
 </nav>
 
 <!-- 1. Overview -->
@@ -502,11 +506,11 @@ Think through your reasoning step-by-step before answering.
 </div>
 
 <script>
-function go(id) {
+function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

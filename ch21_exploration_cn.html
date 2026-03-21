@@ -130,17 +130,17 @@ h1{font-family:var(--serif);font-size:2.2rem;font-weight:600;color:var(--text);l
 <p class="subtitle">使智能代理主动寻求新信息、发现未知可能性的模式——在开放式、复杂或快速演变的环境中，静态知识和预编程解决方案已无法满足需求。</p>
 
 <nav class="nav-bar" id="navbar">
-  <button class="nav-btn active" onclick="go('overview')">概览</button>
-  <button class="nav-btn" onclick="go('problem')">问题所在</button>
-  <button class="nav-btn" onclick="go('solution')">解决方案</button>
-  <button class="nav-btn" onclick="go('concepts')">核心概念</button>
-  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
-  <button class="nav-btn" onclick="go('code')">代码实战</button>
-  <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
-  <button class="nav-btn" onclick="go('glance')">一览概要</button>
-  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
-  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
-  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+  <button class="nav-btn active" onclick=\"go('overview', this)\">概览</button>
+  <button class="nav-btn" onclick=\"go('problem', this)\">问题所在</button>
+  <button class="nav-btn" onclick=\"go('solution', this)\">解决方案</button>
+  <button class="nav-btn" onclick=\"go('concepts', this)\">核心概念</button>
+  <button class="nav-btn" onclick=\"go('usecases', this)\">应用场景</button>
+  <button class="nav-btn" onclick=\"go('code', this)\">代码实战</button>
+  <button class="nav-btn" onclick=\"go('deepdive', this)\">深入解析</button>
+  <button class="nav-btn" onclick=\"go('glance', this)\">一览概要</button>
+  <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
+  <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
+  <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
 </nav>
 
 <div id="sec-overview" class="section active">
@@ -448,7 +448,7 @@ h1{font-family:var(--serif);font-size:2.2rem;font-weight:600;color:var(--text);l
 <div class="footer"><p>第二十一章 · 探索与发现 · 交互式学习体验</p></div>
 </div>
 <script>
-function go(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active');window.scrollTo({top:document.getElementById('navbar').offsetTop-10,behavior:'smooth'});}
+function go(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');window.scrollTo({top:document.getElementById('navbar').offsetTop-10,behavior:'smooth'});}
 function toggleChain(el){el.classList.toggle('open');}
 function toggleCtx(el){el.classList.toggle('open');}
 function showUC(i){document.querySelectorAll('.uc-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.uc-tab').forEach(t=>t.classList.remove('active'));document.getElementById('uc-'+i).classList.add('active');document.querySelectorAll('.uc-tab')[i].classList.add('active');}

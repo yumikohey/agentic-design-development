@@ -93,6 +93,10 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 .uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
 .uc-panel { display: none; animation: fadeUp .3s ease; }
 .uc-panel.active { display: block; }
+@media (max-width: 560px) {
+  .uc-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .uc-tab  { white-space: nowrap; flex-shrink: 0; }
+}
 .ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
 .ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
 .ctx-layer:hover { transform: translateX(4px); }
@@ -154,17 +158,17 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 <p class="subtitle">对全书 21 种模式的综合总结——各个蓝图如何组合成强大的自主系统，以及该领域未来的发展方向。</p>
 
 <nav class="nav-bar" id="navbar">
-  <button class="nav-btn active" onclick="go('overview')">概览</button>
-  <button class="nav-btn" onclick="go('problem')">挑战</button>
-  <button class="nav-btn" onclick="go('solution')">模式框架</button>
-  <button class="nav-btn" onclick="go('concepts')">核心论点</button>
-  <button class="nav-btn" onclick="go('usecases')">组合系统</button>
-  <button class="nav-btn" onclick="go('code')">代码模式</button>
-  <button class="nav-btn" onclick="go('deepdive')">未来方向</button>
-  <button class="nav-btn" onclick="go('glance')">一览概要</button>
-  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
-  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
-  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+  <button class="nav-btn active" onclick=\"go('overview', this)\">概览</button>
+  <button class="nav-btn" onclick=\"go('problem', this)\">挑战</button>
+  <button class="nav-btn" onclick=\"go('solution', this)\">模式框架</button>
+  <button class="nav-btn" onclick=\"go('concepts', this)\">核心论点</button>
+  <button class="nav-btn" onclick=\"go('usecases', this)\">组合系统</button>
+  <button class="nav-btn" onclick=\"go('code', this)\">代码模式</button>
+  <button class="nav-btn" onclick=\"go('deepdive', this)\">未来方向</button>
+  <button class="nav-btn" onclick=\"go('glance', this)\">一览概要</button>
+  <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
+  <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
+  <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -528,11 +532,11 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 </div>
 
 <script>
-function go(id) {
+function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

@@ -316,6 +316,10 @@ h1 {
 }
 .uc-panel { display: none; animation: fadeUp .3s ease; }
 .uc-panel.active { display: block; }
+@media (max-width: 560px) {
+  .uc-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .uc-tab  { white-space: nowrap; flex-shrink: 0; }
+}
 .uc-steps {
   display: flex;
   flex-direction: column;
@@ -563,17 +567,17 @@ h1 {
   <p class="subtitle">单个 AI 智能体面对复杂多面问题时往往力不从心。智能体间通信（A2A）协议使不同框架构建的 AI 智能体能够无缝协作，实现任务委派、信息共享与跨框架互操作。</p>
 
   <nav class="nav-bar">
-    <button class="nav-btn active" onclick="go('overview')">概览</button>
-    <button class="nav-btn" onclick="go('problem')">问题所在</button>
-    <button class="nav-btn" onclick="go('solution')">解决方案</button>
-    <button class="nav-btn" onclick="go('concepts')">核心概念</button>
-    <button class="nav-btn" onclick="go('usecases')">应用场景</button>
-    <button class="nav-btn" onclick="go('code')">代码实战</button>
-    <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
-    <button class="nav-btn" onclick="go('glance')">一览概要</button>
-    <button class="nav-btn" onclick="go('quiz')">知识测验</button>
-    <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
-    <button class="nav-btn" onclick="go('refs')">参考资料</button>
+    <button class="nav-btn active" onclick=\"go('overview', this)\">概览</button>
+    <button class="nav-btn" onclick=\"go('problem', this)\">问题所在</button>
+    <button class="nav-btn" onclick=\"go('solution', this)\">解决方案</button>
+    <button class="nav-btn" onclick=\"go('concepts', this)\">核心概念</button>
+    <button class="nav-btn" onclick=\"go('usecases', this)\">应用场景</button>
+    <button class="nav-btn" onclick=\"go('code', this)\">代码实战</button>
+    <button class="nav-btn" onclick=\"go('deepdive', this)\">深入解析</button>
+    <button class="nav-btn" onclick=\"go('glance', this)\">一览概要</button>
+    <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
+    <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
+    <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
   </nav>
 
   <!-- 概览 -->
@@ -996,7 +1000,7 @@ h1 {
       <li>A2A 与 MCP 是互补关系而非竞争：MCP 解决智能体如何访问外部工具与数据，A2A 解决智能体之间如何协作与委派任务，两者共同构建完整的分层智能体生态。</li>
       <li>Trickle AI 等工具提供 A2A 通信的可视化与追踪能力，帮助开发者监控、调试和优化多智能体系统的协作行为。</li>
     </ul>
-    <button class="btn btn-teal" onclick="go('quiz')">前往知识测验 →</button>
+    <button class="btn btn-teal" onclick=\"go('quiz', this)\">前往知识测验 →</button>
   </section>
 
   <!-- 参考资料 -->
@@ -1020,7 +1024,7 @@ h1 {
 </div>
 
 <script>
-function go(id) {
+function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');

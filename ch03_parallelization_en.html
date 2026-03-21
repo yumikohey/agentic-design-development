@@ -238,6 +238,10 @@ h1 {
 .uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
 .uc-panel { display: none; animation: fadeUp .3s ease; }
 .uc-panel.active { display: block; }
+@media (max-width: 560px) {
+  .uc-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .uc-tab  { white-space: nowrap; flex-shrink: 0; }
+}
 .uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
 .uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
 .uc-step-num {

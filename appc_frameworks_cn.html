@@ -306,6 +306,10 @@ h1 {
 }
 .uc-panel { display: none; animation: fadeUp .3s ease; }
 .uc-panel.active { display: block; }
+@media (max-width: 560px) {
+  .uc-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .uc-tab  { white-space: nowrap; flex-shrink: 0; }
+}
 .uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
 .uc-step {
   display: flex;
@@ -543,17 +547,17 @@ h1 {
 <p class="subtitle">主流 LLM 应用开发框架实用指南——从简单的线性链到完整的多智能体编排平台，助你找到最适合的技术选型。</p>
 
 <nav class="nav-bar" id="navbar">
-  <button class="nav-btn active" onclick="go('overview')">概览</button>
-  <button class="nav-btn" onclick="go('problem')">问题所在</button>
-  <button class="nav-btn" onclick="go('solution')">解决方案</button>
-  <button class="nav-btn" onclick="go('concepts')">核心概念</button>
-  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
-  <button class="nav-btn" onclick="go('code')">代码实战</button>
-  <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
-  <button class="nav-btn" onclick="go('glance')">一览概要</button>
-  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
-  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
-  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+  <button class="nav-btn active" onclick=\"go('overview', this)\">概览</button>
+  <button class="nav-btn" onclick=\"go('problem', this)\">问题所在</button>
+  <button class="nav-btn" onclick=\"go('solution', this)\">解决方案</button>
+  <button class="nav-btn" onclick=\"go('concepts', this)\">核心概念</button>
+  <button class="nav-btn" onclick=\"go('usecases', this)\">应用场景</button>
+  <button class="nav-btn" onclick=\"go('code', this)\">代码实战</button>
+  <button class="nav-btn" onclick=\"go('deepdive', this)\">深入解析</button>
+  <button class="nav-btn" onclick=\"go('glance', this)\">一览概要</button>
+  <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
+  <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
+  <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -1012,11 +1016,11 @@ response = search_agent.run(<span class="code-string">"LangGraph 的最新进展
 </div>
 
 <script>
-function go(id) {
+function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

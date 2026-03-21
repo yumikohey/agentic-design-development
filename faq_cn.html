@@ -87,6 +87,10 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 .uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
 .uc-panel { display: none; animation: fadeUp .3s ease; }
 .uc-panel.active { display: block; }
+@media (max-width: 560px) {
+  .uc-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .uc-tab  { white-space: nowrap; flex-shrink: 0; }
+}
 .glance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
 @media (max-width: 560px) { .glance-grid { grid-template-columns: 1fr; } }
 .glance-card { padding: 20px 24px; border-radius: var(--radius); border: 0.5px solid var(--border); }
@@ -131,17 +135,17 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 <p class="subtitle">关于智能体设计模式最常见问题的解答——从基础概念到实现细节、高级模式和评估策略。</p>
 
 <nav class="nav-bar" id="navbar">
-  <button class="nav-btn active" onclick="go('overview')">概览</button>
-  <button class="nav-btn" onclick="go('problem')">常见误区</button>
-  <button class="nav-btn" onclick="go('solution')">模式问答</button>
-  <button class="nav-btn" onclick="go('concepts')">概念问答</button>
-  <button class="nav-btn" onclick="go('usecases')">实践问答</button>
-  <button class="nav-btn" onclick="go('code')">实现问答</button>
-  <button class="nav-btn" onclick="go('deepdive')">进阶问答</button>
-  <button class="nav-btn" onclick="go('glance')">快速参考</button>
-  <button class="nav-btn" onclick="go('quiz')">判断题</button>
-  <button class="nav-btn" onclick="go('takeaways')">关键澄清</button>
-  <button class="nav-btn" onclick="go('refs')">深入学习</button>
+  <button class="nav-btn active" onclick=\"go('overview', this)\">概览</button>
+  <button class="nav-btn" onclick=\"go('problem', this)\">常见误区</button>
+  <button class="nav-btn" onclick=\"go('solution', this)\">模式问答</button>
+  <button class="nav-btn" onclick=\"go('concepts', this)\">概念问答</button>
+  <button class="nav-btn" onclick=\"go('usecases', this)\">实践问答</button>
+  <button class="nav-btn" onclick=\"go('code', this)\">实现问答</button>
+  <button class="nav-btn" onclick=\"go('deepdive', this)\">进阶问答</button>
+  <button class="nav-btn" onclick=\"go('glance', this)\">快速参考</button>
+  <button class="nav-btn" onclick=\"go('quiz', this)\">判断题</button>
+  <button class="nav-btn" onclick=\"go('takeaways', this)\">关键澄清</button>
+  <button class="nav-btn" onclick=\"go('refs', this)\">深入学习</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -485,11 +489,11 @@ SYSTEM_PROMPT = <span class="code-string">"""
 </div>
 
 <script>
-function go(id) {
+function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

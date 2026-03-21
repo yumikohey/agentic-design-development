@@ -117,6 +117,10 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 .uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
 .uc-panel { display: none; animation: fadeUp .3s ease; }
 .uc-panel.active { display: block; }
+@media (max-width: 560px) {
+  .uc-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .uc-tab  { white-space: nowrap; flex-shrink: 0; }
+}
 .uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
 .uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
 .uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
@@ -187,17 +191,17 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 <p class="subtitle">Strategically interweaving human judgment, creativity, and oversight with AI's computational power — ensuring ethical, safe, and effective agent behavior in complex and high-stakes domains.</p>
 
 <nav class="nav-bar" id="navbar">
-  <button class="nav-btn active" onclick="go('overview')">Overview</button>
-  <button class="nav-btn" onclick="go('problem')">Problems</button>
-  <button class="nav-btn" onclick="go('solution')">Solution</button>
-  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
-  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
-  <button class="nav-btn" onclick="go('code')">Code</button>
-  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
-  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
-  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
-  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
-  <button class="nav-btn" onclick="go('refs')">References</button>
+  <button class="nav-btn active" onclick=\"go('overview', this)\">Overview</button>
+  <button class="nav-btn" onclick=\"go('problem', this)\">Problems</button>
+  <button class="nav-btn" onclick=\"go('solution', this)\">Solution</button>
+  <button class="nav-btn" onclick=\"go('concepts', this)\">Core Concepts</button>
+  <button class="nav-btn" onclick=\"go('usecases', this)\">Use Cases</button>
+  <button class="nav-btn" onclick=\"go('code', this)\">Code</button>
+  <button class="nav-btn" onclick=\"go('deepdive', this)\">Deep Dive</button>
+  <button class="nav-btn" onclick=\"go('glance', this)\">At a Glance</button>
+  <button class="nav-btn" onclick=\"go('quiz', this)\">Quiz</button>
+  <button class="nav-btn" onclick=\"go('takeaways', this)\">Takeaways</button>
+  <button class="nav-btn" onclick=\"go('refs', this)\">References</button>
 </nav>
 
 <!-- 1. Overview -->
@@ -598,11 +602,11 @@ Maintain a professional but empathetic tone.
 </div>
 
 <script>
-function go(id) {
+function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

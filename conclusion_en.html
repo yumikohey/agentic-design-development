@@ -120,6 +120,10 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 .uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
 .uc-panel { display: none; animation: fadeUp .3s ease; }
 .uc-panel.active { display: block; }
+@media (max-width: 560px) {
+  .uc-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .uc-tab  { white-space: nowrap; flex-shrink: 0; }
+}
 .ctx-stack { display: flex; flex-direction: column; gap: 6px; margin: 1.5rem 0; }
 .ctx-layer { padding: 14px 20px; border-radius: var(--radius-sm); cursor: pointer; transition: all .25s; border: 0.5px solid transparent; }
 .ctx-layer:hover { transform: translateX(4px); }
@@ -183,17 +187,17 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 <p class="subtitle">A synthesis of the 21 patterns explored throughout the book—how individual blueprints compose into powerful autonomous systems, and where the field is heading next.</p>
 
 <nav class="nav-bar" id="navbar">
-  <button class="nav-btn active" onclick="go('overview')">Overview</button>
-  <button class="nav-btn" onclick="go('problem')">Challenges</button>
-  <button class="nav-btn" onclick="go('solution')">Pattern Framework</button>
-  <button class="nav-btn" onclick="go('concepts')">Core Thesis</button>
-  <button class="nav-btn" onclick="go('usecases')">Composed Systems</button>
-  <button class="nav-btn" onclick="go('code')">Code Patterns</button>
-  <button class="nav-btn" onclick="go('deepdive')">Future Directions</button>
-  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
-  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
-  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
-  <button class="nav-btn" onclick="go('refs')">References</button>
+  <button class="nav-btn active" onclick=\"go('overview', this)\">Overview</button>
+  <button class="nav-btn" onclick=\"go('problem', this)\">Challenges</button>
+  <button class="nav-btn" onclick=\"go('solution', this)\">Pattern Framework</button>
+  <button class="nav-btn" onclick=\"go('concepts', this)\">Core Thesis</button>
+  <button class="nav-btn" onclick=\"go('usecases', this)\">Composed Systems</button>
+  <button class="nav-btn" onclick=\"go('code', this)\">Code Patterns</button>
+  <button class="nav-btn" onclick=\"go('deepdive', this)\">Future Directions</button>
+  <button class="nav-btn" onclick=\"go('glance', this)\">At a Glance</button>
+  <button class="nav-btn" onclick=\"go('quiz', this)\">Quiz</button>
+  <button class="nav-btn" onclick=\"go('takeaways', this)\">Takeaways</button>
+  <button class="nav-btn" onclick=\"go('refs', this)\">References</button>
 </nav>
 
 <!-- 1. Overview -->
@@ -579,11 +583,11 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 </div>
 
 <script>
-function go(id) {
+function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

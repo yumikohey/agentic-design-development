@@ -305,6 +305,10 @@ h1 {
 }
 .uc-panel { display: none; animation: fadeUp .3s ease; }
 .uc-panel.active { display: block; }
+@media (max-width: 560px) {
+  .uc-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .uc-tab  { white-space: nowrap; flex-shrink: 0; }
+}
 .uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
 .uc-step {
   display: flex;
@@ -542,17 +546,17 @@ h1 {
 <p class="subtitle">A practical tour of the major frameworks for building LLM-powered applications — from simple linear chains to full multi-agent orchestration platforms.</p>
 
 <nav class="nav-bar" id="navbar">
-  <button class="nav-btn active" onclick="go('overview')">Overview</button>
-  <button class="nav-btn" onclick="go('problem')">Problems</button>
-  <button class="nav-btn" onclick="go('solution')">Solution</button>
-  <button class="nav-btn" onclick="go('concepts')">Core Concepts</button>
-  <button class="nav-btn" onclick="go('usecases')">Use Cases</button>
-  <button class="nav-btn" onclick="go('code')">Code</button>
-  <button class="nav-btn" onclick="go('deepdive')">Deep Dive</button>
-  <button class="nav-btn" onclick="go('glance')">At a Glance</button>
-  <button class="nav-btn" onclick="go('quiz')">Quiz</button>
-  <button class="nav-btn" onclick="go('takeaways')">Takeaways</button>
-  <button class="nav-btn" onclick="go('refs')">References</button>
+  <button class="nav-btn active" onclick=\"go('overview', this)\">Overview</button>
+  <button class="nav-btn" onclick=\"go('problem', this)\">Problems</button>
+  <button class="nav-btn" onclick=\"go('solution', this)\">Solution</button>
+  <button class="nav-btn" onclick=\"go('concepts', this)\">Core Concepts</button>
+  <button class="nav-btn" onclick=\"go('usecases', this)\">Use Cases</button>
+  <button class="nav-btn" onclick=\"go('code', this)\">Code</button>
+  <button class="nav-btn" onclick=\"go('deepdive', this)\">Deep Dive</button>
+  <button class="nav-btn" onclick=\"go('glance', this)\">At a Glance</button>
+  <button class="nav-btn" onclick=\"go('quiz', this)\">Quiz</button>
+  <button class="nav-btn" onclick=\"go('takeaways', this)\">Takeaways</button>
+  <button class="nav-btn" onclick=\"go('refs', this)\">References</button>
 </nav>
 
 <!-- 1. Overview -->
@@ -1011,11 +1015,11 @@ response = search_agent.run(<span class="code-string">"What are the latest devel
 </div>
 
 <script>
-function go(id) {
+function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

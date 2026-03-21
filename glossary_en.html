@@ -113,17 +113,17 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 <p class="subtitle">Definitions of key concepts, architectures, and techniques referenced throughout "Agentic Design Patterns." Organized by category for easy navigation.</p>
 
 <nav class="nav-bar" id="navbar">
-  <button class="nav-btn active" onclick="go('overview')">Overview</button>
-  <button class="nav-btn" onclick="go('problem')">Why Terminology</button>
-  <button class="nav-btn" onclick="go('solution')">How to Use</button>
-  <button class="nav-btn" onclick="go('concepts')">Core Terms (A–F)</button>
-  <button class="nav-btn" onclick="go('usecases')">Terms in Context (G–L)</button>
-  <button class="nav-btn" onclick="go('code')">Technical Terms (M–R)</button>
-  <button class="nav-btn" onclick="go('deepdive')">Advanced Terms (S–Z)</button>
-  <button class="nav-btn" onclick="go('glance')">Quick Reference</button>
-  <button class="nav-btn" onclick="go('quiz')">Terminology Quiz</button>
-  <button class="nav-btn" onclick="go('takeaways')">Key Definitions</button>
-  <button class="nav-btn" onclick="go('refs')">Further Reading</button>
+  <button class="nav-btn active" onclick=\"go('overview', this)\">Overview</button>
+  <button class="nav-btn" onclick=\"go('problem', this)\">Why Terminology</button>
+  <button class="nav-btn" onclick=\"go('solution', this)\">How to Use</button>
+  <button class="nav-btn" onclick=\"go('concepts', this)\">Core Terms (A–F)</button>
+  <button class="nav-btn" onclick=\"go('usecases', this)\">Terms in Context (G–L)</button>
+  <button class="nav-btn" onclick=\"go('code', this)\">Technical Terms (M–R)</button>
+  <button class="nav-btn" onclick=\"go('deepdive', this)\">Advanced Terms (S–Z)</button>
+  <button class="nav-btn" onclick=\"go('glance', this)\">Quick Reference</button>
+  <button class="nav-btn" onclick=\"go('quiz', this)\">Terminology Quiz</button>
+  <button class="nav-btn" onclick=\"go('takeaways', this)\">Key Definitions</button>
+  <button class="nav-btn" onclick=\"go('refs', this)\">Further Reading</button>
 </nav>
 
 <!-- 1. Overview -->
@@ -455,11 +455,11 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 </div>
 
 <script>
-function go(id) {
+function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

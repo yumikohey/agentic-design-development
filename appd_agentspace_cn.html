@@ -114,6 +114,10 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 .uc-tab.active { background: var(--purple-l); color: var(--purple-d); border-color: var(--purple); font-weight: 500; }
 .uc-panel { display: none; animation: fadeUp .3s ease; }
 .uc-panel.active { display: block; }
+@media (max-width: 560px) {
+  .uc-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .uc-tab  { white-space: nowrap; flex-shrink: 0; }
+}
 .uc-steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
 .uc-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text2); line-height: 1.7; }
 .uc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); color: var(--text2); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
@@ -184,17 +188,17 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 <p class="subtitle">AgentSpace 是 Google 的企业级 AI 平台，整合了统一搜索、知识图谱与无代码智能体创建功能——让组织无需深厚的编程专业知识，即可部署自主 AI 智能体。</p>
 
 <nav class="nav-bar" id="navbar">
-  <button class="nav-btn active" onclick="go('overview')">概览</button>
-  <button class="nav-btn" onclick="go('problem')">问题所在</button>
-  <button class="nav-btn" onclick="go('solution')">解决方案</button>
-  <button class="nav-btn" onclick="go('concepts')">核心概念</button>
-  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
-  <button class="nav-btn" onclick="go('code')">代码实战</button>
-  <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
-  <button class="nav-btn" onclick="go('glance')">一览概要</button>
-  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
-  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
-  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+  <button class="nav-btn active" onclick=\"go('overview', this)\">概览</button>
+  <button class="nav-btn" onclick=\"go('problem', this)\">问题所在</button>
+  <button class="nav-btn" onclick=\"go('solution', this)\">解决方案</button>
+  <button class="nav-btn" onclick=\"go('concepts', this)\">核心概念</button>
+  <button class="nav-btn" onclick=\"go('usecases', this)\">应用场景</button>
+  <button class="nav-btn" onclick=\"go('code', this)\">代码实战</button>
+  <button class="nav-btn" onclick=\"go('deepdive', this)\">深入解析</button>
+  <button class="nav-btn" onclick=\"go('glance', this)\">一览概要</button>
+  <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
+  <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
+  <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -633,11 +637,11 @@ result = operation.result()
 
 </div>
 <script>
-function go(id) {
+function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

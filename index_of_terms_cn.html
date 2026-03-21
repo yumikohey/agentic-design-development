@@ -107,17 +107,17 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 <p class="subtitle">将每个关键术语映射到其章节位置的综合字母索引。由 Gemini Pro 2.5 从完整书籍内容生成——原始 PDF 中包含提示词和推理步骤，以演示智能体能力。</p>
 
 <nav class="nav-bar" id="navbar">
-  <button class="nav-btn active" onclick="go('overview')">概览</button>
-  <button class="nav-btn" onclick="go('problem')">关于本索引</button>
-  <button class="nav-btn" onclick="go('solution')">使用说明</button>
-  <button class="nav-btn" onclick="go('concepts')">索引：A–F</button>
-  <button class="nav-btn" onclick="go('usecases')">索引：G–L</button>
-  <button class="nav-btn" onclick="go('code')">索引：M–R</button>
-  <button class="nav-btn" onclick="go('deepdive')">索引：S–Z</button>
-  <button class="nav-btn" onclick="go('glance')">高频引用</button>
-  <button class="nav-btn" onclick="go('quiz')">索引测验</button>
-  <button class="nav-btn" onclick="go('takeaways')">关键位置</button>
-  <button class="nav-btn" onclick="go('refs')">延伸阅读</button>
+  <button class="nav-btn active" onclick=\"go('overview', this)\">概览</button>
+  <button class="nav-btn" onclick=\"go('problem', this)\">关于本索引</button>
+  <button class="nav-btn" onclick=\"go('solution', this)\">使用说明</button>
+  <button class="nav-btn" onclick=\"go('concepts', this)\">索引：A–F</button>
+  <button class="nav-btn" onclick=\"go('usecases', this)\">索引：G–L</button>
+  <button class="nav-btn" onclick=\"go('code', this)\">索引：M–R</button>
+  <button class="nav-btn" onclick=\"go('deepdive', this)\">索引：S–Z</button>
+  <button class="nav-btn" onclick=\"go('glance', this)\">高频引用</button>
+  <button class="nav-btn" onclick=\"go('quiz', this)\">索引测验</button>
+  <button class="nav-btn" onclick=\"go('takeaways', this)\">关键位置</button>
+  <button class="nav-btn" onclick=\"go('refs', this)\">延伸阅读</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -452,11 +452,11 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 </div>
 
 <script>
-function go(id) {
+function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

@@ -130,17 +130,17 @@ h1{font-family:var(--serif);font-size:2.2rem;font-weight:600;color:var(--text);l
 <p class="subtitle">从 GUI 到真实世界环境——AI 代理如何通过智能体-计算机接口（ACI）与数字界面和物理世界交互，以及 Vibe Coding 等新兴交互范式。</p>
 
 <nav class="nav-bar" id="navbar">
-  <button class="nav-btn active" onclick="go('overview')">概览</button>
-  <button class="nav-btn" onclick="go('problem')">问题所在</button>
-  <button class="nav-btn" onclick="go('solution')">解决方案</button>
-  <button class="nav-btn" onclick="go('concepts')">核心概念</button>
-  <button class="nav-btn" onclick="go('usecases')">应用场景</button>
-  <button class="nav-btn" onclick="go('code')">代码实战</button>
-  <button class="nav-btn" onclick="go('deepdive')">深入解析</button>
-  <button class="nav-btn" onclick="go('glance')">一览概要</button>
-  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
-  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
-  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+  <button class="nav-btn active" onclick=\"go('overview', this)\">概览</button>
+  <button class="nav-btn" onclick=\"go('problem', this)\">问题所在</button>
+  <button class="nav-btn" onclick=\"go('solution', this)\">解决方案</button>
+  <button class="nav-btn" onclick=\"go('concepts', this)\">核心概念</button>
+  <button class="nav-btn" onclick=\"go('usecases', this)\">应用场景</button>
+  <button class="nav-btn" onclick=\"go('code', this)\">代码实战</button>
+  <button class="nav-btn" onclick=\"go('deepdive', this)\">深入解析</button>
+  <button class="nav-btn" onclick=\"go('glance', this)\">一览概要</button>
+  <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
+  <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
+  <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
 </nav>
 
 <div id="sec-overview" class="section active">
@@ -454,7 +454,7 @@ user_vibe_3 = <span class="code-string">"把所有错误消息改成中文，添
 <div class="footer"><p>附录 B · AI 智能体交互 · 交互式学习体验</p></div>
 </div>
 <script>
-function go(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active');window.scrollTo({top:document.getElementById('navbar').offsetTop-10,behavior:'smooth'});}
+function go(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');window.scrollTo({top:document.getElementById('navbar').offsetTop-10,behavior:'smooth'});}
 function toggleChain(el){el.classList.toggle('open');}
 function toggleCtx(el){el.classList.toggle('open');}
 function showUC(i){document.querySelectorAll('.uc-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.uc-tab').forEach(t=>t.classList.remove('active'));document.getElementById('uc-'+i).classList.add('active');document.querySelectorAll('.uc-tab')[i].classList.add('active');}

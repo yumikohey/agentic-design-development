@@ -129,17 +129,17 @@ h1{font-family:var(--serif);font-size:2.2rem;font-weight:600;color:var(--text);l
 <p class="subtitle">Antonio Gulli 著 · Springer 出版 · 424页 · 全书版税捐献给救助儿童会</p>
 
 <nav class="nav-bar" id="navbar">
-  <button class="nav-btn active" onclick="go('overview')">概览</button>
-  <button class="nav-btn" onclick="go('problem')">背景挑战</button>
-  <button class="nav-btn" onclick="go('solution')">本书方法</button>
-  <button class="nav-btn" onclick="go('concepts')">核心主题</button>
-  <button class="nav-btn" onclick="go('usecases')">章节导览</button>
-  <button class="nav-btn" onclick="go('code')">代码示例</button>
-  <button class="nav-btn" onclick="go('deepdive')">致谢深读</button>
-  <button class="nav-btn" onclick="go('glance')">一览概要</button>
-  <button class="nav-btn" onclick="go('quiz')">知识测验</button>
-  <button class="nav-btn" onclick="go('takeaways')">核心要点</button>
-  <button class="nav-btn" onclick="go('refs')">参考资料</button>
+  <button class="nav-btn active" onclick=\"go('overview', this)\">概览</button>
+  <button class="nav-btn" onclick=\"go('problem', this)\">背景挑战</button>
+  <button class="nav-btn" onclick=\"go('solution', this)\">本书方法</button>
+  <button class="nav-btn" onclick=\"go('concepts', this)\">核心主题</button>
+  <button class="nav-btn" onclick=\"go('usecases', this)\">章节导览</button>
+  <button class="nav-btn" onclick=\"go('code', this)\">代码示例</button>
+  <button class="nav-btn" onclick=\"go('deepdive', this)\">致谢深读</button>
+  <button class="nav-btn" onclick=\"go('glance', this)\">一览概要</button>
+  <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
+  <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
+  <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
 </nav>
 
 <div id="sec-overview" class="section active">
@@ -452,7 +452,7 @@ result = chain.invoke({<span style="color:var(--teal)">"report"</span>: market_r
 <div class="footer"><p>前言与导读 · 智能体设计模式 · 交互式学习体验</p></div>
 </div>
 <script>
-function go(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active');window.scrollTo({top:document.getElementById('navbar').offsetTop-10,behavior:'smooth'});}
+function go(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');window.scrollTo({top:document.getElementById('navbar').offsetTop-10,behavior:'smooth'});}
 function toggleChain(el){el.classList.toggle('open');}
 function toggleCtx(el){el.classList.toggle('open');}
 function showUC(i){document.querySelectorAll('.uc-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.uc-tab').forEach(t=>t.classList.remove('active'));document.getElementById('uc-'+i).classList.add('active');document.querySelectorAll('.uc-tab')[i].classList.add('active');}
