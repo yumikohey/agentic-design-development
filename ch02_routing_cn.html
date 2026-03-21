@@ -1107,6 +1107,137 @@ coordinator = Agent(
     </ul>
   </section>
 
+  <!-- 媒体资源 -->
+  <section id="sec-media" class="section">
+    <h2 class="sec-title">媒体资源</h2>
+    <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、电影级视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+    <!-- 音频 -->
+    <div class="media-card">
+      <div class="media-badge">🎧 深度音频</div>
+      <h3>智能体路由模式 · 中文深度讲解</h3>
+      <p class="media-desc">由 NotebookLM 基于第二章原文生成的简体中文深度音频，系统讲解路由设计模式的核心原理与五种路由机制对比。</p>
+      <audio controls>
+        <source src="./media/ch02_routing_audio.mp3" type="audio/mpeg">
+        您的浏览器不支持音频播放。
+      </audio>
+    </div>
+
+    <!-- 视频 -->
+    <div class="media-card" id="media-video-card">
+      <div class="media-badge">🎬 电影级视频</div>
+      <h3>路由设计模式 · 电影级视觉讲解</h3>
+      <p class="media-desc">由 NotebookLM 生成的电影级视频概览，以视觉化方式呈现路由模式如何赋予智能体动态决策能力。</p>
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+        <p style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:8px;">《The Millisecond Dispatch: Inside the Anatomy of AI Decision-Making》</p>
+        <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">NotebookLM 生成的电影级视频，标题风格已自动命名（原始语言：英文）</p>
+        <a href="https://notebooklm.google.com/notebook/ee06077f-17f9-46d6-9c4c-5917734b7ade" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+          在 NotebookLM 中观看视频 →
+        </a>
+      </div>
+    </div>
+
+    <!-- 博客文章 -->
+    <div class="media-card">
+      <div class="media-badge">📝 深度博客</div>
+      <h3>从第一性原理理解路由（Routing）设计模式</h3>
+      <p class="media-desc">由 NotebookLM 基于第二章内容生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导路由的必要性。</p>
+      <hr class="blog-divider">
+      <article class="blog-post">
+        <h2>💡 从第一性原理看AI Agent路由（Routing）设计模式：打破顺序处理的枷锁</h2>
+
+        <h3>1. 引言：一个不可避免的痛点</h3>
+        <p>想象一下，你刚刚利用大语言模型（LLM）构建了一个客服AI助手。最开始，你的设计非常简单直接：用户输入问题，系统将问题塞进一个精心设计的Prompt模板中，然后调用LLM生成回复。</p>
+        <p>第一天，用户问："你们的退货政策是什么？"你的AI完美解答。第二天，用户问："帮我查一下订单号#12345的物流状态。"你的AI陷入了沉思，然后胡编乱造了一个物流状态，或者生硬地回答："作为一个AI，我无法访问您的数据库。"</p>
+        <p>你突然意识到一个真实的痛点：<strong>现实世界中的用户请求是极其多样且不可预测的</strong>。复杂的现实场景要求系统能够根据环境变量、用户输入或上一步的操作结果，在多个潜在的动作之间进行仲裁和选择。这就是我们今天要探讨的核心：<strong>路由（Routing）设计模式</strong>。</p>
+
+        <h3>2. 问题陈述：为什么顺序处理不够用？</h3>
+        <p>在构建大模型应用的最早期，我们通常使用"提示链"（Prompt Chaining）。这就好比工厂里的流水线：第一步提取关键词，第二步总结摘要，第三步翻译成目标语言。这种顺序处理在执行确定性的、线性的工作流时非常完美。</p>
+        <p>但问题在于：<strong>真实世界的任务往往不是线性的</strong>。如果你的业务同时涉及"查询订单"、"产品咨询"和"技术支持"，强制使用单一的线性链条会导致灾难。我们需要系统从"固定执行路径"转变为一种动态评估特定标准以选择后续行动的新模式。</p>
+
+        <h3>3. 第一性原理推导：从零推导路由的必要性</h3>
+        <p>让我们抛开所有现成的框架，如果你从零开始设计一个智能体，你会如何解决"不同输入需要不同处理"这个问题？</p>
+        <p><strong>第一步：识别分歧点。</strong>你首先会发现，用户的自然语言输入就像一个充满了岔路口的迷宫。有的路通向数据库（查订单），有的路通向知识库（查产品），有的路需要呼叫人类专家（技术支持）。</p>
+        <p><strong>第二步：引入"大脑"机制。</strong>为了在岔路口做出正确的选择，你需要在系统最前端放置一个"分发员"。这个分发员不负责实际解决问题，它只负责一件事：<strong>分类与指派</strong>。</p>
+        <p><strong>第三步：形成条件逻辑。</strong>这就自然而然地引入了条件逻辑（Conditional Logic）：</p>
+        <ul>
+          <li>如果意图是"查询订单状态"→ 路由到与订单数据库交互的子智能体</li>
+          <li>如果意图是"产品信息"→ 路由到搜索产品目录的子智能体</li>
+          <li>如果意图是"技术支持"→ 路由到访问故障排除指南或升级给人类的链</li>
+          <li>如果意图不明确 → 路由到澄清问题的子智能体</li>
+        </ul>
+        <p>顺理成章地，你就推导出了"路由（Routing）"的概念。路由通过将控制流动态导向不同的专业化函数、工具或子流程，实现了动态决策的能力，让智能体从机械的执行者变成了能够根据上下文灵活应对的智能系统。</p>
+
+        <h3>4. 核心概念详解：路由的三个组成部分</h3>
+        <p>路由模式包含三个关键组成部分：</p>
+        <ol>
+          <li><strong>输入接收（Input Reception）</strong>：捕获用户的自然语言查询或系统内部的状态变化。</li>
+          <li><strong>路由器/分类器（Router/Classifier）</strong>：整个模式的灵魂——执行评估、判断当前输入属于哪一种类别。</li>
+          <li><strong>处理器选择与分发（Processor Selection）</strong>：根据分类结果，将数据负载传递给最适合处理该任务的专业模块。</li>
+        </ol>
+        <p>你可以把它类比为医院的急诊分诊台：病人（输入）来到前台，分诊护士（路由器）根据症状评估紧急程度和科室，然后将病人送往外科、内科或重症监护室（处理器）。</p>
+
+        <h3>5. 五种路由机制深度对比</h3>
+        <p><strong>5.1 规则路由（Rule-based）</strong><br>基于关键词、正则表达式或结构化数据的 if-else 逻辑。速度极快、确定性强，但在处理人类细微差别或新颖输入时极度缺乏灵活性。适合：明确包含命令前缀（如 <code>/help</code>）的系统。</p>
+        <p><strong>5.2 嵌入向量路由（Embedding-based）</strong><br>将输入转换为向量嵌入，与预先计算的路由向量进行距离相似度比较。即使用词完全不同，语义相近的请求也能正确路由。适合：基于深层含义而非表面关键词的路由决策。</p>
+        <p><strong>5.3 机器学习分类器路由（ML Model-based）</strong><br>使用专门训练的判别模型（分类器）执行路由任务。路由逻辑被编码在微调模型的权重中，LLM不参与实时路由决策。适合：需要极高准确率且有足够标注数据的企业级系统。</p>
+        <p><strong>5.4 LLM路由（LLM-based）</strong><br>让大语言模型自己充当路由器，通过Prompt指示LLM分析输入并输出特定的分类标识符。利用LLM强大的零样本泛化能力理解复杂长尾意图。适合：意图边界模糊、需要深度推理才能分类的场景。</p>
+        <p><strong>5.5 LangGraph状态路由（State-based Graph）</strong><br>路由决策取决于整个系统随时间累积的"状态"，而非仅当前输入。适合：多步骤任务，下一步取决于之前工具调用结果的复杂工作流。</p>
+
+        <h3>6. 框架实战：LangChain vs Google ADK</h3>
+        <p><strong>LangChain — RunnableBranch 显式委派</strong></p>
+<pre>coordinator_router_prompt = ChatPromptTemplate.from_messages([
+    ("system", """Analyze the user's request and determine which specialist should process it.
+     - If booking related, output 'booker'.
+     - For general information, output 'info'.
+     - If unclear, output 'unclear'.
+     ONLY output one word: 'booker', 'info', or 'unclear'."""),
+    ("user", "{request}")
+])
+coordinator_router_chain = coordinator_router_prompt | llm | StrOutputParser()
+
+delegation_branch = RunnableBranch(
+    (lambda x: x['decision'].strip() == 'booker', branches["booker"]),
+    (lambda x: x['decision'].strip() == 'info',   branches["info"]),
+    branches["unclear"]
+)
+
+coordinator_agent = {
+    "decision": coordinator_router_chain,
+    "request":  RunnablePassthrough()
+} | delegation_branch | (lambda x: x['output'])</pre>
+        <p><strong>Google ADK — Auto-Flow 隐式委派</strong></p>
+<pre>coordinator = Agent(
+    name="Coordinator",
+    model="gemini-2.0-flash",
+    instruction="Analyze incoming user requests and delegate to the appropriate specialist agent.",
+    sub_agents=[booking_agent, info_agent]  # Auto-Flow 自动路由
+)</pre>
+        <p>LangChain 使用显式的 <code>RunnableBranch</code>，类似传统 switch-case，但判断条件由 LLM 生成。ADK 则通过 <code>sub_agents</code> 注册自动委托——框架内部逻辑自动将意图与处理器匹配，代码更简洁。</p>
+
+        <h3>7. 决策指南：何时用哪种机制？</h3>
+        <ol>
+          <li><strong>输入完全可预测且结构化？</strong> → <strong>规则路由</strong>：速度最快，成本为零。</li>
+          <li><strong>有大量标注数据且需要极高准确率？</strong> → <strong>ML分类器</strong>：稳定且推理成本低。</li>
+          <li><strong>主要基于语义意图的粗粒度分类？</strong> → <strong>嵌入向量路由</strong>：捕捉语义距离。</li>
+          <li><strong>智能体动作是高度离散的独立工具/子智能体？</strong> → <strong>Google ADK</strong>：Auto-Flow 减少样板代码。</li>
+          <li><strong>多步骤、复杂状态累积的工作流？</strong> → <strong>LangGraph + LLM路由</strong>：状态图处理复杂节点转换。</li>
+        </ol>
+
+        <h3>8. 常见陷阱与最佳实践</h3>
+        <ul>
+          <li><strong>LLM 输出边界陷阱</strong>：在 Prompt 中严格约束输出词汇，并在代码中使用 <code>.strip()</code> 消除格式噪音。</li>
+          <li><strong>缺少兜底逻辑</strong>：永远实现一个 <code>unclear_handler</code>，意图不明时路由到澄清提示链。</li>
+          <li><strong>框架锁定思维</strong>：LangGraph 强调显式节点转换，ADK 强调意图到工具的隐式映射。理解底层机制才能在不同场景选对工具。</li>
+        </ul>
+
+        <h3>9. 总结：路由模式对智能体能力的根本性提升</h3>
+        <p>路由提供了一个标准化的解决方案，将条件逻辑注入到智能体的操作框架中。无论是在人机交互中解释用户意图，在数据处理管道中充当分类与分发网络，还是在多智能体系统中担任高层级调度员，路由都提供了不可或缺的逻辑仲裁能力。</p>
+        <p>掌握路由模式，我们实质上完成了一次范式转移：将智能体从静态的、预先定义序列的执行器，彻底转变成了一个能够在不断变化的条件下智能决定最有效任务完成方法的<strong>动态决策系统</strong>——这是构建真正具备自适应能力的现代 Agentic 系统的关键一步。</p>
+      </article>
+    </div>
+  </section>
+
   <div class="footer"><p>第二章：路由（Routing）· 智能体系统设计模式交互式学习</p></div>
 </div>
 
@@ -1231,147 +1362,5 @@ function prevQ() { if (current > 0) { current--; renderQuiz(); } }
 
 renderQuiz();
 </script>
-
-<!-- 媒体资源 -->
-<section id="sec-media" class="section">
-  <h2 class="sec-title">媒体资源</h2>
-  <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、电影级视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
-
-  <!-- 音频 -->
-  <div class="media-card">
-    <div class="media-badge">🎧 深度音频</div>
-    <h3>智能体路由模式 · 中文深度讲解</h3>
-    <p class="media-desc">由 NotebookLM 基于第二章原文生成的简体中文深度音频，系统讲解路由设计模式的核心原理与五种路由机制对比。</p>
-    <audio controls>
-      <source src="./media/ch02_routing_audio.mp3" type="audio/mpeg">
-      您的浏览器不支持音频播放。
-    </audio>
-  </div>
-
-  <!-- 视频 -->
-  <div class="media-card" id="media-video-card">
-    <div class="media-badge">🎬 电影级视频</div>
-    <h3>路由设计模式 · 电影级视觉讲解</h3>
-    <p class="media-desc">由 NotebookLM 生成的电影级视频概览，以视觉化方式呈现路由模式如何赋予智能体动态决策能力。</p>
-    <div id="video-container" style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
-      <p style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:8px;">《The Millisecond Dispatch: Inside the Anatomy of AI Decision-Making》</p>
-      <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">NotebookLM 生成的电影级视频，标题风格已自动命名（原始语言：英文）</p>
-      <a href="https://notebooklm.google.com/notebook/ee06077f-17f9-46d6-9c4c-5917734b7ade" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
-        在 NotebookLM 中观看视频 →
-      </a>
-    </div>
-  </div>
-
-  <!-- 博客文章 -->
-  <div class="media-card">
-    <div class="media-badge">📝 深度博客</div>
-    <h3>从第一性原理理解路由（Routing）设计模式</h3>
-    <p class="media-desc">由 NotebookLM 基于第二章内容生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导路由的必要性。</p>
-    <hr class="blog-divider">
-    <article class="blog-post">
-      <h2>💡 从第一性原理看AI Agent路由（Routing）设计模式：打破顺序处理的枷锁</h2>
-
-      <h3>1. 引言：一个不可避免的痛点</h3>
-      <p>想象一下，你刚刚利用大语言模型（LLM）构建了一个客服AI助手。最开始，你的设计非常简单直接：用户输入问题，系统将问题塞进一个精心设计的Prompt模板中，然后调用LLM生成回复。</p>
-      <p>第一天，用户问："你们的退货政策是什么？"你的AI完美解答。第二天，用户问："帮我查一下订单号#12345的物流状态。"你的AI陷入了沉思，然后胡编乱造了一个物流状态，或者生硬地回答："作为一个AI，我无法访问您的数据库。"</p>
-      <p>你突然意识到一个真实的痛点：<strong>现实世界中的用户请求是极其多样且不可预测的</strong>。复杂的现实场景要求系统能够根据环境变量、用户输入或上一步的操作结果，在多个潜在的动作之间进行仲裁和选择。这就是我们今天要探讨的核心：<strong>路由（Routing）设计模式</strong>。</p>
-
-      <h3>2. 问题陈述：为什么顺序处理不够用？</h3>
-      <p>在构建大模型应用的最早期，我们通常使用"提示链"（Prompt Chaining）。这就好比工厂里的流水线：第一步提取关键词，第二步总结摘要，第三步翻译成目标语言。这种顺序处理在执行确定性的、线性的工作流时非常完美。</p>
-      <p>但问题在于：<strong>真实世界的任务往往不是线性的</strong>。如果你的业务同时涉及"查询订单"、"产品咨询"和"技术支持"，强制使用单一的线性链条会导致灾难。我们需要系统从"固定执行路径"转变为一种动态评估特定标准以选择后续行动的新模式。</p>
-
-      <h3>3. 第一性原理推导：从零推导路由的必要性</h3>
-      <p>让我们抛开所有现成的框架，如果你从零开始设计一个智能体，你会如何解决"不同输入需要不同处理"这个问题？</p>
-      <p><strong>第一步：识别分歧点。</strong>你首先会发现，用户的自然语言输入就像一个充满了岔路口的迷宫。有的路通向数据库（查订单），有的路通向知识库（查产品），有的路需要呼叫人类专家（技术支持）。</p>
-      <p><strong>第二步：引入"大脑"机制。</strong>为了在岔路口做出正确的选择，你需要在系统最前端放置一个"分发员"。这个分发员不负责实际解决问题，它只负责一件事：<strong>分类与指派</strong>。</p>
-      <p><strong>第三步：形成条件逻辑。</strong>这就自然而然地引入了条件逻辑（Conditional Logic）：</p>
-      <ul>
-        <li>如果意图是"查询订单状态"→ 路由到与订单数据库交互的子智能体</li>
-        <li>如果意图是"产品信息"→ 路由到搜索产品目录的子智能体</li>
-        <li>如果意图是"技术支持"→ 路由到访问故障排除指南或升级给人类的链</li>
-        <li>如果意图不明确 → 路由到澄清问题的子智能体</li>
-      </ul>
-      <p>顺理成章地，你就推导出了"路由（Routing）"的概念。路由通过将控制流动态导向不同的专业化函数、工具或子流程，实现了动态决策的能力，让智能体从机械的执行者变成了能够根据上下文灵活应对的智能系统。</p>
-
-      <h3>4. 核心概念详解：路由的三个组成部分</h3>
-      <p>路由模式包含三个关键组成部分：</p>
-      <ol>
-        <li><strong>输入接收（Input Reception）</strong>：捕获用户的自然语言查询或系统内部的状态变化。</li>
-        <li><strong>路由器/分类器（Router/Classifier）</strong>：整个模式的灵魂——执行评估、判断当前输入属于哪一种类别。</li>
-        <li><strong>处理器选择与分发（Processor Selection）</strong>：根据分类结果，将数据负载传递给最适合处理该任务的专业模块。</li>
-      </ol>
-      <p>你可以把它类比为医院的急诊分诊台：病人（输入）来到前台，分诊护士（路由器）根据症状评估紧急程度和科室，然后将病人送往外科、内科或重症监护室（处理器）。</p>
-
-      <h3>5. 五种路由机制深度对比</h3>
-
-      <p><strong>5.1 规则路由（Rule-based）</strong><br>
-      基于关键词、正则表达式或结构化数据的 if-else 逻辑。速度极快、确定性强，但在处理人类细微差别或新颖输入时极度缺乏灵活性。适合：明确包含命令前缀（如 <code>/help</code>）的系统。</p>
-
-      <p><strong>5.2 嵌入向量路由（Embedding-based）</strong><br>
-      将输入转换为向量嵌入，与预先计算的路由向量进行距离相似度比较。即使用词完全不同，语义相近的请求也能正确路由。适合：基于深层含义而非表面关键词的路由决策。</p>
-
-      <p><strong>5.3 机器学习分类器路由（ML Model-based）</strong><br>
-      使用专门训练的判别模型（分类器）执行路由任务。路由逻辑被编码在微调模型的权重中，LLM不参与实时路由决策。适合：需要极高准确率且有足够标注数据的企业级系统。</p>
-
-      <p><strong>5.4 LLM路由（LLM-based）</strong><br>
-      让大语言模型自己充当路由器，通过Prompt指示LLM分析输入并输出特定的分类标识符。利用LLM强大的零样本泛化能力理解复杂长尾意图。适合：意图边界模糊、需要深度推理才能分类的场景。</p>
-
-      <p><strong>5.5 LangGraph状态路由（State-based Graph）</strong><br>
-      路由决策取决于整个系统随时间累积的"状态"，而非仅当前输入。适合：多步骤任务，下一步取决于之前工具调用结果的复杂工作流。</p>
-
-      <h3>6. 框架实战：LangChain vs Google ADK</h3>
-      <p><strong>LangChain — RunnableBranch 显式委派</strong></p>
-<pre>coordinator_router_prompt = ChatPromptTemplate.from_messages([
-    ("system", """Analyze the user's request and determine which specialist should process it.
-     - If booking related, output 'booker'.
-     - For general information, output 'info'.
-     - If unclear, output 'unclear'.
-     ONLY output one word: 'booker', 'info', or 'unclear'."""),
-    ("user", "{request}")
-])
-coordinator_router_chain = coordinator_router_prompt | llm | StrOutputParser()
-
-delegation_branch = RunnableBranch(
-    (lambda x: x['decision'].strip() == 'booker', branches["booker"]),
-    (lambda x: x['decision'].strip() == 'info',   branches["info"]),
-    branches["unclear"]
-)
-
-coordinator_agent = {
-    "decision": coordinator_router_chain,
-    "request":  RunnablePassthrough()
-} | delegation_branch | (lambda x: x['output'])</pre>
-      <p><strong>Google ADK — Auto-Flow 隐式委派</strong></p>
-<pre>coordinator = Agent(
-    name="Coordinator",
-    model="gemini-2.0-flash",
-    instruction="Analyze incoming user requests and delegate to the appropriate specialist agent.",
-    sub_agents=[booking_agent, info_agent]  # Auto-Flow 自动路由
-)</pre>
-      <p>LangChain 使用显式的 <code>RunnableBranch</code>，类似传统 switch-case，但判断条件由 LLM 生成。ADK 则通过 <code>sub_agents</code> 注册自动委托——框架内部逻辑自动将意图与处理器匹配，代码更简洁。</p>
-
-      <h3>7. 决策指南：何时用哪种机制？</h3>
-      <ol>
-        <li><strong>输入完全可预测且结构化？</strong> → <strong>规则路由</strong>：速度最快，成本为零。</li>
-        <li><strong>有大量标注数据且需要极高准确率？</strong> → <strong>ML分类器</strong>：稳定且推理成本低。</li>
-        <li><strong>主要基于语义意图的粗粒度分类？</strong> → <strong>嵌入向量路由</strong>：捕捉语义距离。</li>
-        <li><strong>智能体动作是高度离散的独立工具/子智能体？</strong> → <strong>Google ADK</strong>：Auto-Flow 减少样板代码。</li>
-        <li><strong>多步骤、复杂状态累积的工作流？</strong> → <strong>LangGraph + LLM路由</strong>：状态图处理复杂节点转换。</li>
-      </ol>
-
-      <h3>8. 常见陷阱与最佳实践</h3>
-      <ul>
-        <li><strong>LLM 输出边界陷阱</strong>：在 Prompt 中严格约束输出词汇，并在代码中使用 <code>.strip()</code> 消除格式噪音。</li>
-        <li><strong>缺少兜底逻辑</strong>：永远实现一个 <code>unclear_handler</code>，意图不明时路由到澄清提示链。</li>
-        <li><strong>框架锁定思维</strong>：LangGraph 强调显式节点转换，ADK 强调意图到工具的隐式映射。理解底层机制才能在不同场景选对工具。</li>
-      </ul>
-
-      <h3>9. 总结：路由模式对智能体能力的根本性提升</h3>
-      <p>路由提供了一个标准化的解决方案，将条件逻辑注入到智能体的操作框架中。无论是在人机交互中解释用户意图，在数据处理管道中充当分类与分发网络，还是在多智能体系统中担任高层级调度员，路由都提供了不可或缺的逻辑仲裁能力。</p>
-      <p>掌握路由模式，我们实质上完成了一次范式转移：将智能体从静态的、预先定义序列的执行器，彻底转变成了一个能够在不断变化的条件下智能决定最有效任务完成方法的<strong>动态决策系统</strong>——这是构建真正具备自适应能力的现代 Agentic 系统的关键一步。</p>
-    </article>
-  </div>
-
-</section>
 </body>
 </html>
