@@ -150,6 +150,19 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 .ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
 .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
 .footer p { font-size: 12px; color: var(--text3); }
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -173,6 +186,7 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
   <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
   <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
   <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
+  <button class="nav-btn" onclick=\"go('media', this)\">媒体资源</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -554,6 +568,211 @@ app = workflow.compile()</div>
   </ul>
 </div>
 
+<!-- 媒体资源 -->
+<section id="sec-media" class="section">
+  <h2 class="sec-title">媒体资源</h2>
+  <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+  <div class="media-card">
+    <div class="media-badge">🎧 深度音频</div>
+    <h3>第十四章：知识检索与RAG · 中文深度讲解</h3>
+    <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+    <audio controls>
+      <source src="./media/ch14_rag_audio.mp3" type="audio/mpeg">
+      您的浏览器不支持音频播放。
+    </audio>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">🎬 视频讲解</div>
+    <h3>第十四章：知识检索与RAG · 视觉化讲解</h3>
+    <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+    <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+      <a href="https://notebooklm.google.com/notebook/b5963db0-24aa-4374-936f-e41c683e12f6" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+        在 NotebookLM 中观看视频 →
+      </a>
+    </div>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">📝 深度博客</div>
+    <h3>从第一性原理理解第十四章：知识检索与RAG</h3>
+    <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+    <hr class="blog-divider">
+    <article class="blog-post">
+      <h2>第十四章：知识检索与 RAG 设计模式——从闭卷考试到具备主动思考的"外挂大脑"</h2>
+
+      <h3>1. 引言：一个具体的痛点场景</h3>
+      <p>想象一下，你刚刚招募了世界上最聪明、阅读量最大的天才（这就是我们的大语言模型，LLM）。这个天才熟读了人类历史上截至 2023 年几乎所有的公开文献，能够以极其惊人的流畅度与你对话。但是，当你问他："请帮我查一下今天早上公司刚发布的最新远程办公政策"，或者"我们仓库里还有多少个 A 型号的零件"时，他立刻就傻眼了。</p>
+      <p>为了掩饰自己的无知，他甚至可能会极其自信地给你胡编乱造一个答案——这就是我们在人工智能领域常说的<strong>"幻觉"（Hallucination）</strong>。</p>
+      <p>这就是当前独立大语言模型面临的核心痛点：<strong>它们的知识是静态的，被永远困在它们完成训练的那一天</strong>。它们无法访问实时信息、你公司的私有数据，或是高度垂直领域的专业细节。如果 AI 智能体仅仅是一个"陪聊工具"，这或许还能容忍；但如果我们希望 AI 成为能够执行复杂任务、基于数据驱动的生产力工具（比如在下单前检查库存，或查阅最新政策），这就成了一个致命缺陷。</p>
+
+      <h3>2. 问题陈述</h3>
+      <p>从根本上说，大语言模型（LLM）面临的挑战可以归结为以下几点：</p>
+      <ol>
+        <li><strong>静态知识库</strong>：模型的权重只记住了训练时见过的数据，无法动态更新。</li>
+        <li><strong>缺乏私有上下文</strong>：模型没有访问企业内部维基、HR 政策或个人数据库的权限。</li>
+        <li><strong>事实不可靠与缺乏溯源</strong>：当模型仅依赖内部参数生成答案时，它无法告诉你"我是在哪份文件的第几页看到这个信息的"，因此很难建立信任。</li>
+      </ol>
+      <p>我们需要一种机制，让 LLM 能够突破自身权重的限制，去"向外看"。</p>
+
+      <h3>3. 第一性原理推导：为什么我们需要 RAG？</h3>
+      <p>让我们用第一性原理来思考这个问题。当人类面临一个自己不知道答案的复杂问题时，我们是如何解决的？</p>
+      <p>我们绝不会仅仅依靠大脑里死记硬背的知识去瞎猜（这正是纯 LLM 在做的事）。我们的做法是：</p>
+      <ol>
+        <li><strong>检索（Retrieve）</strong>：打开搜索引擎或翻开参考书，寻找相关的资料。</li>
+        <li><strong>增强（Augment）</strong>：将这些找到的资料放在手边，作为当前的"工作记忆（上下文）"。</li>
+        <li><strong>生成（Generate）</strong>：基于我们聪明的头脑（推理能力）和手边的资料（事实依据），总结出一个完美的答案。</li>
+      </ol>
+      <p>这正是<strong>检索增强生成（Retrieval-Augmented Generation, 简称 RAG）</strong>模式的核心哲学。</p>
+      <p>RAG 并不是直接把问题扔给 LLM。相反，系统首先会在庞大的外部知识库（文档、数据库、网页）中，搜索与用户意图最相关的"信息片段"。然后，系统将这些片段"增强"到用户的原始提示词（Prompt）中，最后再把这个富含背景知识的超长提示词喂给 LLM。</p>
+      <p><strong>为什么这样做？</strong>因为这直接将 LLM 从一个"闭卷考试"的考生，变成了一个拿着标准参考书进行"开卷考试"的学霸。这不仅解决了静态数据和"幻觉"的问题，最关键的是，它赋予了 AI <strong>提供"引用（Citations）"</strong>的能力，让每一句话都建立在可验证的事实基础之上。</p>
+
+      <h3>4. 核心概念详解：构建直觉</h3>
+
+      <h3>4.1 嵌入向量（Embeddings）：语言的数学坐标</h3>
+      <p><strong>为什么需要 Embeddings？</strong>计算机根本不懂什么是"猫"，什么是"狗"，它们只懂数字。如果我们想让计算机理解语义，我们就必须把文字映射到一个计算机可以计算的数学空间里。</p>
+      <p>在 RAG 中，<strong>Embeddings 是文本（单词、短语或整个文档）的数字表示形式，通常是一个高维的浮点数数组（向量）</strong>。其核心理念是在数学空间中捕捉语义和文本间的关系：<strong>意义相近的词，在向量空间中的几何距离也非常接近</strong>。</p>
+      <p>你可以想象一个简单的二维坐标系：单词"猫（cat）"的坐标可能是 (2, 3)，那么"小猫（kitten）"的坐标可能就是非常接近的 (2.1, 3.1)；而"汽车（car）"的意思差了十万八千里，它的坐标可能远在 (8, 1)。现实中的 Embeddings 拥有成百上千个维度，足以表达极其微妙的语言特征。</p>
+
+      <h3>4.2 语义相似度（Semantic Similarity）：超越关键字匹配</h3>
+      <p><strong>为什么传统的关键字搜索不够用？</strong>假设用户问："法国的首都在哪里？"，而你的知识库里只有一句话："哪座城市是法国的首府？"。或者用户搜索"毛茸茸的猫科伴侣"，而文档里写的是"家猫"。</p>
+      <p>传统的基于关键字的算法（如 BM25）看到这些完全不同的单词就会束手无策。但<strong>语义相似度</strong>关注的是文本传达的底层概念。因为它们的 Embeddings 向量在数学空间里距离极小（语义距离低），系统就能认出它们说的是同一件事。这就是 RAG 能够实现"智能搜索"的魔法来源。</p>
+
+      <h3>4.3 文档分块（Chunking）：注意力是昂贵的</h3>
+      <p><strong>为什么我们要把文档切碎？</strong>LLM 的上下文窗口（Context Window）是有限制的；即使窗口足够大，塞入过多无关信息会严重稀释模型的注意力，导致回答质量下降，并且极大地增加处理成本（Tokens 费用）。</p>
+      <p>因此我们需要<strong>分块（Chunking）</strong>：将大文档分解为更小、更易于管理的片段。比如，把用户手册按"故障排除"、"安装指南"分成不同的块。当用户询问具体问题时，我们只检索并传递那块最相关的"故障排除"段落，让提供给 LLM 的信息高度聚焦。</p>
+
+      <h3>4.4 向量数据库（Vector Databases）：为意义而生的存储引擎</h3>
+      <p>有了向量之后，我们需要地方来存放和查询它们。<strong>向量数据库是专门设计用来高效存储和查询 Embeddings 向量的数据库</strong>（如 Chroma DB, Milvus, Qdrant, Pinecone 以及基于 Postgres 的 pgvector 等）。</p>
+      <p>当用户的查询被转换为向量后，向量数据库会使用高度优化的算法（如 HNSW，分层可导航小世界算法）在数以百万计的向量中极其迅速地找到距离"最近"的那些块。本质上，<strong>传统数据库搜索的是"文字"，而向量数据库搜索的是"意义"</strong>。</p>
+
+      <h3>5. 关键机制分析：RAG 模式的演进</h3>
+
+      <h3>5.1 朴素 RAG（Naive RAG）</h3>
+      <p>这是最基础的形态：用户提问 → 转化为向量 → 在向量数据库中查询最相似的前 K 个分块 → 将分块与问题拼接成 Prompt → LLM 生成答案。</p>
+      <p>为了兼顾精确度和语义理解，现代系统经常使用<strong>混合搜索（Hybrid Search）</strong>：将 BM25 的关键字精准度与向量搜索的语义理解能力结合起来，做到"字面"和"概念"双重命中。</p>
+
+      <h3>5.2 图 RAG（Graph RAG）：合成碎片化知识的利器</h3>
+      <p><strong>痛点在哪？</strong>传统 RAG 在面对"需要跨越多份文档进行信息拼凑"的复杂问题时往往会失败。</p>
+      <p><strong>GraphRAG 机制</strong>：它摒弃了简单的向量相似度，转而使用<strong>知识图谱（Knowledge Graph）</strong>。它通过显式的关系（边）来连接数据实体（节点）。例如在金融分析或基因疾病研究中，GraphRAG 能够顺藤摸瓜，沿着实体关系网络进行推理，提供更具上下文准确性的综合回答。</p>
+      <p><strong>代价</strong>：极高的构建复杂度和维护成本，且由于需要遍历图谱，往往带来更高的延迟。它适用于需要"深度关联洞察"而非仅仅是"快速简单检索"的场景。</p>
+
+      <h3>5.3 智能体 RAG（Agentic RAG）：引入主动思考的看门人</h3>
+      <p><strong>痛点在哪？</strong>如果检索回来的多份文档互相矛盾怎么办？如果知识库里压根没有答案怎么办？传统的被动 RAG 管道会把这些垃圾信息直接塞给 LLM，导致输出错误（Garbage in, Garbage out）。</p>
+      <p><strong>Agentic RAG 机制</strong>：它在检索和生成之间引入了一个"智能体（Agent）"作为具有推理与决策能力的"看门人"。Agent 会执行以下高级动作：</p>
+      <ol>
+        <li><strong>反思与来源验证</strong>：如果检索到 2020 年的旧政策和 2025 年的新政策，Agent 会主动分析元数据，<strong>丢弃过时信息</strong>，只保留最权威的 2025 年版本。</li>
+        <li><strong>调和知识冲突</strong>：如果草案说预算是 5 万欧，而最终财报说是 6.5 万欧，Agent 会识别出冲突，并主动判断财报具有更高优先级。</li>
+        <li><strong>多步推理</strong>：对于比较竞争对手的问题，Agent 会将其拆解为多个子查询，分别检索后汇总。</li>
+        <li><strong>工具调用</strong>：如果内部库中找不到答案，Agent 会意识到知识盲区，自动调用外部 Web 搜索 API 去互联网上抓取最新数据。</li>
+      </ol>
+
+      <h3>6. 框架实战代码示例</h3>
+
+      <h3>示例一：使用 Google ADK 接入 Vertex AI RAG</h3>
+      <pre># 从 google.adk.memory 导入 Vertex AI RAG 服务
+from google.adk.memory import VertexAiRagMemoryService
+
+RAG_CORPUS_RESOURCE_NAME = "projects/your-gcp-project-id/locations/us-central1/ragCorpora/your-corpus-id"
+
+# SIMILARITY_TOP_K: 只需要最相关的少数几个片段，过多会超载 LLM 上下文
+SIMILARITY_TOP_K = 5
+
+# VECTOR_DISTANCE_THRESHOLD: 语义距离阈值，距离大于 0.7 意味着语义差异太大，直接过滤
+VECTOR_DISTANCE_THRESHOLD = 0.7
+
+memory_service = VertexAiRagMemoryService(
+    rag_corpus=RAG_CORPUS_RESOURCE_NAME,
+    similarity_top_k=SIMILARITY_TOP_K,
+    vector_distance_threshold=VECTOR_DISTANCE_THRESHOLD
+)</pre>
+
+      <h3>示例二：使用 LangChain 与 LangGraph 构建完整 RAG 管道</h3>
+      <pre>from langchain_community.document_loaders import TextLoader
+from langchain.text_splitter import CharacterTextSplitter
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import Weaviate
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langgraph.graph import StateGraph, END
+from typing import List, TypedDict
+from langchain_core.documents import Document
+
+# --- 1. 数据准备与分块 ---
+loader = TextLoader('./knowledge_base.txt')
+documents = loader.load()
+
+# chunk_overlap 防止把完整句子切断
+text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+chunks = text_splitter.split_documents(documents)
+
+# 存入向量数据库
+vectorstore = Weaviate.from_documents(documents=chunks, embedding=OpenAIEmbeddings())
+retriever = vectorstore.as_retriever()
+llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+
+# --- 2. LangGraph 状态定义 ---
+class RAGGraphState(TypedDict):
+    question: str
+    documents: List[Document]
+    generation: str
+
+# --- 3. 节点函数 ---
+def retrieve_documents_node(state: RAGGraphState) -> RAGGraphState:
+    documents = retriever.invoke(state["question"])
+    return {"documents": documents, "question": state["question"], "generation": ""}
+
+def generate_response_node(state: RAGGraphState) -> RAGGraphState:
+    template = """只基于以下上下文回答问题，不知道就说不知道。
+    问题: {question}
+    上下文: {context}
+    回答: """
+    prompt = ChatPromptTemplate.from_template(template)
+    context = "\n\n".join([doc.page_content for doc in state["documents"]])
+    rag_chain = prompt | llm | StrOutputParser()
+    generation = rag_chain.invoke({"context": context, "question": state["question"]})
+    return {"question": state["question"], "documents": state["documents"], "generation": generation}
+
+# --- 4. 构建并运行 LangGraph ---
+workflow = StateGraph(RAGGraphState)
+workflow.add_node("retrieve", retrieve_documents_node)
+workflow.add_node("generate", generate_response_node)
+workflow.set_entry_point("retrieve")
+workflow.add_edge("retrieve", "generate")
+workflow.add_edge("generate", END)
+app = workflow.compile()
+
+result = app.invoke({"question": "What is the remote work policy?"})
+print(result["generation"])</pre>
+
+      <h3>7. 决策指南与最佳实践</h3>
+      <ul>
+        <li><strong>使用基础 RAG 的时机</strong>：当你需要 LLM 基于特定、最新或私有信息回答问题时。企业内部 HR 问答、客户支持、个性化推荐、实时新闻摘要——基础 RAG 性价比最高，通常作为首选方案。</li>
+        <li><strong>使用 GraphRAG 的时机</strong>：当你面对极度碎片化、需要综合几十篇孤立文档，且需要<strong>深层关联推理</strong>的场景时。例如：复杂的金融市场连带效应分析、疾病基因关系网络研究。</li>
+        <li><strong>使用 Agentic RAG 的时机</strong>：当你的知识库内部存在严重矛盾，或者你需要系统具备<strong>极高可靠性与溯源能力</strong>时。如果你的应用不允许给客户发送哪怕一点点过时或错误的信息，就必须引入 Agentic RAG 的"反思"和"验证"能力。</li>
+      </ul>
+
+      <h3>8. 常见陷阱</h3>
+      <ol>
+        <li><strong>分块策略失败</strong>：如果分块做得不好（例如把一段核心逻辑硬生生切成了两半），无论检索算法多好，喂给 LLM 的都是缺乏上下文的无意义片段，导致幻觉再现。</li>
+        <li><strong>检索碎片化与噪声</strong>：检索器可能会遗漏关键上下文，或者找来一堆充满关键字但毫不相关的噪声，极大地干扰大模型。</li>
+        <li><strong>系统复杂性带来的巨大开销</strong>：GraphRAG 和 Agentic RAG 虽然效果惊艳，但知识图谱的预处理非常庞大，Agent 的推理、反思、多步调用会大幅增加延迟和算力成本。</li>
+        <li><strong>数据库同步负担</strong>：企业的知识库是在不断进化的，RAG 系统要求这些外部资料被周期性地转化为 Embedding 重新存储，定期数据清洗和向量调和是一个必须正视的运维负担。</li>
+      </ol>
+
+      <h3>9. 总结</h3>
+      <p>大型语言模型本质上是极其强大的推理引擎，但它们天生存在"静态知识"和"容易产生幻觉"的缺陷。</p>
+      <p><strong>检索增强生成（RAG）设计模式，本质上就是为这些伟大的计算大脑装上了一个外接硬盘和一个搜索引擎</strong>。它通过一套精密的流水线：将文本转化为数学几何空间（Embeddings），利用向量数据库（Vector Databases）基于语义进行高速检索，再通过科学的分块（Chunking）策略将最关键的知识片段提取出来，最终与用户的指令合并注入 LLM 中。</p>
+      <p>这使得原本"闭卷猜题"的 AI，变成了有理有据、能够提供可追溯引用的"开卷学霸"。</p>
+      <p>而随着技术的演进，我们不再满足于仅仅"找资料"，我们更引入了 <strong>GraphRAG</strong>（在复杂网络中寻找深层关联）和 <strong>Agentic RAG</strong>（具有自主思考、矛盾调和与多步工具调用能力的验证智能体），使得 RAG 从一条被动的数据传输管道，进化成了一个能够主动解决问题的<strong>高级认知框架</strong>。</p>
+      <p>掌握 RAG 第一性原理，是你在这个智能时代不可或缺的核心竞争力。</p>
+    </article>
+  </div>
+</section>
+
 <div class="footer"><p>智能体设计模式 — 第十四章：知识检索（RAG）</p></div>
 </div>
 
@@ -562,7 +781,7 @@ function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

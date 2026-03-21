@@ -193,6 +193,19 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 .ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
 .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
 .footer p { font-size: 12px; color: var(--text3); }
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -216,6 +229,7 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
   <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
   <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
   <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
+  <button class="nav-btn" onclick=\"go('media', this)\">媒体资源</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -643,6 +657,196 @@ data_gatherer = ParallelAgent(
   </ul>
 </div>
 
+
+<!-- 媒体资源 -->
+<div id="sec-media" class="section">
+  <div class="sec-title">媒体资源</div>
+  <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+  <div class="media-card">
+    <div class="media-badge">🎧 深度音频</div>
+    <h3>第七章：多智能体协作 · 中文深度讲解</h3>
+    <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+    <audio controls>
+      <source src="./media/ch07_multi_agent_audio.mp3" type="audio/mpeg">
+      您的浏览器不支持音频播放。
+    </audio>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">🎬 视频讲解</div>
+    <h3>第七章：多智能体协作 · 视觉化讲解</h3>
+    <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+    <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+      <a href="https://notebooklm.google.com/notebook/6eef0685-5b44-48d2-b387-b79f10729de7" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+        在 NotebookLM 中观看视频 →
+      </a>
+    </div>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">📝 深度博客</div>
+    <h3>从第一性原理理解第七章：多智能体协作</h3>
+    <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+    <hr class="blog-divider">
+    <article class="blog-post">
+      <h2>深度解析多智能体协作：从第一性原理构建复杂AI系统</h2>
+
+      <h3>一、引言：为什么预设的"上帝智能体"会失败？</h3>
+      <p>在我们探索人工智能的边界时，我们经常会陷入一种"上帝智能体（God Agent）"的思维误区——试图通过一个无所不能的单一语言模型（LLM）来解决所有问题。然而，随着任务复杂度的指数级上升，这种范式的局限性开始暴露。</p>
+      <p>想象一下，你正在要求一个AI为你开发一款完整的Web应用程序，并将其部署到云端。如果你把这个任务交给一个单一的智能体，它需要同时扮演产品经理（梳理需求）、前端工程师（写React代码）、后端工程师（设计数据库）、测试工程师（寻找Bug）以及运维专家（配置服务器）。</p>
+      <p><strong>单一智能体架构虽然在定义明确的问题上很有效，但当面临复杂的、跨领域的任务时，其能力往往会受到严重制约。</strong>这种制约体现在：LLM的上下文窗口会被极其庞杂的背景信息塞满，导致注意力分散（Lost in the Middle）；单个智能体可能缺乏解决多面性任务各个部分所需的各种专业技能或特定工具的访问权限。最终导致系统整体效果的瓶颈，产生不完整或次优的结果。</p>
+
+      <h3>二、问题陈述</h3>
+      <p>从工程角度来看，核心问题在于<strong>复杂度的不可控</strong>。单一的、单体式的LLM智能体在面对需要多样化专业知识、并行处理或多阶段结构化工作流的问题时，往往显得力不从心。随着任务步骤的增加，单体智能体发生"幻觉"、偏离目标的概率会急剧增加。我们需要一种架构，能够在不牺牲系统稳定性的前提下，无限扩展AI处理复杂任务的能力。</p>
+
+      <h3>三、第一性原理推导：为什么是"多智能体协作"？</h3>
+      <p>如果你想理解如何构建复杂的AI系统，最好的方法是退一步，看看人类是如何建立文明的。人类并非依靠全知全能的个体，而是依靠<strong>社会分工与协作</strong>。这就是多智能体协作模式的第一性原理：<strong>任务分解（Task Decomposition）</strong>。</p>
+      <p><strong>为什么任务分解如此神奇？</strong>因为高层次的宏大目标被打破成了离散的、可管理的子问题。每一个子问题，都被分配给一个拥有<strong>特定工具、数据访问权限或推理能力</strong>的专属智能体，这个智能体可以说是为该任务"量身定制"的最佳人选。</p>
+      <p>这种分布式架构带来的好处是根本性的：<strong>增强的模块化、可扩展性和鲁棒性</strong>。如果其中一个智能体（比如数据抓取节点）失败了，它不会必然导致整个系统的全面崩溃，而是可以被隔离和重试。最终，这种协作产生了一种协同效应，使得<strong>多智能体系统的集体表现超越了集成内任何单一智能体的潜在能力</strong>。</p>
+
+      <h3>四、核心概念详解：构成协作的基石</h3>
+      <p><strong>多智能体协作模式涉及设计这样一种系统：多个独立或半独立的智能体为了实现一个共同的目标而协同工作</strong>。一个基础的多智能体系统必须包含以下三个核心要素：</p>
+      <ul>
+        <li><strong>智能体角色和责任的界定</strong>：每个智能体必须知道自己"是谁"以及"要做什么"。</li>
+        <li><strong>通信渠道的建立</strong>：智能体之间必须能够交换信息。</li>
+        <li><strong>任务流或交互协议的制定</strong>：这指导着它们的协作努力。</li>
+      </ul>
+      <p>协作通常表现为以下几种高级形态：</p>
+      <ul>
+        <li><strong>顺序交接（Sequential Handoffs）</strong>：一个智能体完成任务后，将输出传递给管道中的下一个智能体。适合有严格先后依赖关系的任务（如：研究 -&gt; 写作）。</li>
+        <li><strong>并行处理（Parallel Processing）</strong>：多个智能体同时处理问题的不同部分，随后合并结果，最大化吞吐量并减少总体延迟。</li>
+        <li><strong>辩论与共识（Debate and Consensus）</strong>：具有不同视角和信息源的智能体进行讨论，避免单一视角的偏见，做出更明智的决策。</li>
+        <li><strong>评论者-审查者（Critic-Reviewer）</strong>：一部分智能体生成初稿，另一组智能体严格评估其安全性、合规性、正确性和质量。在代码生成和事实核查中极其有效，能增加鲁棒性，显著降低幻觉或错误的可能性。</li>
+      </ul>
+
+      <h3>五、关键机制分析：智能体的通信拓扑结构</h3>
+      <p>智能体究竟如何相互连接？理解它们的拓扑结构是设计有效系统的基础：</p>
+      <ul>
+        <li><strong>单智能体（Single Agent）</strong>：完全自主，适合可分解为独立子问题的简单任务。</li>
+        <li><strong>网络（Network）</strong>：去中心化的点对点通信，促进了弹性。陷阱：在大型非结构化网络中管理通信开销极具挑战性。</li>
+        <li><strong>监督者（Supervisor）</strong>：专门的"主管"智能体协调下属，提供清晰的权力界限。陷阱：引入了单点故障，若下属太多会成为性能瓶颈。</li>
+        <li><strong>层级结构（Hierarchical）</strong>：多层组织结构，非常适合将复杂问题分解为子问题，允许在定义的边界内进行分布式决策。</li>
+        <li><strong>主管作为工具（Supervisor as a Tool）</strong>：主管提供资源、指导或计算服务，而非发布命令，旨在利用主管的能力而不强加僵化控制。</li>
+      </ul>
+
+      <h3>六、框架实战代码示例</h3>
+      <p><strong>示例 1：Crew AI —— 构建顺序交接流水线</strong></p>
+      <pre>from crewai import Agent, Task, Crew, Process
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+# 1. 定义角色 (Delineation of agent roles)
+researcher = Agent(
+    role='Senior Research Analyst',
+    goal='Find and summarize the latest trends in AI.',
+    backstory="You are an experienced research analyst...",
+    verbose=True,
+    allow_delegation=False,
+)
+
+writer = Agent(
+    role='Technical Content Writer',
+    goal='Write a clear and engaging blog post based on research findings.',
+    backstory="You are a skilled writer...",
+    verbose=True,
+    allow_delegation=False,
+)
+
+# 2. 定义具体任务 (Task Decomposition)
+research_task = Task(
+    description="Research the top 3 emerging trends in AI in 2024-2025...",
+    expected_output="A detailed summary of the top 3 AI trends...",
+    agent=researcher,
+)
+
+writing_task = Task(
+    description="Write a 500-word blog post based on the research findings...",
+    expected_output="A complete 500-word blog post...",
+    agent=writer,
+    context=[research_task],  # 顺序交接的数据传递
+)
+
+# 3. 编排协作协议
+blog_creation_crew = Crew(
+    agents=[researcher, writer],
+    tasks=[research_task, writing_task],
+    process=Process.sequential,  # 写作强依赖于研究的结果
+    llm=ChatGoogleGenerativeAI(model="gemini-2.0-flash"),
+)
+
+result = blog_creation_crew.kickoff()</pre>
+
+      <p><strong>示例 2：Google ADK —— 智能体作为工具（Agent as a Tool）</strong></p>
+      <pre>from google.adk.agents import LlmAgent
+from google.adk.tools import agent_tool
+
+# 1. 基础功能工具
+def generate_image(prompt: str) -> dict:
+    """Generates an image based on a textual prompt."""
+    return {"status": "success", "image_bytes": b"mock_data", "mime_type": "image/png"}
+
+# 2. 创建下级专门智能体
+image_generator_agent = LlmAgent(
+    name="ImageGen",
+    model="gemini-2.0-flash",
+    instruction="You are an image generation specialist...",
+    tools=[generate_image]
+)
+
+# 3. 将智能体包装为工具！
+image_tool = agent_tool.AgentTool(
+    agent=image_generator_agent,
+    description="Use this tool to generate an image."
+)
+
+# 4. 创建上级编排智能体
+artist_agent = LlmAgent(
+    name="Artist",
+    model="gemini-2.0-flash",
+    instruction="You are a creative artist. First, invent a creative prompt. Then use ImageGen tool.",
+    tools=[image_tool]  # 不知道底层如何生成，只负责"构思"
+)</pre>
+
+      <p><strong>示例 3：Google ADK —— 并行处理</strong></p>
+      <pre>from google.adk.agents import Agent, ParallelAgent
+
+weather_fetcher = Agent(
+    name="weather_fetcher",
+    instruction="Fetch the weather for the given location...",
+    output_key="weather_data"  # 标准化输出存储位置
+)
+
+news_fetcher = Agent(
+    name="news_fetcher",
+    instruction="Fetch the top news story...",
+    output_key="news_data"
+)
+
+# 它们将同时被触发！
+data_gatherer = ParallelAgent(
+    name="data_gatherer",
+    sub_agents=[weather_fetcher, news_fetcher]
+)</pre>
+
+      <h3>七、决策指南与最佳实践</h3>
+      <p><strong>经验法则：当一个任务对于单一智能体来说过于复杂，并且可以被分解为需要专门技能或工具的独立子任务时，请使用此模式。</strong></p>
+      <p>理想场景包括：需要多样化专业知识的复杂研究与分析、软件开发中的多角色协作（需求分析师、代码生成器、测试员、文档编写员）、金融分析中的并行数据处理，以及需要极高正确性保障时使用"评论者-审查者"模式。</p>
+
+      <h3>八、常见陷阱</h3>
+      <ul>
+        <li><strong>过度设计（Over-engineering）</strong>：如果你只需要解析一段JSON，使用单智能体就足够了。</li>
+        <li><strong>通信风暴（Communication Overhead）</strong>：在"网络"模型中，让所有智能体点对点自由对话会产生巨大的上下文消耗，极易导致系统偏离既定目标。</li>
+        <li><strong>主管瓶颈（Supervisor Bottleneck）</strong>：在"监督者"模型中，如果将过多的下属或过量的高频通信全部压在一个中心节点上，主管会被海量信息淹没。应对策略是引入"层级结构"，通过多层级的主管来分散决策压力。</li>
+      </ul>
+
+      <h3>九、总结</h3>
+      <p>多智能体协作设计模式的本质，是将人类社会的组织智慧（分工、协作、层级、审计）映射到了人工智能的架构之中。它解决的核心问题是打破了单体LLM的能力天花板。通过精细的<strong>任务分解</strong>，我们将复杂问题转化为<strong>专门智能体</strong>的协同游戏。通过精心设计的<strong>通信协议</strong>（无论是顺序的管道、并行的收集，还是复杂的层级汇报），我们建立了一个协同的超级大脑。</p>
+      <p><strong>管理复杂度的方法，就是将其分散到具有极强专业性的节点中，并通过优雅的接口进行连接。</strong></p>
+    </article>
+  </div>
+</div>
+
 <div class="footer"><p>智能体设计模式 — 第七章：多智能体协作</p></div>
 </div>
 
@@ -651,7 +855,7 @@ function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

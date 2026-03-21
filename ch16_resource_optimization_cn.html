@@ -181,6 +181,19 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 .ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
 .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
 .footer p { font-size: 12px; color: var(--text3); }
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -204,6 +217,7 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
   <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
   <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
   <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
+  <button class="nav-btn" onclick=\"go('media', this)\">媒体资源</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -656,6 +670,172 @@ response = requests.post(
   </ul>
 </div>
 
+<!-- 媒体资源 -->
+<section id="sec-media" class="section">
+  <h2 class="sec-title">媒体资源</h2>
+  <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+  <div class="media-card">
+    <div class="media-badge">🎧 深度音频</div>
+    <h3>第十六章：资源感知优化 · 中文深度讲解</h3>
+    <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+    <audio controls>
+      <source src="./media/ch16_resource_optimization_audio.mp3" type="audio/mpeg">
+      您的浏览器不支持音频播放。
+    </audio>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">🎬 视频讲解</div>
+    <h3>第十六章：资源感知优化 · 视觉化讲解</h3>
+    <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+    <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+      <a href="https://notebooklm.google.com/notebook/fe08805b-332d-4a1a-b88f-3df25747a9b5" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+        在 NotebookLM 中观看视频 →
+      </a>
+    </div>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">📝 深度博客</div>
+    <h3>从第一性原理理解第十六章：资源感知优化</h3>
+    <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+    <hr class="blog-divider">
+    <article class="blog-post">
+      <h2>深入理解AI Agent架构：第十六章 资源感知优化设计模式</h2>
+
+      <h3>1. 引言：一个极其昂贵的痛点场景</h3>
+      <p>想象一下，你正在为一家顶级投行构建一个多智能体金融分析系统。在系统上线的第一周，你发现API账单爆炸式增长，而且系统的平均响应延迟高达数秒，导致用户体验极差。</p>
+      <p>你深入查看日志后发现了一个荒谬的现象：当分析师询问"帮我深度预测苹果公司未来十年的财务走势并构建投资组合"时，系统调用了最强大、最昂贵的模型，这非常合理；但是，当分析师仅仅问了一句"今天纳斯达克指数收盘是多少"时，系统<strong>依然</strong>调用了这个极其庞大、缓慢且昂贵的模型。</p>
+      <p>这就好比你雇佣了一位诺贝尔经济学奖得主，仅仅是为了让他帮你下楼买杯咖啡。在真实的AI生产环境中，基于大语言模型（LLM）的应用往往既昂贵又缓慢。如果为每一个微小的任务都分配最顶级的模型，这不仅是资金的巨大浪费，更是对计算时间和效率的极大挥霍。这就是我们需要<strong>资源感知优化（Resource-Aware Optimization）</strong>设计模式的具体痛点场景。</p>
+
+      <h3>2. 问题陈述：智能的"成本-质量"博弈</h3>
+      <p>传统的AI Agent规划（Planning）仅仅关注"如何通过一系列动作（Action Sequencing）达成目标"。系统在黑盒中运行，不顾及外部现实世界的物理约束。</p>
+      <p>然而，在生产环境中，我们面临着一个基本权衡：<strong>系统输出的质量与产生该输出所需的资源（计算、时间、资金）之间的博弈</strong>。如果没有动态管理策略，你的Agent将无法适应不同复杂度的任务，也无法在预算和性能约束下存活。</p>
+      <p>现代AI系统面临三大资源约束：</p>
+      <ol>
+        <li><strong>财务约束（Financial Budget）：</strong>每次API调用都是真金白银。</li>
+        <li><strong>时间约束（Temporal/Latency）：</strong>实时交互系统要求毫秒级的响应。</li>
+        <li><strong>计算/能源约束（Compute/Energy）：</strong>部署在边缘设备（如手机、IoT）上的模型会快速消耗电池寿命。</li>
+      </ol>
+
+      <h3>3. 第一性原理推导：为什么要"感知资源"？</h3>
+      <p>让我们采用第一性原理来解构这个问题。一个LLM的调用本质上是一个函数执行：<code>Y = f(X)</code>。</p>
+      <p><strong>最朴素的做法（无资源感知）：</strong>为任何输入都调用全局最强函数 <code>f_pro</code>。结果：总能得到高质量的 Y，但总成本和总延迟达到最大值。当任务复杂度极低时，所消耗的庞大算力产生了极低的投资回报率（ROI）。</p>
+      <p><strong>第一性原理的破局点：解耦与匹配。</strong>并非所有的输入都有相同的复杂度。如果某个任务复杂度很低，那么一个低成本、低延迟的轻量级函数 <code>f_flash</code> 同样能输出完美的答案。</p>
+      <p>因此，我们需要引入一个新的维度——<strong>决策层（Decision Layer）</strong>。这个决策层要在执行任务前，动态评估当前任务的复杂度，并检查我们当前的资源钱包（剩余预算、允许的延迟），然后求解一个最优化问题：<strong>在满足资源约束的前提下，选择最合适的模型，以实现效率与目标完成度的最大化。</strong></p>
+
+      <h3>4. 核心概念详解</h3>
+
+      <h3>4.1 动态模型切换与路由智能体（Router Agent）</h3>
+      <p>根据请求的复杂度和资源情况，在轻量级模型（如Gemini Flash）和重量级模型（如Gemini Pro）之间动态切换。以AI旅行规划师为例：理解用户复杂需求并制定多步骤行程需要深度推理，必须交给昂贵的 Gemini Pro（规划者智能体）；而一旦计划敲定，查询机票价格、检查酒店空房等简单子任务完全可以由速度更快、价格更亲民的 Gemini Flash 来执行。</p>
+
+      <h3>4.2 评估智能体（Critique Agent）</h3>
+      <p>评估智能体是系统中的质量保证（QA）部门，负责评估模型生成的回复，识别错误或不一致之处。在资源感知的语境下，它还是<strong>间接的预算管理者</strong>。如果路由智能体错误地将一个简单查询发给了Pro模型（浪费钱），或将一个复杂查询发给了Flash模型（导致回答糟糕），评估智能体能够识别出这种"次优的路由选择"，反馈用于优化路由逻辑，实现资源配置的帕累托最优。</p>
+
+      <h3>4.3 优雅降级与回退机制</h3>
+      <p>当首选的最强大模型由于过载、被限流或不可用时，系统自动切换到备份模型。与其让整个系统崩溃并向用户抛出 500 错误，不如牺牲一点点回答的准确度，使用备用模型来维持基本的服务连续性。这是构建高可用性（High Availability）AI系统的生命线。</p>
+
+      <h3>5. 关键机制分析</h3>
+      <ul>
+        <li><strong>上下文裁剪与摘要（Contextual Pruning &amp; Summarization）：</strong>LLM的计费和延迟与输入的Token数量正相关。通过战略性地裁剪对话历史，只保留最相关的信息，可以大幅减少Token数量，从源头降低推理成本。</li>
+        <li><strong>自适应工具选择（Adaptive Tool Use）：</strong>Agent通常可以使用多个外部API。系统必须智能评估哪个API在当前状态下最具成本效益、延迟最低，从而优化外部服务的使用。</li>
+        <li><strong>主动资源预测（Proactive Resource Prediction）：</strong>通过预测未来的工作负载，系统可以提前分配资源，保证响应的平滑性。</li>
+      </ul>
+
+      <h3>6. 框架实战代码示例</h3>
+
+      <h3>案例一：基于查询复杂度的动态路由（OpenAI 生态）</h3>
+      <pre>import os
+import json
+from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# 步骤 1：路由智能体（分类器）—— 成本极低的一步
+def classify_prompt(prompt: str) -> dict:
+    system_message = {
+        "role": "system",
+        "content": (
+            "你是一个分类器，将用户提示词分为以下三类之一：\n"
+            "- simple (简单事实，无需推理)\n"
+            "- reasoning (需要逻辑、数学或多步推理)\n"
+            "- internet_search (需要搜索最新数据)\n"
+            "只返回JSON格式的结果。"
+        ),
+    }
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",  # 用轻量级模型做路由本身
+        messages=[system_message, {"role": "user", "content": prompt}],
+        temperature=0
+    )
+    return json.loads(response.choices[0].message.content)
+
+# 步骤 2：基于分类动态分配计算资源
+def generate_response(prompt: str, classification: str) -> tuple:
+    if classification == "simple":
+        model = "gpt-4o-mini"      # 便宜、快速的模型处理简单任务
+    elif classification == "reasoning":
+        model = "o4-mini"           # 强推理模型处理复杂逻辑
+    elif classification == "internet_search":
+        model = "gpt-4o"            # 高级模型结合搜索上下文
+
+    response = client.chat.completions.create(
+        model=model,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return response.choices[0].message.content, model
+
+# 海量简单请求被拦截给低成本模型，只有真正困难的请求才触及昂贵底层
+prompt = "澳大利亚的首都叫什么？"
+classification = classify_prompt(prompt)["category"]
+answer, used_model = generate_response(prompt, classification)
+print(f"使用模型: {used_model}, 回答: {answer}")</pre>
+
+      <h3>案例二：基于 OpenRouter 的序列化回退机制</h3>
+      <pre># 发送给 OpenRouter 的 API Payload
+payload = {
+    # 提供回退列表，而非硬编码单一模型
+    "models": [
+        "anthropic/claude-3.5-sonnet",  # 首选：能力最强，但可能限流
+        "gryphe/mythomax-l2-13b",        # 备用1：稳定的开源模型
+        "openai/gpt-4o-mini"             # 兜底：极致稳定快速
+    ],
+    "messages": [
+        {
+            "role": "user",
+            "content": "帮我审核这段Python代码中的并发死锁问题。"
+        }
+    ]
+}
+# 当首选模型（Claude 3.5）因服务不可用、API限流或内容过滤而失败时，
+# 系统自动重新路由到列表中的下一个模型，确保应用以一定质量下限持续运行</pre>
+
+      <h3>7. 决策指南与最佳实践</h3>
+      <p>何时引入资源感知优化：</p>
+      <ul>
+        <li><strong>面临严格的API财务预算时：</strong>当SaaS应用从Beta版转为商业化，需要严格控制每个用户的调用成本以保证利润率时。</li>
+        <li><strong>延迟敏感型业务：</strong>在实时语音通话、游戏NPC交互中，响应速度比绝对的聪明程度更重要。</li>
+        <li><strong>边缘设备部署：</strong>当Agent运行在手机、智能手表或物联网设备上时，电池寿命就是生命。</li>
+        <li><strong>多步复杂工作流：</strong>像旅行规划这种既包含高阶规划推理，又包含海量简单数据提取的任务，必须拆分并采用高低搭配的模型矩阵。</li>
+      </ul>
+
+      <h3>8. 常见陷阱</h3>
+      <ol>
+        <li><strong>"昂贵的门卫"陷阱：</strong>如果Router Agent本身使用了巨无霸模型，那么每次为了节省两毛钱进行路由判断时，可能已经在Router上花了五毛钱。路由判断必须极其轻量（使用极小参数模型，甚至传统文本长度、关键字等非LLM判定标准）。</li>
+        <li><strong>迷失在过度批判中：</strong>Critique Agent如果被配置得过于严苛，它可能会不断拒绝Flash模型的答案并要求使用Pro模型重写，导致系统退化为所有任务都使用最贵模型，增加成本和延迟。反馈机制需要平衡。</li>
+        <li><strong>忽略数据隐私与合规资源：</strong>智能体应当选择下载数据的摘要，而不是每次都下载全量数据集，以节省带宽资源。</li>
+      </ol>
+
+      <h3>9. 总结</h3>
+      <p>资源感知优化（Resource-Aware Optimization）是AI Agent从实验室玩具走向工业级生产用例的关键一步。在这个范式下，我们不再仅仅追求模型变得"多聪明"，而是追求整个系统变得多么"有智慧"。</p>
+      <p>通过引入 Router Agent 进行动态模型切换（好钢用在刀刃上）、利用 Critique Agent 进行质量把控与反向优化、执行上下文裁剪以节约Token、并设立后备机制以保证鲁棒性，我们得以在一个充满约束（金钱、算力、时间）的现实世界中，构建出兼顾高质量、高并发与商业可持续性的智能体架构。</p>
+      <p>只有深刻理解并运用这种"带着镣铐跳舞"的设计模式，我们才能构建出真正可扩展、稳健且具有生命力的AI系统。</p>
+    </article>
+  </div>
+</section>
+
 <div class="footer"><p>智能体设计模式 — 第十六章 | 交互式学习模块</p></div>
 </div>
 
@@ -664,7 +844,7 @@ function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

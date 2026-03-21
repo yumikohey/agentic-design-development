@@ -154,6 +154,19 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 .ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
 .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
 .footer p { font-size: 12px; color: var(--text3); }
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -177,6 +190,7 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
   <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
   <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
   <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
+  <button class="nav-btn" onclick=\"go('media', this)\">媒体资源</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -569,6 +583,193 @@ technical_support_agent = Agent(
   </ul>
 </div>
 
+<!-- 媒体资源 -->
+<div id="sec-media" class="section">
+  <div class="sec-title">媒体资源</div>
+  <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+  <div class="media-card">
+    <div class="media-badge">🎧 深度音频</div>
+    <h3>第十三章：人在回路 · 中文深度讲解</h3>
+    <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+    <audio controls>
+      <source src="./media/ch13_hitl_audio.mp3" type="audio/mpeg">
+      您的浏览器不支持音频播放。
+    </audio>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">🎬 视频讲解</div>
+    <h3>第十三章：人在回路 · 视觉化讲解</h3>
+    <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+    <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+      <a href="https://notebooklm.google.com/notebook/6d2d37fb-bdbe-4f1c-9edd-7dec5f3b9b79" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+        在 NotebookLM 中观看视频 →
+      </a>
+    </div>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">📝 深度博客</div>
+    <h3>从第一性原理理解第十三章：人在回路</h3>
+    <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+    <hr class="blog-divider">
+    <article class="blog-post">
+      <h2>深度解析AI智能体设计模式：人在回路 (Human-in-the-Loop) 的第一性原理</h2>
+
+      <h3>一、引言：全自动化的幻觉与现实的痛点</h3>
+
+      <p>想象这样一个场景：你正在为一家顶级跨国银行设计一套基于最新大语言模型（LLM）的自动化企业贷款审批系统。这套系统每秒能处理上万份财务报表，效率惊人。然而，在系统上线的第一天，它却极其自信地批准了一笔数千万美元的贷款给一家看似财务数据完美，但实际由存在严重道德污点的高管运营的空壳公司。为什么？因为即使是最先进的AI，也无法像人类信贷员那样，精准地评估"领导者品格"这种高度定性且充满社会复杂性的因素。</p>
+
+      <p>这就是我们当前在构建智能体（Agents）时面临的最核心痛点：<strong>在复杂、模糊或具有重大潜在风险的高风险领域，AI系统的错误或误解会带来极其高昂的代价，在这些场景下追求"完全自治（Full Autonomy）"不仅是不明智的，更是极其危险的</strong>。这就是为什么我们需要停下来，重新思考系统架构，并引入"人在回路"（Human-in-the-Loop, 简称HITL）设计模式。</p>
+
+      <h2>二、问题陈述：为什么大模型不能解决一切？</h2>
+
+      <p>现代AI系统，包括最先进的LLM，本质上是极其强大的概率模式匹配引擎。它们极其擅长计算、数据处理和从海量历史中提取规律。但是，<strong>它们天生缺乏人类所拥有的内在创造力、常识推理能力（common-sense reasoning），以及对复杂模糊语境的深度道德与伦理认知</strong>。</p>
+
+      <p>当系统被部署在现实世界中时，一旦面临需要细微判断（nuanced judgment）、伦理推理（ethical reasoning）或深层语境理解的任务时，纯自动化系统就会暴露出致命的脆弱性。因此，我们面临的核心工程挑战是：<strong>如何设计一种系统架构，既能榨取AI无与伦比的计算效率与可扩展性，又能拥有人类级别的安全底线、道德约束和复杂问题解决能力？</strong></p>
+
+      <h2>三、第一性原理推导：从原子能力到协同共生</h2>
+
+      <p>让我们采用第一性原理，将系统拆解为最基础的"计算单元"：</p>
+      <ol>
+        <li><strong>AI 计算单元</strong>：优势在于不知疲倦的计算力、毫秒级的响应速度、处理海量并发数据的可扩展性；劣势在于对未知边界的盲目、缺乏道德罗盘。</li>
+        <li><strong>人类 计算单元</strong>：优势在于精妙的判断力、创造力、道德直觉和对复杂社会规则的深刻理解；劣势在于处理速度慢、带宽有限、极难规模化。</li>
+      </ol>
+
+      <p>基于这两种截然不同的原子属性，推导出的唯一最优解并非"谁替代谁"，而是构建一种<strong>共生协同（synergy）</strong>的架构。这就是人在回路（HITL）设计模式的核心哲学：<strong>刻意将人类认知的独特优势与AI的计算力交织在一起</strong>。在这个架构中，AI不应该被视为取代人类工作者的威胁，而应该被定位为一种增强（augments）人类能力的强大工具。</p>
+
+      <h2>四、核心概念详解：拆解HITL的组件</h2>
+
+      <p>HITL模式定义了几个核心的关键维度：</p>
+      <ol>
+        <li><strong>人类监督 (Human Oversight)</strong>：通过日志审查或实时仪表盘，监控AI智能体的性能和输出。<em>为什么需要</em>：因为AI模型会发生"能力漂移"或产生幻觉，我们需要一双"上帝之眼"来确保AI严格遵守预定指南。</li>
+        <li><strong>干预与纠正 (Intervention and Correction)</strong>：当AI遇到错误或模糊场景请求帮助时，人类操作员介入纠正错误。<em>为什么需要</em>：现实世界是长尾的，人类的纠正行为直接成为了系统未来进化的极其宝贵的训练数据。</li>
+        <li><strong>用于学习的人类反馈 (Human Feedback for Learning)</strong>：收集人类偏好并用于微调AI模型（例如RLHF机制）。<em>为什么需要</em>：因为只有人类才知道什么是真正的"好"。</li>
+        <li><strong>决策增强 (Decision Augmentation)</strong>：AI提供深度分析和建议，但由人类做出最终的"拍板"决定。</li>
+        <li><strong>人机协作 (Human-Agent Collaboration)</strong>：AI处理常规数据处理，人类负责创造性解决问题或复杂谈判。</li>
+        <li><strong>升级策略 (Escalation Policies)</strong>：建立明确的协议，规定智能体在何时以及如何将任务"向上"移交给人类操作员。</li>
+      </ol>
+
+      <h2>五、关键机制分析：从"人在回路"到"人在回路上"</h2>
+
+      <p>在实际工程设计中，我们经常会遇到规模化瓶颈。架构演进出了一种非常重要的变体：</p>
+
+      <h3>经典的 人在回路 (Human-in-the-Loop, HITL)</h3>
+      <p>人类直接参与到具体的微观任务中。例如，在内容审核中，AI过滤掉海量的明显违规内容，但对于充满隐喻、反讽的边缘模糊内容，系统直接将其提交给人类审核员进行最终裁决。这种机制精度极高，但人类的带宽限制了系统的整体吞吐量。</p>
+
+      <h3>宏观的 人在回路上 (Human-on-the-loop)</h3>
+      <p>人类专家后退一步，不再处理具体的单次任务，而是负责定义总体的战略协议和规则（Policy），而AI则负责在这些规则的框架下执行高速、即时的战术动作（Immediate actions）。</p>
+      <p>例如，自动金融交易系统中，人类金融专家设定宏观战略规则："保持70%科技股和30%债券的投资组合，单一公司投资不超过5%，任何股票跌破买入价10%即刻自动卖出。" AI则在毫秒级监控大盘，一旦条件触发便瞬间执行交易。人类制定的是缓慢、深思熟虑的战略；AI负责高速、即时的战术执行。</p>
+
+      <h2>六、框架实战代码示例：构建一个带"升级机制"的智能体</h2>
+
+      <p>使用 Google 的 ADK (Agent Development Kit) 框架，从零开始构建一个技术支持智能体，核心目标是展示如何通过代码实现HITL中最关键的<strong>"升级策略（Escalation）"</strong>和<strong>"上下文注入"</strong>：</p>
+
+      <pre>from google.adk.agents import Agent
+from google.adk.tools.tool_context import ToolContext
+from google.adk.callbacks import CallbackContext
+from google.adk.models.llm import LlmRequest
+from google.genai import types
+from typing import Optional
+
+# 1. 定义工具箱
+def troubleshoot_issue(issue: str) -> dict:
+    return {"status": "success", "report": f"Troubleshooting steps for {issue}."}
+
+def create_ticket(issue_type: str, details: str) -> dict:
+    return {"status": "success", "ticket_id": "TICKET123"}
+
+# 【核心机制】将复杂问题升级给人类专家的工具
+def escalate_to_human(issue_type: str) -> dict:
+    return {"status": "success", "message": f"Escalated {issue_type} to a human specialist."}
+
+# 2. 实例化技术支持智能体
+technical_support_agent = Agent(
+    name="technical_support_specialist",
+    model="gemini-2.0-flash-exp",
+    instruction="""
+    You are a technical support specialist for our electronics company.
+    FIRST, check if the user has a support history in state["customer_info"]["support_history"].
+
+    For technical issues:
+    1. Use the troubleshoot_issue tool to analyze the problem.
+    2. Guide the user through basic troubleshooting steps.
+    3. If the issue persists, use create_ticket to log the issue.
+
+    For complex issues beyond basic troubleshooting:
+    1. Use escalate_to_human to transfer to a human specialist.
+    """,
+    tools=[troubleshoot_issue, create_ticket, escalate_to_human]
+)
+
+# 3. 定义回调函数，实现动态个性化注入
+def personalization_callback(
+    callback_context: CallbackContext, llm_request: LlmRequest
+) -> Optional[LlmRequest]:
+    customer_info = callback_context.state.get("customer_info")
+    if customer_info:
+        customer_name = customer_info.get("name", "valued customer")
+        customer_tier = customer_info.get("tier", "standard")
+        recent_purchases = customer_info.get("recent_purchases", [])
+
+        personalization_note = (
+            f"\nIMPORTANT PERSONALIZATION:\n"
+            f"Customer Name: {customer_name}\n"
+            f"Customer Tier: {customer_tier}\n"
+        )
+        if recent_purchases:
+            personalization_note += f"Recent Purchases: {', '.join(recent_purchases)}\n"
+
+        if llm_request.contents:
+            system_content = types.Content(
+                role="system", parts=[types.Part(text=personalization_note)]
+            )
+            llm_request.contents.insert(0, system_content)
+    return None</pre>
+
+      <p><strong>代码背后的"为什么"</strong>：</p>
+      <ol>
+        <li><strong>为什么提供 <code>escalate_to_human</code> 工具？</strong> 这是HITL设计的灵魂。我们并非期望智能体解决100%的问题，而是明确设定边界，赋予AI"知之为知之，不知为不知"的能力，确保复杂或敏感案件被妥善移交给人类。</li>
+        <li><strong>为什么需要 <code>personalization_callback</code>？</strong> 为了让AI能够像人类一样提供高度定制化的共情服务，我们在请求发送给LLM的最后一刻，动态地从系统状态中抓取私密数据，并作为 <code>System Message</code> 强行注入给大模型。这不仅提升了AI的表现，也使得当AI最终决定升级给人类时，人类能够基于同一个丰富的上下文接手工作。</li>
+      </ol>
+
+      <h2>七、决策指南与最佳实践</h2>
+
+      <p><strong>经验法则</strong>：当你准备将AI部署在一旦发生错误将导致严重的安全性、道德性或财务后果的领域时，必须使用该模式。</p>
+
+      <p><strong>典型应用场景</strong>：</p>
+      <ul>
+        <li><strong>金融欺诈检测</strong>：AI光速标记可疑交易，高风险或模糊警报必须由人类分析师进行深度调查。</li>
+        <li><strong>医疗与法律审查</strong>：AI提供初步发现，人类法律专业人士必须审查其准确性和法律隐患。</li>
+        <li><strong>自动驾驶的边界接管</strong>：AI处理99%的常规路况，极端情况立即将控制权交还给人类驾驶员。</li>
+        <li><strong>生成式AI质量控制</strong>：人类编辑审查AI生成的创意内容，确保符合品牌基调并能与目标受众产生共鸣。</li>
+        <li><strong>高质量训练数据的飞轮</strong>：人类作为"回路中的一环"，持续为模型演进提供金标准（ground truth）。</li>
+      </ul>
+
+      <h2>八、常见陷阱（Caveats）</h2>
+
+      <h3>1. 无法逃避的扩展性悖论（Lack of Scalability）</h3>
+      <p>这是最致命的弱点。人类的监督带来了高准确度，但人类操作员根本不可能一天审核数百万个任务。这就产生了一个残酷的权衡（trade-off）：你要么牺牲准确性换取规模（纯自动化），要么牺牲规模换取准确性（重度HITL）。最佳实践是采用"混合架构"，用自动化处理绝大部分长尾，用HITL守住高价值/高风险的底线。</p>
+
+      <h3>2. 对领域专家的高度依赖（Expertise Bottleneck）</h3>
+      <p>在回路中的人类不能是随便找来的临时工，他们必须具备极高的专业技能。如果你用初级员工来"监督"高级AI，整个系统的智力水平反而会被拉低。这种专家资源极其昂贵且稀缺。</p>
+
+      <h3>3. 隐私与数据合规的雷区（Privacy Concerns）</h3>
+      <p>当系统触发人工干预时，AI处理的原始数据（可能包含极其敏感的个人隐私信息，PII）将被暴露给人类操作员。这就要求在系统架构中增加极其复杂的预处理层，必须在数据提交给人类审查之前，严格地进行清洗和匿名化处理。</p>
+
+      <h2>九、总结</h2>
+
+      <p>第十三章所探讨的"人在回路（Human-in-the-Loop）"并非我们在通往完全自动化道路上的一个临时妥协，而是一种<strong>基础且深刻的系统架构原则</strong>。</p>
+
+      <p>通过将人类的监督、干预与反馈机制深度嵌入到智能体的工作流中，我们构建出了一种强大的共生关系。这种关系不仅能够有效对冲全自动AI在复杂、敏感领域所带来的灾难性风险，更能够通过人类持续的高质量反馈，不断增强系统整体的能力与可信度。</p>
+
+      <p><strong>技术越是强大，人类的价值观、伦理底线和专业智慧在智能系统设计中就越是处于不可动摇的核心地位。</strong>作为开发者，我们的目标绝不是用AI完全替代人类，而是构建一个由AI赋能、由人类引航的超级智能体生态。</p>
+    </article>
+  </div>
+</div>
+
 <div class="footer"><p>智能体设计模式 — 第十三章：人在回路（Human-in-the-Loop）</p></div>
 </div>
 
@@ -577,7 +778,7 @@ function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

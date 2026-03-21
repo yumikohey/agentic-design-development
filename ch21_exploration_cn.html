@@ -120,6 +120,19 @@ h1{font-family:var(--serif);font-size:2.2rem;font-weight:600;color:var(--text);l
 .ref-num{font-weight:500;color:var(--text3);margin-right:8px;}
 .footer{margin-top:3rem;padding-top:1.5rem;border-top:0.5px solid var(--border2);text-align:center;}
 .footer p{font-size:12px;color:var(--text3);}
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -141,6 +154,7 @@ h1{font-family:var(--serif);font-size:2.2rem;font-weight:600;color:var(--text);l
   <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
   <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
   <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
+  <button class="nav-btn" onclick=\"go('media', this)\">媒体资源</button>
 </nav>
 
 <div id="sec-overview" class="section active">
@@ -444,6 +458,149 @@ h1{font-family:var(--serif);font-size:2.2rem;font-weight:600;color:var(--text);l
     <li><span class="ref-num">[6]</span> AgentRxiv 平台: <a href="https://agentlaboratory.github.io/" target="_blank">agentlaboratory.github.io</a></li>
   </ul>
 </div>
+
+
+  <!-- 媒体资源 -->
+  <section id="sec-media" class="section">
+    <h2 class="sec-title">媒体资源</h2>
+    <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+    <div class="media-card">
+      <div class="media-badge">🎧 深度音频</div>
+      <h3>第二十一章：探索与发现 · 中文深度讲解</h3>
+      <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+      <audio controls>
+        <source src="./media/ch21_exploration_audio.mp3" type="audio/mpeg">
+        您的浏览器不支持音频播放。
+      </audio>
+    </div>
+
+    <div class="media-card">
+      <div class="media-badge">🎬 视频讲解</div>
+      <h3>第二十一章：探索与发现 · 视觉化讲解</h3>
+      <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+        <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+        <a href="https://notebooklm.google.com/notebook/b0f2d6af-2c7c-4ac5-ace4-5dcdb723ea22" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+          在 NotebookLM 中观看视频 →
+        </a>
+      </div>
+    </div>
+
+    <div class="media-card">
+      <div class="media-badge">📝 深度博客</div>
+      <h3>从第一性原理理解第二十一章：探索与发现</h3>
+      <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+      <hr class="blog-divider">
+      <article class="blog-post">
+        <h2>引言：走出舒适区，AI 的"未知之境"</h2>
+        <p>想象一下这样一个具体的痛点场景：你拥有一个极其强大的大语言模型（LLM），你可以让它帮你重构一段冗长的 Python 代码，或者让它总结一篇长达百页的财务报告。它做得完美无缺。但是，如果你对它说："请为急性髓系白血病（AML）寻找一种全新的、人类文献中从未记录过的靶向药物。"它会立刻陷入困境，或者给你一堆看似合理但实际上毫无新意（甚至存在事实错误）的"大路货"答案。</p>
+        <p><strong>为什么会这样？</strong> 因为传统的 AI 交互模式本质上是在做<strong>"已知解空间内的插值与优化"</strong>。如果答案不在它的训练数据分布内，它就无法直接输出。然而，现实世界中最具价值的工作——科学研究、前沿商业策略、漏洞挖掘——往往发生在开放式、复杂且快速发展的领域，静态知识在这里是不够用的。</p>
+        <p>为了解决这个问题，我们需要 AI 具备寻找"未知的未知（unknown unknowns）"的能力。这就是我们今天要深入探讨的核心概念：<strong>探索与发现设计模式（Exploration and Discovery Pattern）</strong>。</p>
+
+        <h2>问题陈述：优化与探索的本质冲突</h2>
+        <p>在强化学习中，有一个经典的问题叫做"探索与利用困境（Exploration-Exploitation Dilemma）"：</p>
+        <ul>
+          <li><strong>利用（Exploitation/Optimization）</strong>：基于现有的已知信息，做出当前看起来收益最大的决策。</li>
+          <li><strong>探索（Exploration）</strong>：放弃当前的短期最优，主动走向未知领域，以期望发现全局的、长期的新知识或更高收益。</li>
+        </ul>
+        <p>现有的多数单一 Prompt 驱动的 AI 应用，都是典型的"利用"机器。它们在预定义的指令范围内被动反应。但是，真正的创新无法被"预编程"。如果一个系统永远只在人类给定的参数范围内打转，它永远不可能发现新材料或新策略。</p>
+        <p>因此，我们的问题陈述非常清晰：<strong>我们需要完成从"纯粹的反应性行为"到"主动、代理式（Agentic）探索"的范式转移，让系统能够独立扩展自身的理解和能力边界。</strong></p>
+
+        <h2>第一性原理推导：为什么要这样设计？</h2>
+        <p>让我们从零开始构建直觉。如果我们要写一个能"发现新知识"的程序，最基础的逻辑闭环是什么？</p>
+        <ol>
+          <li><strong>产生想法（Generate）</strong>：必须有人提出初步的假设。</li>
+          <li><strong>批判与淘汰（Critique）</strong>：想法往往是错的，必须有机制来证伪和过滤。</li>
+          <li><strong>迭代进化（Evolve）</strong>：基于批判，改进最初的想法。</li>
+        </ol>
+        <p>这就是人类科学方法论的本质。那么，为什么我们不能用一个单一的 LLM prompt 来完成这三步？<strong>因为"既当运动员又当裁判员"会导致严重的认知偏差。</strong> 一个语言模型在单一上下文中生成的连贯文本，倾向于自我验证，很难对自己产生极其严厉、具有颠覆性的客观批判。</p>
+        <p>因此，第一性原理推导出了<strong>多智能体协作框架（Multi-Agent Framework）</strong>的必要性：我们必须将"生成"、"批判"和"进化"的职责在物理（上下文）层面上隔离开来，让不同的 Agent 扮演不同的角色，利用结构化的辩论来逼近真理。</p>
+
+        <h2>核心概念详解：拆解 AI 科学家的"大脑"</h2>
+        <p>为了具象化这个多智能体框架，我们来看看 Google Research 开发的 <strong>AI Co-Scientist（AI 联合科学家）</strong>。它的核心是一组分工明确的 Agent：</p>
+        <ul>
+          <li><strong>生成智能体（Generation agent）</strong>：它是探索的起点，通过广泛的文献探索和内部的模拟辩论来初始化假设。</li>
+          <li><strong>反思智能体（Reflection agent）</strong>：它扮演同行评审的角色，负责批判性地评估假设的正确性、新颖性和质量。</li>
+          <li><strong>排序智能体（Ranking agent）</strong>：它通过模拟科学辩论，采用类似国际象棋的 Elo 积分系统对假设进行锦标赛式的对决和排序，决定下一步算力投入的方向。</li>
+          <li><strong>进化智能体（Evolution agent）</strong>：它通过简化概念、合成思想和探索非传统推理，持续优化排名靠前的假设。</li>
+          <li><strong>元审查智能体（Meta-review agent）</strong>：它综合所有的反馈，识别模式，使系统能够持续自我进化——这是整个系统的"学习器官"。</li>
+        </ul>
+
+        <h2>关键机制分析：从实验室到真实突破</h2>
+        <p>探索模式不仅停留在理论上，它已经展现出了惊人的现实威力。AI Co-Scientist 独立提出了将 KIRA6 等药物用于急性髓系白血病（AML）的全新方案（此前没有任何临床前证据表明其有效），并且在随后的体外实验中，这些药物成功抑制了肿瘤细胞的活力。它甚至在两天内通过假设生成，独立得出了人类科学家花了十多年才验证的关于抗微生物耐药性的突破性结论。</p>
+        <p><strong>系统如何保证它发现的不是幻觉？</strong> 这依赖于严密的评估与执行机制。通过开源项目 <strong>Agent Laboratory</strong> 可以深入分析其代码实现。Agent Laboratory 将科研分为四个阶段：文献回顾、实验操作、报告撰写和知识共享（AgentRxiv）。</p>
+
+        <h2>框架实战代码示例：剖析 ReviewersAgent</h2>
+        <p>为什么我们在判断一个新发现时，不能只用一个维度的指标？因为人类的评估是多维的、包含视角的。来看一下 <code>ReviewersAgent</code> 的具体代码实现：</p>
+        <pre>class ReviewersAgent:
+    def __init__(self, model="gpt-4o-mini", notes=None, openai_api_key=None):
+        if notes is None: self.notes = []
+        else: self.notes = notes
+        self.model = model
+        self.openai_api_key = openai_api_key
+
+    def inference(self, plan, report):
+        # Reviewer 1: 关注实验设计的严谨性和基础洞察
+        reviewer_1 = "You are a harsh but fair reviewer and expect good experiments that lead to insights for the research topic."
+        review_1 = get_score(outlined_plan=plan, latex=report, reward_model_llm=self.model,
+                             reviewer_type=reviewer_1, openai_api_key=self.openai_api_key)
+
+        # Reviewer 2: 关注想法在整个领域内的影响力和颠覆性
+        reviewer_2 = "You are a harsh and critical but fair reviewer who is looking for an idea that would be impactful in the field."
+        review_2 = get_score(outlined_plan=plan, latex=report, reward_model_llm=self.model,
+                             reviewer_type=reviewer_2, openai_api_key=self.openai_api_key)
+
+        # Reviewer 3: 关注绝对的新颖度（Novelty），甚至容忍一些激进的想法
+        reviewer_3 = "You are a harsh but fair open-minded reviewer that is looking for novel ideas that have not been proposed before."
+        review_3 = get_score(outlined_plan=plan, latex=report, reward_model_llm=self.model,
+                             reviewer_type=reviewer_3, openai_api_key=self.openai_api_key)
+
+        return f"Reviewer #1:\n{review_1}, \nReviewer #2:\n{review_2}, \nReviewer #3:\n{review_3}"</pre>
+        <p>这段代码通过设置三个有着不同系统提示的自主智能体，分别从"实验严谨性"、"领域影响力"和"前所未有的新颖度"三个角度对系统产出进行评估。这种机制超越了单一指标，捕获了人类评判中丰富而微妙的定性评估维度。</p>
+        <p>评估结果使用如下 Prompt 设计来确保可靠解析，强制要求先输出思维链再输出结构化 JSON：</p>
+        <pre>template_instructions = """
+Respond in the following format:
+THOUGHT:
+&lt;THOUGHT&gt;
+REVIEW JSON:
+```json
+&lt;JSON&gt;
+```
+In &lt;THOUGHT&gt;, briefly discuss your intuitions and reasoning for the evaluation.
+In &lt;JSON&gt;, provide the review with fields:
+- "Originality": A rating from 1 to 4
+- "Quality": A rating from 1 to 4
+- "Decision": Accept, Reject.
+"""</pre>
+        <p><strong>为什么强制要求先输出 <code>&lt;THOUGHT&gt;</code> 再输出 JSON？</strong> 这就是大模型底层逻辑中的"思维链（Chain of Thought）"。强制它在结构化数据之前输出直觉和推理过程，能大幅提升最终评分的逻辑连贯性和客观性。只允许 <code>Accept</code> 或 <code>Reject</code>（没有 Borderline 模糊地带）则倒逼系统做出清晰的存量/淘汰决策。</p>
+
+        <h3>执行者：层级化协作架构</h3>
+        <p>发现目标后，如何执行探索？Agent Laboratory 构建了一个类似于真实学术团队的层级结构：</p>
+        <ul>
+          <li><strong>教授智能体（Professor Agent）</strong>：负责制定战略方向，整合所有知识、代码和报告，最终生成对外展示的成果（如 GitHub README）。</li>
+          <li><strong>博士后智能体（Postdoc Agent）</strong>：它是真正的"干活主力"。通过阅读上一次迭代的结果和评审者的反馈来动态调整自己的实验计划，能够编写和执行代码来验证理论假设。</li>
+          <li><strong>ML/SW 工程师智能体</strong>：为什么需要区分博士后和工程师？因为业务逻辑和底层代码实现是分离的。SW Agent 就像资深架构师，指导 ML Agent 编写简单、直接的数据预处理代码，确保模型实验能够顺利跑通。</li>
+        </ul>
+
+        <h2>决策指南与最佳实践</h2>
+        <p><strong>适用场景</strong>：当你身处开放式、复杂或快速变化的领域（如科学研究、市场趋势分析、游戏策略生成、安全漏洞挖掘或创意内容生成）时，这是黄金法则。在这些场景中，预定义的解决方案是不存在的，目标是找出"未知的未知"。</p>
+        <p><strong>核心原则：人类增强（Augmentation）而非替代。</strong> AI 在现阶段缺乏对"负面结果（negative results）"的直觉积累，因为学术界很少发表失败的实验。因此，最佳实践是采用<strong>"科学家在环（scientist-in-the-loop）"</strong>模式。让人类通过自然语言与系统交互，提供反馈和指导，让 AI 承担繁重的信息搜集和代码测试。</p>
+
+        <h2>常见陷阱</h2>
+        <ul>
+          <li><strong>"知识幻觉"陷阱</strong>：探索型 Agent 极易在生成假设时因为底层 LLM 的固有缺陷而产生事实错误或"幻觉"。解法：必须引入严格的多 Agent 辩论和打分机制（如 Elo 排序），让不同视角的 Agent 互为制约。</li>
+          <li><strong>数据壁垒与幸存者偏差</strong>：系统的发现能力受限于其能获取的数据。过度依赖开放获取的文献可能错过被付费墙阻挡的关键先验知识。缺乏未发表的负面实验数据会导致 AI 重蹈覆辙。</li>
+          <li><strong>安全与伦理风险</strong>：一个被赋予极高自主权去"探索未知"的 AI，有可能会生成危险的化学品合成方案或恶意软件代码。解法：在系统入口和输出端必须加入强制的安全审查节点。Google Co-Scientist 在初步安全评估中使用了 1200 个对抗性研究目标，证明系统可以稳健地拒绝危险输入。</li>
+        </ul>
+
+        <h2>总结</h2>
+        <p>探索与发现设计模式，本质上定义了什么是<strong>真正的 Agentic（智能体化）系统</strong>。它使计算机程序从被动跟随指令的工具，升华为能够自主设定子目标、主动探索环境、并生成全新知识的独立合作者。</p>
+        <p>不管是像 Google Co-Scientist 这样通过模拟科学辩论来发现新药，还是像 Agent Laboratory 这样通过分层团队架构自动化实验与代码生成，它们都验证了多智能体协作框架在释放探索潜力上的巨大价值。通过将劳动密集型的验证和初步探索工作交给 AI 代理，人类的智力将被极大地解放和增强。</p>
+        <p>构建这样的系统不是简单的 Prompt 堆砌，而是<strong>对认知过程本身的架构设计</strong>。理解"为什么"需要辩论机制、"为什么"需要拆分不同的评委角色，比记住 API 的调用更重要。</p>
+      </article>
+    </div>
+  </section>
 
 <div class="footer"><p>第二十一章 · 探索与发现 · 交互式学习体验</p></div>
 </div>

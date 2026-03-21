@@ -555,6 +555,19 @@ h1 {
 .ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
 .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
 .footer p { font-size: 12px; color: var(--text3); }
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -578,6 +591,7 @@ h1 {
   <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
   <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
   <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
+  <button class="nav-btn" onclick=\"go('media', this)\">媒体资源</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -1030,6 +1044,219 @@ root_agent = LlmAgent(
   </ul>
 </div>
 
+<!-- 媒体资源 -->
+<div id="sec-media" class="section">
+  <div class="sec-title">媒体资源</div>
+  <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+  <div class="media-card">
+    <div class="media-badge">🎧 深度音频</div>
+    <h3>第十章：模型上下文协议 · 中文深度讲解</h3>
+    <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+    <audio controls>
+      <source src="./media/ch10_mcp_audio.mp3" type="audio/mpeg">
+      您的浏览器不支持音频播放。
+    </audio>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">🎬 视频讲解</div>
+    <h3>第十章：模型上下文协议 · 视觉化讲解</h3>
+    <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+    <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+      <a href="https://notebooklm.google.com/notebook/b1345754-bc82-401f-9009-596cedc11835" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+        在 NotebookLM 中观看视频 →
+      </a>
+    </div>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">📝 深度博客</div>
+    <h3>从第一性原理理解第十章：模型上下文协议</h3>
+    <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+    <hr class="blog-divider">
+    <article class="blog-post">
+      <h2>深度解析模型上下文协议 (MCP)：构建 AI Agent 的"第一性原理"与通用接口设计模式</h2>
+
+      <p>在构建大语言模型（LLM）应用时，我们经常会遇到一个核心瓶颈。为了让 LLM 真正作为智能体（Agent）发挥作用，它们的能力必须超越单纯的多模态文本生成，必须能够与外部环境进行交互。这种交互包括访问最新数据、使用外部软件以及执行特定的操作任务。然而，当我们试图将 LLM 与复杂的现实世界连接时，系统架构往往会迅速变得混乱不堪。</p>
+
+      <p>本文将采用第一性原理的推导方式，从最基础的问题出发，带你深入理解<strong>模型上下文协议（Model Context Protocol, MCP）</strong>设计模式，剖析我们为什么需要它、它是如何工作的，以及如何在实际代码中应用它。</p>
+
+      <hr class="blog-divider">
+
+      <h2>一、引言：具体痛点场景与"胶水代码"地狱</h2>
+
+      <p>让我们从一个具体的痛点场景开始。假设你要构建一个"客户支持智能体"。为了解决客户问题，这个 Agent 需要：</p>
+      <ol>
+        <li>从企业内部的 SQL 数据库中查询客户订单记录。</li>
+        <li>调用 Jira API 查看相关的工单状态。</li>
+        <li>通过 Slack API 给负责的工程师发送消息。</li>
+        <li>调用一个天气 API 来核实航班延误情况。</li>
+      </ol>
+
+      <p>在传统的开发模式下，由于缺乏标准化的通信方法，LLM 与外部工具或数据源之间的每一次集成，都会变成一次定制化的、复杂的且无法复用的开发工作。你的代码库中会堆满针对不同 API 的"胶水代码"。如果明天你要把底层的模型从 OpenAI 切换到 Gemini 或 Claude，由于各个厂商的工具调用（Tool Calling）格式和实现各不相同，你可能需要重写大量的解析逻辑。这种临时拼凑的方法严重阻碍了系统的可扩展性，并使得构建复杂、相互连接的 AI 系统变得极其困难和低效。</p>
+
+      <h2>二、问题陈述：Tool Calling 的局限性</h2>
+
+      <p>在 MCP 出现之前，我们主要依赖"工具/函数调用"（Tool Function Calling）。虽然 MCP 和工具调用都能扩展 LLM 的能力，但它们的抽象层级完全不同。</p>
+
+      <p>从本质上讲，工具调用可以被视为 LLM 对特定、预定义工具或函数的<strong>直接请求</strong>。这是一种"一对一"的通信模型。这就像是给 AI 提供了一套专门定制的工具，比如一把特定的扳手和一把特定的螺丝刀。对于一个任务固定的车间（简单的应用）来说，这非常高效。</p>
+
+      <p>但是，工具集成通常与正在使用的特定应用程序和 LLM 紧密耦合。LLM 必须在每次对话的上下文中被明确告知哪些工具可用。当系统变得复杂，或者你希望你的 Agent 能够动态发现新能力时，这种高度耦合的"硬编码"方式就失效了。</p>
+
+      <p>我们需要的是一种<strong>协议</strong>，一种能够解耦 LLM 和外部工具的标准化接口。</p>
+
+      <h2>三、第一性原理推导：构建 AI 的"通用插座"</h2>
+
+      <p>如果我们回到第一性原理来思考：Agent 与世界交互的本质是什么？本质上是三个动作：<strong>获取上下文（状态）</strong>、<strong>理解意图（推理）</strong>、<strong>改变世界（执行）</strong>。</p>
+
+      <p>要实现这三个动作的标准化，我们需要一个架构来分离"大脑"（LLM）和"四肢"（工具/数据）。这就推导出了 MCP 的核心理念：<strong>客户端-服务器（Client-Server）架构</strong>。</p>
+
+      <p>MCP 的目标不是自己提供工具，而是创造一个"通用、标准化的电源插座系统"。它就像一个通用适配器，允许任何 LLM 插入任何外部系统、数据库或工具，而无需为每一个系统进行自定义集成。通过建立这样一个开放协议，任何兼容的工具都可以被任何兼容的 LLM 访问，从而促进不同系统和实现之间的互操作性、可组合性和可重用性。</p>
+
+      <h2>四、核心概念详解：MCP 实体模型</h2>
+
+      <p>MCP 服务器向外暴露三个核心元素，理解"为什么"划分这三个元素是掌握 MCP 的关键：</p>
+      <ol>
+        <li><strong>资源 (Resources)</strong>：这是静态数据（例如 PDF 文件、数据库记录）。<em>为什么需要资源？</em> 因为并非所有的交互都需要执行动作。有时 Agent 只需要读取大量的背景信息。将数据抽象为"资源"，可以让协议对数据的读取进行专门的优化和权限控制。</li>
+        <li><strong>工具 (Tools)</strong>：这是一个执行动作的可执行函数（例如发送电子邮件、查询 API）。<em>为什么需要工具？</em> 这是 Agent 改变外部世界或获取动态计算结果的唯一途径。工具必然包含输入参数的定义和输出结果的返回。</li>
+        <li><strong>提示词模板 (Prompts)</strong>：这是一个模板，指导 LLM 如何与资源或工具交互，确保交互具有结构性和有效性。<em>为什么服务器要提供 Prompt？</em> 因为最了解外部工具和数据结构的人是该工具的开发者（服务器端）。通过服务器提供 Prompt，可以让客户端（Agent）在不知道工具具体细节的情况下，直接获得最佳的使用说明。</li>
+      </ol>
+
+      <h2>五、关键机制分析：它是如何工作的？</h2>
+
+      <p>MCP 将系统拆分为四个角色：</p>
+      <ul>
+        <li><strong>大语言模型 (LLM)</strong>：核心智能体，负责处理用户请求、制定计划并做出决策。</li>
+        <li><strong>MCP 客户端 (MCP Client)</strong>：这是 LLM 的应用程序或包装器。它充当中间人，将 LLM 的意图转化为符合 MCP 标准的正式请求，负责发现、连接并与 MCP 服务器通信。</li>
+        <li><strong>MCP 服务器 (MCP Server)</strong>：通往外部世界的网关，向任何授权的客户端暴露工具、资源和提示词模板。</li>
+        <li><strong>第三方 (3P) 服务</strong>（可选）：MCP 服务器管理和暴露的实际外部工具、应用程序或数据源。</li>
+      </ul>
+
+      <h3>核心交互流程</h3>
+      <p>MCP 最强大的机制之一是<strong>动态发现 (Discoverability)</strong>。MCP 客户端可以动态查询服务器以了解其提供哪些工具和资源。这种"即时 (just-in-time)"发现机制使 Agent 能够在不重新部署的情况下适应新的能力。</p>
+      <ol>
+        <li><strong>发现</strong>：客户端查询服务器的能力，服务器返回包含可用工具和资源的清单（Manifest）。</li>
+        <li><strong>请求构建</strong>：LLM 决定使用某个工具（如 <code>send_email</code>），并构建包含参数的请求。</li>
+        <li><strong>客户端通信</strong>：客户端将请求以标准调用发送给服务器。</li>
+        <li><strong>服务器执行</strong>：服务器进行身份验证、验证请求，然后通过底层软件执行操作。</li>
+        <li><strong>响应与上下文更新</strong>：服务器返回标准响应给客户端，客户端将其传回 LLM 以更新其上下文，从而进行下一步任务。</li>
+      </ol>
+
+      <h3>传输机制</h3>
+      <ul>
+        <li><strong>本地服务器</strong>：使用基于 STDIO（标准输入/输出）的 JSON-RPC，用于高效的进程间通信，速度快，对处理敏感数据也更安全。</li>
+        <li><strong>远程服务器</strong>：利用 Streamable HTTP 和 Server-Sent Events (SSE) 等对 Web 友好的协议，以实现持久且高效的通信，允许在组织内部实现共享的可扩展访问。</li>
+      </ul>
+
+      <h2>六、框架实战代码示例</h2>
+
+      <h3>1. 客户端：连接到本地文件系统 MCP 服务器</h3>
+      <pre>import os
+from google.adk.agents import LlmAgent
+from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters
+
+TARGET_FOLDER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mcp_managed_files")
+os.makedirs(TARGET_FOLDER_PATH, exist_ok=True)
+
+root_agent = LlmAgent(
+    model='gemini-2.0-flash',
+    name='filesystem_assistant_agent',
+    instruction=(
+        '帮助用户管理文件。你可以列出、读取和写入文件。'
+        f'你正在以下目录中操作：{TARGET_FOLDER_PATH}'
+    ),
+    tools=[
+        MCPToolset(
+            connection_params=StdioServerParameters(
+                command='npx',
+                args=[
+                    "-y",
+                    "@modelcontextprotocol/server-filesystem",
+                    TARGET_FOLDER_PATH,
+                ],
+            ),
+        )
+    ],
+)</pre>
+
+      <h3>2. 服务端：使用 FastMCP 快速暴露 Python 工具</h3>
+      <p>FastMCP 提供了一个高级抽象层，极大地简化了服务器开发。它的核心优势在于<strong>自动模式生成</strong>，它能智能地读取 Python 函数的签名、类型提示和文档字符串，自动构建出 AI 模型所需的接口规范。</p>
+      <pre>from fastmcp import FastMCP
+
+mcp_server = FastMCP()
+
+@mcp_server.tool
+def greet(name: str) -> str:
+    """
+    生成个性化的问候语。
+
+    Args:
+        name: 要问候的人的名字。
+    Returns:
+        一段问候字符串。
+    """
+    return f"Hello, {name}! Nice to meet you."
+
+if __name__ == "__main__":
+    mcp_server.run(transport="http", host="127.0.0.1", port=8000)</pre>
+
+      <h3>3. 客户端：让 Agent 消费远端 FastMCP 工具</h3>
+      <pre>import os
+from google.adk.agents import LlmAgent
+from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, HttpServerParameters
+
+FASTMCP_SERVER_URL = "http://localhost:8000"
+
+root_agent = LlmAgent(
+    model='gemini-2.0-flash',
+    name='fastmcp_greeter_agent',
+    instruction='你是一个友好的助手，可以通过名字问候别人。使用 "greet" 工具。',
+    tools=[
+        MCPToolset(
+            connection_params=HttpServerParameters(
+                url=FASTMCP_SERVER_URL,
+            ),
+            tool_filter=['greet']
+        )
+    ],
+)</pre>
+
+      <h2>七、决策指南与最佳实践</h2>
+
+      <p><strong>经验法则</strong>：当构建复杂、可扩展或企业级的 Agent 系统，需要与各种不断演进的外部工具、数据源和 API 进行交互时，请使用模型上下文协议 (MCP)。特别是当不同 LLM 和工具之间的互操作性成为首要任务，且 Agent 需要能够动态发现新能力而无需重新部署时，MCP 是理想选择。对于只有少量固定预定义功能的简单应用，直接的工具/函数调用就足够了。</p>
+
+      <p><strong>实际应用场景</strong>：</p>
+      <ul>
+        <li><strong>数据库集成</strong>：让 Agent 通过自然语言命令直接从 SQL 数据集中查询或更新数据。</li>
+        <li><strong>外部 API 交互</strong>：获取实时天气、股票，或者通过标准化方式与 CRM 系统交互。</li>
+        <li><strong>复杂工作流编排</strong>：从数据库检索客户数据，生成个性化图像，起草邮件并发送——所有这些都可以通过组合不同的 MCP 服务来完成。</li>
+        <li><strong>基于推理的信息提取</strong>：相比于传统搜索返回整个文档，Agent 可以通过 MCP 提取回答复杂问题的精确语句或图表。</li>
+      </ul>
+
+      <h2>八、常见陷阱与认知误区</h2>
+
+      <h3>1. 认为 Agent 能够神奇地"修补"糟糕的 API</h3>
+      <p>MCP 只是一个"代理接口"契约，其有效性在很大程度上取决于其底层 API 的设计。许多开发者简单地将旧的、遗留的 API 包装在 MCP 中，这是次优的。</p>
+      <p><strong>第一性原理解决</strong>：底层的 API 必须针对 Agent 进行优化，增加类似于过滤、排序等确定性功能，以辅助非确定性的 Agent 高效工作。</p>
+
+      <h3>2. 忽略数据格式的"Agent 友好度"</h3>
+      <p>协议并不能保证数据格式本身能被 Agent 理解。例如，创建一个返回 PDF 文件的 MCP 文档服务器，如果负责消费的 Agent 不具备原生解析 PDF 二进制的能力，这个工具就毫无用处。</p>
+      <p><strong>第一性原理解决</strong>：必须返回"Agent 友好"的数据格式，例如将文档转换为 Markdown 文本格式，确保数据的本质能够被 LLM 读取和处理。</p>
+
+      <h3>3. 缺乏严格的安全与错误处理策略</h3>
+      <p>通过任何协议暴露内部工具都要求强大的安全措施。MCP 必须包含身份验证和授权控制，明确哪些客户端可以访问哪些服务器及执行哪些操作。此外，必须有明确的错误处理策略，这样 LLM 才能理解错误原因并尝试替代方案。</p>
+
+      <h2>九、总结</h2>
+
+      <p>作为智能体，大语言模型必须突破单纯的文本生成范畴，走向与外部现实世界的真实交互。传统的硬编码集成方式导致了灾难性的维护成本，而<strong>模型上下文协议 (MCP)</strong> 作为一种开放标准，完美地解决了这个问题。它采用清晰的 Client-Server 架构，将 LLM（智能大脑）与资源、工具（外部手脚）彻底解耦，并实现了动态发现机制。</p>
+
+      <p>从第一性原理来看，MCP 就像是为 AI 时代打造的 TCP/IP 协议——它不关心数据的内容，只专注于提供一个统一的、稳健的、可扩展的互操作基础设施。对于任何旨在构建下一代复杂 Agent 系统的开发者而言，掌握 MCP 模式将是从"写玩具代码"跨越到"构建企业级 AI 架构"的关键一步。</p>
+    </article>
+  </div>
+</div>
+
 <div class="footer"><p>第十章 · 模型上下文协议（MCP）· 智能代理开发交互式学习</p></div>
 </div>
 
@@ -1038,7 +1265,7 @@ function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

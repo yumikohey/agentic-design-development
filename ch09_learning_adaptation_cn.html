@@ -557,6 +557,19 @@ h1 {
 .footer p { font-size: 12px; color: var(--text3); }
 .quiz-nav { display: flex; gap: 8px; margin-top: 16px; align-items: center; }
 .quiz-counter { font-size: 12px; color: var(--text3); margin-left: auto; }
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -578,6 +591,7 @@ h1 {
     <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
     <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
     <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
+    <button class="nav-btn" onclick=\"go('media', this)\">媒体资源</button>
   </nav>
 
   <!-- 概览 -->
@@ -982,6 +996,120 @@ context_structure = {
     </ul>
   </section>
 
+
+  <!-- 媒体资源 -->
+  <section id="sec-media" class="section">
+    <h2 class="sec-title">媒体资源</h2>
+    <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+    <div class="media-card">
+      <div class="media-badge">🎧 深度音频</div>
+      <h3>第九章：学习与适应 · 中文深度讲解</h3>
+      <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+      <audio controls>
+        <source src="./media/ch09_learning_adaptation_audio.mp3" type="audio/mpeg">
+        您的浏览器不支持音频播放。
+      </audio>
+    </div>
+
+    <div class="media-card">
+      <div class="media-badge">🎬 视频讲解</div>
+      <h3>第九章：学习与适应 · 视觉化讲解</h3>
+      <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+        <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+        <a href="https://notebooklm.google.com/notebook/b11b80ac-5980-4bd7-97ea-006a728912e9" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+          在 NotebookLM 中观看视频 →
+        </a>
+      </div>
+    </div>
+
+    <div class="media-card">
+      <div class="media-badge">📝 深度博客</div>
+      <h3>从第一性原理理解第九章：学习与适应</h3>
+      <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+      <hr class="blog-divider">
+      <article class="blog-post">
+        <h2>突破硬编码的结界：构建具有"学习与适应"能力的进化型智能体</h2>
+
+        <h3>引言：为什么预设逻辑总会走向死胡同？</h3>
+        <p>想象一下，你构建了一个极其复杂的量化交易机器人或自动驾驶系统。在测试环境中，它表现得无懈可击。但一旦将其部署到真实世界，面对从未见过的高频市场波动或极端天气路况，它的性能就会开始急剧下降。<strong>因为真实世界是一个充满动态变化和不可预测性的无限状态空间。</strong></p>
+        <p>在传统的软件工程中，系统是静态的。如果遇到新情况，唯一的解决办法是人类工程师介入，手动修改代码，重新部署。如果智能体缺乏从经验中学习的能力，它就无法优化策略或提供个性化的交互，这种僵化（Rigidity）彻底限制了其在复杂场景下的有效性，使其无法实现真正的自治（Autonomy）。</p>
+
+        <h3>问题陈述：智能体如何实现自我迭代？</h3>
+        <p>我们面临的核心工程问题是：<strong>如何让智能体在不依赖人类持续手动干预的情况下，自主应对新奇场景并优化其性能？</strong>我们要设计的系统必须能够基于新的数据和交互体验，自主地改变其思考方式、行为模式或知识库。</p>
+
+        <h3>第一性原理推导：从"试错"到"自我修正"</h3>
+        <p>任何学习系统本质上都是一个反馈循环（Feedback Loop）：<strong>感知环境 -&gt; 采取行动 -&gt; 获得反馈（奖励/惩罚） -&gt; 更新内部状态</strong>。</p>
+        <ul>
+          <li><strong>强化学习（Reinforcement Learning）</strong>：智能体在不断变化的环境中尝试动作，好的结果给奖励，坏的结果给惩罚，从而学习到最优行为。</li>
+          <li><strong>监督学习与无监督学习</strong>：通过有标签的数据学习输入输出映射，或在无标签数据中发现隐藏的模式。</li>
+          <li><strong>在线学习（Online Learning）</strong>：持续不断地用新数据更新知识，对于处理连续数据流至关重要。</li>
+          <li><strong>基于记忆的学习（Memory-Based Learning）</strong>：回忆过去的经验来调整当前行动，赋予智能体上下文感知能力。</li>
+        </ul>
+
+        <h3>核心概念：为什么我们需要 PPO 和 DPO？</h3>
+        <p><strong>PPO (Proximal Policy Optimization)：为策略更新安装"安全刹车"</strong></p>
+        <p><strong>为什么需要 PPO？</strong>假设你的智能体在控制机器人的关节。它无意中做了一个动作，得到了巨大的奖励。在传统的强化学习中，算法会剧烈地改变策略，极度偏向这个动作。结果就是，原本走得很稳的机器人，突然因为策略步子迈得太大而摔倒，这就是性能崩溃。</p>
+        <p>PPO 的核心思想是<strong>"微小且谨慎的更新"</strong>。它引入了一个<strong>"截断（Clipping）"机制</strong>，在当前策略周围画了一个圈，称为<strong>"信任区域（Trust Region）"</strong>。算法被强制禁止做出与当前策略差异过大的更新，就像一个"安全刹车"。PPO 在"提升性能"和"保持在已知有效策略附近"之间找到了完美的平衡。</p>
+        <p><strong>DPO (Direct Preference Optimization)：化繁为简的对齐魔法</strong></p>
+        <p>传统基于 PPO 的对齐方法（RLHF）需要先训练一个独立的<strong>奖励模型（Reward Model）</strong>充当"裁判"，然后用 PPO 微调 LLM。这个过程极不稳定，更致命的是，<strong>LLM 会找到系统漏洞，"黑入（Hack）"奖励模型</strong>，生成毫无意义但恰好能骗过裁判的糟糕回答。</p>
+        <p>DPO 的天才之处在于<strong>完全跳过了奖励模型</strong>。它利用一个极其优雅的数学等式，直接将人类偏好数据与最优策略链接起来。它直接告诉语言模型：<strong>"提高生成受偏好回答的概率，同时降低生成不受欢迎回答的概率"</strong>。</p>
+
+        <h3>关键机制分析：SICA 自我进化系统解剖</h3>
+        <p><strong>SICA (Self-Improving Coding Agent)</strong> 颠覆了传统范式：<strong>它既是修改者，又是被修改的实体，通过迭代改进自己的代码库来提升性能。</strong></p>
+        <p>SICA 的自我演进闭环：</p>
+        <ol>
+          <li>回顾历史：查看过去所有版本在基准测试上的表现。</li>
+          <li>选择最佳版本：基于成功率、运行时间和计算成本的加权公式，挑选出"最优前驱体"。</li>
+          <li>定位与修改：分析历史记录，找出改进空间，直接修改自身的源代码。</li>
+          <li>测试与记录：修改后的自己运行基准测试，结果重新记录入档。</li>
+        </ol>
+        <p>在迭代中，SICA 自己开发出了更高级的工具：<strong>智能编辑器 -&gt; 差异增强编辑器</strong>（只提交 Diff 而不是重写整个文件）；<strong>AST 符号定位器</strong>（利用抽象语法树精确锁定代码定义位置）。</p>
+        <p>为防止系统崩溃，SICA 的架构护栏：<strong>异步监督者（Asynchronous Overseer）</strong>——另一个 LLM 在后台同时运行，不断接收主智能体的行为日志和调用图（Callgraph），检测智能体是否陷入了死循环或停滞不前，可以直接干预甚至强行终止执行。</p>
+
+        <h3>框架实战：OpenEvolve</h3>
+        <pre>from openevolve import OpenEvolve
+
+# 初始化进化系统
+evolve = OpenEvolve(
+    initial_program_path="path/to/initial_program.py",
+    evaluation_file="path/to/evaluator.py",
+    config_path="path/to/config.yaml"
+)
+
+# 启动进化循环
+# 内部机制：Controller 编排异步流水线
+# Prompt Sampler -> LLM Ensemble 生成代码修改
+# -> Evaluator Pool 测试并打分 -> 更新 Program Database
+best_program = await evolve.run(iterations=1000)
+
+print(f"Best program metrics:")
+for name, value in best_program.metrics.items():
+    print(f"  {name}: {value:.4f}")</pre>
+
+        <h3>决策指南与最佳实践</h3>
+        <p><strong>经验法则：当你构建的智能体必须在动态、高度不确定或不断演变的环境中运行时，必须使用该模式。</strong>理想场景包括：个性化助理（通过纵向分析用户行为优化响应）、高频交易机器人（动态调整参数最大化回报）、欺诈检测系统（面对新型作弊手段自我精炼预测模型）。</p>
+        <p><strong>架构设计最佳实践</strong>：</p>
+        <ul>
+          <li><strong>强制沙盒隔离（Docker Containerization）</strong>：智能体在自我修改时必然会执行 Shell 命令，甚至操作文件系统。<strong>必须</strong>将智能体运行在专属的 Docker 容器中，与宿主机完全隔离。</li>
+          <li><strong>极致的可观测性（Observability）</strong>：构建交互式的可视化网页，实时展示事件总线（Event Bus）和调用图（Callgraph）。</li>
+        </ul>
+
+        <h3>常见陷阱</h3>
+        <ul>
+          <li><strong>灾难性遗忘与策略崩溃</strong>：如果不引入诸如 PPO 中 Clipping 这样的安全限制，智能体会因为一次极好的随机反馈而彻底破坏原本稳定的基础策略。</li>
+          <li><strong>奖励作弊（Reward Hacking）</strong>：如果你使用独立的奖励模型，LLM 一定会找到奖励函数的漏洞。尽可能采用 DPO 机制直接优化。</li>
+          <li><strong>陷入局部最优与死循环</strong>：自我优化的智能体经常会在两个次优版本之间反复横跳，或者写出无限循环的代码。引入<strong>异步监督者（Asynchronous Overseer）</strong>作为系统看门狗。</li>
+        </ul>
+
+        <h3>总结</h3>
+        <p>本章深入探讨了人工智能中学习与适应的决定性作用。我们从僵化代码的痛点出发，推导了强化学习的必要性；理解了 PPO 如何作为"安全刹车"保证策略平稳，以及 DPO 如何用数学的优雅斩断了"奖励作弊"的可能。</p>
+        <p>我们见证了智能体形态的彻底改变——SICA 这样的自我改进编码智能体，通过修改自己的源代码、甚至为自己开发 AST 定位工具，实现了真正的自主进化。而以 Google AlphaEvolve 为代表的系统，已经开始在数学和计算机底层的黑暗森林中，自动发现人类尚未触及的新算法。</p>
+        <p><strong>代码不再是写死的规则，而是智能体用来自我适应和繁衍的基因。</strong></p>
+      </article>
+    </div>
+  </section>
   <div class="footer">
     <p>第九章：学习与适应 · 智能体 AI 交互式学习系列</p>
   </div>

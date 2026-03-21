@@ -573,6 +573,19 @@ h1 {
 /* Footer */
 .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
 .footer p { font-size: 12px; color: var(--text3); }
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -595,6 +608,7 @@ h1 {
     <button class="nav-btn" onclick="go('sec-quiz')">知识测验</button>
     <button class="nav-btn" onclick="go('sec-takeaways')">核心要点</button>
     <button class="nav-btn" onclick="go('sec-refs')">参考资料</button>
+    <button class="nav-btn" onclick="go('sec-media')">媒体资源</button>
   </nav>
 
   <!-- 概览 -->
@@ -1143,6 +1157,159 @@ root_agent = pipeline</div>
     </ul>
   </section>
 
+  <!-- 媒体资源 -->
+  <section id="sec-media" class="section">
+    <h2 class="sec-title">媒体资源</h2>
+    <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+    <div class="media-card">
+      <div class="media-badge">🎧 深度音频</div>
+      <h3>第三章：并行化 · 中文深度讲解</h3>
+      <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+      <audio controls>
+        <source src="./media/ch03_parallelization_audio.mp3" type="audio/mpeg">
+        您的浏览器不支持音频播放。
+      </audio>
+    </div>
+
+    <div class="media-card">
+      <div class="media-badge">🎬 视频讲解</div>
+      <h3>第三章：并行化 · 视觉化讲解</h3>
+      <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+        <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+        <a href="https://notebooklm.google.com/notebook/b4c16d86-7f08-47cc-b088-cbc95a974c0a" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+          在 NotebookLM 中观看视频 →
+        </a>
+      </div>
+    </div>
+
+    <div class="media-card">
+      <div class="media-badge">📝 深度博客</div>
+      <h3>从第一性原理理解第三章：并行化</h3>
+      <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+      <hr class="blog-divider">
+      <article class="blog-post">
+        <h2>构建高效Agent的必修课：深入理解并行化（Parallelization）设计模式</h2>
+
+        <h3>引言：当我们被"等待"扼住喉咙</h3>
+        <p>在构建复杂的AI Agent系统时，我们通常会从简单的模式起步：提示链（Prompt Chaining）用于顺序工作流，路由（Routing）用于动态决策。这些模式构成了Agent的基础逻辑，但在真实的生产环境中，我们很快会遇到一个令人沮丧的瓶颈：<strong>速度</strong>。</p>
+        <p>想象一下这个具体痛点场景：你正在构建一个用于深度研究的Agent。当用户输入一个复杂话题时，你的Agent需要去查找资料、总结核心论点、提取关键词，最后综合成一篇报告。如果你按照传统的顺序流（Sequential workflow）来写代码，你的Agent只能一步一步来。在等待语言模型（LLM）生成摘要或等待外部API返回搜索结果时，整个系统都处于"阻塞"状态。</p>
+        <p>这不仅让用户体验变得极其糟糕，更是对计算资源的一种浪费。<strong>许多复杂的Agent任务实际上包含多个可以同时执行的子任务，而不是非要一个接一个地排队等待</strong>。这就是为什么我们需要引入<strong>并行化（Parallelization）</strong>设计模式。</p>
+
+        <h2>问题陈述：顺序执行的物理极限</h2>
+        <p>假设我们要设计一个Agent来研究某个主题并对发现进行总结。一个纯粹的顺序执行（Sequential approach）流程如下：</p>
+        <ol>
+          <li>搜索来源 A。</li>
+          <li>总结来源 A。</li>
+          <li>搜索来源 B。</li>
+          <li>总结来源 B。</li>
+          <li>从摘要 A 和 B 中综合出最终答案。</li>
+        </ol>
+        <p>在这个工作流中，每一步都在等待前一步完成。如果每次搜索需要2秒，每次LLM总结需要5秒，最后综合需要5秒，那么总耗时就是：T = 2 + 5 + 2 + 5 + 5 = 19秒。</p>
+        <p><strong>为什么这种方式效率低下？</strong>因为当纯顺序执行时，总体处理时间等于所有单个任务持续时间的总和。这种延迟在任务依赖于外部I/O操作（例如调用不同的API或查询多个数据库）时，会成为一个极其严重的性能瓶颈。如果没有并发执行机制，系统的整体性能和响应速度将受到极大的阻碍。</p>
+
+        <h2>第一性原理推导：打破依赖的时间轴</h2>
+        <p>从第一性原理来看，<strong>核心思想是识别出工作流中那些"不依赖于其他部分输出"的环节，并将它们在同一时间执行</strong>。</p>
+        <p>在上面的例子中，"搜索来源B"真的需要等待"总结来源A"完成才能开始吗？完全不需要！它们在逻辑上是绝对独立的。它们只依赖于最开始的初始状态（用户的查询指令）。</p>
+        <p>基于这个直觉，我们完全可以将架构重构为<strong>并行方式（Parallel approach）</strong>：同时搜索来源A和来源B；一旦两个搜索都完成，同时总结来源A和来源B；最后将摘要A和摘要B综合成最终答案。总耗时瞬间缩减为：T = max(7, 7) + 5 = 12秒。</p>
+        <p><strong>这就是并行化模式的本质：将独立任务的时间叠加从"求和（Sum）"变成了"取最大值（Max）"</strong>。在这些步骤的尾端，我们通常会设置一个"综合（Synthesis）"或"合并（Merge）"的顺序步骤，专门等待所有并行步骤完成后再继续。</p>
+
+        <h2>核心概念详解：什么是"并行化"模式？</h2>
+        <p>在Agent设计的语境中，<strong>并行化涉及并发（concurrently）执行多个组件，例如 LLM 调用、工具使用，甚至整个子 Agent</strong>。而不是等待一个步骤完成后再开始下一个步骤，并行执行允许独立任务在同一时间运行，从而大幅减少可以分解为独立部分的任务的整体执行时间。</p>
+        <p>从系统架构来看，这通常表现为一种 <strong>"扇出 - 扇入（Fan-out / Fan-in）"</strong> 的拓扑结构：</p>
+        <ul>
+          <li><strong>扇出（Fan-out）：</strong>一个主要过程或提示（Prompt）触发多个子任务或子Agent，它们开始平行地进行处理。</li>
+          <li><strong>扇入（Fan-in）：</strong>主线流程等待所有并行的独立操作完成，收集所有分支的输出（Output），然后进入下一个状态（通常是最终的综合生成）。</li>
+        </ul>
+
+        <h2>关键机制分析：底层究竟发生了什么？</h2>
+        <p>实现并行化通常需要支持异步执行（asynchronous execution）或多线程/多进程的框架。现代Agentic框架就是以异步操作为核心设计的，允许你轻松定义可以并行运行的步骤。</p>
+        <p><strong>这里有一个非常重要的底层陷阱需要澄清：并发（Concurrency）与并行（Parallelism）的区别。</strong></p>
+        <p>在 Python 代码示例中，我们使用了 <code>asyncio</code>。<strong>请注意，<code>asyncio</code> 提供的是并发（concurrency），而不是物理层面多核CPU的并行（parallelism）</strong>。它是在单线程（single thread）上实现这一点的，通过使用一个智能的"事件循环（event loop）"：当某个任务处于空闲状态（例如，等待网络API请求返回）时，事件循环会迅速切换到其他任务。</p>
+        <p><strong>为什么这对Agent来说足够了？</strong>这创造了多个任务同时取得进展的效果。因为我们在构建Agent时，最大的瓶颈几乎总是 <strong>I/O密集型（I/O-bound）</strong> 任务——比如等待OpenAI的API响应，或者等待谷歌搜索结果返回。在此期间，CPU实际上是闲置的。</p>
+
+        <h2>框架实战代码示例：LangChain实现</h2>
+        <p>在 LangChain 框架中，并行执行主要通过 LangChain 表达式语言 (LCEL) 来促进。核心方法是将多个可运行组件（runnable components）构造在一个字典或列表中，使用 <code>RunnableParallel</code> 来并排运行多个 runnables。</p>
+        <pre>import asyncio
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnableParallel, RunnablePassthrough
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
+
+# 定义独立的链
+summarize_chain = (
+    ChatPromptTemplate.from_messages([
+        ("system", "Summarize the following topic concisely:"),
+        ("user", "{topic}")
+    ]) | llm | StrOutputParser()
+)
+
+questions_chain = (
+    ChatPromptTemplate.from_messages([
+        ("system", "Generate three interesting questions about the following topic:"),
+        ("user", "{topic}")
+    ]) | llm | StrOutputParser()
+)
+
+terms_chain = (
+    ChatPromptTemplate.from_messages([
+        ("system", "Identify 5-10 key terms from the following topic, separated by commas:"),
+        ("user", "{topic}")
+    ]) | llm | StrOutputParser()
+)
+
+# 构建并行 + 综合链
+map_chain = RunnableParallel({
+    "summary": summarize_chain,
+    "questions": questions_chain,
+    "key_terms": terms_chain,
+    "topic": RunnablePassthrough(),
+})
+
+synthesis_prompt = ChatPromptTemplate.from_messages([
+    ("system", "Based on the following information:\n    Summary: {summary}\n    Related Questions: {questions}\n    Key Terms: {key_terms}\n    Synthesize a comprehensive answer."),
+    ("user", "Original topic: {topic}")
+])
+
+full_parallel_chain = map_chain | synthesis_prompt | llm | StrOutputParser()
+
+async def run_parallel_example(topic: str) -> None:
+    response = await full_parallel_chain.ainvoke(topic)
+    print(response)
+
+if __name__ == "__main__":
+    asyncio.run(run_parallel_example("The history of space exploration"))</pre>
+        <p>在这段代码中，最核心的机制是 <code>RunnableParallel</code>。它不仅并行触发了三个 LLM 调用（摘要、问题、术语），而且我们将这些任务连同 <code>RunnablePassthrough</code> 捆绑在一起。<code>RunnablePassthrough</code> 非常关键，因为后续的综合步骤（Synthesis step）既需要并行任务的结果，也需要最初的原始主题。所有并行的结果都会收集成一个字典，直接流入 <code>synthesis_prompt</code>，最后由一个统一的 LLM 调用进行整合。</p>
+
+        <h2>决策指南与最佳实践：何时使用并行化？</h2>
+        <p><strong>经验法则（Rule of thumb）</strong>：当工作流包含多个可以同时运行的独立操作时，就应该使用该模式。以下7个黄金应用场景：</p>
+        <ol>
+          <li><strong>信息收集与研究：</strong>经典用例。研究一家公司，可以同时抓取新闻、股票数据、社交媒体和公司数据库。</li>
+          <li><strong>数据处理与分析：</strong>对一批数据并发应用不同的分析技术。例如同时运行情感分析、提取关键字、分类并识别紧急问题。</li>
+          <li><strong>多 API 或工具交互：</strong>一个旅行规划 Agent，可以同时调用 API 检查航班价格、查找酒店空房、寻找当地活动和推荐餐厅。</li>
+          <li><strong>多组件内容生成：</strong>并行生成复杂内容的各个部分，例如同时生成主题行、草拟邮件正文、寻找相关图像和创建行动号召按钮文本。</li>
+          <li><strong>验证与核实：</strong>执行多项独立的检查，例如同时检查电子邮件格式、电话号码、数据库地址校验以及敏感词过滤。</li>
+          <li><strong>多模态处理：</strong>并发处理相同输入的不同模态，例如同时分析文本的情感和图像中的对象。</li>
+          <li><strong>A/B 测试或多选项生成：</strong>生成响应的多个变体以选出最佳选项，例如让多个提示词或模型同时生成三个不同的文章标题。</li>
+        </ol>
+
+        <h2>常见陷阱：没有免费的午餐</h2>
+        <ol>
+          <li><strong>复杂性与成本的激增：</strong>引入并发或并行架构会带来大量的复杂性和成本，这直接影响到开发的关键阶段，例如系统设计、调试（Debugging）和系统日志记录（System Logging）。在并行执行的多个 API 请求中，如果有1个失败了或者超时了，在纯顺序工作流中你可以精准地定位错误位置；但在并发世界中，日志通常是交错打印的，复现和追踪错误的难度呈指数级上升。</li>
+          <li><strong>不要过度工程化（Over-engineer）：</strong>只有在确认这些独立任务存在显著的 I/O 延迟（例如涉及大量的外部资源、API 等待）时，才将其解耦重构为并发结构。</li>
+        </ol>
+
+        <h2>总结</h2>
+        <p>并行化模式（Parallelization pattern）是一种通过并发执行独立子任务来优化计算工作流的强大方法。它直接攻击了 Agent 系统最致命的弱点——因多次模型推理或调用外部服务导致的极高整体延迟。</p>
+        <p>无论是使用 LangChain 中的 <code>RunnableParallel</code> 来显式定义并行处理链，还是利用 Google ADK 的 <code>ParallelAgent</code> 进行多 Agent 的协调委派，其第一性原理是不变的：<strong>通过打破不必要的顺序依赖，用空间（多并发线程/事件循环）换取时间</strong>。</p>
+        <p>最终，通过将并行处理与传统的顺序流（Prompt Chaining）和条件流（Routing）相整合，我们才能够真正构建出高效、响应迅速且能处理复杂现实任务的顶尖智能计算系统。掌握并行化，你的 Agent 就不再是一个排队打饭的单线程机器，而是一个如同交响乐团般高效协作的现代智能体网络。</p>
+      </article>
+    </div>
+  </section>
+
   <div class="footer">
     <p>第三章：并行化 · 智能体设计模式系列 · 交互式学习模块</p>
   </div>
@@ -1153,7 +1320,7 @@ function go(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  const idx = ['sec-overview','sec-problem','sec-solution','sec-concepts','sec-usecases','sec-code','sec-deepdive','sec-glance','sec-quiz','sec-takeaways','sec-refs'].indexOf(id);
+  const idx = ['sec-overview','sec-problem','sec-solution','sec-concepts','sec-usecases','sec-code','sec-deepdive','sec-glance','sec-quiz','sec-takeaways','sec-refs','sec-media'].indexOf(id);
   document.querySelectorAll('.nav-btn')[idx].classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }

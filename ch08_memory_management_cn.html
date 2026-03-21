@@ -154,6 +154,19 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 .ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
 .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
 .footer p { font-size: 12px; color: var(--text3); }
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -177,6 +190,7 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
   <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
   <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
   <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
+  <button class="nav-btn" onclick=\"go('media', this)\">媒体资源</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -600,6 +614,117 @@ r3 = conversation.predict(question=<span class="code-string">"我叫什么名字
   </ul>
 </div>
 
+
+<!-- 媒体资源 -->
+<div id="sec-media" class="section">
+  <div class="sec-title">媒体资源</div>
+  <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+  <div class="media-card">
+    <div class="media-badge">🎧 深度音频</div>
+    <h3>第八章：记忆管理 · 中文深度讲解</h3>
+    <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+    <audio controls>
+      <source src="./media/ch08_memory_management_audio.mp3" type="audio/mpeg">
+      您的浏览器不支持音频播放。
+    </audio>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">🎬 视频讲解</div>
+    <h3>第八章：记忆管理 · 视觉化讲解</h3>
+    <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+    <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+      <a href="https://notebooklm.google.com/notebook/b2191ec5-a5be-44c9-a26c-bae4814b7559" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+        在 NotebookLM 中观看视频 →
+      </a>
+    </div>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">📝 深度博客</div>
+    <h3>从第一性原理理解第八章：记忆管理</h3>
+    <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+    <hr class="blog-divider">
+    <article class="blog-post">
+      <h2>深度解析 AI Agent 的记忆管理设计模式：从第一性原理到框架实战</h2>
+
+      <h3>1. 引言：一个患有"重度失忆症"的超级大脑</h3>
+      <p>想象一下，你聘请了一位智商高达 160 的绝顶聪明的私人助理。他有一个致命的缺陷：<strong>他患有极其严重的"顺行性遗忘症"</strong>。每次你对他说"你好"，对他而言都是你们生命中的第一次相遇。</p>
+      <p>在人工智能的世界里，这就是缺乏"记忆管理"的代理（Agent）的真实写照。如果没有记忆机制，Agent 系统就是无状态（Stateless）的，无法维持对话的上下文，无法从经验中学习，也无法为用户提供个性化的响应。</p>
+
+      <h3>2. 问题陈述：为什么我们不能简单地把所有东西塞进 Prompt 里？</h3>
+      <p>最直观的解决方案是：把过去发生的所有对话历史，全部拼接成一个长长的字符串，每次都作为 Prompt 发送给模型。这种方案很快会撞上一堵坚硬的高墙：</p>
+      <ul>
+        <li><strong>容量限制与注意力稀释</strong>：上下文窗口的容量是有限的，会出现"迷失在中间（Lost in the Middle）"的现象。</li>
+        <li><strong>计算成本与延迟</strong>：这种上下文是<strong>短暂的（ephemeral）</strong>，一旦会话结束就会丢失。让模型重新处理所有海量 Token 在计算上极其昂贵。</li>
+      </ul>
+
+      <h3>3. 第一性原理推导：效仿人类认知与计算机架构</h3>
+      <p>无论是人类的大脑，还是冯·诺依曼架构的计算机，都演化出了极其相似的分层存储结构。在 AI Agent 的世界里：</p>
+      <ul>
+        <li><strong>短期记忆（Short-Term Memory）</strong>：扮演"工作记忆"的角色，存在于上下文窗口中，维持对话的连贯性。</li>
+        <li><strong>长期记忆（Long-Term Memory）</strong>：扮演"长期知识库"的角色，数据存储在外部数据库或<strong>向量数据库（Vector Databases）</strong>中，支持基于<strong>语义相似度</strong>的检索。</li>
+      </ul>
+
+      <h3>4. 核心概念：长期记忆的三种类型</h3>
+      <ul>
+        <li><strong>语义记忆（Semantic Memory）</strong>：保留事实和概念（如用户偏好），以 JSON 文档或事实文档集合管理。</li>
+        <li><strong>情景记忆（Episodic Memory）</strong>：回忆过去的任务经验，通过少样本提示（Few-shot prompting）让 Agent 从成功序列中学习。</li>
+        <li><strong>程序记忆（Procedural Memory）</strong>：关于"如何执行任务"的规则，包含在 System Prompt 中。强大的 Agent 通过"反思（Reflection）"技术不断修改自己的系统提示词。</li>
+      </ul>
+
+      <h3>5. 关键机制：Google ADK 的 Session / State / Memory 三位一体</h3>
+      <p><strong>Session</strong>：每次交互的对话线程，由 <code>SessionService</code> 管理，包含唯一标识符和按时间排序的事件流（Events）。</p>
+      <p><strong>State</strong>：<code>Session.state</code> 是临时工作记忆字典。ADK 通过前缀约定管理数据作用域：无前缀（当前 Session）、<code>user:</code>（跨 Session 用户数据）、<code>app:</code>（所有用户共享）、<code>temp:</code>（当前轮次，用完即弃）。</p>
+      <p><strong>Memory</strong>：<code>MemoryService</code> 管理长期知识，提供 <code>add_session_to_memory</code> 和 <code>search_memory</code> 接口。</p>
+
+      <h3>6. 框架实战代码</h3>
+      <p><strong>方法一：output_key（最简单方式）</strong></p>
+      <pre>from google.adk.agents import LlmAgent
+
+greeting_agent = LlmAgent(
+    name="Greeter",
+    model="gemini-2.0-flash",
+    instruction="Generate a short, friendly greeting.",
+    output_key="last_greeting"  # 自动将回复存入 state["last_greeting"]
+)</pre>
+      <p><strong>方法二：通过 Tool 封装 state_delta（黄金法则）</strong></p>
+      <pre>import time
+from google.adk.tools.tool_context import ToolContext
+
+def log_user_login(tool_context: ToolContext) -> dict:
+    state = tool_context.state
+    login_count = state.get("user:login_count", 0) + 1
+    state["user:login_count"] = login_count
+    state["task_status"] = "active"
+    state["user:last_login_ts"] = time.time()
+    state["temp:validation_needed"] = True  # 仅当前轮次有效
+    return {"status": "success", "message": "User login tracked."}</pre>
+      <p><strong>LangGraph 程序记忆：Agent 动态重写自己的系统指令</strong></p>
+      <pre>def update_instructions(state: State, store: BaseStore):
+    namespace = ("instructions",)
+    current_instructions = store.search(namespace)[0]
+    prompt = prompt_template.format(
+        instructions=current_instructions.value["instructions"],
+        conversation=state["messages"]
+    )
+    output = llm.invoke(prompt)
+    # 将进化后的新指令写回 BaseStore，完成自我迭代
+    store.put(("agent_instructions",), "agent_a", {"instructions": output['new_instructions']})</pre>
+
+      <h3>7. 决策指南与常见陷阱</h3>
+      <p><strong>何时使用短期记忆？</strong>扮演聊天机器人或执行多步骤任务需要跟踪进度时。<strong>何时使用长期记忆？</strong>需要跨会话个性化体验、持续学习改进，或需要在知识库中寻找答案（RAG）时。</p>
+      <p><strong>陷阱一</strong>：直接执行 <code>session.state['key'] = 'value'</code>。这会绕过事件处理机制，无法触发持久化，在并发场景下极易产生脏数据。永远通过 <code>output_key</code> 或 <code>EventActions.state_delta</code> 来触发状态变更。</p>
+      <p><strong>陷阱二</strong>：盲目依赖大上下文窗口，将所有历史文档塞入 Prompt。高昂的 Token 费用和延迟会让应用在商业上毫无可行性。使用记忆系统作为"过滤器"，只提取最相关信息注入上下文。</p>
+
+      <h3>8. 总结</h3>
+      <p>记忆管理设计模式推导出了短期记忆与长期记忆双轨并行的经典架构。Google ADK 通过 Session、State 和 MemoryService 的三位一体设计完美支撑了这一架构；LangGraph 则进一步探索了语义、情景和程序三个维度的长期记忆。<strong>记忆并非存储数据的终点，而是智能萌芽的起点。</strong></p>
+    </article>
+  </div>
+</div>
+
 <div class="footer"><p>智能体设计模式 — 第八章：记忆管理</p></div>
 </div>
 
@@ -608,7 +733,7 @@ function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

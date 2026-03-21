@@ -550,6 +550,19 @@ h1 {
 .ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
 .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
 .footer p { font-size: 12px; color: var(--text3); }
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -572,6 +585,7 @@ h1 {
     <button class="nav-btn" onclick="go('sec-quiz')">知识测验</button>
     <button class="nav-btn" onclick="go('sec-takeaways')">核心要点</button>
     <button class="nav-btn" onclick="go('sec-refs')">参考资料</button>
+    <button class="nav-btn" onclick="go('sec-media')">媒体资源</button>
   </nav>
 
   <!-- 概览 -->
@@ -1104,6 +1118,188 @@ annotations = response.output[-<span class="code-string">1</span>].content[<span
     </ul>
   </section>
 
+
+  <!-- 媒体资源 -->
+  <section id="sec-media" class="section">
+    <h2 class="sec-title">媒体资源</h2>
+    <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+    <div class="media-card">
+      <div class="media-badge">🎧 深度音频</div>
+      <h3>第六章：规划 · 中文深度讲解</h3>
+      <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+      <audio controls>
+        <source src="./media/ch06_planning_audio.mp3" type="audio/mpeg">
+        您的浏览器不支持音频播放。
+      </audio>
+    </div>
+
+    <div class="media-card">
+      <div class="media-badge">🎬 视频讲解</div>
+      <h3>第六章：规划 · 视觉化讲解</h3>
+      <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+        <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+        <a href="https://notebooklm.google.com/notebook/5c070b90-104f-4fd1-a5fb-ac772bc8a618" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+          在 NotebookLM 中观看视频 →
+        </a>
+      </div>
+    </div>
+
+    <div class="media-card">
+      <div class="media-badge">📝 深度博客</div>
+      <h3>从第一性原理理解第六章：规划</h3>
+      <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+      <hr class="blog-divider">
+      <article class="blog-post">
+        <h2>深入理解 AI Agent 的核心：规划（Planning）设计模式的第一性原理</h2>
+
+        <h3>引言（具体痛点场景）</h3>
+        <p>想象一下这样一个场景：你对你的 AI 助手说："帮我组织一次团队的异地团建（offsite）。" 如果这是一个单纯的反应式（Reactive）AI 模型，它可能会立刻开始根据其训练数据预测下一个 Token，最终吐出一份长篇大论的"团建建议清单"或者是几个酒店的推荐链接。但这并不是你真正想要的。</p>
+        <p>在真实的业务环境中，复杂的请求往往无法通过单一的动作或工具调用来解决。如果没有一种结构化的方法，Agentic（代理化）系统在面对涉及多个步骤和复杂依赖关系的多方面请求时，就会显得捉襟见肘。它无法将高层次的目标分解为一系列可管理的、可执行的微小任务。其结果就是，系统无法有效地制定战略，在面对错综复杂的目标时，往往只能给出不完整或完全错误的结果。</p>
+        <p><strong>智能行为不仅仅是对即时输入的被动反应，它还需要远见（Foresight）</strong>。这就是为什么我们需要引入<strong>规划（Planning）设计模式</strong>。今天，我们将剥开高级框架的表象，从第一性原理出发，深入剖析为什么 AI 系统需要学会"三思而后行"，它是如何工作的，以及如何在代码中实现它。</p>
+
+        <h3>问题陈述</h3>
+        <p>在 AI 的语境下，我们可以将规划 Agent 视为一个你向其委派复杂目标的"专家"。当你要求它"组织团队异地团建"时，你实际上只是在定义<strong>"是什么"（What）</strong>——即最终的目标（成功预订团建）以及相关的约束条件（预算、参与人数、期望日期）。</p>
+        <p>然而，你并没有告诉它<strong>"怎么做"（How）</strong>。</p>
+        <p>核心问题在于：<strong>系统必须自主地规划出通向该目标的路径</strong>。在收到请求之前，这个计划是不存在的；它是针对该请求动态生成的。AI 需要一种机制，能够将人类高层次的意图转化为由离散的、可执行的步骤组成的结构化工作流，这就是我们在构建复杂 AI 系统时面临的核心工程挑战。</p>
+
+        <h3>第一性原理推导：为什么要规划？</h3>
+        <p>让我们回到最基础的计算理论。什么是"规划"？</p>
+        <p>从第一性原理来看，规划是系统从"初始状态（Initial State）"向"目标状态（Goal State）"移动时，制定行动序列的能力。这本质上是一个<strong>状态空间遍历（State-space Traversal）</strong>的过程。</p>
+        <p>想象一个在物理世界中导航的机器人，或者一个在虚拟信息网络中穿梭的虚拟实体。为了从 A 点到达 B 点，它必须生成一条路径或一系列动作。在这个过程中，它必须优化诸如时间或能量消耗等指标，同时还要遵守环境约束（例如避开障碍物或遵守交通规则）。</p>
+        <p>对于大语言模型（LLM）而言，如果没有规划，它就像一个蒙着眼睛在迷宫里狂奔的人，每一步都在依靠直觉（预测下一个词的概率）做出局部最优的选择，但很容易陷入死胡同。<strong>规划模式（Planning Pattern）提供了一个标准化的解决方案</strong>：它强制 Agentic 系统在采取任何实际行动之前，首先创建一个连贯的计划。它将高维、模糊的意图"降维"为一条清晰的逻辑执行链。由于 LLM 吸收了海量的训练数据，它们非常擅长根据任务描述生成合理且有效的逐步计划。</p>
+
+        <h3>核心概念详解</h3>
+        <p>要彻底掌握规划模式，我们需要深刻理解以下几个核心概念。在这里，我们不仅要问"是什么"，更要问"为什么"。</p>
+        <p><strong>1. 任务拆解与逻辑编排 (Decomposition &amp; Orchestration)</strong></p>
+        <p><strong>是什么</strong>：规划涉及将高层次目标分解为一系列更小、可操作的步骤或子目标。例如，在一个程序化的任务自动化场景中（如新员工入职），目标会被分解为：创建系统账户、分配培训模块、与不同部门协调等有向的子任务序列。</p>
+        <p><strong>为什么</strong>：因为复杂的系统调用和工具使用存在严格的依赖关系。你不能在员工账户创建之前就为其分配培训模块。Agent 必须生成一个计划，以合乎逻辑的顺序执行这些步骤，并调用必要的工具或与其他系统交互来管理这些依赖。</p>
+        <p><strong>2. 动态适应性 (Adaptability)</strong></p>
+        <p><strong>是什么</strong>：一个初始计划仅仅是一个起点，而不是一个僵化的剧本（Rigid script）。</p>
+        <p><strong>为什么</strong>：真实世界充满了不可预测的变量。如果 Agent 首选的场地不可用，或者选定的餐饮服务商已被订满，一个具备规划能力的 Agent 绝不能简单地抛出错误并崩溃。它必须<strong>适应</strong>。它会记录下这个新的约束条件，重新评估其选项，并制定一个新的计划（例如建议备选场地或日期）。这种在执行过程中不断根据新信息调整航向的能力，才是规划 Agent 真正的威力所在。</p>
+        <p><strong>3. 目标导向行为 (Goal-Oriented Behavior)</strong></p>
+        <p><strong>是什么</strong>：系统不再仅仅是"回答问题"，而是"解决问题"。</p>
+        <p><strong>为什么</strong>：在结构化信息合成（例如生成复杂的研究报告）或多步客户支持（诊断、实施解决方案、升级）等场景中，单次对话是不够的。规划模式允许 Agent 超越简单的反应式动作，提供一个逻辑框架来解决需要一系列相互依赖的操作才能完成的复杂问题。</p>
+
+        <h3>关键机制分析：Google DeepResearch 是如何思考的？</h3>
+        <p>为了理解规划模式在顶尖系统中的运作机制，让我们深度剖析 <strong>Google Gemini DeepResearch</strong> 系统。这不是一个简单的"一问一答"模型，而是一个为了自主信息检索和综合而设计的 Agent 系统。</p>
+        <p><strong>1. 意图解构与人机协作规划</strong>：这个系统并不是瞬间完成所有的动作。它是一个受管理的、长时间运行的过程。<strong>为什么这么设计？</strong> 因为研究任务的容错率很低。它首先将用户的提示（Prompt）解构为一个包含多个要点的研究计划（Research Plan）。最关键的是，这个计划会被呈现给用户进行审查和修改。这种机制允许在真正执行极其昂贵的搜索任务之前，进行研究轨迹的"协作塑造"。</p>
+        <p><strong>2. 动态迭代搜索循环 (Iterative Search-and-Analysis Loop)</strong>：一旦计划被批准，Agentic 流水线就会启动。它不仅仅是执行一堆预定义的搜索；相反，Agent 会根据收集到的信息<strong>动态地制定和改进其查询</strong>。<strong>为什么？</strong> 因为未知的知识领域往往是随着探索而展开的。Agent 必须主动识别知识空白（Knowledge Gaps）、确证数据点（Corroborating data points）并解决差异。</p>
+        <p><strong>3. 异步管理与容错架构 (Asynchronous Management)</strong>：DeepResearch 的一个关键架构组件是异步管理整个过程的能力。<strong>为什么？</strong> 因为一项深入的研究可能涉及分析数百个来源。如果采用同步阻塞的方式，任何一个网络超时都可能导致整个任务崩溃。异步设计确保了系统对单点故障的弹性，并允许用户在任务进行时离开，在完成时收到通知。</p>
+        <p><strong>4. 批判性综合与透明引用 (Critical Evaluation &amp; Citations)</strong>：收集数据只是第一步，综合阶段才是规划模式的终点。模型不仅是对结果进行字符串拼接，而是识别主要主题，将其组织成连贯的叙事和逻辑部分。同时，它显式地返回查阅过的完整来源列表，并作为<strong>引用（Citations）</strong>呈现。<strong>为什么？</strong> 在企业和学术应用中，信任比智能更重要。提供透明度和对原始信息的直接访问，使得系统生成的结构化多页报告不仅详尽，而且可验证。通过自动化这种迭代的搜索-过滤循环（这是人工研究的核心瓶颈），系统可以在相同时间内处理比人类研究员大得多的信息量，从而减少选择偏差（Selection bias），带来更稳健的理解。</p>
+
+        <h3>框架实战代码示例</h3>
+        <p>理论已经足够，让我们来看看代码是如何实现这一模式的。</p>
+        <p><strong>示例 1：使用 Crew AI 构建顺序规划 Agent</strong></p>
+        <pre>import os
+from dotenv import load_dotenv
+from crewai import Agent, Task, Crew, Process
+from langchain_openai import ChatOpenAI
+
+load_dotenv()
+
+llm = ChatOpenAI(model="gpt-4-turbo")
+
+planner_writer_agent = Agent(
+    role='Article Planner and Writer',
+    goal='Plan and then write a concise, engaging summary on a specified topic.',
+    backstory=(
+        'You are an expert technical writer and content strategist. '
+        'Your strength lies in creating a clear, actionable plan before writing, '
+        'ensuring the final summary is both informative and easy to digest.'
+    ),
+    verbose=True,
+    allow_delegation=False,
+    llm=llm
+)
+
+topic = "The importance of Reinforcement Learning in AI"
+high_level_task = Task(
+    description=(
+        f"1. Create a bullet-point plan for a summary on the topic: '{topic}'.\n"
+        f"2. Write the summary based on your plan, keeping it around 200 words."
+    ),
+    expected_output=(
+        "A final report containing two distinct sections:\n\n"
+        "### Plan\n"
+        "- A bulleted list outlining the main points of the summary.\n\n"
+        "### Summary\n"
+        "- A concise and well-structured summary of the topic."
+    ),
+    agent=planner_writer_agent,
+)
+
+crew = Crew(
+    agents=[planner_writer_agent],
+    tasks=[high_level_task],
+    process=Process.sequential,
+)
+
+result = crew.kickoff()
+print(result)</pre>
+
+        <p><strong>示例 2：揭秘 OpenAI Deep Research API 的内部思考</strong></p>
+        <pre>from openai import OpenAI
+
+client = OpenAI(api_key="YOUR_OPENAI_API_KEY")
+
+system_message = """You are a professional researcher preparing a structured, data-driven report."""
+user_query = "Research the economic impact of semaglutide on global healthcare systems."
+
+response = client.responses.create(
+    model="o3-deep-research-2025-06-26",
+    input=[
+        {"role": "developer", "content": [{"type": "input_text", "text": system_message}]},
+        {"role": "user", "content": [{"type": "input_text", "text": user_query}]}
+    ],
+    reasoning={"summary": "auto"},
+    tools=[{"type": "web_search_preview"}]
+)
+
+# 揭秘：检查中间步骤
+print("--- INTERMEDIATE STEPS ---")
+
+try:
+    reasoning_step = next(item for item in response.output if item.type == "reasoning")
+    print("\n[Found a Reasoning Step]")
+    for summary_part in reasoning_step.summary:
+        print(f"  - {summary_part.text}")
+except StopIteration:
+    print("\nNo reasoning steps found.")
+
+try:
+    search_step = next(item for item in response.output if item.type == "web_search_call")
+    print("\n[Found a Web Search Call]")
+    print(f"  Query Executed: '{search_step.action['query']}'")
+    print(f"  Status: {search_step.status}")
+except StopIteration:
+    print("\nNo web search steps found.")</pre>
+
+        <h3>决策指南与最佳实践</h3>
+        <p>引入规划能力会增加系统的延迟和计算成本，因此我们需要基于第一性原理来做架构决策。<strong>决策的核心法则只有一个：用户的请求是否过于复杂，以至于无法通过单个操作或工具来处理？</strong></p>
+        <p>或者换一种问法：<strong>解决该问题的"方法（How）"是需要被探索发现的，还是已经完全已知并固化的？</strong></p>
+        <p><strong>应该使用规划模式的场景：</strong></p>
+        <ul>
+          <li><strong>多步流程自动化</strong>：如撰写详细的研究报告、执行竞争对手分析（汇总市场趋势、竞品规格、公众情绪）。</li>
+          <li><strong>复杂的环境遍历</strong>：无论是物理机器人的导航，还是虚拟软件环境中的多 API 依赖调用。</li>
+        </ul>
+        <p><strong>最佳实践</strong>：在企业级应用中，利用如模型上下文协议（MCP, Model Context Protocol）来扩展 Agent，使其可以连接到内部私有知识库，将公共网络的深入研究与企业专有数据相融合。</p>
+
+        <h3>常见陷阱</h3>
+        <p>在学习了强大的规划能力后，工程师最容易犯的错误就是"过度工程（Over-engineering）"。我们必须清醒地认识到：<strong>动态规划是一种特定的工具，而不是万能的灵丹妙药（Universal solution）</strong>。</p>
+        <p>这里存在一个根本的权衡（Trade-off）：<strong>灵活性（Flexibility）与可预测性（Predictability）之间的矛盾</strong>。</p>
+        <p><strong>陷阱：在不需要思考的地方让 Agent 思考。</strong></p>
+        <p><strong>为什么这是错的</strong>：当一个问题的解决方案已经是被充分理解且高度可重复的（Well-understood and repeatable）时，强迫 Agent 进行动态规划反而引入了巨大的系统熵值。在这些场景下，将 Agent 约束在一个预先确定的、固定的工作流（Fixed workflow）中才是更有效的做法。这限制了 Agent 的自主权，从而减少了不确定性和不可预测行为的风险，保证了可靠、一致的输出结果。永远不要为了使用 Agent 而使用 Agent；对于一个固定格式的每日天气抓取脚本，传统的 Cron Job 加上简单的 API 调用远比一个复杂的 Planning Agent 优秀得多。</p>
+
+        <h3>总结</h3>
+        <p>在构建当代人工智能系统时，规划（Planning）模式扮演着基石般的角色。它成功地将 Agent 系统从简单的被动响应者（Reactive responders）升维到了具备战略眼光的、目标导向的执行者（Strategic, goal-oriented executors）。</p>
+        <p>借助现代大语言模型强大的逻辑演绎能力，系统能够自主地将复杂的高层目标拆解为连贯、可操作的步骤。正如我们从 CrewAI 中简单的强制顺序计划生成，一路看到 Google DeepResearch 和 OpenAI Deep Research API 中极度复杂的动态迭代研究、自我修正、透明化溯源与代码执行。</p>
+        <p>归根结底，规划不仅是一种代码模式，它构成了<strong>人类意图与自动化执行复杂问题之间的核心桥梁</strong>。通过将问题求解过程结构化，规划模式赋予了 Agent 统筹错综复杂的工作流并最终交付综合性卓越成果的能力。当你下次再对系统说出那个模糊的"What"时，一个设计精良的 Planning Agent，已经在它的"大脑"深处为你推演了千万条通向目标的"How"。</p>
+      </article>
+    </div>
+  </section>
+
   <div class="footer">
     <p>第六章：规划 · 智能体设计模式系列 · 交互式学习模块</p>
   </div>
@@ -1114,7 +1310,7 @@ function go(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  const idx = ['sec-overview','sec-problem','sec-solution','sec-concepts','sec-usecases','sec-code','sec-deepdive','sec-glance','sec-quiz','sec-takeaways','sec-refs'].indexOf(id);
+  const idx = ['sec-overview','sec-problem','sec-solution','sec-concepts','sec-usecases','sec-code','sec-deepdive','sec-glance','sec-quiz','sec-takeaways','sec-refs','sec-media'].indexOf(id);
   document.querySelectorAll('.nav-btn')[idx].classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }

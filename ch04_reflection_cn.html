@@ -192,6 +192,19 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 .ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
 .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
 .footer p { font-size: 12px; color: var(--text3); }
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -215,6 +228,7 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
   <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
   <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
   <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
+  <button class="nav-btn" onclick=\"go('media', this)\">媒体资源</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -665,6 +679,155 @@ review_pipeline = SequentialAgent(
   </ul>
 </div>
 
+<!-- 媒体资源 -->
+<div id="sec-media" class="section">
+  <div class="sec-title">媒体资源</div>
+  <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+  <div class="media-card">
+    <div class="media-badge">🎧 深度音频</div>
+    <h3>第四章：反思 · 中文深度讲解</h3>
+    <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+    <audio controls>
+      <source src="./media/ch04_reflection_audio.mp3" type="audio/mpeg">
+      您的浏览器不支持音频播放。
+    </audio>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">🎬 视频讲解</div>
+    <h3>第四章：反思 · 视觉化讲解</h3>
+    <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+    <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+      <a href="https://notebooklm.google.com/notebook/c2264042-2443-4660-8266-7770509d7682" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+        在 NotebookLM 中观看视频 →
+      </a>
+    </div>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">📝 深度博客</div>
+    <h3>从第一性原理理解第四章：反思</h3>
+    <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+    <hr class="blog-divider">
+    <article class="blog-post">
+      <h2>深入理解AI Agent：从第一性原理推导"反思（Reflection）"设计模式</h2>
+
+      <h3>引言：单次预测的幻觉与痛点场景</h3>
+      <p>让我们先退后一步，观察一下我们是如何构建现代AI Agent的。在前面的架构中，我们已经探索了几个基础的Agentic模式：用于顺序执行的链式（Chaining）模式、用于动态路径选择的路由（Routing）模式，以及用于并发任务执行的并行化（Parallelization）模式。这些模式极大地提升了Agent的效率和灵活性。</p>
+      <p>然而，如果你曾在生产环境中部署过这些系统，你会立刻遇到一个令人沮丧的痛点：无论你的路由树多么精巧，或者你的并行任务划分多么完美，Agent的<strong>初始输出或计划往往不是最优的、准确的，甚至是不完整的</strong>。</p>
+      <p>想象一个场景：你要求Agent编写一段处理复杂边缘情况的Python脚本。在单次运行中，它洋洋洒洒地写出了看起来非常优雅的代码。但当你实际运行时，却发现它漏掉了一个致命的负数输入异常。为什么会这样？因为基础的Agent工作流缺乏一个内置的过程来让Agent识别并修复自身的错误。不管质量如何，初始的响应直接成为了最终的定局。这就是我们要引入<strong>反思（Reflection）模式</strong>的具体场景。</p>
+
+      <h2>问题陈述：为什么我们需要超越"一次性生成"？</h2>
+      <p>要理解问题的本质，我们需要回到大语言模型（LLM）的底层逻辑。LLM本质上是自回归的标记（Token）预测器。当你向它提出一个复杂请求时，它在逐字生成答案。在这个过程中，它没有机会"回头修改"之前写下的错误前缀。</p>
+      <p>正如基础的链式模式只是将输出直接传递给下一步，而路由模式只是选择了一条路径，它们都假设了上一步的输出是100%可靠的。这种假设在面对需要高度准确性、复杂约束或精细逻辑的任务时，会立刻崩溃。由于缺乏评估机制，Agent会盲目地基于错误的中间结果继续推导，导致误差不断累积。<strong>我们需要一种机制，让Agent的初始响应不再是最终的定局</strong>。</p>
+
+      <h2>第一性原理推导：构建认知反馈循环</h2>
+      <p>如果我们要用第一性原理来思考这个问题，我们可以问：<strong>人类系统是如何确保输出质量的？</strong></p>
+      <p>答案是：<strong>反馈循环（Feedback Loop）</strong>。人类极少能在第一次尝试时就写出完美的复杂代码或文章。我们打草稿，我们审阅，我们修改。智能不仅仅体现在"生成"的能力上，更体现在"纠错"的能力上。</p>
+      <p>如果把这个理念硬编码到Agent架构中，就是<strong>反思模式（Reflection Pattern）</strong>。反思模式的核心不是让模型变得更聪明，而是赋予它一个评估自身工作、输出或内部状态的机制，并利用这种评估来改进其表现或完善其响应。它不再仅仅产生一个输出；它开始检查那个输出（或生成该输出的过程），识别潜在的问题或改进空间，并利用这些洞察来生成一个更好的版本。</p>
+      <p>这就是智能系统从"被动执行者（passive executor）"向"有目的的系统（purposeful system）"转变的跨越。</p>
+
+      <h2>核心概念详解：机制是如何运作的？</h2>
+      <p>为了将直觉转化为工程实现，我们需要将"反思"拆解为几个明确的、可操作的离散步骤。通常，这个过程包含以下核心环节：</p>
+      <ol>
+        <li><strong>执行（Execution）：</strong>Agent执行任务或生成一个初始输出（Draft）。</li>
+        <li><strong>评估/批判（Evaluation/Critique）：</strong>紧接着，Agent（通常使用另一次LLM调用或一组硬编码的规则）分析前一步骤的结果。这种评估可能会检查事实的准确性、连贯性、文体风格、完整性，或是对指令的遵循程度。<strong>为什么需要这一步？</strong>因为没有衡量就没有优化。</li>
+        <li><strong>反思/完善（Reflection/Refinement）：</strong>基于批判的结果，Agent决定如何改进。这可能涉及生成一个精炼后的输出，调整后续步骤的参数，甚至修改整体计划。</li>
+        <li><strong>迭代（Iteration）：</strong>精炼后的输出可以再次被执行，这个反思过程会不断重复，直到达到令人满意的结果或满足了某种停止条件（Stopping condition）。</li>
+      </ol>
+      <p>值得注意的是，反思模式如果要发挥最大效能，必须结合两个关键的系统能力：</p>
+      <ul>
+        <li><strong>目标设定与监控：</strong>目标为Agent的自我评估提供了终极基准，而监控则追踪其进度。反思在这里充当了纠正引擎，利用监控反馈来分析偏差并调整策略。</li>
+        <li><strong>记忆（Memory）：</strong>反思的有效性极大依赖于LLM保留对话记忆的能力。对话历史为评估阶段提供了至关重要的上下文，它允许Agent不仅孤立地评估当前输出，而且能对照之前的互动、用户反馈和不断演变的目标来进行评估，从而<strong>避免重复犯错</strong>。没有记忆的反思是孤立的事件；有了记忆，反思才是一个不断累积的、智能的迭代过程。</li>
+      </ul>
+
+      <h2>关键机制分析：为什么我们需要"生产者-批评者"模型？</h2>
+      <p>在构建反思架构时，你可以让同一个Agent扮演所有角色，但这往往不是最优解。一个关键且高效的实现方式是将过程分离为两个截然不同的逻辑角色：<strong>生产者（Producer）和批评者（Critic）</strong>。这被称为"生成器-批评者（Generator-Critic）"或"生产者-审查者（Producer-Reviewer）"模型。</p>
+      <p><strong>为什么必须分离？原因在于"认知偏差（Cognitive bias）"。</strong>当一个Agent试图审查自己刚刚生成的工作时，它会受限于生成时的相同隐藏状态和上下文偏差。它很难发现自己逻辑中的盲点。</p>
+      <ul>
+        <li><strong>生产者Agent（The Producer Agent）：</strong>这个Agent的唯一职责就是初次执行任务，比如编写代码或起草博客文章。它专注于"生成"。</li>
+        <li><strong>批评者Agent（The Critic Agent）：</strong>这个Agent的唯一目的是评估生产者的输出。为了打破认知偏差，我们给它一套完全不同的指令和<strong>独特的人设（Persona）</strong>，例如"你是一名高级软件工程师"或"你是一名一丝不苟的事实核查员"。它的设计目的就是寻找瑕疵、提出改进建议并提供结构化反馈。</li>
+      </ul>
+      <p>这种关注点分离（Separation of concerns）异常强大。批评者带着一种全新的视角审视输出，完全致力于发现错误。这种机制确保了反馈的客观性和专业性，随后反馈会被传回给生产者，作为生成新版本的指南。</p>
+
+      <h2>框架实战代码示例：LangChain中的循环反思机制</h2>
+      <p>在这个例子中，我们使用LangChain Expression Language (LCEL) 和 GPT-4o 来迭代生成并完善一个计算阶乘的Python函数。</p>
+      <pre>import os
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import SystemMessage, HumanMessage
+
+llm = ChatOpenAI(model="gpt-4o", temperature=0.1)
+
+def run_reflection_loop():
+    task_prompt = """
+    你的任务是创建一个名为 `calculate_factorial` 的Python函数。
+    它需要：1. 接受整数 n；2. 计算阶乘；3. 包含文档字符串；4. 处理 0 的边缘情况；5. 如果输入为负数抛出 ValueError。
+    """
+    max_iterations = 3
+    current_code = ""
+    # 对话历史记录就是"记忆"机制
+    message_history = [HumanMessage(content=task_prompt)]
+
+    for i in range(max_iterations):
+        # --- 1. 生成/完善阶段 (Producer 阶段) ---
+        if i == 0:
+            response = llm.invoke(message_history)
+            current_code = response.content
+        else:
+            message_history.append(HumanMessage(content="Please refine the code using the critiques provided."))
+            response = llm.invoke(message_history)
+            current_code = response.content
+
+        message_history.append(response)
+
+        # --- 2. 反思阶段 (Critic 阶段) ---
+        reflector_prompt = [
+            SystemMessage(content="""
+                你是一名高级软件工程师和Python专家。你的职责是进行一丝不苟的代码审查。
+                如果代码完美满足所有要求，只需回复 'CODE_IS_PERFECT'。
+                否则，提供一个包含你批评意见的要点列表。
+            """),
+            HumanMessage(content=f"Original Task:\n{task_prompt}\n\nCode to Review:\n{current_code}")
+        ]
+
+        critique_response = llm.invoke(reflector_prompt)
+        critique = critique_response.content
+
+        # --- 3. 停止条件 ---
+        if "CODE_IS_PERFECT" in critique:
+            break
+
+        message_history.append(HumanMessage(content=f"Critique of the previous code:\n{critique}"))</pre>
+      <p>这段代码精妙地体现了带有"记忆"的反思。<code>message_history</code>被不断追加上下文并传给模型，这使得每一次修改都是在前一次纠错的基础之上的。批评者（Critic）被赋予了"高级软件工程师"的独特人设，打破认知偏差，从全新视角审视代码。</p>
+
+      <h2>决策指南与最佳实践：何时使用，何时避免？</h2>
+      <p><strong>经验法则（Rule of Thumb）：当最终输出的质量、准确性和细节比速度和成本更重要时，使用反思模式</strong>。以下场景是反思模式的绝佳战场：</p>
+      <ol>
+        <li><strong>代码生成与调试：</strong>编写初始代码，运行静态分析或获取批评，然后进行修复，可以生成更健壮的代码。</li>
+        <li><strong>创意写作与内容生成：</strong>博客撰写，第一版永远只是草稿。通过批评其流畅性、语调和清晰度，反复重写直到达到质量标准。</li>
+        <li><strong>复杂问题解决：</strong>如解答逻辑谜题。提出一个步骤，评估它是否引向矛盾，如果需要则回溯。</li>
+        <li><strong>总结与信息综合：</strong>生成初版摘要后，对照原文档的核心论点进行比较，补充遗漏信息。</li>
+        <li><strong>规划和策略：</strong>制定计划后，模拟执行，评估约束，然后再修改计划。</li>
+        <li><strong>对话Agent：</strong>客户支持机器人可以回顾过往对话历史，在给出回复前检查是否存在误解，以维持对话连贯性。</li>
+      </ol>
+
+      <h2>常见陷阱与权衡（Trade-offs）</h2>
+      <ol>
+        <li><strong>延迟激增（Higher Latency）：</strong>迭代过程意味着原本的一次LLM调用现在变成了多次串行调用。在对实时性要求极高的应用中，这种延迟是致命的。</li>
+        <li><strong>成本飙升（Higher Costs）：</strong>每一次完善循环都需要新的LLM调用，这意味着Token消耗成倍增加。</li>
+        <li><strong>记忆密集与上下文溢出：</strong>随着每一次迭代，对话历史都在膨胀（包含了初始输出、庞大的批评列表以及后续的重写版本）。如果你不进行历史记录截断或摘要，你将面临极高的风险耗尽模型的上下文窗口（Context window）。</li>
+        <li><strong>API限流（Throttling）：</strong>密集的高频自我调用极其容易触发模型服务商的API速率限制（Rate limits）。</li>
+      </ol>
+
+      <h2>总结</h2>
+      <p>反思模式（Reflection Pattern）是AI Agent工作流中极其关键的自我纠错机制。它直接解决了一次性生成的固有缺陷，通过建立一个"生成-评估-完善"的反馈回路，让系统在单次执行的范围之外实现了迭代式进化。</p>
+      <p>在底层机制上，不论是Agent自我反思，还是通过更健壮的"生成器-批评者"多角色架构，其本质都是引入一个新的评估视角，打破单一生成的认知盲区。当你将反思模式与记忆、目标监控结合，并将其嵌套在其他的路由和并行模式中时，你就不再只是在调用LLM接口，而是在构建一个真正具备元认知（Meta-cognition）能力、能够随时间推移不断提升自我性能的健壮Agent系统。</p>
+    </article>
+  </div>
+</div>
+
 <div class="footer">
   <p>智能体设计模式 — 第四章：反思（Reflection）</p>
 </div>
@@ -676,7 +839,7 @@ function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

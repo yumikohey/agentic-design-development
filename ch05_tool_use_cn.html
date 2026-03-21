@@ -153,6 +153,19 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 .ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
 .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
 .footer p { font-size: 12px; color: var(--text3); }
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -176,6 +189,7 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
   <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
   <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
   <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
+  <button class="nav-btn" onclick=\"go('media', this)\">媒体资源</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -632,6 +646,143 @@ print(result)</div>
   </ul>
 </div>
 
+<!-- 媒体资源 -->
+<div id="sec-media" class="section">
+  <div class="sec-title">媒体资源</div>
+  <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+  <div class="media-card">
+    <div class="media-badge">🎧 深度音频</div>
+    <h3>第五章：工具使用 · 中文深度讲解</h3>
+    <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+    <audio controls>
+      <source src="./media/ch05_tool_use_audio.mp3" type="audio/mpeg">
+      您的浏览器不支持音频播放。
+    </audio>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">🎬 视频讲解</div>
+    <h3>第五章：工具使用 · 视觉化讲解</h3>
+    <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+    <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+      <a href="https://notebooklm.google.com/notebook/7bc088e4-3cd7-407c-9253-8bdd2a8119c5" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+        在 NotebookLM 中观看视频 →
+      </a>
+    </div>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">📝 深度博客</div>
+    <h3>从第一性原理理解第五章：工具使用</h3>
+    <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+    <hr class="blog-divider">
+    <article class="blog-post">
+      <h2>为大模型装上与世界互动的双手：深入理解"工具使用"设计模式</h2>
+
+      <h3>引言（具体痛点场景）</h3>
+      <p>想象一下，你拥有一个绝顶聪明的朋友，他阅读了人类历史上所有公开的文本，精通量子物理、莎士比亚和高级编程。但是，他被锁在一个完全封闭的密室里，没有网络连接，也没有任何传感器。如果你问他"今天的伦敦天气如何？"或者"帮我把这封邮件发给老板"，他只能无奈地告诉你："根据我被锁进密室前（训练数据截止日期）的知识，伦敦通常多雨，但我无法告诉你现在的确切天气，我也无法连接你的邮箱服务器。"</p>
+      <p>这就是今天大多数基础大语言模型（LLM）面临的真实困境。它们是强大的文本生成引擎，但在默认状态下，它们与外部世界是完全断开的，知识是静态的，且缺乏执行具体动作的能力。为了解决这个痛点，让AI从"会说话的百科全书"真正进化为"能干活的数字员工"，我们需要引入Agent架构中最核心的设计模式：<strong>工具使用（Tool Use）</strong>，或称<strong>函数调用（Function Calling）</strong>。</p>
+
+      <h2>问题陈述</h2>
+      <p>从根本上说，大语言模型的局限性在于其"闭环"特性。它们的输出仅仅基于训练数据中编码的静态权重。这种固有的局限性阻碍了它们完成需要以下条件的应用场景：</p>
+      <ol>
+        <li><strong>实时信息：</strong>获取当下的天气、最新的股票价格或突发新闻。</li>
+        <li><strong>私有/动态数据：</strong>查询企业内部数据库、检查特定用户的订单状态。</li>
+        <li><strong>确定性计算：</strong>进行复杂的数学运算或统计分析（大模型是概率模型，容易在精确计算上产生幻觉）。</li>
+        <li><strong>对世界产生影响：</strong>发送邮件、控制智能家居设备、在云端执行代码。</li>
+      </ol>
+      <p>如果没有一座连接大模型和外部系统的桥梁，LLM解决现实世界复杂问题的实用性将受到极大的限制。</p>
+
+      <h2>第一性原理推导：为什么要"调用工具"？</h2>
+      <p>让我们采用第一性原理来思考这个问题：大模型的最底层机制是什么？是<strong>Next-Token Prediction（下一个词元预测）</strong>。</p>
+      <p>大模型无法"点击"按钮，也无法直接"发送"网络请求，它唯一能做的事情就是生成文本。那么，我们如何用纯粹的文本输出来触发真实的物理或数字动作呢？</p>
+      <p>答案是：<strong>结构化协议（Structured Protocol）</strong>。</p>
+      <p>我们需要一种机制，让大模型的文本输出不再是对用户的直接回答，而是变成给外部系统的<strong>机器可读指令</strong>。我们将外部世界的API、数据库查询和系统命令封装成一个个的"函数"（Functions），并用自然语言向大模型解释这些函数的用途和参数。当大模型通过推理发现自己需要某个信息时，它不会去瞎猜（幻觉），而是预测出一串结构化的文本（通常是JSON格式），这串文本精确地描述了它想调用哪个函数以及传入什么参数。</p>
+      <p>这种机制巧妙地将大模型的<strong>概率性推理能力</strong>与外部系统的<strong>确定性执行能力</strong>解耦并连接了起来。这就是工具使用的本质：<strong>大模型负责"想"，外部工具负责"做"，然后再把"做"的结果返回给大模型继续"想"</strong>。</p>
+
+      <h2>核心概念详解：Tool Use 还是 Function Calling？</h2>
+      <p>在业界，这两个词经常混用，但理解它们的微妙区别有助于建立更深层的直觉：</p>
+      <ul>
+        <li><strong>Function Calling（函数调用）：</strong>这是一个更偏向底层技术的词汇。它描述了具体的技术实现机制——大模型生成一个包含函数名和参数的结构化输出，然后由宿主环境（Agent框架）去执行这个代码函数。</li>
+        <li><strong>Tool Use（工具使用）：</strong>这是一个更宏大的架构视角。虽然底层是通过调用函数实现的，但我们应该把视野打开。一个"工具"不一定只是几行Python代码，它可以是一个复杂的API端点，一个针对私有知识库的数据库检索（RAG），甚至是向另一个专门的子Agent发送的任务指令。这种视角让我们能够构建更复杂的生态系统，其中主Agent扮演交响乐团指挥的角色，调度各种数字化资源和智能实体。</li>
+      </ul>
+
+      <h2>关键机制分析：工具调用的六步生命周期</h2>
+      <p>工具使用模式并非一蹴而就，它包含一个精密的、循环的信息流反馈机制。了解这六个步骤是掌握该模式的核心：</p>
+      <ol>
+        <li><strong>工具定义（Tool Definition）：</strong>为什么需要这一步？因为大模型不具备预知能力。你必须向大模型清晰地描述你提供了哪些"手"。这包括工具的名称、用途说明、所需参数及其数据类型。<strong>这是最关键的一步，工具描述的质量直接决定了模型能否正确决定何时使用它</strong>。</li>
+        <li><strong>大模型决策（LLM Decision）：</strong>当用户提出请求时，大模型会分析请求并查看可用的工具列表。在这里，大模型进行了一次推理：回答这个问题需要外部信息吗？哪个工具能提供这个信息？</li>
+        <li><strong>生成结构化调用（Function Call Generation）：</strong>如果大模型决定使用工具，它会暂停生成面向用户的自然语言回复，转而生成一个JSON对象。这个JSON精准地从用户请求中提取出工具所需的参数（例如：从"伦敦天气如何"中提取出地点="London"）。</li>
+        <li><strong>工具执行（Tool Execution）：</strong><strong>注意，大模型本身不执行代码！</strong>拦截这个JSON对象并真正去执行API请求的是Agentic框架（如LangChain或Google ADK）的编排层。</li>
+        <li><strong>观察/结果返回（Observation/Result）：</strong>API调用或代码执行的结果（可能是成功的数据，也可能是错误报错）会被捕获，并作为"观察结果"反馈给大模型。</li>
+        <li><strong>大模型处理（LLM Processing）：</strong>大模型接收到工具的输出结果，将其纳入上下文，然后进行第二次推理：这个结果足够回答用户的问题吗？如果足够，就将其转化为人类友好的自然语言回复给用户；如果不够，它可能会决定调用另一个工具（多步调用）。</li>
+      </ol>
+
+      <h2>框架实战代码示例：LangChain基础的工具绑定</h2>
+      <p>在LangChain中，工具调用是一个两阶段的过程：先定义工具，然后将工具绑定到具备工具调用能力的大模型上。</p>
+      <pre>from langchain_core.tools import tool as langchain_tool
+from langchain.agents import create_tool_calling_agent, AgentExecutor
+from langchain_core.prompts import ChatPromptTemplate
+
+# 1. 为什么用装饰器？方便将现有的Python逻辑直接转化为大模型可理解的工具
+@langchain_tool
+def search_information(query: str) -> str:
+    """Provides factual information on a given topic."""
+    # 这里的Docstring会被抽取为工具描述发送给LLM！
+    # ... 模拟搜索逻辑 ...
+    simulated_results = {
+        "weather in london": "It's currently 15°C and cloudy in London.",
+        "capital of france": "The capital of France is Paris.",
+    }
+    return simulated_results.get(query.lower(), f"No specific information found for '{query}'.")
+
+tools = [search_information]
+
+# 2. 为什么需要AgentExecutor？
+# 大模型只输出意图(JSON)，AgentExecutor充当了步骤4和5：真正运行函数并将结果返回给LLM
+agent_prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful assistant."),
+    ("human", "{input}"),
+    ("placeholder", "{agent_scratchpad}"),
+])
+
+agent = create_tool_calling_agent(llm, tools, agent_prompt)
+agent_executor = AgentExecutor(agent=agent, verbose=True, tools=tools)</pre>
+      <p>这段代码的核心在于解释了职责的划分：大模型（<code>llm</code>）只负责生成调用请求，而<code>AgentExecutor</code>才是管理执行环境和循环调用的运行时引擎。</p>
+
+      <h2>决策指南与最佳实践：何时以及如何使用？</h2>
+      <p><strong>黄金法则（Rule of Thumb）</strong>：只要Agent需要突破LLM内部静态知识的壁垒，去与外部世界进行任何形式的互动（获取实时数据、操作私有数据、执行动作、进行精确计算），就必须采用工具使用模式。</p>
+      <p><strong>构建工具模式的最佳实践：</strong></p>
+      <ol>
+        <li><strong>把 Docstring 写成 Prompt：</strong>工具的描述、参数名称和类型提示不仅仅是为了代码自文档化，它们最终会变成大模型的System Prompt的一部分。描述越精确（说明工具能做什么、不能做什么、参数格式的具体要求），大模型调用得越准。</li>
+        <li><strong>工具应该职责单一：</strong>不要写一个"处理一切"的超级函数。应该像微服务设计一样，提供职责单一、粒度清晰的工具集（例如：<code>get_weather</code> 和 <code>get_stock</code> 应该是两个工具，而不是一个 <code>get_info</code> 工具）。</li>
+        <li><strong>返回原始数据结构：</strong>工具的返回值应尽量是纯净的 JSON 或基础数据类型，把"解读和美化数据"的工作交给 LLM 去完成。</li>
+      </ol>
+      <p><strong>6个黄金应用场景：</strong></p>
+      <ul>
+        <li><strong>信息检索：</strong>访问实时数据或LLM训练数据中不存在的信息，例如天气Agent使用天气API。</li>
+        <li><strong>数据库与API交互：</strong>对结构化数据执行查询、更新或其他操作，例如电商Agent检查产品库存。</li>
+        <li><strong>计算与数据分析：</strong>使用外部计算器、数据分析库或统计工具，确保计算精确性。</li>
+        <li><strong>发送通信：</strong>发送电子邮件、消息或调用外部通信服务。</li>
+        <li><strong>执行代码：</strong>在安全沙箱环境中运行代码片段，执行特定任务。</li>
+        <li><strong>控制其他系统或设备：</strong>与智能家居设备、IoT平台或其他连接系统交互。</li>
+      </ul>
+
+      <h2>常见陷阱</h2>
+      <ol>
+        <li><strong>客户端执行与自动扩展的区别：</strong>标准的函数调用（Function Calling）需要你在客户端手动编写框架代码去截获JSON并执行函数。Google Cloud 的 Vertex Extensions 提供了一种更高级的机制：扩展程序会自动、安全地在云端代为执行 API 调用，而无需客户端干预。搞混这两种执行模式会导致架构设计上的误判。</li>
+        <li><strong>死循环与幻觉调用：</strong>如果工具的报错信息不清晰，大模型可能会陷入"尝试调用工具 -&gt; 失败 -&gt; 用相同的错误参数再次调用"的死循环。必须在 AgentExecutor 中设置最大重试次数，并在工具层面返回具有指导意义的错误信息。推荐抛出标准Python异常，而不是返回格式化的错误字符串，这样Agent能够利用自身的推理能力去决定下一步动作。</li>
+      </ol>
+
+      <h2>总结</h2>
+      <p>工具使用（Tool Use / Function Calling）模式代表了大型语言模型发展史上的一个重要分水岭：它标志着AI从单纯的"思考者"转变为能够切实改造世界的"行动者"。</p>
+      <p>通过建立一种大模型能够理解的结构化交互协议，并结合强大的编排框架（如 LangChain、CrewAI、Google ADK），我们将 LLM 无与伦比的自然语言推理能力与传统软件系统精确、实时的执行能力完美融合在一起。理解并精通这种模式，是我们在今天设计下一代真正具备解决复杂现实问题能力的 Agent 系统的基石。</p>
+    </article>
+  </div>
+</div>
+
 <div class="footer"><p>智能体设计模式 — 第五章：工具使用（函数调用）</p></div>
 </div>
 
@@ -640,7 +791,7 @@ function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

@@ -536,6 +536,19 @@ h1 {
 .ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
 .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
 .footer p { font-size: 12px; color: var(--text3); }
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -559,6 +572,7 @@ h1 {
   <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
   <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
   <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
+  <button class="nav-btn" onclick=\"go('media', this)\">媒体资源</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -983,6 +997,188 @@ EVAL_RUBRIC = <span class="code-string">"""你是专业的质量评估员。
   </ul>
 </div>
 
+
+  <!-- 媒体资源 -->
+  <section id="sec-media" class="section">
+    <h2 class="sec-title">媒体资源</h2>
+    <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+    <div class="media-card">
+      <div class="media-badge">🎧 深度音频</div>
+      <h3>第十九章：评估与监控 · 中文深度讲解</h3>
+      <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+      <audio controls>
+        <source src="./media/ch19_evaluation_audio.mp3" type="audio/mpeg">
+        您的浏览器不支持音频播放。
+      </audio>
+    </div>
+
+    <div class="media-card">
+      <div class="media-badge">🎬 视频讲解</div>
+      <h3>第十九章：评估与监控 · 视觉化讲解</h3>
+      <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+        <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+        <a href="https://notebooklm.google.com/notebook/a086dab8-d359-45e4-a786-70ba0b38810b" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+          在 NotebookLM 中观看视频 →
+        </a>
+      </div>
+    </div>
+
+    <div class="media-card">
+      <div class="media-badge">📝 深度博客</div>
+      <h3>从第一性原理理解第十九章：评估与监控</h3>
+      <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+      <hr class="blog-divider">
+      <article class="blog-post">
+        <h2>1. 引言（具体痛点场景）</h2>
+        <p>想象一下这个场景：你刚刚在Jupyter Notebook里完成了一个惊艳的"客户服务AI智能体"。当你问它"如何退货"时，它完美地调用了数据库检索工具，提取了政策，并用非常得体的语气给出了答案。你非常激动，立刻将其部署到生产环境中。</p>
+        <p>然而，第一周的现实给了你当头一棒：有时它会耗费长达30秒才回复用户；有时它会在后台陷入死循环，疯狂调用搜索工具导致你的大模型API账单直接爆表；更可怕的是，当用户的提问方式稍微发生变化时，它开始"一本正经地胡说八道"（幻觉）。</p>
+        <p><strong>为什么在实验室里表现完美的智能体，到了真实世界却如此脆弱？</strong></p>
+        <p>因为智能体（Agents）和大型语言模型（LLMs）运行在一个极其复杂、动态的环境中，它们的性能会随着时间推移而退化。这就是我们今天要探讨的核心话题：<strong>评估与监控（Evaluation and Monitoring）设计模式</strong>。这不仅是工程上的补丁，而是使得AI系统能够真正在高风险、真实环境中存活的生死线。</p>
+
+        <h2>2. 问题陈述</h2>
+        <p>在传统软件工程中，我们写单元测试是非常直接的：<code>assert function(x) == expected_y</code>。传统软件的代码执行会产生可预测的、非黑即白的"通过/失败"结果。</p>
+        <p>但AI智能体是<strong>概率性</strong>的系统。它们没有固定的执行路径。面对相同的输入，智能体今天和明天的回答可能在字面上完全不同，但语义上却都是正确的。此外，智能体还会与外部世界交互（调用API、读写文件），外部环境的变化（即数据漂移或概念漂移）会导致模型原本的假设失效。</p>
+        <p>因此，我们面临的问题是：<strong>当系统的输出不再是确定性的，当通向目标的路径有无数条时，我们该如何系统性地衡量一个智能体的有效性、效率和安全性？</strong></p>
+
+        <h2>3. 第一性原理推导：为什么要评估与监控？</h2>
+        <p>让我们回到第一性原理。什么是AI智能体？本质上，智能体是一个接收外界输入、在内部进行推理（Reasoning）、规划轨迹（Trajectory）、执行工具调用，最终输出结果的黑盒系统。</p>
+        <p>如果我们要验证这个黑盒是否在"好好工作"，我们不能只看最后那一句输出。我们需要将评估拆解为三个物理量：</p>
+        <ol>
+          <li><strong>结果的准确性（Accuracy &amp; Quality）</strong>：它输出的内容是对的吗？是用户想要的吗？</li>
+          <li><strong>过程的合理性（Trajectory &amp; Logic）</strong>：它是怎么得出这个结论的？它是凭空猜的，还是真正去查阅了资料？</li>
+          <li><strong>物理资源的消耗（Cost &amp; Latency）</strong>：为了得出这个结论，它花了多少时间和多少Token（钱）？</li>
+        </ol>
+        <p>传统的监控系统只看CPU占用率或内存，但在Agent时代，我们的"CPU周期"变成了"Token消耗"，我们的"函数调用栈"变成了"智能体轨迹（Agent Trajectories）"。这就要求我们必须建立一套全新的评估基础设施。</p>
+
+        <h2>4. 核心概念详解：拆解评估的维度</h2>
+        <p>为了建立直觉，让我们先看一个最简单的评估代码：</p>
+        <pre>def evaluate_response_accuracy(agent_output: str, expected_output: str) -> float:
+    """计算智能体回复的简单准确率得分。"""
+    if agent_output.strip().lower() == expected_output.strip().lower():
+        return 1.0
+    else:
+        return 0.0</pre>
+        <p><strong>为什么这个看似合理的函数在Agent世界里是彻底失败的？</strong></p>
+        <p>假设标准答案是："Paris is the capital of France."，而你的智能体回答："The capital of France is Paris."。即便去除了空格并转换为小写，这两个字符串依然不完全相同，函数会无情地返回 <code>0.0</code> 分，尽管两句话表达的语义完全一致！</p>
+        <p>这就是为什么我们需要更高级的指标：</p>
+        <ul>
+          <li><strong>语义相似度评估</strong>：简单的字符串比较只能评估"字面相等"，而不能评估"语义相似"。在真实世界中需要余弦相似度、RAG特定指标如忠实度（Faithfulness）和相关性（Relevance）等。</li>
+          <li><strong>延迟监控（Latency Monitoring）</strong>：衡量智能体处理请求所需的时间。高延迟会毁掉用户体验，必须将其记录到持久化存储（如Prometheus或Datadog）中。</li>
+          <li><strong>Token使用追踪</strong>：监控Token不仅是为了控制成本，还能帮你发现Prompt工程中可以优化的地方。</li>
+        </ul>
+
+        <h2>5. 关键机制分析</h2>
+        <h3>5.1 智能体轨迹（Agent Trajectories）评估</h3>
+        <p>这是Agent监控中最具革命性的概念。传统测试只看结果，但评估智能体必须看它的<strong>轨迹（Trajectory）</strong>——即智能体为达成解决方案所采取的步骤序列。</p>
+        <p><strong>为什么看结果还不够？</strong>假设用户问："北京现在下雨吗？"智能体回答："没有下雨。"这个答案可能是对的，但如果智能体的轨迹显示它<em>根本没有调用天气API</em>，而是用过时的训练数据蒙对的，那么这就是一个极其危险的系统！</p>
+        <p>比对机制有多种：精确匹配（Exact match）、顺序匹配（In-order match）、无序匹配（Any-order match）。高风险场景可能要求精确匹配，而更灵活的情况可以使用顺序或无序匹配。</p>
+
+        <h3>5.2 多智能体（Multi-agents）系统的动态评估</h3>
+        <p>评估多智能体系统就像评估一个"人类项目团队"。我们不仅要看个人的能力，更要看团队的协作效率。关键问题包括：它们合作是否有效？它们是否遵循了计划？是否选对了"人"？添加更多智能体是否真的提升了性能？</p>
+
+        <h3>5.3 进阶范式：从概率智能体到"契约型承包商"</h3>
+        <p>最新的行业演进是向<strong>"高级承包商（Advanced Contractors）"</strong>模型转变，包含四大支柱：</p>
+        <ol>
+          <li><strong>形式化契约（Formalized Contract）</strong>：不再是简单的提示词，而是一份包含交付物规格、可接受数据源和容错率的严格说明。</li>
+          <li><strong>动态协商生命周期（Dynamic Lifecycle of Negotiation）</strong>：如果Agent发现指定的数据库无法访问，它会"驳回"请求，要求用户提供新凭证，而不是盲目瞎编。</li>
+          <li><strong>注重质量的迭代执行（Quality-Focused Iterative Execution）</strong>：Agent在提交结果前会在内部进行自我验证，只有通过验证的结果才输出。</li>
+          <li><strong>通过子合同进行层次分解（Hierarchical Decomposition）</strong>：主Agent可以将大任务拆解为小"子合同"，分发给专门的子Agent执行。</li>
+        </ol>
+
+        <h2>6. 框架实战代码示例</h2>
+        <h3>示例一：物理资源监控（Token追踪）</h3>
+        <pre>class LLMInteractionMonitor:
+    def __init__(self):
+        self.total_input_tokens = 0
+        self.total_output_tokens = 0
+
+    def record_interaction(self, prompt: str, response: str):
+        # 实际生产环境中应使用特定LLM的API tokenizer
+        input_tokens = len(prompt.split())  # 概念演示占位符
+        output_tokens = len(response.split())  # 占位符
+        self.total_input_tokens += input_tokens
+        self.total_output_tokens += output_tokens
+        print(f"Recorded: Input={input_tokens}, Output={output_tokens}")
+
+    def get_total_tokens(self):
+        return self.total_input_tokens, self.total_output_tokens
+
+monitor = LLMInteractionMonitor()
+monitor.record_interaction("What is the capital of France?", "The capital of France is Paris.")
+input_t, output_t = monitor.get_total_tokens()
+print(f"Total input tokens: {input_t}, Total output tokens: {output_t}")</pre>
+
+        <h3>示例二：LLM-as-a-Judge（用大模型当裁判）</h3>
+        <p>既然正则匹配和字符串比较无法评估语义，我们如何评估那些高度主观的特质？答案是：<strong>用LLM来评估LLM（LLM-as-a-Judge）</strong>。</p>
+        <pre>import google.generativeai as genai
+import json
+
+LEGAL_SURVEY_RUBRIC = """
+你是一个专家级法律调查方法论学者。评估给定法律调查问卷的质量。
+关注5个维度（各1-5分）：
+1. 清晰度与精确度
+2. 中立性与偏见
+3. 相关性与焦点
+4. 完整性
+5. 适用受众群体
+
+输出必须是JSON对象，包含：
+- overall_score (1-5整数)
+- rationale (分数理由)
+- detailed_feedback (各维度具体反馈)
+- concerns (潜在方法论担忧)
+- recommended_action (下一步建议)
+"""
+
+class LLMJudgeForLegalSurvey:
+    def __init__(self, model_name='gemini-1.5-flash-latest', temperature=0.2):
+        self.model = genai.GenerativeModel(model_name)
+        self.temperature = temperature
+
+    def judge_survey_question(self, survey_question: str):
+        full_prompt = f"{LEGAL_SURVEY_RUBRIC}\n\n---\n**需评估的问卷题目:**\n{survey_question}\n---"
+        response = self.model.generate_content(
+            full_prompt,
+            generation_config=genai.types.GenerationConfig(
+                temperature=self.temperature,
+                response_mime_type="application/json"
+            )
+        )
+        return json.loads(response.text)
+
+judge = LLMJudgeForLegalSurvey()
+biased_question = "难道您不认为像FADP这样过度限制的数据隐私法，正在严重阻碍瑞士的技术创新吗？"
+result = judge.judge_survey_question(biased_question)
+print(json.dumps(result, indent=2))</pre>
+
+        <h2>7. 决策指南与最佳实践</h2>
+        <p><strong>何时使用评估与监控模式？</strong>经验法则：当你的智能体准备部署到实时、生产环境中，且可靠性和性能至关重要时，必须使用此模式。</p>
+        <p>其他经典使用场景：</p>
+        <ul>
+          <li><strong>A/B 测试</strong>：系统性并行比较不同Agent版本，识别最优方法。</li>
+          <li><strong>漂移检测（Drift Detection）</strong>：监控底层数据分布或外部环境改变导致的Agent性能下降。</li>
+          <li><strong>合规与安全审计</strong>：生成自动化审计报告，确保Agent行为未逾越道德和安全边界。</li>
+          <li><strong>持续学习评估</strong>：跟踪具备学习能力的Agent在不同任务中的技能提升曲线。</li>
+        </ul>
+        <p>在工具选型上，<strong>Google ADK</strong>提供完整评估支持：Web UI交互式评估、pytest CI/CD集成、以及CLI自动化构建验证流程。评估文件分为Test files（单元测试）和Evalset files（集成测试）两种粒度。</p>
+
+        <h2>8. 常见陷阱</h2>
+        <ul>
+          <li><strong>只依赖人类评估（Human Evaluation）</strong>：虽然能捕捉微妙的行为，但极其昂贵、耗时且无法规模化。</li>
+          <li><strong>把延迟指标打印在控制台就算了</strong>：性能数据必须使用结构化日志或监控平台（如Grafana Cloud, Datadog等）持久存储，控制台日志毫无意义。</li>
+          <li><strong>忽视中间步骤的自动化指标</strong>：自动化指标虽然客观且可扩展，但如果设计不好，往往会遗漏对中间推理步骤（Trajectories）的捕获，导致"只看结果不管过程"的危险盲区。</li>
+        </ul>
+
+        <h2>9. 总结</h2>
+        <p>在传统的软件工程中，系统是确定的，我们写断言；在Agentic AI的世界中，系统是概率性的，我们需要持续的评估与监控。</p>
+        <p>这远不止是简单的正确率检查，而是包含了延迟监控、Token追踪、语义相似度计算，以及最核心的——<strong>对智能体决策轨迹的动态审核</strong>。更进一步，为了让AI系统能够承担真正关键的任务，我们正在见证智能体从"被提示（Prompt-driven）"的不可靠助手，向受制于"形式化契约（Formal Agreements）"、能够自我验证和协商的"高级承包商（Advanced Contractors）"进化。</p>
+        <p>构建优秀的智能体，仅仅是将大模型拼接起来的开始；只有建立起强大的评估与监控体系，你的AI智能体才能从实验室里的脆弱玩具，蜕变为真实世界中可靠、可追责的智能系统。</p>
+      </article>
+    </div>
+  </section>
+
 <div class="footer"><p>第十九章：评估与监控 · Agentic AI 交互式学习模块</p></div>
 </div>
 
@@ -991,7 +1187,7 @@ function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

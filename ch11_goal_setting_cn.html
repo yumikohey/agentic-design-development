@@ -193,6 +193,19 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
 .ref-num { font-weight: 500; color: var(--text3); margin-right: 8px; }
 .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
 .footer p { font-size: 12px; color: var(--text3); }
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -216,6 +229,7 @@ h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; color: var(
   <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
   <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
   <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
+  <button class="nav-btn" onclick=\"go('media', this)\">媒体资源</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -658,6 +672,184 @@ llm = ChatOpenAI(
   </ul>
 </div>
 
+<!-- 媒体资源 -->
+<div id="sec-media" class="section">
+  <div class="sec-title">媒体资源</div>
+  <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+  <div class="media-card">
+    <div class="media-badge">🎧 深度音频</div>
+    <h3>第十一章：目标设定与监控 · 中文深度讲解</h3>
+    <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+    <audio controls>
+      <source src="./media/ch11_goal_setting_audio.mp3" type="audio/mpeg">
+      您的浏览器不支持音频播放。
+    </audio>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">🎬 视频讲解</div>
+    <h3>第十一章：目标设定与监控 · 视觉化讲解</h3>
+    <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+    <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+      <a href="https://notebooklm.google.com/notebook/afe4a3dd-004e-4a7a-92cb-a775babb6e49" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+        在 NotebookLM 中观看视频 →
+      </a>
+    </div>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">📝 深度博客</div>
+    <h3>从第一性原理理解第十一章：目标设定与监控</h3>
+    <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+    <hr class="blog-divider">
+    <article class="blog-post">
+      <h2>构建自主AI的心智：深入解析"目标设定与监控"设计模式</h2>
+
+      <p>在当前的大语言模型（LLM）开发浪潮中，我们已经非常擅长构建能够回答问题、总结文本或调用简单工具的AI应用。然而，当我们试图将这些系统部署到真实世界的复杂业务中时，往往会撞到一面无形的墙：AI在执行多步骤的长线任务时极易迷失方向。</p>
+
+      <p>为了让AI代理真正变得高效且具有目的性，它们需要的不仅仅是处理信息或使用工具的能力；它们需要明确的方向感，以及一种能够知道自己是否真正成功的方法。这就引出了今天我们要深入剖析的核心架构——<strong>目标设定与监控（Goal Setting and Monitoring）设计模式</strong>。</p>
+
+      <hr class="blog-divider">
+
+      <h2>一、问题陈述：为什么我们需要目标？</h2>
+
+      <p>让我们退一步思考，目前大多数简单的LLM应用本质上是"响应式"（Reactive）的。用户输入一个Prompt，系统输出一个结果，然后交互就结束了。</p>
+
+      <p>然而，对于真正的AI代理（AI Agents）而言，如果不为它们设定明确的客观方向，它们就无法在简单的反应性任务之外采取具有目的性的行动。没有定义好的目标，它们就无法独立应对复杂的多步问题，也无法编排复杂的工作流。更致命的是，如果没有目标，系统中就不存在任何内在机制来让它们判断其行为是否正在导向一个成功的结果。</p>
+
+      <p>这就好比你构建了一个拥有极强马达（LLM推理能力）的汽车，但却没有为其配备方向盘和GPS导航系统。这极大地限制了代理的自主性，使它们无法在动态、复杂的现实世界场景中真正发挥效用。</p>
+
+      <h2>二、第一性原理推导：从"计划旅行"到AI智能</h2>
+
+      <p>要直观地理解如何解决这个问题，我们可以回想一下人类是如何解决长线问题的。想想你平时是如何计划一次旅行的。你绝对不可能闭上眼睛，然后瞬间就自发地出现在目的地。人类的解决思路是极其结构化的：</p>
+      <ol>
+        <li><strong>定义目标状态（Goal State）</strong>：你决定你想要去哪里。</li>
+        <li><strong>评估初始状态（Initial State）</strong>：你弄清楚你现在从哪里出发。</li>
+        <li><strong>计算约束与可用资源</strong>：考虑可用的选项（如交通工具、路线、预算）。</li>
+        <li><strong>映射执行步骤（Planning）</strong>：规划出一系列按顺序执行的步骤。</li>
+      </ol>
+
+      <p>这种需要考虑依赖关系和约束条件的、一步一步的过程，从根本上讲就是我们在代理系统中所说的"规划"（Planning）。在AI代理的语境下，规划通常意味着代理接收一个高层次的目标，并自主（或半自主）地生成一系列中间步骤或子目标。一个优秀的规划能力使代理能够解决那些并非单步查询就能完成的复杂问题。</p>
+
+      <h2>三、核心概念详解：构建反馈回路</h2>
+
+      <p>"目标设定与监控"模式提供了一个标准化的解决方案，通过将"使命感"和"自我评估"机制直接嵌入到代理系统中。这个模式包含两大核心支柱：</p>
+
+      <h3>1. 目标设定（Goal Setting）</h3>
+      <p>目标设定涉及到为代理显式地定义清晰的、可衡量的预期成就。为什么目标必须是"可衡量的"？因为在机器学习的视角下，目标就是我们在推理阶段的"损失函数"（Loss Function）。目标为代理明确定义了什么是"正确"的状态。</p>
+      <p>为了确保目标有效，我们强烈建议遵循<strong>SMART目标框架</strong>：即目标应当是具体的（Specific）、可衡量的（Measurable）、可实现的（Achievable）、相关的（Relevant）和有时间限制的（Time-bound）。</p>
+
+      <h3>2. 监控与评估（Monitoring）</h3>
+      <p>设定了目标之后，并发建立的必须是一个持续的监控机制。监控机制追踪代理朝向目标的进度，并比对环境状态与预期目标的差距。</p>
+      <p>为什么需要监控？因为监控创造了一个至关重要的<strong>反馈循环（Feedback Loop）</strong>。现实环境充满了不确定性（API可能报错，环境参数可能改变），这种反馈循环使得代理能够评估自身表现，并在偏离成功路径时及时纠正路线并调整计划。</p>
+
+      <h2>四、框架实战代码示例：让AI程序员学会"自我审查"</h2>
+
+      <p>为了最直观地展示"目标设定与监控"模式的工作原理，我们将剖析一个基于LangChain和OpenAI API的Python代码示例。</p>
+
+      <h3>步骤1：定义目标与生成初稿</h3>
+      <pre>def generate_prompt(
+    use_case: str, goals: list[str], previous_code: str = "", feedback: str = ""
+) -> str:
+    print("📝 Constructing prompt for code generation...")
+    base_prompt = f"""
+You are an AI coding agent. Your job is to write Python code based on the following use case:
+Use Case: {use_case}
+Your goals are: {chr(10).join(f"- {g.strip()}" for g in goals)}
+"""
+    if previous_code:
+        base_prompt += f"\nPreviously generated code:\n{previous_code}"
+    if feedback:
+        base_prompt += f"\nFeedback on previous version:\n{feedback}\n"
+    base_prompt += "\nPlease return only the revised Python code..."
+    return base_prompt</pre>
+
+      <h3>步骤2：执行自我监控与批判</h3>
+      <pre>def get_code_feedback(code: str, goals: list[str]) -> str:
+    print("🔍 Evaluating code against the goals...")
+    feedback_prompt = f"""
+You are a Python code reviewer. A code snippet is shown below. Based on the following goals:
+{chr(10).join(f"- {g.strip()}" for g in goals)}
+Please critique this code and identify if the goals are met...
+Code: {code}
+"""
+    return llm.invoke(feedback_prompt)
+
+def goals_met(feedback_text: str, goals: list[str]) -> bool:
+    review_prompt = f"""
+You are an AI reviewer. Here are the goals: {chr(10).join(f"- {g.strip()}" for g in goals)}
+Here is the feedback on the code: \"\"\"{feedback_text}\"\"\"
+Based on the feedback above, have the goals been met?
+Respond with only one word: True or False.
+"""
+    response = llm.invoke(review_prompt).content.strip().lower()
+    return response == "true"</pre>
+
+      <h3>步骤3：主控循环机制</h3>
+      <pre>def run_code_agent(use_case: str, goals_input: str, max_iterations: int = 5) -> str:
+    goals = [g.strip() for g in goals_input.split(",")]
+    previous_code = ""
+    feedback = ""
+
+    for i in range(max_iterations):
+        prompt = generate_prompt(use_case, goals, previous_code, feedback)
+        code_response = llm.invoke(prompt)
+        code = clean_code_block(code_response.content.strip())
+
+        feedback = get_code_feedback(code, goals)
+        feedback_text = feedback.content.strip()
+
+        if goals_met(feedback_text, goals):
+            print("✅ LLM confirms goals are met. Stopping iteration.")
+            break
+
+        print("🛠 Goals not fully met. Preparing for next iteration...")
+        previous_code = code
+
+    final_code = add_comment_header(code, use_case)
+    return save_code_to_file(final_code, use_case)</pre>
+
+      <h2>五、决策指南与最佳实践</h2>
+
+      <p><strong>经验法则</strong>：当一个AI代理被要求必须自主执行多步骤任务、需要动态适应不断变化的环境条件，并且要在没有持续人工干预的情况下可靠地达成某个具体的高层次目标时，请务必使用这个模式。</p>
+
+      <p><strong>实际应用场景</strong>：</p>
+      <ul>
+        <li><strong>自动化客户支持</strong>：客服代理的目标是"解决客户的账单查询"，监控对话走向、检查数据库状态并使用修改账单的工具。</li>
+        <li><strong>自动化交易机器人</strong>：目标是"在保持风险承受能力的前提下最大化投资组合收益"，持续监控市场数据和风险指标。</li>
+        <li><strong>自动驾驶与机器人</strong>：首要目标是"安全地将乘客从A点运送到B点"，不断监控周遭环境和自身状态。</li>
+        <li><strong>个性化学习系统</strong>：目标是"提升学生对代数知识的理解程度"，监控学生表现并实时调整教学材料。</li>
+        <li><strong>内容审核平台</strong>：目标是"识别并清除平台上的有害内容"，监控新内容并追踪误报率和漏报率。</li>
+      </ul>
+
+      <h2>六、常见陷阱与注意事项</h2>
+
+      <h3>1. AI的自评盲区与幻觉风险</h3>
+      <p>大语言模型并不会仅仅通过魔法就能奇迹般地生成毫无瑕疵的代码；最终，你仍然需要亲自运行并测试它们生成的代码。更严重的是，模型可能根本没有真正理解目标的内在含义，从而在自我评估时错误地判定自己已经成功。尤其是当同一个LLM同时肩负着"编写代码"和"评判其自身质量"这两项任务时，它往往很难察觉到自己正在朝着错误的方向越走越远。</p>
+
+      <h3>2. 无限循环危机</h3>
+      <p>在简单的代码示例中，这种基础水平的"监控"机制实际上创造了一个系统可能会陷入永远无限循环下去的巨大风险。必须设置<code>max_iterations</code>等硬性界限。</p>
+
+      <h3>3. 解决方案：引入多智能体系统</h3>
+      <p>为了构建更具鲁棒性的系统，需要通过给一组不同的AI代理团队分配特定的角色，来将生成与评估这两个过程分离开来：</p>
+      <ul>
+        <li><strong>同行程序员（The Peer Programmer）</strong>：主要负责编写和构思代码。</li>
+        <li><strong>代码审查员（The Code Reviewer）</strong>：专门负责捕获错误并提出改进建议。</li>
+        <li><strong>测试编写员（The Test Writer）</strong>：负责创建详尽的单元测试。</li>
+        <li><strong>文档编制员（The Documenter）</strong>：生成清晰简明的文档说明。</li>
+      </ul>
+
+      <h2>七、总结</h2>
+
+      <p>"目标设定与监控"模式不仅是一个工程技巧，更是一次架构层面上的认知升级。这一至关重要的范式揭示了该概念是如何将AI代理从那些仅仅只会做出反应的系统，彻底转变为主动进取、由目标驱动的实体的。</p>
+
+      <p>正如我们在各领域的实际应用以及结合了代理指令与状态管理的编程示例中所看到的那样，这些原则指导着代理去实现既定目标，支撑着各种场景下可靠的自主操作。最终，让AI代理具备自主构建目标体系并对这些目标进行监督管理的能力，是我们向着构建真正具备高度智能和问责能力的AI系统所迈出的根本且不可或缺的一步。</p>
+    </article>
+  </div>
+</div>
+
 <div class="footer"><p>第十一章 · 目标设定与监控 · 智能代理开发交互式学习</p></div>
 </div>
 
@@ -666,7 +858,7 @@ function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 function toggleChain(el) { el.classList.toggle('open'); }

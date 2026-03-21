@@ -573,6 +573,19 @@ h1 {
 /* Footer */
 .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border2); text-align: center; }
 .footer p { font-size: 12px; color: var(--text3); }
+.media-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+.media-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+.media-card .media-desc { font-size: 13px; color: var(--text3); margin-bottom: 1rem; line-height: 1.7; }
+.media-card audio { width: 100%; margin-top: 0.5rem; border-radius: var(--radius-sm); }
+.blog-post h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; line-height: 1.4; }
+.blog-post h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.5rem; }
+.blog-post p { font-size: 14px; color: var(--text2); line-height: 1.9; margin-bottom: 1rem; }
+.blog-post ul, .blog-post ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-post li { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 4px; }
+.blog-post pre { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; color: var(--text); margin: 12px 0 1rem; border: 0.5px solid var(--border); }
+.blog-post code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+.blog-divider { border: none; border-top: 0.5px solid var(--border2); margin: 2rem 0; }
+.media-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); background: var(--purple-l); padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -596,6 +609,7 @@ h1 {
   <button class="nav-btn" onclick=\"go('quiz', this)\">知识测验</button>
   <button class="nav-btn" onclick=\"go('takeaways', this)\">核心要点</button>
   <button class="nav-btn" onclick=\"go('refs', this)\">参考资料</button>
+  <button class="nav-btn" onclick=\"go('media', this)\">媒体资源</button>
 </nav>
 
 <!-- 1. 概览 -->
@@ -1068,6 +1082,166 @@ result = full_chain.invoke({<span class="code-string">"text_input"</span>: input
   </ul>
 </div>
 
+<!-- 媒体资源 -->
+<div id="sec-media" class="section">
+  <div class="sec-title">媒体资源</div>
+  <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+  <div class="media-card">
+    <div class="media-badge">🎧 深度音频</div>
+    <h3>第一章：提示链 · 中文深度讲解</h3>
+    <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+    <audio controls>
+      <source src="./media/ch01_prompt_chaining_audio.mp3" type="audio/mpeg">
+      您的浏览器不支持音频播放。
+    </audio>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">🎬 视频讲解</div>
+    <h3>第一章：提示链 · 视觉化讲解</h3>
+    <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+    <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+      <a href="https://notebooklm.google.com/notebook/04c4bca5-d262-475a-b8f6-def6d785b56f" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+        在 NotebookLM 中观看视频 →
+      </a>
+    </div>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">📝 深度博客</div>
+    <h3>从第一性原理理解第一章：提示链</h3>
+    <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+    <hr class="blog-divider">
+    <article class="blog-post">
+      <h2>深入剖析大模型开发范式：提示链（Prompt Chaining）设计模式的第一性原理</h2>
+
+      <h3>引言：当我们向AI提出过分的要求</h3>
+      <p>想象这样一个具体痛点场景：你正在构建一个自动化的市场分析AI助手。为了图省事，你把所有需求塞进了一个极其庞大的提示词（Prompt）中："请阅读这份长达50页的市场研究报告，总结其核心发现，提取所有带有具体数据支撑的发展趋势，最后根据这些趋势给营销团队草拟一封专业的行动倡议邮件。"</p>
+      <p>结果呢？大语言模型（LLM）可能给你返回了一份极好的摘要，但完全忘记了提取具体的数据点；又或者，它写了一封邮件，但邮件里的数据是它凭空捏造（幻觉）出来的。</p>
+      <p>为什么会这样？<strong>因为在处理多方面、多维度的复杂任务时，使用单一的、复杂的提示词是非常低效的</strong>。这就好比要求一个人类实习生在没有草稿纸、没有分步指导的情况下，在一秒钟内同时完成阅读、分析、数据清洗和公文写作。这不仅违背了人类解决复杂问题的方式，也同样超出了当前LLM的"认知负荷"。这就是我们今天要深入探讨的核心设计模式——<strong>提示链（Prompt Chaining，有时也被称为Pipeline模式）</strong>所要解决的根本问题。</p>
+
+      <h2>问题陈述：单一提示词的"认知坍塌"</h2>
+      <p>在深入讲解提示链之前，我们必须先从第一性原理出发，剖析为什么单一提示词（Monolithic Prompt）会失效。当我们将所有约束条件和指令堆砌在一个提示词中时，模型会不可避免地陷入挣扎，这通常会导致以下几种致命的失败模式：</p>
+      <ol>
+        <li><strong>指令忽略（Instruction Neglect）：</strong>模型会像人一样"顾此失彼"，遗漏掉提示词中的某些部分。</li>
+        <li><strong>上下文漂移（Contextual Drift）：</strong>在生成长文本的过程中，模型失去了对初始上下文的追踪。</li>
+        <li><strong>错误传播（Error Propagation）：</strong>早期生成步骤中的微小错误，会在后续生成中被不断放大。</li>
+        <li><strong>上下文窗口溢出：</strong>复杂的提示词往往需要极长的上下文窗口，导致模型无法获取足够的信息来做出准确响应。</li>
+        <li><strong>幻觉加剧（Hallucination）：</strong>极高的认知负荷直接增加了模型生成错误信息的概率。</li>
+      </ol>
+      <p><strong>为什么会发生这种现象？</strong>从本质上讲，LLM的运作机制受到其认知负荷的限制。当一个任务包含多重指令和冲突约束时，模型需要在一个生成周期内同时优化所有的目标。这种多线程的压力导致了上述的种种失效。</p>
+
+      <h2>第一性原理推导：分而治之（Divide-and-Conquer）</h2>
+      <p>如果我们放弃"毕其功于一役"的幻想，回归到计算机科学最古老、最有效的解决问题策略——<strong>分而治之（Divide-and-Conquer）</strong>，问题就迎刃而解了。</p>
+      <p>提示链的核心思想，就是<strong>将一个原始的、令人生畏的复杂问题，分解为一系列更小、更易于管理的子问题</strong>。我们不再期望LLM一步到位，而是为每一个子问题设计一个专门的提示词，并将前一个提示词的输出，战略性地作为输入喂给下一个提示词。</p>
+      <p><strong>为什么"分而治之"对LLM有效？</strong>因为这种串行处理技术在与LLM的交互中引入了<strong>模块化（Modularity）</strong>和<strong>清晰度（Clarity）</strong>。分解任务后，每一个步骤都可以被极其精细地打磨和优化，使其只专注于更大问题中的某一个特定方面。这就极大地降低了模型在单一生成周期内的认知负荷，使得最终输出更加准确、可靠。</p>
+
+      <h2>核心概念详解：构建依赖链条</h2>
+      <p>理解了为什么要拆分，我们来看提示链的核心运行机制。</p>
+
+      <h3>1. 状态传递与依赖链（Dependency Chain）</h3>
+      <p>提示链最关键的动作是：<strong>上一步的输出作为下一步的输入</strong>。这种信息的传递建立了一个依赖链（这就是它被称为"链"的原因），在这个链条中，前序操作的上下文和结果会指导后续的处理。这种机制允许LLM在它自己之前的工作基础上继续构建，不断提炼它的理解，并逐步逼近最终的期望解。它使得长程推理成为了可能。</p>
+
+      <h3>2. 角色化隔离（Role Isolation）</h3>
+      <p>为了确保每个特定任务得到准确的响应，我们可以在链条的不同阶段为模型分配完全不同的"角色"。在引言的市场分析场景中，我们可以这样拆分：</p>
+      <ul>
+        <li><strong>步骤 1（角色：市场分析师）：</strong>目标纯粹是总结关键发现。提示词："总结以下市场研究报告的关键发现：[文本]"</li>
+        <li><strong>步骤 2（角色：行业分析师）：</strong>目标是基于验证过的总结提取趋势。提示词："利用该摘要，识别前三大新兴趋势，并提取支撑每个趋势的具体数据点：[步骤1的输出]"</li>
+        <li><strong>步骤 3（角色：资深文档撰写专家）：</strong>目标是撰写邮件。提示词："起草一封简明的邮件给营销团队，概述以下趋势及其支撑数据：[步骤2的输出]"</li>
+      </ul>
+      <p>为什么角色化如此重要？因为每一个步骤现在变得更简单、更少歧义。我们为模型缩小了搜寻解的空间，这好比计算流水线中，每个函数在将结果传递给下一个函数之前，只执行一个非常具体的操作。</p>
+
+      <h3>3. 语境工程的升维（Context Engineering）</h3>
+      <p>提示链不仅仅是连接提示词，它本质上是<strong>语境工程（Context Engineering）</strong>的体现。语境工程是一门系统性的学科，旨在在模型生成Token之前，为其构建一个完整的信息环境。传统提示工程只关注调整用户的直接查询，而语境工程则包括系统提示词、通过检索增强（RAG）获取的外部文档、工具调用的输出结果，以及隐含数据（如用户交互历史）。</p>
+      <p>为什么这很重要？因为<strong>模型输出的质量，与其说是依赖于模型本身的架构，不如说是依赖于提供给它的语境（Context）的丰富程度</strong>。即使是最先进的模型，在面对有限或构建不当的操作环境时也会表现不佳。提示链允许我们在每一步精确地控制和注入当前步骤所需的最优语境。</p>
+
+      <h2>关键机制分析：如何确保链条不崩塌</h2>
+      <h3>结构化输出（Structured Output）的绝对必要性</h3>
+      <p>提示链的可靠性高度依赖于步骤之间传递的数据的完整性。如果上一个提示词的输出包含模棱两可的自然语言废话，下一个提示词的解析器可能就会崩溃。<strong>必须强制规定结构化的输出格式，如 JSON 或 XML</strong>。例如，趋势识别步骤的输出应该严格格式化为一个JSON对象：</p>
+      <pre>{
+  "trends": [
+    {
+      "trend_name": "AI-Powered Personalization",
+      "supporting_data": "73% of consumers prefer..."
+    }
+  ]
+}</pre>
+      <p>为什么必须用JSON？因为这种结构化格式能确保数据是<strong>机器可读</strong>的，可以被毫不含糊地精确解析并插入到下一个提示词中。这一实践最大限度地减少了因解释自然语言而产生的错误，是构建健壮的多步LLM系统的关键组件。</p>
+
+      <h3>外部工具和知识库的融合</h3>
+      <p>提示链不仅是为了拆解问题，它还解锁了LLM整合外部知识和工具的能力。在链条的每一个步骤，LLM都可以被指令去与外部系统、API或数据库交互。例如在解决复杂的OCR（光学字符识别）发票提取时：</p>
+      <ol>
+        <li><strong>提取：</strong>LLM从文档图像中提取原始文本。</li>
+        <li><strong>归一化：</strong>LLM将自然语言数字（如"一千零五十"）转换为纯数字（1050）。</li>
+        <li><strong>计算（外部工具）：</strong>因为LLM在精确数学计算上存在明显短板，系统在此步骤将算术运算委托给外部计算器工具。LLM把提取的数字传给计算器，并获取精确结果。</li>
+      </ol>
+
+      <h2>框架实战代码示例：LangChain实现</h2>
+      <p>在实际工程中，实现提示链的手段从最简单的脚本中顺序函数调用，到利用专门管理控制流、状态和组件集成的专业框架（如LangChain, LangGraph, Crew AI, Google ADK等）。下面我们使用 LangChain 和其表达式语言 (LCEL) 构建一个基础的线性数据处理流水线。这个流水线包含两步：第一步从非结构化文本中提取技术规格；第二步将提取出的信息转化为结构化的JSON数据。</p>
+      <pre>import os
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+# 初始化大语言模型
+llm = ChatOpenAI(temperature=0)
+
+# --- 步骤 1: 提取信息的提示词 ---
+prompt_extract = ChatPromptTemplate.from_template(
+    "Extract the technical specifications from the following text:\n\n{text_input}"
+)
+
+# --- 步骤 2: 转换为JSON的提示词 ---
+prompt_transform = ChatPromptTemplate.from_template(
+    "Transform the following specifications into a JSON object with 'cpu', 'memory', and 'storage' as keys:\n\n{specifications}"
+)
+
+# --- 使用 LCEL 构建提示链 ---
+extraction_chain = prompt_extract | llm | StrOutputParser()
+
+full_chain = (
+    {"specifications": extraction_chain}
+    | prompt_transform
+    | llm
+    | StrOutputParser()
+)
+
+# --- 运行提示链 ---
+input_text = "The new laptop model features a 3.5 GHz octa-core processor, 16GB of RAM, and a 1TB NVMe SSD."
+
+final_result = full_chain.invoke({"text_input": input_text})
+
+print("\n--- Final JSON Output ---")
+print(final_result)</pre>
+      <p>在这段代码中，<code>StrOutputParser</code>确保了从大模型出来的<code>Message</code>对象被剥离成干净、可用的字符串格式，以供下一步无缝使用。LangChain 表达式语言 (LCEL) 巧妙地使用管道操作符 <code>|</code>，将这些提示词和模型连接起来。</p>
+
+      <h2>决策指南与最佳实践：何时使用该模式？</h2>
+      <p>提示链模式是构建智能体（Agentic Systems）的基础。以下是一套实用的决策指南，告诉你何时应当引入提示链：</p>
+      <ol>
+        <li><strong>复杂查询的解答：</strong>当用户问题需要多步推理时，将查询分解为子问题分别检索再综合。</li>
+        <li><strong>内容生成工作流：</strong>复杂长文写作应该模仿人类写作流程：生成想法 → 提纲设计 → 逐段撰写 → 整体审稿与润色。</li>
+        <li><strong>代码生成与重构：</strong>编写代码是典型的多阶段过程：生成伪代码 → 撰写初稿 → 识别错误 → 重写修复 → 添加测试用例。</li>
+        <li><strong>多模态与多步推理：</strong>处理带有文本、标注和图表的图片时，需要分解步骤逐步处理。</li>
+        <li><strong>维持对话连贯性：</strong>对话机器人利用提示链将每一个对话轮次结构化，提取意图 → 更新状态 → 生成响应。</li>
+      </ol>
+      <p><strong>最佳实践：混合计算工作流（并行+串行）</strong>在自动化研究场景中，提取多篇文章信息的任务可以<strong>并行处理</strong>以最大化效率。但是，随后的综合整理必然是<strong>串行的</strong>：系统必须先合并数据，然后合成草稿，最后进行审查。最高效的系统经常将并行数据收集与用于合成和精炼的串行提示链结合起来使用。</p>
+
+      <h2>常见陷阱</h2>
+      <ol>
+        <li><strong>容错处理缺失：</strong>在数据提取任务中，如果第一步失败了怎么办？不能盲目进入第二步。必须加入条件判断：如果发现所需字段丢失或格式畸形，应当触发一个带有上下文的条件提示词，让模型专门去寻找缺失的信息，并重新验证。</li>
+        <li><strong>忽略反馈循环（Feedback Loops）：</strong>在高级的语境工程中，不能只写死一条链。应使用专业系统，系统化地评估模型的输出，并对提示词和系统指令进行结构化的调优反馈，以适应不同模型的特性。</li>
+      </ol>
+
+      <h2>总结</h2>
+      <p>从将指令一锅乱炖的"单一提示词"，进化到逻辑严密的"提示链"，标志着大模型应用开发从"玄学调参"向<strong>严谨工程的转变</strong>。</p>
+      <p>提示链（Pipeline模式）绝不仅仅是将问题打碎这么简单。它是一种核心的架构范式：通过分配具体的角色、强制结构化的数据流动、集成外部确定的工具，从而大幅度降低语言模型在单一节点的认知负荷。</p>
+      <p>这种"分而治之"的策略不仅提高了输出的可靠性和控制力，更是让无状态的聊天机器人蜕变为具备多步规划、环境感知和执行复杂工作流能力的智能体（AI Agents）的关键基石。对于任何致力于开发高价值、生产级AI应用的开发者来说，精通提示链及其背后的语境工程思想，是不可或缺的必修课。</p>
+    </article>
+  </div>
+</div>
+
 <div class="footer">
   <p>第一章 · 提示链（Prompt Chaining）· 交互式学习体验</p>
 </div>
@@ -1080,7 +1254,7 @@ function go(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   window.scrollTo({ top: document.getElementById('navbar').offsetTop - 10, behavior: 'smooth' });
 }
 
