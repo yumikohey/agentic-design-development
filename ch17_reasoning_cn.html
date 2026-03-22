@@ -466,6 +466,170 @@ root_agent = Agent(
   </ul>
 </div>
 
+<!-- 媒体资源 -->
+<section id="sec-media" class="section">
+  <h2 class="sec-title">媒体资源</h2>
+  <p class="sec-desc">由 NotebookLM AI 生成的多媒体学习资源——深度音频讲解、视频概览，以及 Karpathy 第一性原理风格的技术博客。</p>
+
+  <div class="media-card">
+    <div class="media-badge">🎧 深度音频</div>
+    <h3>第十七章：推理技术 · 中文深度讲解</h3>
+    <p class="media-desc">由 NotebookLM 基于原文生成的简体中文深度音频，系统讲解本章核心原理与关键概念。</p>
+    <audio controls>
+      <source src="./media/ch17_reasoning_audio.mp3" type="audio/mpeg">
+      您的浏览器不支持音频播放。
+    </audio>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">🎬 视频讲解</div>
+    <h3>第十七章：推理技术 · 视觉化讲解</h3>
+    <p class="media-desc">由 NotebookLM 生成的视频概览，以视觉化方式呈现本章核心概念与设计模式。</p>
+    <div style="background:var(--bg3);border-radius:var(--radius);padding:2rem;text-align:center;">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;">视频需登录 Google 账号查看</p>
+      <a href="https://notebooklm.google.com/notebook/e3d27f71-24a7-4668-9096-c22526f59106" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;">
+        在 NotebookLM 中观看视频 →
+      </a>
+    </div>
+  </div>
+
+  <div class="media-card">
+    <div class="media-badge">📝 深度博客</div>
+    <h3>从第一性原理理解第十七章：推理技术</h3>
+    <p class="media-desc">由 NotebookLM 生成，采用 Andrej Karpathy 的第一性原理教学风格，从零推导本章核心设计模式。</p>
+    <hr class="blog-divider">
+    <article class="blog-post">
+      <h2>深度剖析AI推理设计模式：从第一性原理构建Agent的大脑</h2>
+
+      <h3>引言：当我们向AI提出"不可能的任务"时，痛点在哪里？</h3>
+      <p>想象一下这样的场景：你要求一个大型语言模型（LLM）"分析过去十年电动汽车的发展对全球碳排放的综合影响，对比传统燃油车，并预测未来五年的政策走向"。如果你使用标准的提示词，模型大概率会在几秒钟内吐出一篇看似连贯，实则缺乏深度、充满事实错误或逻辑断层的文章。</p>
+      <p>为什么会这样？因为<strong>复杂问题的解决通常需要的不只是一个单一的、直接的答案，这对AI构成了巨大的挑战</strong>。当面对需要逻辑推理、任务拆解和战略规划的多步任务时，如果没有结构化的方法，AI Agent往往无法处理这些错综复杂的细节，导致得出不准确或不完整的结论。</p>
+
+      <h3>问题陈述：突破"单次预测"的局限</h3>
+      <p>传统生成式模型的工作方式是"读完提示词，直接生成最终答案"。然而，这种简单的顺序操作已经无法满足智能体的高级推理需求。复杂任务（如复杂的问答、数学求解、代码调试、战略规划和医疗诊断）需要模型能够整合不同来源的数据、执行逻辑推导，并在必要时探索多条推理路径。</p>
+      <p>问题的核心在于：<strong>如何让AI的内在推理过程显式化，使其能够分解问题、考虑中间步骤，并得出更稳健、更准确的结论？</strong></p>
+
+      <h3>第一性原理推导：从"预测下一个Token"到"推理扩展定律"</h3>
+      <p>要理解现代AI的推理模式，我们必须回到第一性原理：<strong>LLM本质上是一个基于概率的"下一个Token预测器"</strong>。</p>
+      <p>当你问一个极其复杂的问题时，要求模型立即预测出答案的第一个Token，无异于要求人类在大脑中瞬间完成复杂的微积分运算而不许用草稿纸。</p>
+      <p>那么，如何破解这个物理和架构上的限制？答案是：<strong>在推理（Inference）阶段分配更多的计算资源</strong>。这就是贯穿所有高级推理技术的<strong>推理扩展定律（Scaling Inference Law）</strong>。</p>
+      <p>这一定律指出，模型性能的提升不仅依赖于训练阶段的数据和算力，还可以通过在模型运行阶段增加计算资源来预测性地提高。这意味着，与其让模型进行快速的单次生成，不如赋予模型一个<strong>"思考预算"（Thinking Budget）</strong>，让它进行迭代微调、探索多个解决路径或使用外部工具。</p>
+      <p><strong>为什么这至关重要？</strong>研究表明，如果给予较小模型大量的"思考预算"（即更多推理步骤），它在表现上甚至能超越那些采用简单生成过程的巨大模型。这打破了"模型越大越好"的迷思。</p>
+
+      <h3>核心概念详解：构建Agent大脑的思维乐高</h3>
+
+      <h3>1. 思维链（Chain-of-Thought, CoT）：赋予AI"内部独白"</h3>
+      <p>CoT促使模型生成一系列中间推理步骤，而不是直接给出答案。<strong>为什么需要它：</strong>复杂的单步问题对LLM来说概率空间太大，容易出错。CoT通过将复杂目标分解为一系列可管理的操作，将一个极难的单步问题转化为多个简单的子问题。每生成一个中间Token，模型就相当于把计算结果放回了上下文窗口，这就如同给了模型一张"草稿纸"，大大增加了模型决策的透明度和准确性。</p>
+
+      <h3>2. 思维树（Tree-of-Thought, ToT）与自我纠错（Self-Correction）</h3>
+      <p><strong>为什么CoT还不够：</strong>CoT是线性的。如果模型在第一步做出了错误的假设，后续的推理就会全盘崩溃。</p>
+      <p><strong>ToT的机制：</strong>ToT建立在CoT之上，允许模型通过分支进入不同的中间步骤来探索多条推理路径，形成树状结构。维护一棵可能性之树，让模型在最终确定答案前评估各种轨迹，支持了回溯（Backtracking）和替代方案的探索。</p>
+      <p><strong>自我纠错（Self-Correction）：</strong>模型会审查自己生成的内容和中间思考，识别歧义、信息空白或事实错误。它在交付最终输出前建立了一个迭代的"审查-优化"循环，本质上是将质量控制环节直接嵌入到了生成过程中。</p>
+
+      <h3>3. 编程式语言模型（PALMs）：引入确定性计算</h3>
+      <p>LLM本质上是概率模型，在处理严谨的符号逻辑、复杂数学时常常出现"幻觉"。PALMs将LLM与符号推理能力结合，允许模型编写并执行Python等代码来解决问题。遇到算术题，模型不再去"猜"答案，而是写一段代码去"算"答案，从而极大地提高了可靠性。</p>
+
+      <h3>4. 可验证奖励强化学习（RLVR）：让模型自主进化出长思考</h3>
+      <p>标准的CoT通常产生的是一种预设长度、相对固定的思维链，无法根据问题的难度动态调整。RLVR是一种革命性的训练策略（如OpenAI o1系列所采用）。通过在具有已知正确答案的任务（如数学、编程）上进行试错训练，模型学会了自主生成长达数千个Token的动态"思维链"，并演化出诸如规划、监控和自我纠错等高级技能。</p>
+
+      <h3>5. 辩论网络（CoD &amp; GoD）：多智能体的集体智慧</h3>
+      <p>单个Agent容易陷入自我验证的偏见。思维辩论（CoD）允许多个模型协作并相互辩论，类似于AI委员会会议；辩论图（GoD）进一步将其重塑为动态的非线性网络，论点作为节点，连接线代表"支持"或"反驳"。通过寻找图中获得最强支撑的论点集群，多智能体系统能够大幅减少偏差，得出更稳健的结论。</p>
+
+      <h3>关键机制分析：ReAct——连接"思考"与"现实世界"</h3>
+      <p>仅仅在脑海中思考是不够的。<strong>ReAct (Reasoning and Acting)</strong>框架将CoT的内部推理与Agent通过工具与外部环境交互的能力结合了起来。它的核心工作机制是一个<strong>"思考-行动-观察" (Thought-Action-Observation) 的闭环</strong>：</p>
+      <ol>
+        <li><strong>思考 (Thought)：</strong>Agent首先生成文本形式的想法，分解问题或分析现状。这让推理过程透明且可引导。</li>
+        <li><strong>行动 (Action)：</strong>基于思考，Agent从预定义的工具库中选择一个动作（例如：搜索网络、查询数据库、执行代码）。</li>
+        <li><strong>观察 (Observation)：</strong>Agent接收来自环境的反馈（例如：搜索结果网页的内容）。</li>
+      </ol>
+      <p>这个循环不断迭代，每一次观察都会成为下一次思考的上下文输入，直到Agent认为已经收集到足够的信息并输出最终答案。</p>
+
+      <h3>框架实战代码示例</h3>
+
+      <h3>示例 1：利用Google ADK组合搜索与编程Agent</h3>
+      <pre>from google.adk.tools import agent_tool
+from google.adk.agents import Agent
+from google.adk.tools import google_search
+from google.adk.code_executors import BuiltInCodeExecutor
+
+# 专门负责互联网检索的Agent
+search_agent = Agent(
+    model='gemini-2.0-flash',
+    name='SearchAgent',
+    instruction="You're a specialist in Google Search",
+    tools=[google_search],
+)
+
+# 专门负责运行确定性代码的Agent (PALMs模式的体现)
+coding_agent = Agent(
+    model='gemini-2.0-flash',
+    name='CodeAgent',
+    instruction="You're a specialist in Code Execution",
+    code_executor=[BuiltInCodeExecutor],
+)
+
+# 负责高层规划和工具分发的根Agent (ReAct模式的指挥官)
+root_agent = Agent(
+    name="RootAgent",
+    model="gemini-2.0-flash",
+    description="Root Agent",
+    tools=[agent_tool.AgentTool(agent=search_agent), agent_tool.AgentTool(agent=coding_agent)],
+)</pre>
+
+      <h3>示例 2：LangGraph中的"深度研究"状态机</h3>
+      <pre>from langgraph.graph import StateGraph, START, END
+
+# 创建Agent状态图
+builder = StateGraph(OverallState, config_schema=Configuration)
+
+# 定义处理节点
+builder.add_node("generate_query", generate_query)
+builder.add_node("web_research", web_research)
+builder.add_node("reflection", reflection)   # 自我纠错与反思机制的核心
+builder.add_node("finalize_answer", finalize_answer)
+
+# 图的边流转
+builder.add_edge(START, "generate_query")
+
+# 生成查询后并行进行网络研究
+builder.add_conditional_edges(
+    "generate_query", continue_to_web_research, ["web_research"]
+)
+
+# ReAct循环：研究完毕后必须进行反思
+builder.add_edge("web_research", "reflection")
+
+# 关键决策点：如果反思发现信息不足，重新回到web_research；否则走向最终答案
+builder.add_conditional_edges(
+    "reflection", evaluate_research, ["web_research", "finalize_answer"]
+)
+
+builder.add_edge("finalize_answer", END)
+graph = builder.compile(name="pro-search-agent")</pre>
+
+      <h3>决策指南与MASS最佳实践</h3>
+      <p><strong>何时使用这些高级推理模式？</strong>如果一个问题过于复杂，无法一次性得出答案，且需要任务分解、多步逻辑、与外部数据源或工具交互，或是需要进行战略调整时，就必须引入这些推理技术。当展示"推导过程"与最终答案同等重要时，这也是最理想的选择。</p>
+      <p><strong>MASS（多智能体系统搜索）最佳实践：</strong></p>
+      <ol>
+        <li><strong>Block-Level提示词优化：</strong>在组合Agent之前，先局部优化单个Agent的提示词。确保每个积木本身是坚固的，避免由于底层Agent性能低下而引发复合灾难。</li>
+        <li><strong>工作流拓扑优化：</strong>Agent之间的连接方式极大地影响性能。使用"影响加权"法计算哪种组合收益最高。</li>
+        <li><strong>Workflow-Level联合优化：</strong>在确定拓扑后，对整个系统的提示词作为单一实体进行全局微调，以理顺Agent之间的依赖关系。</li>
+      </ol>
+
+      <h3>常见陷阱</h3>
+      <ol>
+        <li><strong>迷信"大力出奇迹"，忽视"推理预算"：</strong>很多开发者一遇到问题就想换用参数量更大的基础模型，这会导致极高的部署和延迟成本。利用自我一致性生成多个候选答案再进行过滤，或利用小模型配合长流程的ReAct架构，往往能在成本和性能上取得更好的平衡。</li>
+        <li><strong>滥用"思考"导致过度延迟：</strong>Agent的想法频率应根据任务动态调整。对于知识密集型任务（如事实核查），应该步步思考；而对于需要在环境中大量移动的任务，过度思考会导致瘫痪，此时应当稀疏化思考逻辑。</li>
+      </ol>
+
+      <h3>总结：迈向真正的自主自治</h3>
+      <p>AI正在经历从"被动响应的工具"向"能够通过结构化推理解决复杂目标的自主智能体"的深刻演变。</p>
+      <p>这一演变始于CoT赋予模型的<strong>内部独白</strong>，使在行动前制定连贯计划成为可能；通过自我纠错和ToT，模型获得了<strong>深度审议</strong>的能力；随后，ReAct框架打通了<strong>虚拟与现实的桥梁</strong>，让思维、行动与观察形成动态闭环；最后，在推理扩展定律和CoD多智能体框架的驱动下，我们看到了Deep Research等应用展现出的惊人潜力——AI真正可以代表用户执行复杂、长期的跨天任务。</p>
+      <p>通过从第一性原理出发，将显式的推理计算与外部行动的权力紧密结合，我们正在重塑AI的边界。未来的开发不再仅仅是"训练模型"，而是像设计精密的大脑回路一样，去"架构思考的轨迹"。</p>
+    </article>
+  </div>
+</section>
+
 <div class="footer"><p>第十七章 · 推理技术 · 交互式学习体验</p></div>
 </div>
 <script>
